@@ -1,0 +1,26 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --color-night: #0b0e14;
+  --color-panel: #131a29;
+  --color-edge: #242d42;
+  --color-ink: #e7e9ee;
+  --color-muted: #8b93a7;
+  --color-accent: #fbbf24;
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-hand: var(--font-caveat);
+}
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--color-night);
+  color: var(--color-ink);
+}

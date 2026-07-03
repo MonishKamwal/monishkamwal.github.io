@@ -1,0 +1,65 @@
+export const metadata = {
+  title: "001 · Planning the platform",
+  description:
+    "Two repos, one QuickDraw model, a $200 budget — the decisions behind the MLOps platform.",
+};
+
+# 001 · Planning the platform
+
+<p><em>2026-07-02 · Phase 0 — Foundations</em></p>
+
+Every project page on this site will end with links to proof: a CI run, a
+Terraform plan, a drift report. This first entry has no artifacts yet — it's
+about the decisions that everything else will be built on.
+
+## The shape of the thing
+
+Two repos. [`mlops`](https://github.com/MonishKamwal/mlops) is the platform:
+data versioning, training pipeline, registry, serving, infrastructure. This
+site is the frontend and evidence hub. The full plan lives in
+[`PLAN.md`](https://github.com/MonishKamwal/mlops/blob/main/PLAN.md) — four
+strictly sequential phases, each one ending with something demoable.
+
+The ML problem is deliberately small: classify hand-drawn sketches from
+15 [QuickDraw](https://quickdraw.withgoogle.com/data) classes. A tiny CNN
+that trains in minutes on a free CI runner. That's the point — the model is
+the least interesting part of an ML system, and this project is about the
+system.
+
+## Decisions that survived contact with the budget
+
+The whole platform has to run on AWS free tier plus ~$100–200 of credits.
+That constraint made most decisions for me:
+
+- **Inference on Lambda, not Hugging Face Spaces.** A container-image Lambda
+  behind a Function URL scales to zero, sits in the always-free tier at
+  portfolio traffic, handles CORS natively, and is managed by the same
+  Terraform as everything else. Spaces would have been easier — and would
+  have split the infrastructure story across two providers.
+- **One image, two runtimes.** The same FastAPI container serves on Lambda
+  (via the AWS Lambda Web Adapter) and on Kubernetes. No code fork between
+  the free tier and the demo tier.
+- **MLflow without a server.** SQLite backend, state synced to S3, a single
+  CI writer, and runs exported to static HTML for the evidence hub. The real
+  Model Registry, zero always-on cost.
+- **Kubernetes that deletes itself.** EKS is the expensive part, so it only
+  exists for ~90 minutes a week: Terraform builds it, Helm deploys the model,
+  k6 load-tests it, the evidence is published, and then it's destroyed — with
+  a scheduled failsafe destroyer behind it, because a leaked cluster would
+  eat the entire budget in a couple of weeks.
+
+## What I deliberately didn't do
+
+No always-on dashboard servers (everything renders to static HTML). No
+Great Expectations (Pandera does the job at a tenth of the setup). No
+API Gateway (a Function URL is free and sufficient). No git-flow — trunk-based
+with a required CI check is plenty for a team of one.
+
+## What's next
+
+Phase 0: budgets and billing alarms *before* any infrastructure exists, the
+persistent Terraform root (S3, ECR, IAM via GitHub OIDC), and this site's
+walking skeleton — which, if you're reading this, is already live.
+
+Then Phase 1: the canvas on the home page stops mocking and starts talking
+to a real model.
