@@ -10,7 +10,7 @@ const pillars = [
   {
     title: "Gate & deploy",
     body: "A quality gate compares challenger vs champion — regressions never ship. Winners land on a scale-to-zero Lambda.",
-    phase: "Phase 1–2 · planned",
+    phase: "Lambda live · gate planned",
   },
   {
     title: "Ephemeral Kubernetes",
@@ -30,7 +30,7 @@ export default function Home() {
       <section className="mx-auto max-w-5xl px-6 pb-8 pt-20 sm:pt-28">
         <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-edge bg-panel px-3 py-1 text-xs text-muted">
           <span className="h-2 w-2 rounded-full bg-accent" aria-hidden />
-          Phase 0 · Foundations — building in public
+          Phase 1 · Walking skeleton — the model below is live
         </p>
         <h1 className="max-w-3xl text-4xl font-semibold leading-tight sm:text-5xl">
           I build machine-learning systems{" "}

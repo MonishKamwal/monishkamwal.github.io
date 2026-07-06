@@ -4,7 +4,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   CANVAS_SIZE,
   QUICKDRAW_CLASSES,
+  fetchModelInfo,
   predictSketch,
+  type ModelInfo,
   type Point,
   type PredictResult,
   type Stroke,
@@ -14,6 +16,11 @@ const INK = "#1c2130";
 const PAPER = "#fdfdfc";
 const LINE_WIDTH = 6;
 const PREDICT_DEBOUNCE_MS = 350;
+// A warm Lambda answers in well under a second; anything slower than this is
+// almost certainly a cold start, so the UI switches to the "waking up" story.
+const WAKE_HINT_MS = 2000;
+
+type ApiStatus = "warming" | "ready" | "down";
 
 export default function SketchDemo() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -24,8 +31,31 @@ export default function SketchDemo() {
 
   const [strokeCount, setStrokeCount] = useState(0);
   const [thinking, setThinking] = useState(false);
+  const [waking, setWaking] = useState(false);
   const [result, setResult] = useState<PredictResult | null>(null);
   const [error, setError] = useState(false);
+  const [modelInfo, setModelInfo] = useState<ModelInfo | null>(null);
+  const [apiStatus, setApiStatus] = useState<ApiStatus>("warming");
+
+  // Warm-up ping on page load: Lambda scales to zero between visitors, and the
+  // first request pays the cold start. Fetching /model-info now means the boot
+  // usually happens while the visitor is still reading — and it returns the
+  // live class list + model identity as a bonus.
+  useEffect(() => {
+    let cancelled = false;
+    fetchModelInfo()
+      .then((info) => {
+        if (cancelled) return;
+        setModelInfo(info);
+        setApiStatus("ready");
+      })
+      .catch(() => {
+        if (!cancelled) setApiStatus("down");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const redraw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -81,13 +111,23 @@ export default function SketchDemo() {
     timerRef.current = setTimeout(async () => {
       setThinking(true);
       setError(false);
+      const wakeTimer = setTimeout(() => {
+        if (generationRef.current === generation) setWaking(true);
+      }, WAKE_HINT_MS);
       try {
         const res = await predictSketch(strokesRef.current);
-        if (generationRef.current === generation) setResult(res);
+        if (generationRef.current === generation) {
+          setResult(res);
+          setApiStatus("ready"); // a successful predict beats a failed warm-up
+        }
       } catch {
         if (generationRef.current === generation) setError(true);
       } finally {
-        if (generationRef.current === generation) setThinking(false);
+        clearTimeout(wakeTimer);
+        if (generationRef.current === generation) {
+          setThinking(false);
+          setWaking(false);
+        }
       }
     }, PREDICT_DEBOUNCE_MS);
   }, []);
@@ -145,6 +185,25 @@ export default function SketchDemo() {
     redraw();
   };
 
+  // Prefer the live class list (/model-info) so the prompt can never drift from
+  // what the deployed model actually knows; fall back while it loads.
+  const classes = modelInfo?.classes ?? QUICKDRAW_CLASSES;
+
+  const statusChip = {
+    warming: {
+      style: "border-accent/40 bg-accent/10 text-accent animate-pulse",
+      text: "Warming up the model — it scales to zero between visitors…",
+    },
+    ready: {
+      style: "border-emerald-400/40 bg-emerald-400/10 text-emerald-300",
+      text: "Live — drawings hit a real model on a scale-to-zero AWS Lambda.",
+    },
+    down: {
+      style: "border-red-400/40 bg-red-400/10 text-red-300",
+      text: "Model API unreachable — predictions won't work right now.",
+    },
+  }[apiStatus];
+
   return (
     <section id="demo" className="mx-auto max-w-5xl scroll-mt-20 px-6 py-16">
       <div className="mb-8">
@@ -155,8 +214,8 @@ export default function SketchDemo() {
           </span>
         </h2>
         <p className="mt-2 max-w-2xl text-sm text-muted">
-          Try one of the {QUICKDRAW_CLASSES.length} things it knows:{" "}
-          {QUICKDRAW_CLASSES.slice(0, 8).join(", ")}…
+          Try one of the {classes.length} things it knows:{" "}
+          {classes.slice(0, 8).join(", ")}…
         </p>
       </div>
 
@@ -191,9 +250,11 @@ export default function SketchDemo() {
         </div>
 
         <div className="flex flex-col gap-4">
-          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs text-accent">
-            <span aria-hidden>⚠</span> Demo mode — predictions are mocked. The
-            real model API ships in Phase 1.
+          <div
+            className={`inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1 text-xs ${statusChip.style}`}
+          >
+            <span className="h-2 w-2 rounded-full bg-current" aria-hidden />
+            {statusChip.text}
           </div>
 
           <div className="min-h-[180px] rounded-xl border border-edge bg-panel p-5">
@@ -203,14 +264,14 @@ export default function SketchDemo() {
               </p>
             ) : result ? (
               <div className="flex flex-col gap-3">
-                {result.predictions.map((p, i) => (
+                {result.predictions.slice(0, 3).map((p, i) => (
                   <div key={p.label}>
                     <div className="mb-1 flex justify-between text-sm">
                       <span className={i === 0 ? "font-medium text-ink" : "text-muted"}>
                         {p.label}
                       </span>
                       <span className="font-mono text-xs text-muted">
-                        {(p.confidence * 100).toFixed(1)}%
+                        {(p.probability * 100).toFixed(1)}%
                       </span>
                     </div>
                     <div className="h-2 overflow-hidden rounded-full bg-night">
@@ -218,18 +279,30 @@ export default function SketchDemo() {
                         className={`h-full rounded-full transition-all duration-500 ${
                           i === 0 ? "bg-accent" : "bg-edge"
                         }`}
-                        style={{ width: `${Math.max(2, p.confidence * 100)}%` }}
+                        style={{ width: `${Math.max(2, p.probability * 100)}%` }}
                       />
                     </div>
                   </div>
                 ))}
                 <p className="mt-1 font-mono text-xs text-muted">
-                  model: {result.modelVersion}
-                  {thinking && " · thinking…"}
+                  {modelInfo
+                    ? `model ${modelInfo.model_sha256.slice(0, 8)} · val acc ${(
+                        modelInfo.val_accuracy * 100
+                      ).toFixed(1)}%`
+                    : "model: live"}
+                  {thinking &&
+                    (waking ? " · waking the model (cold start)…" : " · thinking…")}
                 </p>
               </div>
             ) : thinking ? (
-              <p className="animate-pulse text-sm text-muted">hmm…</p>
+              waking ? (
+                <p className="animate-pulse text-sm text-muted">
+                  The model is waking up — it scales to zero between visitors.
+                  That&apos;s the point 😉 First guess lands in a few seconds.
+                </p>
+              ) : (
+                <p className="animate-pulse text-sm text-muted">hmm…</p>
+              )
             ) : (
               <p className="text-sm text-muted">
                 Your masterpiece will be judged here.
@@ -238,8 +311,10 @@ export default function SketchDemo() {
           </div>
 
           <p className="text-xs text-muted">
-            When the real API is live, drawings are logged anonymously and feed
-            the platform&apos;s drift monitoring — that&apos;s the whole point.
+            Drawings are anonymous — no accounts, no tracking. Next up:
+            predictions get logged (input digest, top guesses, latency — no
+            PII) to feed the platform&apos;s drift monitoring — that&apos;s the
+            whole point.
           </p>
         </div>
       </div>
