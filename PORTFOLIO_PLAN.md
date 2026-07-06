@@ -39,8 +39,11 @@ cross-repo tokens.
 
 - Draw area (pointer + touch), Clear / Undo, predict-on-pause (debounced ~400 ms) so guesses
   appear *while* drawing — this is the delight moment.
-- Sends **raw strokes + 280×280 PNG** to the API; all preprocessing is server-side (one code
-  path with training — see mlops PLAN.md §2).
+- Sends **raw strokes only**, in QuickDraw's native `[[xs],[ys]]` per-stroke format (decided at
+  build time, 2026-07-06: the API prefers strokes whenever both formats are present, so also
+  sending the PNG would be dead weight in every request). Raw canvas coordinates go as-is — the
+  server normalizes each drawing to its own bounding box. All preprocessing is server-side (one
+  code path with training — see mlops PLAN.md §2).
 - Top-3 predictions as animated confidence bars; prompt suggests what to draw ("try: cat,
   bicycle, umbrella…" from the live class list via `/model-info`).
 - **Cold-start UX:** fire a warm-up ping on page load; if predict is slow, show a friendly
