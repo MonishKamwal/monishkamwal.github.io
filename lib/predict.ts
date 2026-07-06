@@ -1,105 +1,83 @@
-// Client-side contract with the inference API.
+// Client-side contract with the inference API (mlops Phase 1, task 5).
 //
-// Phase 1 swap: set API_URL to the Lambda Function URL and predictSketch will
-// POST the raw strokes there. Until then every prediction is an honest mock.
+// The API is a FastAPI app on a scale-to-zero Lambda behind a Function URL.
+// CORS is owned by the Function URL (allowlist: this site + localhost:3000),
+// so the browser can call it directly — no proxy, no app-level CORS.
 
 export type Point = { x: number; y: number };
 export type Stroke = Point[];
 
-export type Prediction = { label: string; confidence: number };
+export type Prediction = { label: string; probability: number };
 
 export type PredictResult = {
-  predictions: Prediction[];
-  modelVersion: string;
-  mock: boolean;
+  predictions: Prediction[]; // every class, sorted by probability descending
+  source: "strokes" | "png"; // which input format the server used
 };
 
-// Logical drawing space; the API contract sends strokes in 0–280 coordinates
-// and all preprocessing down to the 28×28 model input happens server-side.
+export type ModelInfo = {
+  classes: string[];
+  val_accuracy: number;
+  model_sha256: string;
+  service_version: string;
+};
+
+// Logical drawing space for the canvas. The server normalizes every drawing to
+// its own bounding box before rasterizing, so the actual range never matters to
+// the model — this only defines the coordinate system the canvas draws in.
 export const CANVAS_SIZE = 280;
 
+// Fallback until /model-info answers (also the prompt while the model warms up).
 export const QUICKDRAW_CLASSES = [
-  "cat",
-  "dog",
-  "fish",
-  "bird",
+  "airplane",
   "apple",
   "banana",
-  "house",
-  "tree",
-  "car",
   "bicycle",
-  "airplane",
+  "bird",
+  "car",
+  "cat",
   "clock",
-  "star",
-  "umbrella",
+  "dog",
   "face",
-] as const;
+  "fish",
+  "house",
+  "star",
+  "tree",
+  "umbrella",
+];
 
-export const API_URL = ""; // Phase 1: https://<function-url>.lambda-url.<region>.on.aws
+// Changes only if the infra is rebuilt (mlops infra/persistent).
+export const API_URL =
+  "https://u4udjs3pbrr6xlaanmcpdb7bty0amoeh.lambda-url.us-east-2.on.aws";
+
+// The API speaks QuickDraw's native stroke shape: per stroke, two parallel
+// arrays [[x0, x1, ...], [y0, y1, ...]] — not point objects.
+function toQuickDrawStrokes(strokes: Stroke[]): number[][][] {
+  return strokes.map((stroke) => [
+    stroke.map((p) => p.x),
+    stroke.map((p) => p.y),
+  ]);
+}
 
 export async function predictSketch(strokes: Stroke[]): Promise<PredictResult> {
-  if (!API_URL) {
-    return mockPredict(strokes);
-  }
+  // Strokes only: the server prefers strokes over PNG when both are sent, so
+  // the PNG would be dead weight in every request.
   const res = await fetch(`${API_URL}/predict`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ strokes, canvas_size: CANVAS_SIZE }),
+    body: JSON.stringify({ strokes: toQuickDrawStrokes(strokes) }),
   });
   if (!res.ok) {
     throw new Error(`predict failed: ${res.status}`);
   }
-  return { ...(await res.json()), mock: false };
+  return res.json();
 }
 
-// Deterministic per drawing (seeded by its geometry) so repeated pauses over
-// the same sketch don't shuffle the "answer", but different sketches vary.
-function mockPredict(strokes: Stroke[]): Promise<PredictResult> {
-  const seed = strokes.reduce(
-    (acc, stroke) => acc + stroke.length * 31 + Math.round(pathLength(stroke)),
-    strokes.length * 7919,
-  );
-  const rand = mulberry32(seed);
-
-  const picks = [...QUICKDRAW_CLASSES]
-    .sort(() => rand() - 0.5)
-    .slice(0, 3);
-
-  const first = 0.35 + rand() * 0.45;
-  const second = (1 - first) * (0.35 + rand() * 0.4);
-  const third = (1 - first - second) * (0.4 + rand() * 0.5);
-  const confidences = [first, second, third];
-
-  const result: PredictResult = {
-    predictions: picks.map((label, i) => ({
-      label,
-      confidence: confidences[i],
-    })),
-    modelVersion: "mock-0.0.0",
-    mock: true,
-  };
-
-  const latency = 250 + rand() * 350;
-  return new Promise((resolve) => setTimeout(() => resolve(result), latency));
-}
-
-function pathLength(stroke: Stroke): number {
-  let length = 0;
-  for (let i = 1; i < stroke.length; i++) {
-    length += Math.hypot(
-      stroke[i].x - stroke[i - 1].x,
-      stroke[i].y - stroke[i - 1].y,
-    );
+// Fired on page load: doubles as the cold-start warm-up ping (the fetch itself
+// boots the Lambda) and returns the live class list + model identity to render.
+export async function fetchModelInfo(): Promise<ModelInfo> {
+  const res = await fetch(`${API_URL}/model-info`);
+  if (!res.ok) {
+    throw new Error(`model-info failed: ${res.status}`);
   }
-  return length;
-}
-
-function mulberry32(seed: number) {
-  return function () {
-    let t = (seed += 0x6d2b79f5);
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
+  return res.json();
 }
