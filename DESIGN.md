@@ -64,8 +64,8 @@ its **type character only — NOT its color**.
 - Display: high-contrast **couture/fashion serif**, ALL CAPS, with calligraphic **swash
   alternates** (curly `A` apex, swashy `M`/`R`, flourished terminals); dramatic thick↔thin.
   Closest free web match = **Fraunces**. This is the "type he loves."
-- Body: warm old-style **serif** (Lora / Newsreader character) — so he likes serif body too.
-- Utility: clean sans micro-labels/buttons, uppercase + letter-spaced.
+- Body: the template used a serif, but **we do not adopt this** — only the display/title
+  character is taken from Canva; body is Outfit sans (Stage 1).
 - Its monochrome palette is **explicitly not adopted** — palette comes from os.me (Stage 1).
 
 ### Convergence (the core identity)
@@ -98,16 +98,18 @@ around a **dramatic editorial serif**, with the **os.me light palette** for colo
   | Section accents (optional) | `#3f5286` `#6f9d7e` `#c2701f` `#b3637b` | os.me muted per-section set |
   | Error | `#ef4444` | `--destructive` |
 
-- **Type character — a high-contrast editorial/couture serif** (converged across all three
-  references). Working display face = **Fraunces** (OFL/free; high-contrast with swash/wonk
-  alternates) unless we license the exact Canva face.
+- **Type — editorial serif titles + Outfit sans everything else** (os.me's proven model):
+  - *Headers / titles only:* the high-contrast **editorial/couture serif** with swash
+    alternates (the Canva character). Working face = **Fraunces** (OFL) unless we license
+    the exact Canva face. May be set all-caps for section titles.
+  - *Everything else* — body, nav, buttons, data, code: **Outfit** (OFL sans; os.me's
+    choice). System monospace stack for code/metrics.
+  - The Canva reference is adopted for **titles only**, never body.
 
 ### Open (next to decide, in order)
 
-- [ ] **Body face: serif vs sans** — warm serif (Canva-style, e.g. Newsreader/Lora) vs a
-      clean sans (Outfit, os.me's choice). Genuine fork; sets the whole feel. ← _decide next_
+- [ ] Accent model: warm ochre `#c98a3a` only, vs os.me-style per-section muted accents. ← _decide next_
 - [ ] Confirm the display font: Fraunces vs identifying + licensing the actual Canva swash serif.
-- [ ] Accent model: warm ochre only, vs os.me-style per-section muted accents.
 - [ ] Motion language: os.me sticky-scroll expo reveals + occasional omswami rotation/blend
       moments — confirm the intensity.
 
@@ -130,6 +132,9 @@ One section at a time, each to a locked spec (content, layout, type, motion).
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-07-09** — Body face resolved: **Outfit sans** for all body/UI/data/code; the
+  Canva editorial serif is used for **headers/titles only** (os.me's serif-display +
+  Outfit-sans model). Type pairing locked.
 - **2026-07-09** — Canva screenshots decoded (`design_inspo/`): high-contrast couture
   swash serif. **Stage 1 locks:** light-mode only (dark deferred, optional); **palette =
   os.me light mode** (table above); **type character** from Canva/convergence = a
