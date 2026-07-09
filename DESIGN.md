@@ -59,28 +59,57 @@ the scale — warm/artistic with personality, à la omswami — over minimal/cal
 - Motion: slow `cubic-bezier(.22, .61, .36, 1)` transitions with subtle rotations
   (−12°, 7°) and `mix-blend-mode`.
 
-**Canva design** (font/text treatment liked, layout not) — login-gated; **screenshot +
-font name pending** as of 2026-07-09. Likely decides the display typeface.
+**Canva design** — photographer template (`design_inspo/`, decoded 2026-07-09). We take
+its **type character only — NOT its color**.
+- Display: high-contrast **couture/fashion serif**, ALL CAPS, with calligraphic **swash
+  alternates** (curly `A` apex, swashy `M`/`R`, flourished terminals); dramatic thick↔thin.
+  Closest free web match = **Fraunces**. This is the "type he loves."
+- Body: warm old-style **serif** (Lora / Newsreader character) — so he likes serif body too.
+- Utility: clean sans micro-labels/buttons, uppercase + letter-spaced.
+- Its monochrome palette is **explicitly not adopted** — palette comes from os.me (Stage 1).
+
+### Convergence (the core identity)
+
+All three references center on a **high-contrast, elegant display serif** — Nocturne
+Serif (os.me), Dahlia (omswami), swash couture serif (Canva). Settled: the site is built
+around a **dramatic editorial serif**, with the **os.me light palette** for color.
 
 ---
 
 ## Stage 1 — Overall look, feel & theme  _(IN PROGRESS)_
 
-Decisions to make here: the **theme** (light / dark / both), the **palette** (grounds,
-text, accent system), the **type pairing** (display + body + accent), and the **motion
-language**. Everything downstream inherits these.
+### Locked
 
-### Decisions
-- _none locked yet_
+- **Theme — light mode only** (2026-07-09). Dark mode is optional and **deferred** until
+  after the portfolio work is finished.
+- **Palette — os.me light mode.** Warmth comes from the serif type + a warm ochre accent,
+  **not** a cream ground (os.me's light ground is actually white).
 
-### Open questions
-- [ ] Canva screenshot + font name → sets the display typeface direction.
-- [ ] Light-first, dark-first, or both themes? (os.me does both, warm on each.)
-- [ ] Display serif: license-friendly stand-in for Nocturne/Dahlia (candidates:
-      Instrument Serif, Fraunces, Newsreader) vs. a licensed face.
-- [ ] Body sans: keep **Outfit** (os.me's choice, free) or alternative.
-- [ ] Accent model: single muted accent vs. os.me-style per-section accent set.
-- [ ] Warmth level: os.me warm-neutral vs. omswami warmer parchment/clay.
+  | Role | Hex | Notes |
+  |---|---|---|
+  | Page ground | `#ffffff` | `--background` |
+  | Muted surface | `#f5f5f5` | panels, `--muted` / `--secondary` / `--accent` |
+  | Hairline / input | `#e8e8e8` | `--border` |
+  | Primary text | `#0a0a0a` | `--foreground` (near-black, not pure) |
+  | Secondary text | `#828282` | `--muted-foreground` |
+  | Solid button | `#0a0a0a` bg / `#fafafa` text | `--primary` |
+  | **Warm accent** | `#c98a3a` | `--warm`; the one signature color |
+  | Warm accent soft / glow | `#e8b87e` / `#f4cc9e38` | hovers, glows |
+  | Section accents (optional) | `#3f5286` `#6f9d7e` `#c2701f` `#b3637b` | os.me muted per-section set |
+  | Error | `#ef4444` | `--destructive` |
+
+- **Type character — a high-contrast editorial/couture serif** (converged across all three
+  references). Working display face = **Fraunces** (OFL/free; high-contrast with swash/wonk
+  alternates) unless we license the exact Canva face.
+
+### Open (next to decide, in order)
+
+- [ ] **Body face: serif vs sans** — warm serif (Canva-style, e.g. Newsreader/Lora) vs a
+      clean sans (Outfit, os.me's choice). Genuine fork; sets the whole feel. ← _decide next_
+- [ ] Confirm the display font: Fraunces vs identifying + licensing the actual Canva swash serif.
+- [ ] Accent model: warm ochre only, vs os.me-style per-section muted accents.
+- [ ] Motion language: os.me sticky-scroll expo reveals + occasional omswami rotation/blend
+      moments — confirm the intensity.
 
 ---
 
@@ -101,6 +130,12 @@ One section at a time, each to a locked spec (content, layout, type, motion).
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-07-09** — Canva screenshots decoded (`design_inspo/`): high-contrast couture
+  swash serif. **Stage 1 locks:** light-mode only (dark deferred, optional); **palette =
+  os.me light mode** (table above); **type character** from Canva/convergence = a
+  high-contrast editorial serif (Fraunces as working face). Canva's *color* explicitly not
+  adopted. Remaining Stage 1 forks: body face (serif vs sans) ← next, exact display font,
+  accent model, motion.
 - **2026-07-09** — Branch `design` created; this doc scaffolded. Taste settled
   (mature/warm/editorial, not childish); references os.me + omswami decoded into
   concrete specs above. Awaiting Canva screenshot to begin locking Stage 1.
