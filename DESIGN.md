@@ -10,8 +10,8 @@ will be superseded by decisions here).
 
 ## Process (in order — do not skip ahead)
 
-1. **Overall look, feel & theme** ← _current stage_
-2. **Layout** — the sections, and what goes on which page (site IA)
+1. **Overall look, feel & theme** — _locked 2026-07-10_
+2. **Layout** — the sections, and what goes on which page (site IA) ← _current stage_
 3. **Section-by-section design** — one section at a time, to a finalized spec
 4. **Finalize** — the whole design reviewed and locked
 5. **Implement** — only after 1–4 *and* the mlops project are complete
@@ -63,7 +63,11 @@ the scale — warm/artistic with personality, à la omswami — over minimal/cal
 its **type character only — NOT its color**.
 - Display: high-contrast **couture/fashion serif**, ALL CAPS, with calligraphic **swash
   alternates** (curly `A` apex, swashy `M`/`R`, flourished terminals); dramatic thick↔thin.
-  Closest free web match = **Fraunces**. This is the "type he loves."
+  This is the "type he loves." Read closer (2026-07-10): it is a **geometric didone** —
+  hairline strokes, near-circular bowls, tall caps. The exact face is unidentified.
+  ~~Closest free web match = Fraunces.~~ **Corrected:** Fraunces is a soft, chunky,
+  low-contrast old-style with slab serifs — close to the opposite of the reference. The
+  didone-territory free faces are Bodoni Moda, Playfair Display, Prata, Italiana.
 - Body: the template used a serif, but **we do not adopt this** — only the display/title
   character is taken from Canva; body is Outfit sans (Stage 1).
 - Its monochrome palette is **explicitly not adopted** — palette comes from os.me (Stage 1).
@@ -76,7 +80,7 @@ around a **dramatic editorial serif**, with the **os.me light palette** for colo
 
 ---
 
-## Stage 1 — Overall look, feel & theme  _(IN PROGRESS)_
+## Stage 1 — Overall look, feel & theme  _(LOCKED 2026-07-10)_
 
 ### Locked
 
@@ -95,30 +99,46 @@ around a **dramatic editorial serif**, with the **os.me light palette** for colo
   | Solid button | `#0a0a0a` bg / `#fafafa` text | `--primary` |
   | **Warm accent** | `#c98a3a` | `--warm`; the one signature color |
   | Warm accent soft / glow | `#e8b87e` / `#f4cc9e38` | hovers, glows |
-  | Section accents (optional) | `#3f5286` `#6f9d7e` `#c2701f` `#b3637b` | os.me muted per-section set |
+  | Section tints | `#3f5286` `#6f9d7e` `#c2701f` `#b3637b` | os.me muted set — **grounds only**, heavily desaturated; never on type or controls |
   | Error | `#ef4444` | `--destructive` |
 
 - **Type — editorial serif titles + Outfit sans everything else** (os.me's proven model):
-  - *Headers / titles only:* the high-contrast **editorial/couture serif** with swash
-    alternates (the Canva character). Working face = **Fraunces** (OFL) unless we license
-    the exact Canva face. May be set all-caps for section titles.
+  - *Headers / titles only:* **Bodoni Moda** (OFL, variable) — locked 2026-07-10. A true
+    didone: the high-contrast, hairline, geometric character of the Canva reference. Use its
+    **display optical sizes** at large sizes to get the thinnest hairlines. Set all-caps for
+    section titles, with negative tracking at display sizes.
+  - **Accepted loss:** Bodoni Moda has no swash alternates, so the reference's curly `A` /
+    splayed `M` are *not* reproduced. The contrast and elegance carry the character instead.
+    If swashes later prove essential, that means licensing the real face (see Stage 0).
   - *Everything else* — body, nav, buttons, data, code: **Outfit** (OFL sans; os.me's
     choice). System monospace stack for code/metrics.
   - The Canva reference is adopted for **titles only**, never body.
 
-### Open (next to decide, in order)
+- **Accent model — ochre primary + section tints** (2026-07-10). Warm ochre `#c98a3a` is the
+  single interactive/emphasis color: links, buttons, focus, confidence bars, hovers. The os.me
+  muted set (`#3f5286` `#6f9d7e` `#c2701f` `#b3637b`) appears **only** as large, low-saturation
+  section grounds — never on type, never on controls. More expressive than one flat color,
+  without four competing accents.
 
-- [ ] Accent model: warm ochre `#c98a3a` only, vs os.me-style per-section muted accents. ← _decide next_
-- [ ] Confirm the display font: Fraunces vs identifying + licensing the actual Canva swash serif.
-- [ ] Motion language: os.me sticky-scroll expo reveals + occasional omswami rotation/blend
-      moments — confirm the intensity.
+- **Motion — calm reveals only** (2026-07-10). os.me's model: sticky sections plus
+  transform/opacity reveals on `--ease-out-expo: cubic-bezier(.16, 1, .3, 1)`, ~.48s.
+  GPU-composited properties only; never bouncy. omswami's rotation/`mix-blend-mode` set pieces
+  are **not** adopted. Respect `prefers-reduced-motion`.
 
 ---
 
-## Stage 2 — Layout  _(not started)_
+## Stage 2 — Layout  _(IN PROGRESS)_
 
 Sections, and what lives on which page. Revisits `PORTFOLIO_PLAN.md`'s IA (Home /
 Journey / Projects / About / Resume) against the new direction.
+
+### Open (next to decide, in order)
+
+- [ ] Does the IA survive? Confirm or revise the five-page split (Home / Journey / Projects /
+      About / Resume) against the editorial direction. ← _decide next_
+- [ ] Home page composition: what the sticky-scroll sequence is, and where the live canvas
+      demo sits within it.
+- [ ] Which sections take which of the four muted grounds.
 
 ---
 
@@ -132,6 +152,18 @@ One section at a time, each to a locked spec (content, layout, type, motion).
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-07-10** — **Stage 1 locked; Stage 2 (Layout) opened.** Three final Stage 1 decisions:
+  - *Display font = **Bodoni Moda***. Re-reading `design_inspo/` showed the Canva face is a
+    geometric didone (hairline, circular bowls, tall caps), so the previously recorded working
+    face **Fraunces was wrong** — it's a soft, low-contrast old-style with slab serifs, close to
+    the opposite. Bodoni Moda is the nearest free face with a real weight range; Italiana matches
+    more closely but ships one weight, which won't carry a type scale. Cost accepted: no swashes.
+  - *Accent = **ochre primary + section tints***. Ochre `#c98a3a` alone for everything
+    interactive; the muted set demoted to section grounds only. Keeps one signature color while
+    still giving each section its own identity for the sticky scroll.
+  - *Motion = **calm reveals only***. os.me expo reveals; omswami's rotations/blends dropped.
+    Stage 0's "expressive" calibration is carried by *type and color*, not movement — expressive
+    motion read as the bigger risk of tipping back toward "loud."
 - **2026-07-09** — Body face resolved: **Outfit sans** for all body/UI/data/code; the
   Canva editorial serif is used for **headers/titles only** (os.me's serif-display +
   Outfit-sans model). Type pairing locked.
