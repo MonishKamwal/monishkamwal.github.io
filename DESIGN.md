@@ -11,8 +11,8 @@ will be superseded by decisions here).
 ## Process (in order — do not skip ahead)
 
 1. **Overall look, feel & theme** — _locked 2026-07-10_
-2. **Layout** — the sections, and what goes on which page (site IA) ← _current stage_
-3. **Section-by-section design** — one section at a time, to a finalized spec
+2. **Layout** — the sections, and what goes on which page (site IA) — _locked 2026-07-16_
+3. **Section-by-section design** — one section at a time, to a finalized spec ← _current stage_
 4. **Finalize** — the whole design reviewed and locked
 5. **Implement** — only after 1–4 *and* the mlops project are complete
 
@@ -127,24 +127,77 @@ around a **dramatic editorial serif**, with the **os.me light palette** for colo
 
 ---
 
-## Stage 2 — Layout  _(IN PROGRESS)_
+## Stage 2 — Layout  _(LOCKED 2026-07-16)_
 
-Sections, and what lives on which page. Revisits `PORTFOLIO_PLAN.md`'s IA (Home /
-Journey / Projects / About / Resume) against the new direction.
+Sections, and what lives on which page. Revisited `PORTFOLIO_PLAN.md`'s IA (Home /
+Journey / Projects / About / Resume) against the new direction and revised it.
+
+### Locked
+
+- **IA — six destinations: Home · Journey · Architecture · Skills · About · Contact** (2026-07-16).
+  The original five-page split is revised, not preserved: there is **no standalone Projects or Résumé
+  route**; the mlops deep-dive gets its own **Architecture** page (promoted into the menu), a
+  dedicated **Skills** page is added, **About** carries the CV content (education + work history), and
+  a **Contact** page is added.
+
+  | Nav | Contains |
+  |---|---|
+  | **Home** | Hero + live canvas demo (the hook), then narrative teasers |
+  | **Journey** | MDX devlog index — decisions, trade-offs, wrong turns (the differentiator) |
+  | **Architecture** | mlops deep-dive — clickable diagram, per-component write-ups, evidence-hub links |
+  | **Skills** | Dedicated skills page |
+  | **About** | Bio + **education + work history** (the CV) |
+  | **Contact** | Email + socials (GitHub, LinkedIn) |
+
+- **Navigation pattern — top-right menu button + overlay** (2026-07-16). No persistent horizontal
+  nav bar. A minimal top bar carries the wordmark (left) and a **menu toggle (top-right)** that opens
+  an overlay listing the six destinations. Keeps the editorial layout uncluttered and lets the Home
+  scroll breathe. Exact treatment is now specified in **Stage 3 → Navigation / menu**: hamburger
+  **icon** trigger, slide-in **panel**, items revealed on a staircase stagger.
+
+  **Resolved (2026-07-16):** the mlops deep-dive gets a **dedicated `/architecture` page**
+  (clickable diagram, per-component write-ups, evidence-hub links), reached from Home §3 **and
+  promoted into the overlay menu** as a top-level destination.
+
+- **Home composition — five-part sticky scroll** (2026-07-16). Home does the Stage 0 job: hook
+  with the playful demo, then reveal the serious machine behind it. The sequence also spends all
+  four muted grounds in order, which settles the "which section takes which ground" item.
+
+  | # | Section | Ground | Content |
+  |---|---|---|---|
+  | 1 | **Hero** | white | Bodoni Moda name + one-line positioning; minimal; scroll cue down |
+  | 2 | **The live demo** | dusty blue `#3f5286` | "Draw something — my model will guess." Canvas + ochre confidence bars. The hook, placed early so it lands within one scroll |
+  | 3 | **Behind the demo** | sage `#6f9d7e` | The reveal: that doodle ran through a real pipeline (ephemeral K8s, CI gates, drift). High-level architecture snapshot → "explore the full architecture" → `/architecture` |
+  | 4 | **Journey teaser** | ochre `#c2701f` | 2–3 latest devlog entries → Journey |
+  | 5 | **Skills + About teaser** | dusty rose `#b3637b` | Brief pointers → Skills, About; then footer |
+
+  Grounds are heavily desaturated per Stage 1 (grounds only, never on type/controls). Ochre
+  `#c98a3a` accent and calm expo reveals throughout.
 
 ### Open (next to decide, in order)
 
-- [ ] Does the IA survive? Confirm or revise the five-page split (Home / Journey / Projects /
-      About / Resume) against the editorial direction. ← _decide next_
-- [ ] Home page composition: what the sticky-scroll sequence is, and where the live canvas
-      demo sits within it.
-- [ ] Which sections take which of the four muted grounds.
+- Stage 2 (Layout) is now complete — IA, Home composition, and ground assignments all locked.
+  Next is **Stage 3: section-by-section design**, starting with the Hero + live-demo sections.
 
 ---
 
-## Stage 3 — Section-by-section design  _(not started)_
+## Stage 3 — Section-by-section design  _(IN PROGRESS)_
 
 One section at a time, each to a locked spec (content, layout, type, motion).
+
+### Navigation / menu  _(LOCKED 2026-07-16)_
+
+- **Trigger:** a **hamburger icon** at top-right (not a "Menu" wordmark). Minimal top bar,
+  wordmark left / icon right.
+- **Surface:** a **slide-in panel** (not a full-screen overlay) — enters from the right, over a
+  light scrim, so the page stays visible behind it.
+- **Reveal — staircase stagger:** on open, each menu item slides in one after the next like a
+  descending stair (incremental `transform: translateX/translateY` + opacity, ~40–60 ms delay per
+  item), on Stage 1's `--ease-out-expo: cubic-bezier(.16, 1, .3, 1)`. GPU-composited only, never
+  bouncy. On close, items can reverse or the panel simply slides out.
+- **Items:** the six destinations as large **Bodoni Moda** links; ochre `#c98a3a` on hover/active.
+- **Reduced motion:** with `prefers-reduced-motion`, drop the stagger and slide — items just
+  fade/appear and the panel opens without translation.
 
 ---
 
@@ -152,6 +205,26 @@ One section at a time, each to a locked spec (content, layout, type, motion).
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-07-16** — **Stage 3 opened: Navigation / menu locked.** Menu treatment settled — a
+  **hamburger icon** trigger opening a **slide-in panel** (not full-screen), with each of the six
+  items revealed on a **staircase stagger** (incremental delay, expo ease, GPU transform/opacity),
+  large Bodoni Moda links, ochre hover. Respects `prefers-reduced-motion` (no stagger/slide).
+- **2026-07-16** — **Nav pattern + IA finalized.** Navigation becomes a **top-right menu button
+  opening an overlay** (no persistent nav bar) to keep the editorial layout uncluttered. Destinations
+  finalized at **six: Home · Journey · Architecture · Skills · About · Contact** — a **Contact** page
+  is added, and the mlops **Architecture** deep-dive is promoted from a Home-linked page into a
+  top-level menu destination.
+- **2026-07-16** — **Stage 2 (Layout) locked.** Home composition settled: a **five-part sticky
+  scroll** — Hero (white) → Live demo (dusty blue) → Behind the demo (sage) → Journey teaser (ochre)
+  → Skills/About teaser (dusty rose). Demo placed at §2 so the hook lands within one scroll; the
+  scroll spends all four muted grounds in order, which also settles ground assignment. The mlops
+  deep-dive gets a **dedicated `/architecture` page** reached from Home §3, kept out of the four-item
+  nav for now. Stage 3 (section-by-section) is next.
+- **2026-07-16** — **IA revised (Stage 2, first decision).** Down from five pages to four
+  destinations: **Home · Journey · Skills · About**. No standalone Projects or Résumé route;
+  **Skills** becomes its own page and **About** absorbs the CV (education + work history). Rationale:
+  fewer, richer destinations fit the editorial direction, and a thin standalone Résumé didn't earn a
+  nav slot. Left open: where the mlops platform deep-dive lives, to settle with Home composition.
 - **2026-07-10** — **Stage 1 locked; Stage 2 (Layout) opened.** Three final Stage 1 decisions:
   - *Display font = **Bodoni Moda***. Re-reading `design_inspo/` showed the Canva face is a
     geometric didone (hairline, circular bowls, tall caps), so the previously recorded working
