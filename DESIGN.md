@@ -33,6 +33,9 @@ demo* (visitors doodle, a model guesses) and proof of *serious systems engineeri
 the scale — warm/artistic with personality, à la omswami — over minimal/calm.
 
 **Hard constraints:**
+- **No emojis anywhere on the site** (2026-07-16). Mature/editorial tone — use text or thin line
+  icons instead. Supersedes the emoji used in `PORTFOLIO_PLAN.md`'s demo copy (feedback buttons,
+  cold-start state).
 - Next.js static export on GitHub Pages (see `PORTFOLIO_PLAN.md`). It's a
   version-modified Next.js — read `node_modules/next/dist/docs/` before any code.
 - Existing token setup is Tailwind `@theme` in `app/globals.css` (to be replaced).
@@ -150,10 +153,11 @@ Journey / Projects / About / Resume) against the new direction and revised it.
   | **Contact** | Email + socials (GitHub, LinkedIn) |
 
 - **Navigation pattern — top-right menu button + overlay** (2026-07-16). No persistent horizontal
-  nav bar. A minimal top bar carries the wordmark (left) and a **menu toggle (top-right)** that opens
-  an overlay listing the six destinations. Keeps the editorial layout uncluttered and lets the Home
+  nav bar. A minimal top bar carries a **current-section indicator (left)** — see Hero spec — and a
+  **menu toggle (top-right)** that opens an overlay listing the six destinations. Keeps the editorial layout uncluttered and lets the Home
   scroll breathe. Exact treatment is now specified in **Stage 3 → Navigation / menu**: hamburger
-  **icon** trigger, slide-in **panel**, items revealed on a staircase stagger.
+  **icon** trigger, slide-in **panel**, items revealed on a staircase stagger; top-bar left is a
+  current-section indicator.
 
   **Resolved (2026-07-16):** the mlops deep-dive gets a **dedicated `/architecture` page**
   (clickable diagram, per-component write-ups, evidence-hub links), reached from Home §3 **and
@@ -188,7 +192,7 @@ One section at a time, each to a locked spec (content, layout, type, motion).
 ### Navigation / menu  _(LOCKED 2026-07-16)_
 
 - **Trigger:** a **hamburger icon** at top-right (not a "Menu" wordmark). Minimal top bar,
-  wordmark left / icon right.
+  current-section indicator left / icon right.
 - **Surface:** a **slide-in panel** (not a full-screen overlay) — enters from the right, over a
   light scrim, so the page stays visible behind it.
 - **Reveal — staircase stagger:** on open, each menu item slides in one after the next like a
@@ -198,6 +202,71 @@ One section at a time, each to a locked spec (content, layout, type, motion).
 - **Items:** the six destinations as large **Bodoni Moda** links; ochre `#c98a3a` on hover/active.
 - **Reduced motion:** with `prefers-reduced-motion`, drop the stagger and slide — items just
   fade/appear and the panel opens without translation.
+- **Top-bar left slot:** not a static wordmark — a **current-section indicator** that reflects the
+  section/page in view (see Hero spec). Icon stays top-right.
+
+### Home §1 — Hero  _(LOCKED 2026-07-16)_
+
+Direction: **name-forward** (chosen over demo-teasing / positioning statements). The type carries
+it; no clever claim, no tagline. White ground.
+
+- **Headline:** **Monish Kamwal** on **one line, centre-aligned**, set in **Bodoni Moda** display
+  optical size for the thinnest hairlines; negative tracking (~−.02em). Centered in the viewport.
+- **No micro-label / tagline.** The name stands alone.
+- **Scroll cue:** a single ochre **down arrow (↓) only — no text**, at the bottom.
+- **Top bar — current-section indicator (upper-left):** the upper-left shows the **section the
+  visitor is currently in**, and is **blank on the Hero**. It updates as the scroll moves into later
+  Home sections (and shows the page name on inner pages). Hamburger icon top-right as specced.
+- **Motion:** headline does a calm expo reveal on load (opacity + small translate on
+  `--ease-out-expo`); arrow follows subtly. Respects `prefers-reduced-motion`.
+- **Scroll:** proceeds down into §2 the live demo — see the **Home §1 → §2 transition** spec below.
+
+### Home §2 — Live demo  _(LOCKED 2026-07-16)_
+
+The flagship hook. **Behavior** is already specced in `PORTFOLIO_PLAN.md` (raw strokes →
+Lambda, ~400 ms predict-on-pause, top-3 confidence bars, cold-start warm-up ping, feedback,
+GIF fallback). This is the **visual design** on the section ground. **No emojis** — all states and
+buttons use text or thin line icons.
+
+- **Ground — subtle desaturated wash** (per Stage 1, not a bold panel). A **pale grey-blue** derived
+  from `#3f5286`, heavily lightened/desaturated on the white site; the canvas card lifts only
+  gently off it. _Exact tint TBD in a token pass that derives all four section washes as a
+  consistent set._
+- **Layout — asymmetric split:** white **canvas card on the left**, live **predictions on the
+  right**. Stacks on mobile (canvas on top, predictions below).
+- **Section title:** **Draw something.** in Bodoni Moda, upper-left of the section. Current-section
+  indicator reads **"Live demo"**.
+- **Canvas:** a bright **white paper card** — soft hairline (`#e8e8e8`) + subtle shadow — as the
+  draw surface (pointer + touch). Clear figure/ground against the wash.
+- **Controls:** **Clear / Undo** as minimal Outfit text buttons beneath the canvas; ochre focus rings.
+- **Predictions:** top-3 as **ochre `#c98a3a` confidence bars** — class label (Outfit) + percentage,
+  fill animates on the expo ease when a new guess arrives. A muted prompt line ("try: cat, bicycle,
+  umbrella…") pulls from the live class list.
+- **Feedback:** a quiet "Did I get it?" with **text buttons — Yes / No** (thin line icons at most),
+  no emoji; logged with the prediction, plus a one-line privacy note.
+- **States:** cold-start shows a **text-only** "model is waking up — it scales to zero, that's the
+  point" line; the API-unreachable **GIF fallback** renders inside the same card frame so the layout
+  never jumps.
+- **Motion:** card + bars reveal on scroll-in (expo); bar fills animate per prediction. Respects
+  `prefers-reduced-motion`.
+
+### Home §1 → §2 transition (Hero → Demo)  _(LOCKED 2026-07-16)_
+
+**Feel: a mix of overlap + fade.** As the scroll begins the demo panel rises and takes over, while
+the hero fades in place — three things happening on the same scroll:
+
+- **Name fades in place:** the centered name **stays exactly where it is** (no drift/translate) and
+  simply **fades away**; the ↓ arrow fades with it.
+- **Background cross-fades:** while the panel rises, the page **background transitions white → pale
+  tinted blue**, so the ground itself shifts colour under the motion.
+- **Panel overlaps:** the **demo panel (pale grey-blue wash) rises up from below and overlaps the
+  name** as the name is fading — one surface dealt over another.
+- **Settle + reveal:** once the demo panel fills the viewport, its contents reveal in a short expo
+  stagger — **canvas card first, then the confidence bars**.
+- **Easing / perf:** scroll-linked on `--ease-out-expo`, ~.48s character; **GPU transform + opacity
+  only**, never bouncy.
+- **Reduced motion:** no rise or overlap — the background still settles to the tinted blue, the name
+  fades, and the demo simply fades in.
 
 ---
 
@@ -205,6 +274,21 @@ One section at a time, each to a locked spec (content, layout, type, motion).
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-07-16** — **Stage 3: Home §1→§2 transition locked.** A **mix of overlap + fade** — on
+  scroll the **name fades in place** (no drift), the **background cross-fades white → tinted blue**,
+  and the **demo panel rises to overlap** the fading name; then canvas → bars reveal in an expo
+  stagger. Reduced-motion falls back to fades only. Closes the last item left open on §2.
+- **2026-07-16** — **Stage 3: Home §2 Live demo locked + global no-emoji rule.** Visual design:
+  **asymmetric split** (white canvas card left, ochre confidence bars right), on a **subtle
+  desaturated grey-blue wash** of `#3f5286` (per Stage 1, not a bold panel); "Draw something."
+  Bodoni Moda title. Added a **hard constraint: no emojis anywhere** — feedback becomes text
+  Yes/No, cold-start is text-only, superseding `PORTFOLIO_PLAN.md`'s emoji copy. Left open: exact
+  four-ground tint values (a later token pass) and the §1→§2 scroll transition.
+- **2026-07-16** — **Stage 3: Home §1 Hero locked.** **Name-forward** direction — "Monish Kamwal"
+  on one line, **centre-aligned** Bodoni Moda display, **no tagline/micro-label**, a single ochre
+  **down-arrow** scroll cue (no text). Established the top-bar left slot as a **current-section
+  indicator** (blank on Hero, updates on scroll / shows page name inside) rather than a static
+  wordmark; reconciled the earlier nav notes to match. Demo transition still to design.
 - **2026-07-16** — **Stage 3 opened: Navigation / menu locked.** Menu treatment settled — a
   **hamburger icon** trigger opening a **slide-in panel** (not full-screen), with each of the six
   items revealed on a **staircase stagger** (incremental delay, expo ease, GPU transform/opacity),
