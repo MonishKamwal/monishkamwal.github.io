@@ -268,12 +268,36 @@ the hero fades in place — three things happening on the same scroll:
 - **Reduced motion:** no rise or overlap — the background still settles to the tinted blue, the name
   fades, and the demo simply fades in.
 
+### Home §3 — Behind the demo  _(LOCKED 2026-07-16)_
+
+The reveal: recast the playful doodle as proof of real systems engineering, and hand off to the
+`/architecture` page. Sage ground; section indicator reads **"Behind the demo"**.
+
+- **Ground — sage wash** (desaturated `#6f9d7e`), per Stage 1. _Exact tint in the four-ground token
+  pass._
+- **Title:** **"Behind the Scenes"** in Bodoni Moda.
+- **Lead:** one Outfit line — **"From strokes to prediction"**.
+- **Teaser — simplified flow line:** a light horizontal line-diagram of the pipeline,
+  **draw ▸ preprocess ▸ model ▸ serve ▸ monitor**. Thin hairline connectors with small arrows,
+  Outfit stage labels; **non-interactive** (the clickable version lives on `/architecture`). Wraps to
+  a vertical stack on mobile.
+- **Action link:** an ochre **"Explore the full architecture →"** link that takes the visitor to
+  the `/architecture` page.
+- **Motion:** on scroll-in the flow stages reveal **left-to-right in sequence** (short expo
+  stagger, echoing the pipeline direction); title + lead reveal first. Respects
+  `prefers-reduced-motion` (stages appear together, no stagger).
+
 ---
 
 ## Decision log
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-07-16** — **Stage 3: Home §3 Behind the demo locked.** Sage-ground reveal — title
+  **"Behind the Scenes"**, lead **"From strokes to prediction"**, and a **simplified,
+  non-interactive flow line** (draw ▸ preprocess ▸ model ▸ serve ▸ monitor) that reveals
+  left-to-right, plus an ochre **"Explore the full architecture →"** link to the `/architecture`
+  page. The full clickable diagram stays on that page.
 - **2026-07-16** — **Stage 3: Home §1→§2 transition locked.** A **mix of overlap + fade** — on
   scroll the **name fades in place** (no drift), the **background cross-fades white → tinted blue**,
   and the **demo panel rises to overlap** the fading name; then canvas → bars reveal in an expo
