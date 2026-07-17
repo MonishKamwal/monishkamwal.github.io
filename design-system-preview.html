@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portfolio — Design System Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..700&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* ---- Core palette (Stage 1, os.me light) ---- */
+    --background:#ffffff;      /* --background */
+    --muted:#f5f5f5;           /* --muted / --secondary / --accent */
+    --border:#e8e8e8;          /* --border  (hairline: white surfaces only) */
+    --foreground:#0a0a0a;      /* --foreground (ink) */
+    --muted-foreground:#6b6b6b;/* --muted-foreground */
+    --primary:#0a0a0a;         /* --primary */
+    --primary-fg:#fafafa;      /* --primary-foreground */
+    --warm:#c98a3a;            /* --warm : bright ochre, LARGE accents only */
+    --warm-soft:#e8b87e;       /* hover */
+    --warm-glow:#f4cc9e38;     /* glow */
+    --deep-ochre:#96600a;      /* body-size links & small labels (AA) */
+    --destructive:#ef4444;     /* --destructive */
+
+    /* ---- Four grounds — the "present" set ---- */
+    --wash-blue:#e7f0ff;   /* Demo / About      (base #3f5286) */
+    --wash-sage:#e0f7e7;   /* Behind / Arch.    (base #6f9d7e) */
+    --wash-ochre:#ffecdb;  /* Journey           (base #c2701f) */
+    --wash-rose:#ffe8ee;   /* Skills            (base #b3637b) */
+
+    --ease-out-expo:cubic-bezier(.16,1,.3,1);
+
+    --measure:70ch;
+    --page:1080px;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--background);
+    color:var(--foreground);
+    font-family:"Outfit",system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-weight:330;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+  .wrap{max-width:var(--page);margin:0 auto;padding:0 clamp(20px,5vw,72px);}
+
+  /* ---------- Type primitives ---------- */
+  .display{
+    font-family:"Bodoni Moda",Georgia,"Times New Roman",serif;
+    font-optical-sizing:auto;
+    font-variation-settings:"opsz" 96;
+    font-weight:500;
+    line-height:.92;
+    letter-spacing:-.02em;
+  }
+  .micro{
+    font-family:"Outfit",system-ui,sans-serif;
+    text-transform:uppercase;
+    letter-spacing:.22em;
+    font-size:11.5px;
+    font-weight:500;
+    color:var(--muted-foreground);
+  }
+  .lead{
+    font-size:clamp(17px,2.1vw,21px);
+    color:var(--muted-foreground);
+    font-weight:330;
+    max-width:var(--measure);
+  }
+  .mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:12.5px;}
+  a.link{
+    color:var(--deep-ochre);
+    text-decoration:none;
+    border-bottom:1px solid color-mix(in srgb,var(--deep-ochre) 32%,transparent);
+    transition:color .3s var(--ease-out-expo),border-color .3s var(--ease-out-expo);
+  }
+  a.link:hover{color:var(--warm);border-bottom-color:var(--warm);}
+
+  /* ---------- Masthead ---------- */
+  header.mast{padding:clamp(64px,11vw,132px) 0 clamp(40px,7vw,72px);}
+  .mast .kicker{margin:0 0 26px;}
+  .mast h1{
+    margin:0;
+    font-size:clamp(52px,12vw,140px);
+    text-transform:uppercase;
+  }
+  .mast h1 .amp{font-style:italic;font-weight:400;}
+  .mast .sub{margin:26px 0 0;}
+  .mast .meta{
+    margin-top:34px;display:flex;flex-wrap:wrap;gap:8px 26px;
+    padding-top:20px;border-top:1px solid var(--border);
+  }
+  .mast .meta span{color:var(--muted-foreground);font-size:13.5px;}
+  .mast .meta b{color:var(--foreground);font-weight:500;}
+
+  /* ---------- Section shell ---------- */
+  section.block{padding:clamp(48px,7vw,84px) 0;border-top:1px solid var(--border);}
+  .sec-head{display:flex;align-items:baseline;gap:18px;margin-bottom:clamp(30px,4vw,52px);flex-wrap:wrap;}
+  .sec-head h2{
+    font-family:"Bodoni Moda",Georgia,serif;
+    font-optical-sizing:auto;font-variation-settings:"opsz" 72;
+    font-weight:500;letter-spacing:-.01em;text-transform:uppercase;
+    font-size:clamp(26px,4.4vw,44px);margin:0;line-height:1;
+  }
+  .sec-head p{margin:0;color:var(--muted-foreground);font-size:14.5px;max-width:46ch;}
+  .subhead{margin:clamp(38px,5vw,58px) 0 20px;}
+
+  /* ---------- Colour swatches ---------- */
+  .swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:14px;}
+  .sw{border:1px solid var(--border);border-radius:3px;overflow:hidden;background:#fff;}
+  .sw .chip{height:96px;position:relative;}
+  .sw .chip.bordered{box-shadow:inset 0 0 0 1px var(--border);}
+  .sw .body{padding:12px 13px 14px;}
+  .sw .name{font-size:13.5px;font-weight:500;letter-spacing:-.005em;}
+  .sw .hex{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:var(--muted-foreground);margin-top:3px;text-transform:uppercase;}
+  .sw .role{font-size:11.5px;color:var(--muted-foreground);margin-top:8px;line-height:1.45;}
+  .sw .token{
+    display:inline-block;margin-top:9px;font-family:ui-monospace,Menlo,monospace;
+    font-size:10.5px;color:var(--deep-ochre);background:var(--warm-glow);
+    padding:2px 7px;border-radius:3px;
+  }
+  .tag-note{font-size:11px;color:var(--muted-foreground);padding:2px 7px;border:1px solid var(--border);border-radius:20px;}
+  .chip-label{position:absolute;left:11px;bottom:9px;font-size:11px;font-weight:500;letter-spacing:.02em;}
+
+  /* ---------- Type specimens ---------- */
+  .specimen{border:1px solid var(--border);border-radius:4px;padding:clamp(24px,4vw,44px);margin-bottom:16px;}
+  .specimen .tag{margin-bottom:22px;}
+  .big-serif{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 96;line-height:.9;letter-spacing:-.02em;
+  }
+  .scale-row{display:flex;align-items:baseline;gap:20px;padding:14px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+  .scale-row:last-child{border-bottom:0;}
+  .scale-row .spec{color:var(--muted-foreground);font-size:11.5px;font-family:ui-monospace,Menlo,monospace;min-width:120px;flex:0 0 auto;}
+  .weights{display:flex;flex-direction:column;gap:6px;}
+  .weights div{font-size:26px;line-height:1.2;}
+  .w1{font-weight:100;}.w3{font-weight:300;}.w4{font-weight:400;}.w5{font-weight:500;}.w6{font-weight:600;}.w7{font-weight:700;}
+
+  /* ---------- Elements grid ---------- */
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;align-items:start;}
+  .demo{
+    border:1px solid var(--border);border-radius:5px;padding:26px;
+    display:flex;flex-direction:column;gap:20px;min-height:190px;background:#fff;
+  }
+  .demo .cap{display:flex;align-items:baseline;justify-content:space-between;gap:12px;}
+  .demo .cap .t{font-size:13px;font-weight:500;}
+  .demo .stage{flex:1;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:16px;}
+
+  /* buttons */
+  .btn-solid{
+    display:inline-flex;align-items:center;gap:10px;
+    background:var(--primary);color:var(--primary-fg);
+    border:0;border-radius:3px;padding:14px 26px;cursor:pointer;
+    font-family:"Outfit",sans-serif;font-size:15px;font-weight:400;letter-spacing:.01em;
+    transition:transform .4s var(--ease-out-expo),box-shadow .4s var(--ease-out-expo);
+  }
+  .btn-solid:hover{transform:translateY(-1px);box-shadow:0 8px 24px -12px rgba(10,10,10,.5);}
+  .btn-solid:focus-visible{outline:2px solid var(--warm);outline-offset:3px;}
+  .btn-text{
+    background:none;border:0;cursor:pointer;font-family:"Outfit",sans-serif;font-size:15px;
+    color:var(--deep-ochre);display:inline-flex;align-items:center;gap:8px;padding:6px 2px;
+    transition:gap .35s var(--ease-out-expo),color .3s var(--ease-out-expo);
+  }
+  .btn-text:hover{gap:12px;color:var(--warm);}
+  .btn-text:focus-visible{outline:2px solid var(--warm);outline-offset:3px;border-radius:2px;}
+  .btn-ghost{
+    background:none;border:1px solid var(--border);border-radius:3px;padding:12px 22px;cursor:pointer;
+    font-family:"Outfit",sans-serif;font-size:15px;color:var(--foreground);
+    transition:border-color .3s var(--ease-out-expo),color .3s var(--ease-out-expo);
+  }
+  .btn-ghost:hover{border-color:var(--warm);color:var(--deep-ochre);}
+
+  /* down arrow cue */
+  .arrow-cue{color:var(--warm);width:34px;height:54px;animation:float 2.6s var(--ease-out-expo) infinite;}
+  @keyframes float{0%,100%{transform:translateY(0);opacity:.75;}50%{transform:translateY(7px);opacity:1;}}
+
+  /* confidence bars */
+  .bars{width:100%;display:flex;flex-direction:column;gap:14px;}
+  .bar-row .bar-top{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:6px;}
+  .bar-row .pct{font-variant-numeric:tabular-nums;color:var(--foreground);}
+  .bar-track{height:8px;background:var(--muted);border-radius:20px;overflow:hidden;}
+  .bar-fill{height:100%;background:var(--warm);border-radius:20px;transform-origin:left;transform:scaleX(0);transition:transform 1.2s var(--ease-out-expo);}
+  .bar-fill.soft{background:var(--warm-soft);}
+
+  /* pipeline line-and-dot */
+  .pipe{display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap;width:100%;}
+  .stop{display:flex;flex-direction:column;align-items:center;gap:9px;}
+  .stop .dot{width:11px;height:11px;border-radius:50%;background:var(--foreground);transition:background .3s var(--ease-out-expo),transform .3s var(--ease-out-expo);}
+  .stop:hover .dot{background:var(--warm);transform:scale(1.25);}
+  .stop .lbl{font-size:11.5px;color:var(--muted-foreground);}
+  .stop:hover .lbl{color:var(--deep-ochre);}
+  .conn{display:flex;align-items:center;color:var(--foreground);opacity:.85;margin:0 2px;margin-bottom:26px;}
+  .conn svg{display:block;}
+
+  /* winding path dots */
+  .path-demo{width:100%;}
+  .path-demo svg{width:100%;height:auto;display:block;}
+  .p-dot{fill:var(--foreground);transition:fill .3s var(--ease-out-expo),r .3s var(--ease-out-expo);cursor:pointer;}
+  .p-dot:hover{fill:var(--warm);}
+
+  /* paper card */
+  .paper{
+    background:#fff;border:1px solid var(--border);border-radius:5px;
+    box-shadow:0 18px 40px -26px rgba(10,10,10,.35),0 2px 8px -4px rgba(10,10,10,.12);
+    padding:22px;width:100%;
+  }
+  .paper .date{margin-bottom:10px;}
+  .paper h4{font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 40;font-weight:500;font-size:23px;margin:0 0 8px;letter-spacing:-.01em;}
+  .paper p{margin:0;font-size:13.5px;color:var(--muted-foreground);}
+
+  /* top bar */
+  .topbar{width:100%;display:flex;align-items:center;justify-content:space-between;
+    padding:14px 18px;border:1px solid var(--border);border-radius:4px;background:#fff;}
+  .topbar .indicator{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-foreground);}
+  .icon-btn{background:none;border:0;cursor:pointer;padding:6px;color:var(--foreground);display:inline-flex;line-height:0;
+    transition:color .3s var(--ease-out-expo);}
+  .icon-btn:hover{color:var(--warm);}
+  .icon-btn:focus-visible{outline:2px solid var(--warm);outline-offset:2px;border-radius:3px;}
+
+  /* footer icons */
+  .foot-icons{display:flex;gap:26px;align-items:center;}
+
+  /* grounds */
+  .grounds{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px;}
+  .ground{border-radius:6px;border:1px solid var(--border);padding:28px 26px 24px;min-height:200px;display:flex;flex-direction:column;justify-content:space-between;}
+  .ground h3{font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 72;font-weight:500;text-transform:uppercase;letter-spacing:-.01em;font-size:30px;margin:0;line-height:.95;}
+  .ground .ln{display:flex;align-items:center;gap:9px;margin-top:16px;}
+  .ground .ln .d{width:9px;height:9px;border-radius:50%;background:var(--foreground);}
+  .ground .ln .rule{height:1px;flex:1;background:var(--foreground);opacity:.85;}
+  .ground .foot{display:flex;justify-content:space-between;align-items:baseline;margin-top:22px;font-size:12px;}
+  .ground .foot .hex{font-family:ui-monospace,Menlo,monospace;color:var(--muted-foreground);}
+  .ground .foot .who{color:var(--muted-foreground);}
+
+  /* motion demo */
+  .motion-wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;align-items:start;}
+  .motion-card{border:1px solid var(--border);border-radius:5px;padding:24px;}
+  .motion-card .code{margin-top:14px;color:var(--muted-foreground);}
+  .reveal-target{padding:20px;background:var(--muted);border-radius:4px;margin-top:16px;text-align:center;font-size:14px;}
+  .replay{margin-top:14px;}
+
+  footer.end{border-top:1px solid var(--border);padding:44px 0 84px;color:var(--muted-foreground);font-size:13px;}
+  footer.end p{max-width:var(--measure);margin:0 0 10px;}
+  footer.end code{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--foreground);}
+
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media(max-width:640px){.two-col{grid-template-columns:1fr;}}
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important;}
+    .bar-fill{transform:scaleX(1)!important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ===================== MASTHEAD ===================== -->
+  <header class="mast">
+    <p class="micro kicker">Portfolio · Design System · Reference sheet</p>
+    <h1 class="display">Elements <span class="amp">&amp;</span> Palette</h1>
+    <p class="lead sub">Every token, typeface and recurring part from <b style="color:var(--foreground);font-weight:500">DESIGN.md</b>, shown on the white ground it was built for. Not the site — the raw material the site is made of.</p>
+    <div class="meta">
+      <span><b>Theme</b> &nbsp;Light only</span>
+      <span><b>Display</b> &nbsp;Bodoni Moda</span>
+      <span><b>Body</b> &nbsp;Outfit</span>
+      <span><b>Accent</b> &nbsp;Ochre</span>
+      <span><b>Locked</b> &nbsp;2026-07-17</span>
+    </div>
+  </header>
+
+  <!-- ===================== COLOUR ===================== -->
+  <section class="block">
+    <div class="sec-head">
+      <h2>Colour</h2>
+      <p>The os.me light palette. One signature warm accent, no loud pop; the muted set lives only as grounds.</p>
+    </div>
+
+    <p class="micro subhead">Core palette</p>
+    <div class="swatches">
+      <div class="sw"><div class="chip bordered" style="background:#ffffff"></div><div class="body"><div class="name">Page ground</div><div class="hex">#ffffff</div><div class="role">The site's ground. Warmth comes from type &amp; ochre, not a cream ground.</div><span class="token">--background</span></div></div>
+      <div class="sw"><div class="chip" style="background:#f5f5f5"></div><div class="body"><div class="name">Muted surface</div><div class="hex">#f5f5f5</div><div class="role">Panels, secondary, accent fills.</div><span class="token">--muted</span></div></div>
+      <div class="sw"><div class="chip bordered" style="background:#e8e8e8"></div><div class="body"><div class="name">Hairline / input</div><div class="hex">#e8e8e8</div><div class="role">Borders &amp; separators — white surfaces only (invisible on washes).</div><span class="token">--border</span></div></div>
+      <div class="sw"><div class="chip" style="background:#0a0a0a"></div><div class="body"><div class="name">Primary text · ink</div><div class="hex">#0a0a0a</div><div class="role">Near-black, not pure. Also every drawn line &amp; resting dot.</div><span class="token">--foreground</span></div></div>
+      <div class="sw"><div class="chip" style="background:#6b6b6b"></div><div class="body"><div class="name">Secondary text</div><div class="hex">#6b6b6b</div><div class="role">Darkened from os.me's #828282 to pass AA at small sizes.</div><span class="token">--muted-foreground</span></div></div>
+      <div class="sw"><div class="chip" style="background:#0a0a0a"><span class="chip-label" style="color:#fafafa">Aa &nbsp;#fafafa</span></div><div class="body"><div class="name">Solid button</div><div class="hex">#0a0a0a / #fafafa</div><div class="role">Ground / text for the one solid button.</div><span class="token">--primary</span></div></div>
+      <div class="sw"><div class="chip" style="background:#c98a3a"></div><div class="body"><div class="name">Warm accent · bright ochre</div><div class="hex">#c98a3a</div><div class="role">The signature colour — large jobs only: arrow, bar fills, hovers, glows.</div><span class="token">--warm</span></div></div>
+      <div class="sw"><div class="chip" style="background:#e8b87e"></div><div class="body"><div class="name">Warm soft</div><div class="hex">#e8b87e</div><div class="role">Hover step of the accent.</div></div></div>
+      <div class="sw"><div class="chip bordered" style="background:#f4cc9e38"></div><div class="body"><div class="name">Warm glow</div><div class="hex">#f4cc9e<span style="opacity:.6">38</span></div><div class="role">Focus glow / soft highlight (with alpha).</div></div></div>
+      <div class="sw"><div class="chip" style="background:#96600a"></div><div class="body"><div class="name">Deep ochre</div><div class="hex">#96600a</div><div class="role">Body-size links &amp; small labels — same hue, ≥4.5:1 everywhere.</div></div></div>
+      <div class="sw"><div class="chip" style="background:#ef4444"></div><div class="body"><div class="name">Error</div><div class="hex">#ef4444</div><div class="role">Destructive state only.</div><span class="token">--destructive</span></div></div>
+    </div>
+
+    <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin:56px 0 20px">
+      <p class="micro" style="margin:0">Four grounds — the "present" set</p>
+      <span class="tag-note">one OKLCH formula · L .955 · C .032 · hue only</span>
+    </div>
+    <div class="swatches">
+      <div class="sw"><div class="chip bordered" style="background:#e7f0ff"></div><div class="body"><div class="name">Dusty blue</div><div class="hex">#e7f0ff</div><div class="role">Home live-demo &amp; About. Base #3f5286.</div></div></div>
+      <div class="sw"><div class="chip bordered" style="background:#e0f7e7"></div><div class="body"><div class="name">Sage</div><div class="hex">#e0f7e7</div><div class="role">Behind-the-demo &amp; Architecture. Base #6f9d7e.</div></div></div>
+      <div class="sw"><div class="chip bordered" style="background:#ffecdb"></div><div class="body"><div class="name">Ochre</div><div class="hex">#ffecdb</div><div class="role">Journey. Base #c2701f.</div></div></div>
+      <div class="sw"><div class="chip bordered" style="background:#ffe8ee"></div><div class="body"><div class="name">Dusty rose</div><div class="hex">#ffe8ee</div><div class="role">Skills. Base #b3637b.</div></div></div>
+    </div>
+
+    <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin:44px 0 20px">
+      <p class="micro" style="margin:0">Whisper set — recorded alternate</p>
+      <span class="tag-note">fainter · L .970 · C .020</span>
+    </div>
+    <div class="swatches">
+      <div class="sw"><div class="chip bordered" style="background:#eff5ff"></div><div class="body"><div class="name">Blue (whisper)</div><div class="hex">#eff5ff</div></div></div>
+      <div class="sw"><div class="chip bordered" style="background:#ebf9ef"></div><div class="body"><div class="name">Sage (whisper)</div><div class="hex">#ebf9ef</div></div></div>
+      <div class="sw"><div class="chip bordered" style="background:#fff2e8"></div><div class="body"><div class="name">Ochre (whisper)</div><div class="hex">#fff2e8</div></div></div>
+      <div class="sw"><div class="chip bordered" style="background:#fff0f4"></div><div class="body"><div class="name">Rose (whisper)</div><div class="hex">#fff0f4</div></div></div>
+    </div>
+
+    <div style="margin:44px 0 20px">
+      <p class="micro" style="margin:0 0 6px">Section-tint bases — grounds only, never on type or controls</p>
+    </div>
+    <div class="swatches">
+      <div class="sw"><div class="chip" style="background:#3f5286"></div><div class="body"><div class="name">Dusty blue</div><div class="hex">#3f5286</div></div></div>
+      <div class="sw"><div class="chip" style="background:#6f9d7e"></div><div class="body"><div class="name">Sage</div><div class="hex">#6f9d7e</div></div></div>
+      <div class="sw"><div class="chip" style="background:#c2701f"></div><div class="body"><div class="name">Ochre</div><div class="hex">#c2701f</div></div></div>
+      <div class="sw"><div class="chip" style="background:#b3637b"></div><div class="body"><div class="name">Dusty rose</div><div class="hex">#b3637b</div></div></div>
+    </div>
+  </section>
+
+  <!-- ===================== TYPE ===================== -->
+  <section class="block">
+    <div class="sec-head">
+      <h2>Type</h2>
+      <p>Editorial serif titles, Outfit for everything else. os.me's proven model.</p>
+    </div>
+
+    <div class="specimen">
+      <p class="micro tag">Bodoni Moda · display optical size · titles only</p>
+      <div class="big-serif" style="font-size:clamp(40px,9vw,104px);text-transform:uppercase;font-weight:500">Monish Kamwal</div>
+      <div class="big-serif" style="font-size:clamp(30px,6vw,64px);margin-top:22px;color:var(--muted-foreground);font-weight:400">Draw something.</div>
+      <p style="margin-top:26px;font-size:13.5px;color:var(--muted-foreground);max-width:60ch">A true didone: high-contrast, hairline strokes, near-circular bowls, tall caps. Set all-caps with negative tracking (~−.02em) at display sizes; the highest optical size (opsz&nbsp;96) gives the thinnest hairlines. No swash alternates — the contrast carries the character.</p>
+    </div>
+
+    <div class="two-col">
+      <div class="specimen">
+        <p class="micro tag">Bodoni Moda · weights</p>
+        <div class="weights big-serif">
+          <div class="w4">Thin hairline 400</div>
+          <div class="w5">Regular display 500</div>
+          <div class="w7">Bold contrast 700</div>
+        </div>
+      </div>
+      <div class="specimen">
+        <p class="micro tag">Outfit · body &amp; UI weights</p>
+        <div class="weights">
+          <div class="w1" style="font-family:Outfit">Extralight 100</div>
+          <div class="w3" style="font-family:Outfit">Light 300</div>
+          <div class="w4" style="font-family:Outfit">Regular 400</div>
+          <div class="w5" style="font-family:Outfit">Medium 500</div>
+          <div class="w6" style="font-family:Outfit">Semibold 600</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="specimen">
+      <p class="micro tag">Type scale in use</p>
+      <div class="scale-row"><span class="spec">Display title</span><span class="big-serif" style="font-size:clamp(28px,5vw,52px);text-transform:uppercase">Architecture</span></div>
+      <div class="scale-row"><span class="spec">Section title</span><span class="display" style="font-size:34px;text-transform:uppercase;font-variation-settings:'opsz' 72">The Journey</span></div>
+      <div class="scale-row"><span class="spec">Lead · Outfit</span><span style="font-size:20px;color:var(--muted-foreground)">The machine behind the doodle</span></div>
+      <div class="scale-row"><span class="spec">Body · Outfit</span><span style="font-size:16px;max-width:52ch">From strokes to prediction — the doodle runs through a real pipeline: ephemeral Kubernetes, CI gates, drift monitoring.</span></div>
+      <div class="scale-row"><span class="spec">Micro-label</span><span class="micro" style="color:var(--foreground)">Phase 1 — Serving Live</span></div>
+      <div class="scale-row"><span class="spec">Mono · data</span><span class="mono">p95&nbsp;412ms · cold&nbsp;3.1s · conf&nbsp;0.87</span></div>
+    </div>
+  </section>
+
+  <!-- ===================== ELEMENTS ===================== -->
+  <section class="block">
+    <div class="sec-head">
+      <h2>Elements</h2>
+      <p>The recurring parts — the line-and-dot grammar, paper cards, one solid button, and thin-line icons. No emojis anywhere.</p>
+    </div>
+
+    <div class="cards">
+
+      <!-- solid + text buttons -->
+      <div class="demo">
+        <div class="cap"><span class="t">Buttons &amp; links</span><span class="micro">hover me</span></div>
+        <div class="stage" style="flex-direction:column;gap:18px">
+          <button class="btn-solid">Learn more about me or reach out</button>
+          <button class="btn-text">Explore the full architecture <svg width="18" height="10" viewBox="0 0 18 10" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 5h15M12 1l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <p style="margin:0;font-size:14px">A body link resolves as <a class="link" href="#">deep ochre</a> and warms on hover.</p>
+        </div>
+      </div>
+
+      <!-- down arrow scroll cue -->
+      <div class="demo">
+        <div class="cap"><span class="t">Scroll cue</span><span class="micro">hero ↓</span></div>
+        <div class="stage">
+          <svg class="arrow-cue" viewBox="0 0 34 54" fill="none" stroke="currentColor" stroke-width="1.4">
+            <path d="M17 2v46M6 37l11 11 11-11" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <p style="margin:0;font-size:12.5px;color:var(--muted-foreground);text-align:center">Bright ochre, text-free. Calm float — never bouncy.</p>
+      </div>
+
+      <!-- confidence bars -->
+      <div class="demo">
+        <div class="cap"><span class="t">Confidence bars</span><button class="btn-text" id="rebars" style="font-size:12px;padding:0">replay</button></div>
+        <div class="stage">
+          <div class="bars" id="bars">
+            <div class="bar-row"><div class="bar-top"><span>cat</span><span class="pct">87%</span></div><div class="bar-track"><div class="bar-fill" data-w="87%"></div></div></div>
+            <div class="bar-row"><div class="bar-top"><span>dog</span><span class="pct">9%</span></div><div class="bar-track"><div class="bar-fill soft" data-w="9%"></div></div></div>
+            <div class="bar-row"><div class="bar-top"><span>rabbit</span><span class="pct">4%</span></div><div class="bar-track"><div class="bar-fill soft" data-w="4%"></div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- pipeline line & dot -->
+      <div class="demo" style="grid-column:span 2;min-height:auto">
+        <div class="cap"><span class="t">Pipeline flow — line &amp; dot</span><span class="micro">hover a stop</span></div>
+        <div class="stage" style="padding:14px 0">
+          <div class="pipe">
+            <div class="stop"><div class="dot"></div><div class="lbl">draw</div></div>
+            <div class="conn"><svg width="52" height="8" viewBox="0 0 52 8" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M0 4h46M42 1l5 3-5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="stop"><div class="dot"></div><div class="lbl">preprocess</div></div>
+            <div class="conn"><svg width="52" height="8" viewBox="0 0 52 8" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M0 4h46M42 1l5 3-5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="stop"><div class="dot"></div><div class="lbl">model</div></div>
+            <div class="conn"><svg width="52" height="8" viewBox="0 0 52 8" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M0 4h46M42 1l5 3-5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="stop"><div class="dot"></div><div class="lbl">serve</div></div>
+            <div class="conn"><svg width="52" height="8" viewBox="0 0 52 8" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M0 4h46M42 1l5 3-5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="stop"><div class="dot"></div><div class="lbl">monitor</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- winding path -->
+      <div class="demo">
+        <div class="cap"><span class="t">Winding path &amp; dots</span><span class="micro">journey</span></div>
+        <div class="stage">
+          <div class="path-demo">
+            <svg viewBox="0 0 240 150" fill="none">
+              <path d="M40 8 C 120 30, 40 55, 120 78 C 200 100, 120 120, 150 148" stroke="#0a0a0a" stroke-width="1.2" stroke-linecap="round"/>
+              <circle class="p-dot" cx="52" cy="16" r="5"/>
+              <circle class="p-dot" cx="96" cy="66" r="5"/>
+              <circle class="p-dot" cx="152" cy="112" r="5"/>
+              <path d="M150 138l-4 8 8 0z" fill="#0a0a0a"/>
+            </svg>
+          </div>
+        </div>
+        <p style="margin:0;font-size:12.5px;color:var(--muted-foreground);text-align:center">Dots rest in ink, warm to ochre on hover. Path ends in a downward arrow.</p>
+      </div>
+
+      <!-- paper card -->
+      <div class="demo" style="background:var(--wash-ochre);border-color:transparent">
+        <div class="cap"><span class="t" style="color:var(--foreground)">Paper card</span><span class="micro">on a wash</span></div>
+        <div class="stage">
+          <div class="paper">
+            <p class="micro date">14 Jul 2026 · Phase 1</p>
+            <h4>Roads not taken</h4>
+            <p>White paper lifts gently off the ground — soft hairline plus a subtle shadow. The same card frames the demo canvas, journey entries and architecture stops.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- top bar -->
+      <div class="demo">
+        <div class="cap"><span class="t">Top bar</span><span class="micro">indicator + menu</span></div>
+        <div class="stage">
+          <div class="topbar">
+            <span class="indicator">Live demo</span>
+            <button class="icon-btn" aria-label="Open menu">
+              <svg width="26" height="14" viewBox="0 0 26 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 1h24M1 7h24M1 13h24" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+        </div>
+        <p style="margin:0;font-size:12.5px;color:var(--muted-foreground);text-align:center">Current-section indicator left, hamburger right.</p>
+      </div>
+
+      <!-- thin line icons -->
+      <div class="demo">
+        <div class="cap"><span class="t">Footer icons</span><span class="micro">ink → ochre</span></div>
+        <div class="stage">
+          <div class="foot-icons">
+            <button class="icon-btn" aria-label="GitHub">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.2-1.5 6.2-6.7A5.2 5.2 0 0 0 20 4.8 4.9 4.9 0 0 0 19.9 1S18.7.6 16 2.5a13.4 13.4 0 0 0-7 0C6.3.6 5.1 1 5.1 1A4.9 4.9 0 0 0 5 4.8a5.2 5.2 0 0 0-1.4 3.7c0 5.2 3.2 6.4 6.2 6.7A3.4 3.4 0 0 0 9 17.8V22" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="icon-btn" aria-label="LinkedIn">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="2" width="20" height="20" rx="2.5"/><path d="M7 10v7M7 6.5v.01M12 17v-4a2 2 0 0 1 4 0v4M12 10v7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="icon-btn" id="mailbtn" aria-label="Copy email address">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><path d="M3 6l9 7 9-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <span id="copied" style="font-size:12px;color:var(--deep-ochre);opacity:0;transition:opacity .4s var(--ease-out-expo)">Copied</span>
+          </div>
+        </div>
+        <p style="margin:0;font-size:12.5px;color:var(--muted-foreground);text-align:center">GitHub · LinkedIn open profiles; the mail icon copies the address.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===================== GROUNDS ===================== -->
+  <section class="block">
+    <div class="sec-head">
+      <h2>Grounds</h2>
+      <p>Each wash is one section's ground and one inner page's wayfinding tint. Ink lines &amp; dots sit on all four; hairline #e8e8e8 does not.</p>
+    </div>
+    <div class="grounds">
+      <div class="ground" style="background:var(--wash-blue)">
+        <h3>About</h3>
+        <div class="ln"><span class="d"></span><span class="rule"></span></div>
+        <div class="foot"><span class="who">Demo · About</span><span class="hex">#e7f0ff</span></div>
+      </div>
+      <div class="ground" style="background:var(--wash-sage)">
+        <h3>Behind the Scenes</h3>
+        <div class="ln"><span class="d"></span><span class="rule"></span></div>
+        <div class="foot"><span class="who">Architecture</span><span class="hex">#e0f7e7</span></div>
+      </div>
+      <div class="ground" style="background:var(--wash-ochre)">
+        <h3>The Journey</h3>
+        <div class="ln"><span class="d"></span><span class="rule"></span></div>
+        <div class="foot"><span class="who">Journey</span><span class="hex">#ffecdb</span></div>
+      </div>
+      <div class="ground" style="background:var(--wash-rose)">
+        <h3>Skills</h3>
+        <div class="ln"><span class="d"></span><span class="rule"></span></div>
+        <div class="foot"><span class="who">Skills</span><span class="hex">#ffe8ee</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== GROUNDS — WHISPER SET ===================== -->
+  <section class="block">
+    <div class="sec-head">
+      <h2>Grounds — Whisper</h2>
+      <p>The recorded alternate set (fainter · L .970 · C .020), kept on record in case the built pages want lighter grounds once seen for real.</p>
+    </div>
+    <div class="grounds">
+      <div class="ground" style="background:#eff5ff">
+        <h3>About</h3>
+        <div class="ln"><span class="d"></span><span class="rule"></span></div>
+        <div class="foot"><span class="who">Demo · About</span><span class="hex">#eff5ff</span></div>
+      </div>
+      <div class="ground" style="background:#ebf9ef">
+        <h3>Behind the Scenes</h3>
+        <div class="ln"><span class="d"></span><span class="rule"></span></div>
+        <div class="foot"><span class="who">Architecture</span><span class="hex">#ebf9ef</span></div>
+      </div>
+      <div class="ground" style="background:#fff2e8">
+        <h3>The Journey</h3>
+        <div class="ln"><span class="d"></span><span class="rule"></span></div>
+        <div class="foot"><span class="who">Journey</span><span class="hex">#fff2e8</span></div>
+      </div>
+      <div class="ground" style="background:#fff0f4">
+        <h3>Skills</h3>
+        <div class="ln"><span class="d"></span><span class="rule"></span></div>
+        <div class="foot"><span class="who">Skills</span><span class="hex">#fff0f4</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== MOTION ===================== -->
+  <section class="block">
+    <div class="sec-head">
+      <h2>Motion</h2>
+      <p>One ease, calm reveals only. GPU transform &amp; opacity — never bouncy. Respects reduced motion.</p>
+    </div>
+    <div class="motion-wrap">
+      <div class="motion-card">
+        <p class="micro tag">The ease</p>
+        <div class="display" style="font-size:30px;text-transform:uppercase;font-variation-settings:'opsz' 72">Ease-out-expo</div>
+        <p class="mono code">cubic-bezier(.16, 1, .3, 1)<br>~.48s character</p>
+      </div>
+      <div class="motion-card">
+        <p class="micro tag">Reveal on scroll-in</p>
+        <div class="reveal-target" id="revealBox">Opacity + small translate</div>
+        <button class="btn-ghost replay" id="replayReveal">Replay reveal</button>
+      </div>
+      <div class="motion-card">
+        <p class="micro tag">Hover warm-up</p>
+        <p style="font-size:14px;margin:6px 0 0">Ink resting → ochre on hover carries dots, icons and links.</p>
+        <div style="display:flex;gap:14px;margin-top:16px;align-items:center">
+          <span class="stop" style="cursor:default"><span class="dot"></span></span>
+          <span class="stop" style="cursor:default"><span class="dot"></span></span>
+          <span class="stop" style="cursor:default"><span class="dot"></span></span>
+          <span style="font-size:12.5px;color:var(--muted-foreground)">← hover</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="end">
+    <p>Reference sheet only — the design in parts, not the built site. Source of truth is <code>DESIGN.md</code>; implementation waits on the mlops build (Stage 5).</p>
+    <p><b style="color:var(--foreground)">Contrast rules shown live:</b> bright ochre <code>#c98a3a</code> does every large job (arrow, bar fills, hovers); small text &amp; links use deep ochre <code>#96600a</code> for AA. Drawn lines &amp; dots are ink <code>#0a0a0a</code>; the hairline <code>#e8e8e8</code> is white-surfaces only.</p>
+    <p>Typefaces load from Google Fonts — open with an internet connection to see the real Bodoni Moda hairlines; otherwise it falls back to Georgia / system sans.</p>
+  </footer>
+
+</div>
+
+<script>
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // confidence bars fill in
+  function fillBars(){
+    document.querySelectorAll('#bars .bar-fill').forEach((el,i)=>{
+      el.style.transform='scaleX(0)';
+      setTimeout(()=>{ el.style.transform='scaleX('+ (parseInt(el.dataset.w)/100) +')'; }, reduce?0:120+i*130);
+    });
+  }
+  fillBars();
+  document.getElementById('rebars').addEventListener('click', fillBars);
+
+  // email copy
+  document.getElementById('mailbtn').addEventListener('click', async ()=>{
+    const addr='kallukalia01@outlook.com';
+    try{ await navigator.clipboard.writeText(addr); }catch(e){}
+    const c=document.getElementById('copied');
+    c.style.opacity='1';
+    setTimeout(()=>{ c.style.opacity='0'; }, 1600);
+  });
+
+  // reveal demo
+  const box=document.getElementById('revealBox');
+  function doReveal(){
+    if(reduce){ box.style.opacity='1'; box.style.transform='none'; return; }
+    box.style.transition='none';
+    box.style.opacity='0';
+    box.style.transform='translateY(16px)';
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      box.style.transition='opacity .48s cubic-bezier(.16,1,.3,1), transform .48s cubic-bezier(.16,1,.3,1)';
+      box.style.opacity='1';
+      box.style.transform='translateY(0)';
+    }));
+  }
+  doReveal();
+  document.getElementById('replayReveal').addEventListener('click', doReveal);
+
+  // scroll-in reveals for section blocks
+  if(!reduce && 'IntersectionObserver' in window){
+    const io=new IntersectionObserver((entries)=>{
+      entries.forEach(en=>{ if(en.isIntersecting){ en.target.style.opacity='1'; en.target.style.transform='none'; io.unobserve(en.target); } });
+    },{threshold:.08});
+    document.querySelectorAll('section.block').forEach(s=>{
+      s.style.opacity='0'; s.style.transform='translateY(22px)';
+      s.style.transition='opacity .55s cubic-bezier(.16,1,.3,1), transform .55s cubic-bezier(.16,1,.3,1)';
+      io.observe(s);
+    });
+  }
+</script>
+</body>
+</html>
