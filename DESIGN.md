@@ -287,12 +287,50 @@ The reveal: recast the playful doodle as proof of real systems engineering, and 
   stagger, echoing the pipeline direction); title + lead reveal first. Respects
   `prefers-reduced-motion` (stages appear together, no stagger).
 
+### Home §4 — Journey teaser  _(LOCKED 2026-07-17)_
+
+The devlog hand-off, drawn as an actual journey: the latest entries sit along a winding
+downward path. Ochre ground; section indicator reads **"Journey"**.
+
+- **Ground — ochre wash** (desaturated `#c2701f`), per Stage 1. _Exact tint in the four-ground
+  token pass._
+- **Title:** **"The Journey"** in Bodoni Moda, with one Outfit lead line beneath it:
+  **"Roads not taken"**.
+- **Layout — a winding path, not a list.** A thin hairline path curves down the section in
+  **asymmetric S-curves** — never a straight timeline. The 2–3 latest entries hang off it,
+  **alternating left and right of the path** with generous whitespace, and deliberately
+  misaligned: two entries on the same side never share the same left edge.
+- **Entry anchor:** each entry is marked by a **visible dot sitting on the path**. Dots use the
+  ochre accent `#c98a3a`; _contrast against the ochre wash gets checked in the token pass —
+  fallback is near-black `#0a0a0a`._
+- **Entry content:** a small uppercase date label (Outfit, wide tracking), the entry title in
+  **Bodoni Moda**, and one plain Outfit line about it. The title links to that entry on
+  `/journey`; ochre on hover.
+- **Action link:** an ochre **"Read the journey →"** link after the last entry, to `/journey`.
+- **Path ending:** the path runs on past the last entry and **ends in a small downward arrow
+  that leads into §5** — the Hero's ↓ cue, this time built into the drawing itself.
+- **Mobile:** no room to alternate sides — the path straightens into a gentle near-vertical
+  curve on the left, dots on it, entries stacked down its right.
+- **Motion:** title + lead reveal first; then the **path draws itself downward** and each
+  dot + entry reveals as the line reaches it (top-to-bottom sequence, expo ease — echoing §3's
+  left-to-right pipeline reveal). If line-drawing proves janky in practice it degrades to a
+  plain fade-in of the whole path. Respects `prefers-reduced-motion` (everything appears at
+  once, no drawing, no stagger).
+
 ---
 
 ## Decision log
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-07-17** — **Stage 3: Home §4 Journey teaser locked.** Layout is a **winding downward
+  path**, not a list (Monish's idea, chosen over the proposed row/featured/card layouts): a thin
+  hairline in asymmetric S-curves, the 2–3 latest entries alternating left/right of it with
+  deliberate misalignment, each anchored by a dot on the path. Title **"The Journey"** with lead
+  **"Roads not taken"**; ochre **"Read the journey →"** link; the path ends in a small down
+  arrow that hands the scroll to §5. Rationale: the section's form says what the section is
+  about — a journey with turns — and the ending arrow makes the sticky scroll feel continuous.
+  Left to §5: nothing carried over; next section is the last on Home.
 - **2026-07-16** — **Stage 3: Home §3 Behind the demo locked.** Sage-ground reveal — title
   **"Behind the Scenes"**, lead **"From strokes to prediction"**, and a **simplified,
   non-interactive flow line** (draw ▸ preprocess ▸ model ▸ serve ▸ monitor) that reveals
