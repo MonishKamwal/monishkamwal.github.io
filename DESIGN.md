@@ -352,9 +352,48 @@ section indicator reads **"Skills"**.
   Respects `prefers-reduced-motion` (everything appears at once; "Copied" still shows, without
   animation).
 
-**Home is now fully specified** (§1–§5 + nav + the §1→§2 transition). Remaining in Stage 3:
-the five inner pages — Journey, Architecture, Skills, About, Contact — and the four-ground
-token pass.
+**Home is now fully specified** (§1–§5 + nav + the §1→§2 transition).
+
+### Journey page (`/journey`)  _(LOCKED 2026-07-17)_
+
+The Home §4 path at full length: **every** devlog entry on one winding line. Section
+indicator reads **"Journey"**.
+
+- **Ground — the same pale ochre wash as Home §4.** This sets a precedent: **an inner page
+  inherits the tint of the Home section that points to it**, so the washes double as
+  wayfinding (Architecture → sage; Skills → dusty rose; About and Contact get settled when
+  those pages are designed).
+- **Title:** the same pair as the teaser — **"The Journey"** in Bodoni Moda, Outfit lead
+  **"Roads not taken"** — so arriving feels like the same place, now in full.
+- **Path:** the §4 grammar unchanged — thin hairline, asymmetric S-curves, entries
+  alternating left/right with deliberate misalignment, a dot anchoring each entry.
+- **Order — oldest at the top, newest at the bottom.** The page reads as the actual walk
+  from the start to today; scrolling *is* the journey.
+- **Entries:** same grammar as the teaser — uppercase date + phase micro-label, Bodoni Moda
+  title (links to the entry), one plain Outfit line.
+- **Phase markers:** where a new project phase begins, a small wide-tracked uppercase label
+  sits on the line (e.g. `PHASE 1 — SERVING LIVE`) — orientation on a long path, driven by
+  the entries' frontmatter.
+- **Ending — the line trails off.** Past the newest entry the path runs on a short way and
+  **fades out mid-curve, unfinished** — the project is still going. No arrow here; the arrow
+  was the teaser's hand-off device.
+- **Arrival transition — "the line carries you."** From "Read the journey →" or the menu:
+  the current view fades while a single hairline draws down from the top of the screen, and
+  the page arrives already threaded on it. _If the modified Next.js supports view
+  transitions, the teaser's path morphs into the page's path; the fallback (fade + path
+  drawing in from the top edge) still reads as the same line continuing. Reduced motion:
+  plain fade._
+- **Scroll motion:** the path draws as the visitor scrolls, entries revealing as the line
+  reaches them — same mechanics, same jank fallback, and same `prefers-reduced-motion`
+  behavior as §4.
+- **Mobile:** same §4 adaptation — near-vertical path on the left, entries stacked down the
+  right.
+
+_Not yet designed: the single-entry page an entry title opens (the devlog post itself —
+context → options → decision → what went wrong → evidence links)._
+
+Remaining in Stage 3: the **single-entry (devlog post) template**, the **Architecture,
+Skills, About, Contact** pages, and the **four-ground token pass**.
 
 ---
 
@@ -362,6 +401,15 @@ token pass.
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-07-17** — **Stage 3: Journey page locked.** The §4 path continues at full length —
+  every entry on one line, **oldest at the top** so scrolling reads as the walk from start to
+  today, small phase markers on the line, and the path **trailing off unfinished** past the
+  newest entry (the project is ongoing). **Pale ochre ground**, setting the precedent that an
+  inner page inherits its Home section's tint (washes as wayfinding). Arrival transition =
+  **"the line carries you"**: the old view fades, one hairline draws down, the page arrives
+  threaded on it (view-transition morph if the modified Next.js allows; fade + draw
+  otherwise). Chosen over a page-rise or plain fade because it's the only option that
+  continues the path metaphor. Still open: the single-entry post template.
 - **2026-07-17** — **Stage 3: Home §5 Skills + closing locked; Home fully specified.** Chose to
   **keep the flow rolling** instead of breaking into a two-door teaser: §4's arrow lands on real
   skills content — **drifting lines** of tool names in large Outfit, staggered left/right with
