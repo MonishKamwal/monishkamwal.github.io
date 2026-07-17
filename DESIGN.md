@@ -459,7 +459,35 @@ against the built system at implementation.
 - **Mobile:** each chapter's line turns vertical (the Journey path adaptation); cards become
   the reading sheet.
 
-Remaining in Stage 3: the **Skills, About, Contact** pages, and the **four-ground token
+### Skills page (`/skills`)  _(LOCKED 2026-07-17)_
+
+**Skills with receipts** — the page claims less and proves more. Dusty-rose wash (tint
+precedent, from Home §5); section indicator reads **"Skills"**. **No proficiency bars,
+levels, or ratings anywhere** — the evidence links do the grading.
+
+- **Title:** the same pair as Home §5 — **"Skills"** in Bodoni Moda, Outfit lead **"What I
+  build with"** — so arrival reads as the same place in full (the Journey precedent).
+- **Arrival:** no single shared line to carry over here; the shared gesture is the
+  **drift** — the page's content drifts in from the sides exactly as §5's lines do. Plain
+  fade under reduced motion.
+- **Tier 1 — "PROVEN HERE"** (uppercase micro-label): the skills this project actually
+  demonstrates, ~8–12 of them. Each entry, alternating sides with the asymmetry rule:
+  - the skill name in **large Outfit** (technical terms stay sans, per Stage 1),
+  - one plain Outfit line stating what it did *in this project*,
+  - an ochre **evidence link** — an Architecture stop's card, a Journey entry, a CI run,
+    or the repo. The per-component and per-entry shareable URLs pay off here.
+  Only the link is clickable, not the whole entry.
+- **Hairline divider.**
+- **Tier 2 — "ALSO IN THE TOOLBOX"** (uppercase micro-label): the honest long tail as quiet
+  drifting lines of names, loosely clustered by theme — slightly smaller and more muted than
+  tier 1, **no claims, no links**.
+- **Content:** the actual skill lists and evidence targets come from Monish at
+  implementation; everything above fixes structure, not inventory.
+- **Motion:** entries drift in from their own side as they scroll into view (expo ease);
+  reduced motion shows them in place.
+- **Mobile:** single column, stagger kept with smaller side offsets (the §5 adaptation).
+
+Remaining in Stage 3: the **About** and **Contact** pages, and the **four-ground token
 pass**.
 
 ---
@@ -468,6 +496,14 @@ pass**.
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-07-17** — **Stage 3: Skills page locked.** Model = **skills with receipts**: a
+  "PROVEN HERE" tier where each skill gets one plain line of what it did in this project
+  plus an ochre evidence link (Architecture stop, Journey entry, CI run, repo), then an
+  "ALSO IN THE TOOLBOX" tier — the long tail as quiet drifting lines with no claims.
+  **No proficiency bars/levels anywhere**; the evidence does the grading. Chosen over a
+  labeled grouped inventory and pure drifting lines because a plain list is what every
+  portfolio has, and this site's thesis is show-don't-claim. Skill names set in Outfit
+  (technical terms stay sans); arrival and reveals reuse §5's side-drift gesture.
 - **2026-07-17** — **Stage 3: Architecture page locked.** Organized as **three chapters** in
   the line-and-dot grammar — *the road your doodle took* (live path), *the factory that
   builds the model* (CI/training, with the blocked-deploy **dead-end stub** on the quality
