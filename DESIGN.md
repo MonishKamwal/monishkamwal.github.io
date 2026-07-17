@@ -524,7 +524,30 @@ Bio + the CV, on the one wash no inner page had claimed. Section indicator reads
 - **Mobile:** portrait above bio; the CV lines are already vertical — entries sit to the
   line's right.
 
-Remaining in Stage 3: the **Contact** page and the **four-ground token pass**.
+### Contact page (`/contact`)  _(LOCKED 2026-07-17)_
+
+**The Hero's bookend.** The site opens on white with nothing but a name; it closes on white
+with nothing but a way to reach that name. Section indicator reads **"Contact"**.
+
+- **Ground — white.** All four tints belong to the other inner pages; white gives the
+  bookend its meaning.
+- **Composition — centered and sparse, like the Hero.** Three things stacked mid-viewport:
+  1. **"Say hello."** in Bodoni Moda — the display line, in the voice of "Draw something."
+  2. **The email address, large, Outfit, ochre** — the page's real content. Click copies it
+     ("Copied" confirmation, the established gesture); a tiny secondary link beneath —
+     *"or open in your mail app →"* (plain mailto). The address stays in Outfit even at
+     display size: technical text is sans, per Stage 1.
+  3. **GitHub · LinkedIn** as quiet text links, opening in new tabs.
+- **Optional slot** for one plain line (expectations — e.g., "I read everything"); whether
+  it's filled is a content call at implementation.
+- **No contact form** — the site is static with no server, and a third-party form service
+  would add a dependency to do worse what the email already does.
+- **Motion:** the Hero's arrival reused — display line, then email, then links, on the calm
+  expo reveal. Reduced motion: everything appears in place.
+- **Mobile:** identical, centered.
+
+**All six destinations are now specified.** Remaining in Stage 3: the **four-ground token
+pass** — then Stage 4, the whole-design review.
 
 ---
 
@@ -532,6 +555,13 @@ Remaining in Stage 3: the **Contact** page and the **four-ground token pass**.
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-07-17** — **Stage 3: Contact page locked — all six destinations specified.** The
+  **Hero's bookend**: white ground (the only inner page on white — the four tints are all
+  claimed, and the circle back to plain paper is the point), centered **"Say hello."** in
+  Bodoni Moda over a large ochre **click-to-copy email** (Outfit — technical text stays
+  sans even at display size), mailto secondary, GitHub/LinkedIn text links. **No contact
+  form**: static site, and the email does the job without a third-party dependency. Hero's
+  reveal motion reused. Only the four-ground token pass remains before Stage 4.
 - **2026-07-17** — **Stage 3: About page locked.** Ground = the **dusty-blue wash** (the one
   tint without an inner page, completing the wayfinding set). CV rendered as **the straight
   line** — a vertical hairline with dots, newest first, under "Work" and "Education"
