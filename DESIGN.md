@@ -416,8 +416,51 @@ read, and keep walking.
 - **Mobile:** the card fills most of the screen with small margins — a reading sheet — and
   closes the same three ways.
 
-Remaining in Stage 3: the **Architecture, Skills, About, Contact** pages, and the
-**four-ground token pass**.
+### Architecture page (`/architecture`)  _(LOCKED 2026-07-17)_
+
+The mlops deep-dive as a **three-chapter story**, told in the site's line-and-dot grammar.
+Sage wash (inner-page tint precedent, from Home §3); section indicator reads
+**"Architecture"**. Content source: the mlops repo's `PLAN.md` §3 — exact stops get refined
+against the built system at implementation.
+
+- **Title:** **"Architecture"** in Bodoni Moda; Outfit lead: **"The machine behind the
+  doodle"**.
+- **Summary line:** the familiar five-stop line (draw ▸ preprocess ▸ model ▸ serve ▸
+  monitor) sits under the title — the anchor to Home §3. Non-interactive here too; the
+  chapters below do the work.
+- **Arrival transition — "the line carries you," reused.** From Home §3's "Explore the full
+  architecture →": the section fades and the five-stop line persists, redrawing at the top
+  of the page (view-transition morph if the modified Next.js allows; fade + draw fallback;
+  plain fade under reduced motion). From the menu, the page arrives with the line drawing in.
+- **Three chapters,** each a Bodoni Moda heading + one plain Outfit sentence + a hairline
+  diagram (dots as stops, thin connectors, Outfit labels with few-word sub-labels):
+  1. **The road your doodle took** — browser → Lambda wakes from zero (FastAPI + ONNX) →
+     the guess comes back → the doodle is logged to S3. A replay of what the visitor just
+     did on Home.
+  2. **The factory that builds the model** — pull data → validate → train → evaluate →
+     **quality gate** → registry → build container → update the Lambda. The gate gets a
+     visible **dead-end stub** off the line: the deliberately blocked deploy, clickable to
+     its CI-run evidence — the page's best proof moment.
+  3. **The weekly dress rehearsal** — Terraform builds a VPC + EKS cluster → the same
+     container deploys with monitoring → smoke + k6 load tests → Grafana dashboards
+     captured → everything destroyed. The line ends in a deliberate full stop: nothing left
+     running.
+- **Stops open paper cards** — the Journey entry card grammar unchanged: white card scales
+  up from the clicked dot over the dimmed page; inside: what it is → why this choice →
+  the trade-offs → evidence links (ochre, new tabs). Same close behaviors, focus handling,
+  and **shareable URL per component**.
+- **Hover:** a stop's dot and label warm to ochre; cursor signals clickability.
+- **Closing strip:** after chapter 3, one quiet line on the persistent footprint — *what
+  stays running when nothing is happening: two storage buckets, one container registry, one
+  function* — plus ochre links: **"Browse the raw evidence →"** (the mlops evidence hub) and
+  the GitHub repo.
+- **Motion:** each chapter's diagram draws in stop-by-stop as it scrolls into view (§3's
+  reveal grammar); reduced motion shows chapters whole, no drawing.
+- **Mobile:** each chapter's line turns vertical (the Journey path adaptation); cards become
+  the reading sheet.
+
+Remaining in Stage 3: the **Skills, About, Contact** pages, and the **four-ground token
+pass**.
 
 ---
 
@@ -425,6 +468,15 @@ Remaining in Stage 3: the **Architecture, Skills, About, Contact** pages, and th
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-07-17** — **Stage 3: Architecture page locked.** Organized as **three chapters** in
+  the line-and-dot grammar — *the road your doodle took* (live path), *the factory that
+  builds the model* (CI/training, with the blocked-deploy **dead-end stub** on the quality
+  gate), *the weekly dress rehearsal* (ephemeral EKS, ending in a deliberate full stop) —
+  with the five-stop summary line up top and the "line carries you" arrival reused from
+  Journey. Component write-ups open as **paper cards** (Journey card grammar, shareable
+  URLs). Chosen over a one-big-map (dense, collapses on mobile anyway) and sticky
+  scrollytelling (costliest, would obsolete the cards). Closing strip states the persistent
+  footprint and links the evidence hub + repo.
 - **2026-07-17** — **Stage 3: Journey entry card locked — no separate entry page.** A devlog
   post opens as a **white paper card over the dimmed Journey page** (Monish's idea), scaling
   up from the clicked dot; the visitor never leaves the path. Long reads scroll inside the
