@@ -13,8 +13,8 @@ will be superseded by decisions here).
 1. **Overall look, feel & theme** — _locked 2026-07-10_
 2. **Layout** — the sections, and what goes on which page (site IA) — _locked 2026-07-16_
 3. **Section-by-section design** — one section at a time, to a finalized spec — _locked 2026-07-17_
-4. **Finalize** — the whole design reviewed and locked ← _current stage_
-5. **Implement** — only after 1–4 *and* the mlops project are complete
+4. **Finalize** — the whole design reviewed and locked — _locked 2026-07-17_
+5. **Implement** — only after 1–4 *and* the mlops project are complete ← _next; waits on the mlops build_
 
 Each decision gets logged with a date and a short rationale. Open questions stay
 visible until resolved. Nothing here is built until Stage 5.
@@ -98,7 +98,7 @@ around a **dramatic editorial serif**, with the **os.me light palette** for colo
   | Muted surface | `#f5f5f5` | panels, `--muted` / `--secondary` / `--accent` |
   | Hairline / input | `#e8e8e8` | `--border` |
   | Primary text | `#0a0a0a` | `--foreground` (near-black, not pure) |
-  | Secondary text | `#828282` | `--muted-foreground` |
+  | Secondary text | `#6b6b6b` | `--muted-foreground`; darkened from os.me's `#828282` in Stage 4 — the original fails AA for small text |
   | Solid button | `#0a0a0a` bg / `#fafafa` text | `--primary` |
   | **Warm accent** | `#c98a3a` | `--warm`; the one signature color |
   | Warm accent soft / glow | `#e8b87e` / `#f4cc9e38` | hovers, glows |
@@ -173,7 +173,7 @@ Journey / Projects / About / Resume) against the new direction and revised it.
   | 2 | **The live demo** | dusty blue `#3f5286` | "Draw something — my model will guess." Canvas + ochre confidence bars. The hook, placed early so it lands within one scroll |
   | 3 | **Behind the demo** | sage `#6f9d7e` | The reveal: that doodle ran through a real pipeline (ephemeral K8s, CI gates, drift). High-level architecture snapshot → "explore the full architecture" → `/architecture` |
   | 4 | **Journey teaser** | ochre `#c2701f` | 2–3 latest devlog entries → Journey |
-  | 5 | **Skills + About teaser** | dusty rose `#b3637b` | Brief pointers → Skills, About; then footer |
+  | 5 | **Skills + closing** | dusty rose `#b3637b` | Skills content, closing button, footer — Stage 3 §5 folded the About teaser into the button |
 
   Grounds are heavily desaturated per Stage 1 (grounds only, never on type/controls). Ochre
   `#c98a3a` accent and calm expo reveals throughout.
@@ -230,8 +230,7 @@ buttons use text or thin line icons.
 
 - **Ground — subtle desaturated wash** (per Stage 1, not a bold panel). A **pale grey-blue** derived
   from `#3f5286`, heavily lightened/desaturated on the white site; the canvas card lifts only
-  gently off it. _Exact tint TBD in a token pass that derives all four section washes as a
-  consistent set._
+  gently off it. Exact tint: **`#e7f0ff`** (four-ground token pass).
 - **Layout — asymmetric split:** white **canvas card on the left**, live **predictions on the
   right**. Stacks on mobile (canvas on top, predictions below).
 - **Section title:** **Draw something.** in Bodoni Moda, upper-left of the section. Current-section
@@ -273,13 +272,13 @@ the hero fades in place — three things happening on the same scroll:
 The reveal: recast the playful doodle as proof of real systems engineering, and hand off to the
 `/architecture` page. Sage ground; section indicator reads **"Behind the demo"**.
 
-- **Ground — sage wash** (desaturated `#6f9d7e`), per Stage 1. _Exact tint in the four-ground token
-  pass._
+- **Ground — sage wash** (desaturated `#6f9d7e`), per Stage 1. Exact tint: **`#e0f7e7`** (token
+  pass).
 - **Title:** **"Behind the Scenes"** in Bodoni Moda.
 - **Lead:** one Outfit line — **"From strokes to prediction"**.
 - **Teaser — simplified flow line:** a light horizontal line-diagram of the pipeline,
-  **draw ▸ preprocess ▸ model ▸ serve ▸ monitor**. Thin hairline connectors with small arrows,
-  Outfit stage labels; **non-interactive** (the clickable version lives on `/architecture`). Wraps to
+  **draw ▸ preprocess ▸ model ▸ serve ▸ monitor**. Thin ink connectors (`#0a0a0a`, per the
+  ink-line rule) with small arrows, Outfit stage labels; **non-interactive** (the clickable version lives on `/architecture`). Wraps to
   a vertical stack on mobile.
 - **Action link:** an ochre **"Explore the full architecture →"** link that takes the visitor to
   the `/architecture` page.
@@ -292,17 +291,21 @@ The reveal: recast the playful doodle as proof of real systems engineering, and 
 The devlog hand-off, drawn as an actual journey: the latest entries sit along a winding
 downward path. Ochre ground; section indicator reads **"Journey"**.
 
-- **Ground — ochre wash** (desaturated `#c2701f`), per Stage 1. _Exact tint in the four-ground
-  token pass._
+- **Ground — ochre wash** (desaturated `#c2701f`), per Stage 1. Exact tint: **`#ffecdb`** (token
+  pass).
 - **Title:** **"The Journey"** in Bodoni Moda, with one Outfit lead line beneath it:
   **"Roads not taken"**.
-- **Layout — a winding path, not a list.** A thin hairline path curves down the section in
+- **Layout — a winding path, not a list.** A thin ink line (`#0a0a0a`) curves down the section in
   **asymmetric S-curves** — never a straight timeline. The 2–3 latest entries hang off it,
   **alternating left and right of the path** with generous whitespace, and deliberately
-  misaligned: two entries on the same side never share the same left edge.
-- **Entry anchor:** each entry is marked by a **visible dot sitting on the path**. Dots use the
-  ochre accent `#c98a3a`; _contrast against the ochre wash gets checked in the token pass —
-  fallback is near-black `#0a0a0a`._
+  misaligned: two entries on the same side never share the same left edge. Entries run
+  **oldest at the top, newest at the bottom** (Stage 4) — the same direction as the full
+  Journey page, so the scroll ends on the newest entry beside the "Read the journey →" link
+  and the arrival morph into `/journey` keeps its logic.
+- **Entry anchor:** each entry is marked by a **visible dot sitting on the path**. Dots **rest in
+  ink `#0a0a0a` and warm to ochre `#c98a3a` on hover** (settled in the token pass — bright ochre
+  alone measured 2.5:1 on this wash; the resting ink carries the contrast, so the transient
+  hover warm-up is fine).
 - **Entry content:** a small uppercase date label (Outfit, wide tracking), the entry title in
   **Bodoni Moda**, and one plain Outfit line about it. The title links to that entry on
   `/journey`; ochre on hover.
@@ -324,8 +327,8 @@ into real skills content, and the page closes on one button plus the footer. The
 is folded into that closing button rather than getting its own block. Dusty-rose ground;
 section indicator reads **"Skills"**.
 
-- **Ground — dusty-rose wash** (desaturated `#b3637b`), per Stage 1. _Exact tint in the
-  four-ground token pass._
+- **Ground — dusty-rose wash** (desaturated `#b3637b`), per Stage 1. Exact tint: **`#ffe8ee`**
+  (token pass).
 - **Title:** **"Skills"** in Bodoni Moda, with one short Outfit lead line beneath it:
   **"What I build with"**.
 - **Skills — drifting lines.** Skill names in **large Outfit** on 3–5 staggered lines that
@@ -339,8 +342,9 @@ section indicator reads **"Skills"**.
   **"Learn more about me or reach out"** → `/about`. _Carried requirement: the **About page
   must repeat the contact info**, so the button's "reach out" half is honored one click in.
   (The Contact page still exists in the menu.)_
-- **Footer:** at the bottom of the section, under a hairline — **three thin-line icons only,
-  centered**: GitHub, LinkedIn, email. GitHub/LinkedIn open the profiles in a new tab; the
+- **Footer:** at the bottom of the section, under a thin ink rule (`#0a0a0a` — the ink-line
+  rule) — **three thin-line icons only, centered, in ink, warming to ochre on hover** (the dot
+  behavior): GitHub, LinkedIn, email. GitHub/LinkedIn open the profiles in a new tab; the
   **email icon copies the address to the clipboard** and shows a brief **"Copied"** text
   confirmation by the icon. Icon-only controls carry accessible labels. No emojis, no extra
   footer text.
@@ -365,7 +369,7 @@ indicator reads **"Journey"**.
   those pages are designed).
 - **Title:** the same pair as the teaser — **"The Journey"** in Bodoni Moda, Outfit lead
   **"Roads not taken"** — so arriving feels like the same place, now in full.
-- **Path:** the §4 grammar unchanged — thin hairline, asymmetric S-curves, entries
+- **Path:** the §4 grammar unchanged — thin ink line, asymmetric S-curves, entries
   alternating left/right with deliberate misalignment, a dot anchoring each entry.
 - **Order — oldest at the top, newest at the bottom.** The page reads as the actual walk
   from the start to today; scrolling *is* the journey.
@@ -378,7 +382,7 @@ indicator reads **"Journey"**.
   **fades out mid-curve, unfinished** — the project is still going. No arrow here; the arrow
   was the teaser's hand-off device.
 - **Arrival transition — "the line carries you."** From "Read the journey →" or the menu:
-  the current view fades while a single hairline draws down from the top of the screen, and
+  the current view fades while a single thin ink line draws down from the top of the screen, and
   the page arrives already threaded on it. _If the modified Next.js supports view
   transitions, the teaser's path morphs into the page's path; the fallback (fade + path
   drawing in from the top edge) still reads as the same line continuing. Reduced motion:
@@ -432,8 +436,8 @@ against the built system at implementation.
   architecture →": the section fades and the five-stop line persists, redrawing at the top
   of the page (view-transition morph if the modified Next.js allows; fade + draw fallback;
   plain fade under reduced motion). From the menu, the page arrives with the line drawing in.
-- **Three chapters,** each a Bodoni Moda heading + one plain Outfit sentence + a hairline
-  diagram (dots as stops, thin connectors, Outfit labels with few-word sub-labels):
+- **Three chapters,** each a Bodoni Moda heading + one plain Outfit sentence + a thin-ink
+  diagram (`#0a0a0a` — dots as stops, thin connectors, Outfit labels with few-word sub-labels):
   1. **The road your doodle took** — browser → Lambda wakes from zero (FastAPI + ONNX) →
      the guess comes back → the doodle is logged to S3. A replay of what the visitor just
      did on Home.
@@ -477,7 +481,7 @@ levels, or ratings anywhere** — the evidence links do the grading.
   - an ochre **evidence link** — an Architecture stop's card, a Journey entry, a CI run,
     or the repo. The per-component and per-entry shareable URLs pay off here.
   Only the link is clickable, not the whole entry.
-- **Hairline divider.**
+- **Thin ink divider** (`#0a0a0a` — the ink-line rule).
 - **Tier 2 — "ALSO IN THE TOOLBOX"** (uppercase micro-label): the honest long tail as quiet
   drifting lines of names, loosely clustered by theme — slightly smaller and more muted than
   tier 1, **no claims, no links**.
@@ -506,7 +510,7 @@ Bio + the CV, on the one wash no inner page had claimed. Section indicator reads
 - **CV — the straight line.** The path's calm cousin: Journey's road winds because that
   story has wrong turns; the record stands straight. Two runs of it under Bodoni Moda
   subheads **"Work"** and **"Education"**:
-  - a **straight vertical hairline** with a dot per stop, **newest at the top** (a record,
+  - a **straight vertical ink line** (`#0a0a0a`) with a dot per stop, **newest at the top** (a record,
     not a story — unlike Journey's oldest-first walk);
   - each stop: date-range micro-label (uppercase, wide tracking), role + place in Outfit,
     one plain line on what the work was. Stops are not clickable — nothing hides behind
@@ -533,11 +537,14 @@ with nothing but a way to reach that name. Section indicator reads **"Contact"**
   bookend its meaning.
 - **Composition — centered and sparse, like the Hero.** Three things stacked mid-viewport:
   1. **"Say hello."** in Bodoni Moda — the display line, in the voice of "Draw something."
-  2. **The email address, large, Outfit, ochre** — the page's real content. Click copies it
+  2. **The email address, large, Outfit, deep ochre `#96600a`** (Stage 4 correction — bright
+     `#c98a3a` measures 2.9:1 on white, under the bar even at display size) — the page's real
+     content. Click copies it
      ("Copied" confirmation, the established gesture); a tiny secondary link beneath —
      *"or open in your mail app →"* (plain mailto). The address stays in Outfit even at
      display size: technical text is sans, per Stage 1.
-  3. **GitHub · LinkedIn** as quiet text links, opening in new tabs.
+  3. **GitHub · LinkedIn** as quiet text links (deep ochre `#96600a`, the body-link rule),
+     opening in new tabs.
 - **Optional slot** for one plain line (expectations — e.g., "I read everything"); whether
   it's filled is a content call at implementation.
 - **No contact form** — the site is static with no server, and a third-party form service
@@ -578,15 +585,49 @@ token-pass artifact, 2026-07-17.
   keeps every large-scale job: hero arrow, confidence-bar fills, hovers, focus glows,
   display accents. On the bars, the ink percentage text carries the data; the fill is
   reinforcement.
-- **Muted gray — kept, flagged.** `#828282` measures 3.8:1 on white and 3.3–3.5:1 on
-  washes, below AA for small text. The passing alternative `#6b6b6b` was offered and
-  **not adopted** for now; **flagged for the Stage 4 review**.
+- **Muted gray — resolved in Stage 4.** `#828282` measures 3.8:1 on white and 3.3–3.5:1 on
+  washes, below AA for small text. The passing **`#6b6b6b` was adopted everywhere** in the
+  Stage 4 review (2026-07-17); the palette table reflects it.
 - Sanity: body text `#0a0a0a` ≥ 17:1 on every wash; the white cards lift ~1.15:1 off
   the washes, carried by hairline + shadow as designed.
 
-**Stage 3 is complete.** Next: **Stage 4 — Finalize**: the whole design read front to
-back for contradictions, then locked. (Implementation still waits on the mlops build,
-per the process rules.)
+**Stage 3 is complete.**
+
+---
+
+## Stage 4 — Finalize  _(LOCKED 2026-07-17)_
+
+The whole design read front to back in a fresh conversation. Verdict: **coherent** — the
+line-and-dot grammar, the paper cards, the single ochre accent, the calm expo reveals, and
+the no-emoji rule hold across all six destinations, and nothing contradicts the hard
+constraints. Findings, all resolved:
+
+- **Muted gray darkened to `#6b6b6b`.** `#828282` fails AA for small text even on white
+  (3.8:1); the darker gray passes on white and all four washes. Adopted everywhere —
+  secondary text, prompt lines, micro-labels. Palette table updated.
+- **Contact email corrected to deep ochre `#96600a`.** The page's centerpiece was specced
+  in bright `#c98a3a` on white — 2.9:1, under the bar even for display type (that spec was
+  locked hours before the token pass measured it). Deep ochre keeps the warmth and reads.
+- **Teaser entry order settled: oldest first.** Home §4's featured entries run oldest →
+  newest down the path, matching the full Journey page's direction; the scroll ends on the
+  newest entry beside "Read the journey →", and the morph into `/journey` keeps its logic.
+- **Stale text swept.** §4's dots now match the token pass (rest in ink, warm to ochre on
+  hover); the four "exact tint TBD" notes carry their locked wash values; the Stage 2 Home
+  table reflects the locked "Skills + closing" §5.
+- **"Hairline" disambiguated.** The word now strictly means the `#e8e8e8` separator color,
+  used on white surfaces only (card borders, separators on white). Every drawn line on a
+  wash — the Journey path, the flow diagrams, the Architecture chapters, the CV line, §5's
+  footer rule, the Skills divider, the arrival transitions — is explicitly **thin ink
+  `#0a0a0a`**.
+- **Small gaps closed.** Footer icons: ink, warming to ochre on hover (the dot behavior).
+  Contact's GitHub · LinkedIn links: deep ochre `#96600a` (the body-link rule).
+- **Accepted, on record:** ochre hover states on the ochre wash measure 2.5:1 — fine
+  because hover is transient and the resting state (ink) carries the contrast. About keeps
+  the dusty-blue wash even though §5 (rose) points to it — the wayfinding rule is "one wash
+  per inner page," not "follow the color you came from."
+
+**The design is finalized.** Stage 5 — Implement — begins only once the mlops platform is
+done, per the process rules.
 
 ---
 
@@ -594,6 +635,19 @@ per the process rules.)
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-07-17** — **Stage 4 locked — the design is finalized.** Front-to-back review (run in
+  a fresh conversation, per practice) found the system coherent and four issues, all resolved:
+  **muted gray darkened to `#6b6b6b`** (the flagged `#828282` fails AA even on white);
+  **Contact's display email corrected to deep ochre `#96600a`** (bright ochre measured 2.9:1
+  on white — the spec predated the token pass by hours); **Home §4's teaser entries ordered
+  oldest-first** to match the Journey page's walk and keep the arrival morph's logic; and the
+  **stale text swept** (dots rest in ink per the token pass; wash values inlined where "TBD"
+  notes remained; "hairline" now strictly means `#e8e8e8`-on-white — drawn lines on washes are
+  ink, including §5's footer rule and the Skills divider). Small gaps closed: footer icons ink
+  with ochre hover; Contact links deep ochre. Accepted deliberately: ochre hovers on the ochre
+  wash (2.5:1 — transient, over ink resting states), and About keeping the blue wash despite
+  §5 (rose) pointing to it — the wayfinding rule is one wash per inner page. Implementation
+  still waits on the mlops build.
 - **2026-07-17** — **Stage 3: four-ground token pass locked — Stage 3 complete.** Washes
   derived with one OKLCH formula (hue kept, shared lightness/chroma) and adopted at the
   **"present"** intensity — `#e7f0ff` / `#e0f7e7` / `#ffecdb` / `#ffe8ee` — with the fainter
