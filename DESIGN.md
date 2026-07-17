@@ -389,11 +389,35 @@ indicator reads **"Journey"**.
 - **Mobile:** same §4 adaptation — near-vertical path on the left, entries stacked down the
   right.
 
-_Not yet designed: the single-entry page an entry title opens (the devlog post itself —
-context → options → decision → what went wrong → evidence links)._
+### Journey entry card  _(LOCKED 2026-07-17)_
 
-Remaining in Stage 3: the **single-entry (devlog post) template**, the **Architecture,
-Skills, About, Contact** pages, and the **four-ground token pass**.
+**There is no separate entry page.** Clicking an entry title opens the devlog post as a
+**card over the Journey page** — the visitor never leaves the path; they stop at a marker,
+read, and keep walking.
+
+- **Card:** a bright **white paper card** — same grammar as the demo's canvas card (hairline
+  `#e8e8e8` + subtle shadow) — floating centered over the Journey page, which dims behind a
+  light scrim. Comfortable reading width; long entries **scroll inside the card** while the
+  page behind stays put.
+- **Content, top to bottom:** uppercase date · phase micro-label; the entry title in
+  **Bodoni Moda**; the post body in Outfit (the MDX entry: context → options considered →
+  decision + rationale → what went wrong); **evidence links** (commits, CI runs, cost
+  screenshots) as ochre links opening in new tabs. Images render within the card's width.
+  A thin-line **×** sits top-right.
+- **Open motion:** the card **scales up from the clicked dot** (transform origin at the dot)
+  with the scrim fading in, on the expo ease. Reduced motion: plain fade.
+- **Close:** the ×, the Esc key, or clicking the scrim. The visitor lands exactly where they
+  were on the path, and keyboard focus returns to the entry title. While open the card traps
+  focus and announces as a dialog.
+- **Address:** opening a card **updates the URL**, and visiting that URL opens Journey with
+  the card already open and the path scrolled to its dot — every entry stays shareable and
+  linkable. _Exact mechanism (hash vs. route) checked against the modified Next.js docs at
+  implementation time._
+- **Mobile:** the card fills most of the screen with small margins — a reading sheet — and
+  closes the same three ways.
+
+Remaining in Stage 3: the **Architecture, Skills, About, Contact** pages, and the
+**four-ground token pass**.
 
 ---
 
@@ -401,6 +425,15 @@ Skills, About, Contact** pages, and the **four-ground token pass**.
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-07-17** — **Stage 3: Journey entry card locked — no separate entry page.** A devlog
+  post opens as a **white paper card over the dimmed Journey page** (Monish's idea), scaling
+  up from the clicked dot; the visitor never leaves the path. Long reads scroll inside the
+  card; evidence links open in new tabs; closes via ×/Esc/scrim back to the same spot. Two
+  requirements folded in to make the no-page model safe: the card is a **generous reading
+  surface** (these are long posts), and **every entry keeps a shareable URL** that reopens
+  its card directly. Chosen over a menu-style slide-in panel and an expand-in-place
+  accordion — the paper card reuses the canvas card's grammar and reads like a page from the
+  logbook.
 - **2026-07-17** — **Stage 3: Journey page locked.** The §4 path continues at full length —
   every entry on one line, **oldest at the top** so scrolling reads as the walk from start to
   today, small phase markers on the line, and the path **trailing off unfinished** past the
