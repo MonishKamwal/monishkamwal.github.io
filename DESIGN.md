@@ -317,12 +317,61 @@ downward path. Ochre ground; section indicator reads **"Journey"**.
   plain fade-in of the whole path. Respects `prefers-reduced-motion` (everything appears at
   once, no drawing, no stagger).
 
+### Home §5 — Skills + closing  _(LOCKED 2026-07-17)_
+
+The flow **keeps rolling** — no teaser break. §4's ending arrow delivers the scroll straight
+into real skills content, and the page closes on one button plus the footer. The About teaser
+is folded into that closing button rather than getting its own block. Dusty-rose ground;
+section indicator reads **"Skills"**.
+
+- **Ground — dusty-rose wash** (desaturated `#b3637b`), per Stage 1. _Exact tint in the
+  four-ground token pass._
+- **Title:** **"Skills"** in Bodoni Moda, with one short Outfit lead line beneath it:
+  **"What I build with"**.
+- **Skills — drifting lines.** Skill names in **large Outfit** on 3–5 staggered lines that
+  drift alternately left and right down the section — echoing §4's path rhythm, with the same
+  asymmetry rule (no two lines share an edge). Each line is a loose cluster of related tools
+  separated by interpuncts (e.g. Python · PyTorch · scikit-learn / AWS · Kubernetes ·
+  Terraform / GitHub Actions · Docker · MLflow / Next.js · TypeScript). No group labels.
+  Curated, ~12 names max — the full inventory lives on `/skills`.
+- **Skills link:** an ochre **"See all skills →"** link after the lines, to `/skills`.
+- **Closing button:** one **solid button** (Stage 1: `#0a0a0a` bg / `#fafafa` text) reading
+  **"Learn more about me or reach out"** → `/about`. _Carried requirement: the **About page
+  must repeat the contact info**, so the button's "reach out" half is honored one click in.
+  (The Contact page still exists in the menu.)_
+- **Footer:** at the bottom of the section, under a hairline — **three thin-line icons only,
+  centered**: GitHub, LinkedIn, email. GitHub/LinkedIn open the profiles in a new tab; the
+  **email icon copies the address to the clipboard** and shows a brief **"Copied"** text
+  confirmation by the icon. Icon-only controls carry accessible labels. No emojis, no extra
+  footer text.
+- **Mobile:** the drifting lines keep their stagger with smaller side offsets; long lines wrap
+  while holding their side. Button and footer center.
+- **Motion:** title + lead first; then the skill lines reveal one after another, each sliding
+  in subtly **from its own side** (left lines from left, right from right) on the expo ease;
+  then the button, then the footer icons. The "Copied" note fades in/out on the same ease.
+  Respects `prefers-reduced-motion` (everything appears at once; "Copied" still shows, without
+  animation).
+
+**Home is now fully specified** (§1–§5 + nav + the §1→§2 transition). Remaining in Stage 3:
+the five inner pages — Journey, Architecture, Skills, About, Contact — and the four-ground
+token pass.
+
 ---
 
 ## Decision log
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-07-17** — **Stage 3: Home §5 Skills + closing locked; Home fully specified.** Chose to
+  **keep the flow rolling** instead of breaking into a two-door teaser: §4's arrow lands on real
+  skills content — **drifting lines** of tool names in large Outfit, staggered left/right with
+  §4's asymmetry rule — then an ochre "See all skills →", then one solid closing button with the
+  full phrase **"Learn more about me or reach out"** → `/about` (accepted trade-off: the label
+  names two things and goes one place; in exchange the **About page must repeat contact info**,
+  recorded as a carried requirement). The About teaser is folded into that button. **Footer:**
+  three centered thin-line icons only — GitHub and LinkedIn open profiles, the **email icon
+  copies the address** with a "Copied" confirmation. Rationale: a continuous story reads better
+  than a directory ending, and a stranger leaves with real information instead of pointers.
 - **2026-07-17** — **Stage 3: Home §4 Journey teaser locked.** Layout is a **winding downward
   path**, not a list (Monish's idea, chosen over the proposed row/featured/card layouts): a thin
   hairline in asymmetric S-curves, the 2–3 latest entries alternating left/right of it with
