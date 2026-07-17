@@ -487,8 +487,44 @@ levels, or ratings anywhere** — the evidence links do the grading.
   reduced motion shows them in place.
 - **Mobile:** single column, stagger kept with smaller side offsets (the §5 adaptation).
 
-Remaining in Stage 3: the **About** and **Contact** pages, and the **four-ground token
-pass**.
+### About page (`/about`)  _(LOCKED 2026-07-17)_
+
+Bio + the CV, on the one wash no inner page had claimed. Section indicator reads
+**"About"**.
+
+- **Ground — dusty-blue wash** (desaturated `#3f5286`). §2's demo has no inner page, so the
+  blue was orphaned; About takes it, and **every wash now has exactly one inner page** —
+  ochre = Journey, sage = Architecture, dusty rose = Skills, dusty blue = About. The
+  wayfinding set is complete.
+- **Title:** **"About"** in Bodoni Moda; Outfit lead **"The person behind the machine"** —
+  the deliberate mirror of Architecture's "The machine behind the doodle".
+- **Bio block:** a **small portrait** with the bio prose beside it — asymmetric, photo one
+  side, text the other (stacks on mobile, photo first). The photo is treated like a
+  photograph laid on the page: hairline border `#e8e8e8` + subtle shadow, same family as
+  the paper cards; no rotation, no frills. Bio is first-person Outfit prose, written by
+  Monish at implementation.
+- **CV — the straight line.** The path's calm cousin: Journey's road winds because that
+  story has wrong turns; the record stands straight. Two runs of it under Bodoni Moda
+  subheads **"Work"** and **"Education"**:
+  - a **straight vertical hairline** with a dot per stop, **newest at the top** (a record,
+    not a story — unlike Journey's oldest-first walk);
+  - each stop: date-range micro-label (uppercase, wide tracking), role + place in Outfit,
+    one plain line on what the work was. Stops are not clickable — nothing hides behind
+    them.
+- **Résumé:** a quiet ochre **"Download résumé (PDF)"** link after the Education run. The
+  PDF itself is content Monish maintains.
+- **Contact block — the carried requirement, fulfilled.** The page closes with a short
+  reach-me block: the email address as an ochre **click-to-copy** (with the footer's
+  "Copied" confirmation) plus **GitHub** and **LinkedIn** as text links — text, not icons,
+  on this reading page. The §5 button's "or reach out" promise lands here, one click in.
+- **Arrival + motion:** calm fade in, then top-to-bottom reveals; each CV line **draws
+  downward** as it scrolls into view, dots and entries appearing as the line reaches them —
+  Journey's mechanics, straightened. Same jank fallback; reduced motion shows everything in
+  place.
+- **Mobile:** portrait above bio; the CV lines are already vertical — entries sit to the
+  line's right.
+
+Remaining in Stage 3: the **Contact** page and the **four-ground token pass**.
 
 ---
 
@@ -496,6 +532,14 @@ pass**.
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-07-17** — **Stage 3: About page locked.** Ground = the **dusty-blue wash** (the one
+  tint without an inner page, completing the wayfinding set). CV rendered as **the straight
+  line** — a vertical hairline with dots, newest first, under "Work" and "Education"
+  subheads — deliberately contrasting Journey's winding road: the story winds, the record
+  stands straight. **Small portrait** with the bio (photograph-on-the-page treatment);
+  quiet **"Download résumé (PDF)"** link; closing **contact block** (click-to-copy email +
+  GitHub/LinkedIn text links) fulfills the carried requirement from §5's "or reach out"
+  button. Lead "The person behind the machine" mirrors Architecture's lead.
 - **2026-07-17** — **Stage 3: Skills page locked.** Model = **skills with receipts**: a
   "PROVEN HERE" tier where each skill gets one plain line of what it did in this project
   plus an ochre evidence link (Architecture stop, Journey entry, CI run, repo), then an
