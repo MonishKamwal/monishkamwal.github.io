@@ -12,8 +12,8 @@ will be superseded by decisions here).
 
 1. **Overall look, feel & theme** — _locked 2026-07-10_
 2. **Layout** — the sections, and what goes on which page (site IA) — _locked 2026-07-16_
-3. **Section-by-section design** — one section at a time, to a finalized spec ← _current stage_
-4. **Finalize** — the whole design reviewed and locked
+3. **Section-by-section design** — one section at a time, to a finalized spec — _locked 2026-07-17_
+4. **Finalize** — the whole design reviewed and locked ← _current stage_
 5. **Implement** — only after 1–4 *and* the mlops project are complete
 
 Each decision gets logged with a date and a short rationale. Open questions stay
@@ -546,8 +546,47 @@ with nothing but a way to reach that name. Section indicator reads **"Contact"**
   expo reveal. Reduced motion: everything appears in place.
 - **Mobile:** identical, centered.
 
-**All six destinations are now specified.** Remaining in Stage 3: the **four-ground token
-pass** — then Stage 4, the whole-design review.
+**All six destinations are now specified.**
+
+### Four-ground token pass  _(LOCKED 2026-07-17)_
+
+All four washes derived with **one formula** (OKLCH: same lightness L .955, same low
+chroma C .032, each base keeping only its hue) so no section reads bolder than its
+siblings; every ink that sits on them contrast-measured (WCAG). Swatch record: the
+token-pass artifact, 2026-07-17.
+
+- **Wash values (adopted — the "present" set):**
+
+  | Wash | Base | Value |
+  |---|---|---|
+  | Demo / About (dusty blue) | `#3f5286` | **`#e7f0ff`** |
+  | Behind the demo / Architecture (sage) | `#6f9d7e` | **`#e0f7e7`** |
+  | Journey (ochre) | `#c2701f` | **`#ffecdb`** |
+  | Skills (dusty rose) | `#b3637b` | **`#ffe8ee`** |
+
+  This resolves every "_exact tint TBD_" note in the section specs. **Noted alternate —
+  the "whisper" set** (L .970, C .020): `#eff5ff` / `#ebf9ef` / `#fff2e8` / `#fff0f4`,
+  kept on record in case the built pages want fainter grounds once seen for real.
+- **Ink-line rule (adopted).** `#e8e8e8` on the washes measures ~1.07:1 — invisible.
+  All **drawn lines and resting dots** (the Journey path, flow diagrams, the CV line)
+  are thin **ink `#0a0a0a`**; `#e8e8e8` stays for separators on white surfaces only.
+  Dots **rest in ink and warm to ochre on hover** — closing §4's open dot question
+  (ochre on its own wash measured 2.5:1).
+- **Deep ochre for small marks (adopted).** `#c98a3a` fails as small text (2.9:1 on
+  white, ~2.5:1 on washes). **Body-size links and small labels use deep ochre
+  `#96600a`** — same hue family, ≥4.5:1 on white and all four washes. Bright `#c98a3a`
+  keeps every large-scale job: hero arrow, confidence-bar fills, hovers, focus glows,
+  display accents. On the bars, the ink percentage text carries the data; the fill is
+  reinforcement.
+- **Muted gray — kept, flagged.** `#828282` measures 3.8:1 on white and 3.3–3.5:1 on
+  washes, below AA for small text. The passing alternative `#6b6b6b` was offered and
+  **not adopted** for now; **flagged for the Stage 4 review**.
+- Sanity: body text `#0a0a0a` ≥ 17:1 on every wash; the white cards lift ~1.15:1 off
+  the washes, carried by hairline + shadow as designed.
+
+**Stage 3 is complete.** Next: **Stage 4 — Finalize**: the whole design read front to
+back for contradictions, then locked. (Implementation still waits on the mlops build,
+per the process rules.)
 
 ---
 
@@ -555,6 +594,15 @@ pass** — then Stage 4, the whole-design review.
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-07-17** — **Stage 3: four-ground token pass locked — Stage 3 complete.** Washes
+  derived with one OKLCH formula (hue kept, shared lightness/chroma) and adopted at the
+  **"present"** intensity — `#e7f0ff` / `#e0f7e7` / `#ffecdb` / `#ffe8ee` — with the fainter
+  "whisper" set recorded as an alternate at Monish's request. Contrast measurement forced and
+  won two corrections: the **ink-line rule** (drawn lines/dots in `#0a0a0a` — `#e8e8e8` is
+  invisible on washes; dots rest ink, warm to ochre on hover, closing §4's question) and
+  **deep ochre `#96600a`** for body-size links/small labels (bright `#c98a3a` keeps all large
+  jobs). The muted-gray correction (`#828282` fails AA even on white) was **declined for
+  now** and flagged for Stage 4. Stage 4 (whole-design review) is next.
 - **2026-07-17** — **Stage 3: Contact page locked — all six destinations specified.** The
   **Hero's bookend**: white ground (the only inner page on white — the four tints are all
   claimed, and the circle back to plain paper is the point), centered **"Say hello."** in
