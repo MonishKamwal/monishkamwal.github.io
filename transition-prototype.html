@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prototype — Home scroll: Hero → Demo → Behind the Scenes → Journey → Skills</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..700&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --background:#ffffff;
+    --border:#e8e8e8;
+    --foreground:#0a0a0a;
+    --muted-foreground:#6b6b6b;
+    --warm:#c98a3a;
+    --warm-soft:#e8b87e;
+    --wash-blue:#e7f0ff;
+    --wash-sage:#e0f7e7;
+    --wash-ochre:#ffecdb;
+    --wash-rose:#ffe8ee;
+    --deep-ochre:#96600a;
+    --ease-out-expo:cubic-bezier(.16,1,.3,1);
+    --dur:.48s; /* the loose global motion value — retuned by the dock */
+  }
+  *{box-sizing:border-box;}
+  /* hard floors: the scroll must rest on a section, and a momentum fling
+     cannot pass one — each floor demands its own gesture to leave */
+  html{scroll-snap-type:y mandatory;}
+  .floor{
+    position:absolute;left:0;width:100%;height:2px;
+    scroll-snap-align:start;scroll-snap-stop:always;
+  }
+  body{
+    margin:0;background:var(--background);color:var(--foreground);
+    font-family:"Outfit",system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-weight:330;line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .micro{
+    text-transform:uppercase;letter-spacing:.22em;font-size:11.5px;
+    font-weight:500;color:var(--muted-foreground);
+  }
+  .display{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 96;font-weight:500;
+    line-height:.92;letter-spacing:-.02em;
+  }
+
+  /* ---------- top bar: current-section indicator ---------- */
+  .topbar{
+    position:fixed;top:0;left:0;right:0;z-index:30;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 26px;pointer-events:none;
+  }
+  .topbar .indicator{
+    font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted-foreground);
+    opacity:0;transition:opacity var(--dur) var(--ease-out-expo);
+    /* text + visibility driven by the scroll script (blank on Hero, per spec) */
+  }
+  .menu-btn{
+    background:none;border:0;cursor:pointer;padding:6px;color:var(--foreground);
+    display:inline-flex;line-height:0;pointer-events:auto;
+    opacity:0;visibility:hidden; /* scrubbed: arrives with the demo, hidden on the Hero */
+    transition:color .3s var(--ease-out-expo);
+  }
+  .menu-btn:hover{color:var(--warm);}
+  .menu-btn:focus-visible{outline:2px solid var(--warm);outline-offset:2px;border-radius:3px;}
+
+  /* ---------- slide-in menu (nav spec) ---------- */
+  .m-scrim{
+    position:fixed;inset:0;background:rgba(10,10,10,.16);z-index:50;
+    opacity:0;pointer-events:none;transition:opacity calc(var(--dur)*.8) var(--ease-out-expo);
+  }
+  .m-scrim.open{opacity:1;pointer-events:auto;}
+  .menu-panel{
+    position:fixed;top:0;right:0;bottom:0;width:min(400px,88vw);z-index:51;
+    background:#fff;border-left:1px solid var(--border);
+    padding:24px 34px 34px;display:flex;flex-direction:column;
+    transform:translateX(102%);visibility:hidden;
+    transition:transform var(--dur) var(--ease-out-expo),visibility 0s var(--dur);
+  }
+  .menu-panel.open{
+    transform:none;visibility:visible;
+    transition:transform var(--dur) var(--ease-out-expo),visibility 0s 0s;
+  }
+  .menu-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:38px;}
+  .m-close{
+    background:none;border:0;cursor:pointer;padding:6px;color:var(--foreground);
+    display:inline-flex;line-height:0;transition:color .3s var(--ease-out-expo);
+  }
+  .m-close:hover{color:var(--warm);}
+  .m-close:focus-visible{outline:2px solid var(--warm);outline-offset:2px;border-radius:3px;}
+  .menu-panel nav{display:flex;flex-direction:column;gap:18px;}
+  .menu-link{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
+    text-transform:uppercase;font-size:clamp(28px,4.5vw,38px);line-height:1.05;
+    color:var(--foreground);text-decoration:none;width:fit-content;
+    opacity:0;transform:translate(30px,10px);
+    transition:opacity var(--dur) var(--ease-out-expo),transform var(--dur) var(--ease-out-expo),color .3s var(--ease-out-expo);
+  }
+  .menu-link:hover{color:var(--warm);}
+  .menu-link:focus-visible{outline:2px solid var(--warm);outline-offset:4px;}
+  .menu-panel.open .menu-link{opacity:1;transform:none;}
+  /* staircase stagger: ~10% of --dur per item, after the panel lands */
+  .menu-panel.open .menu-link:nth-of-type(1){transition-delay:calc(var(--dur)*.2)}
+  .menu-panel.open .menu-link:nth-of-type(2){transition-delay:calc(var(--dur)*.3)}
+  .menu-panel.open .menu-link:nth-of-type(3){transition-delay:calc(var(--dur)*.4)}
+  .menu-panel.open .menu-link:nth-of-type(4){transition-delay:calc(var(--dur)*.5)}
+  .menu-panel.open .menu-link:nth-of-type(5){transition-delay:calc(var(--dur)*.6)}
+  .menu-panel.open .menu-link:nth-of-type(6){transition-delay:calc(var(--dur)*.7)}
+
+  /* ---------- the scroll runway: sticky viewport inside ---------- */
+  .runway{height:1000vh;position:relative;}
+  .viewport{position:sticky;top:0;height:100vh;overflow:hidden;background:#fff;}
+
+  /* background cross-fade layer: white → pale blue, opacity-driven */
+  .bg-wash{position:absolute;inset:0;background:var(--wash-blue);opacity:0;}
+
+  /* ---------- hero layer (§1) — fades in place, never moves ---------- */
+  .hero-layer{
+    position:absolute;inset:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    z-index:2;pointer-events:none; /* floats above the rising panel; fades in place */
+  }
+  .hero-name{
+    font-size:clamp(52px,12vw,140px);text-transform:uppercase;
+    text-align:center;padding:0 20px;
+  }
+  .arrow-btn{
+    position:absolute;bottom:34px;left:50%;transform:translateX(-50%);
+    background:none;border:0;cursor:pointer;color:var(--warm);
+    padding:8px;line-height:0;pointer-events:auto;
+    animation:float 2.6s var(--ease-out-expo) infinite;
+  }
+  .arrow-btn:focus-visible{outline:2px solid var(--warm);outline-offset:3px;border-radius:3px;}
+  .arrow-btn svg{width:34px;height:54px;}
+  @keyframes float{0%,100%{transform:translate(-50%,0);opacity:.75;}50%{transform:translate(-50%,7px);opacity:1;}}
+
+  /* the demo's own ↓ cue: the wrapper carries the scrubbed fade (the float
+     animation owns the button's opacity, so the fade must live on the parent) */
+  .demo-arrow-wrap{
+    position:absolute;bottom:34px;left:50%;transform:translateX(-50%);
+    opacity:0;visibility:hidden;
+  }
+  .demo-arrow-wrap .arrow-btn{
+    position:static;animation:floatY 2.6s var(--ease-out-expo) infinite;
+  }
+  @keyframes floatY{0%,100%{transform:translateY(0);opacity:.75;}50%{transform:translateY(7px);opacity:1;}}
+
+  /* ---------- demo panel (§2) — rises from below and overlaps ---------- */
+  .panel-layer{
+    position:absolute;inset:0;background:var(--wash-blue);
+    z-index:1;transform:translate3d(0,100%,0);
+    display:flex;align-items:center;justify-content:center;
+    gap:clamp(24px,4vw,64px);padding:clamp(24px,5vw,72px);
+  }
+  .demo-title{
+    position:absolute;top:clamp(56px,9vh,84px);left:clamp(24px,5vw,72px);
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
+    font-size:clamp(30px,5vw,54px);
+    opacity:0; /* scrubbed: opacity + translate driven per-frame by the scroll script */
+  }
+
+  .canvas-card{
+    width:min(46vw,520px);aspect-ratio:4/3;background:#fff;
+    border:1px solid var(--border);border-radius:5px;
+    box-shadow:0 18px 40px -26px rgba(10,10,10,.35),0 2px 8px -4px rgba(10,10,10,.12);
+    display:flex;align-items:center;justify-content:center;
+    opacity:0; /* scrubbed */
+  }
+  .canvas-card svg{width:64%;height:auto;}
+
+  .pred{
+    width:min(34vw,300px);display:flex;flex-direction:column;gap:16px;
+    opacity:0; /* scrubbed */
+  }
+  .bar-row .bar-top{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:6px;}
+  .bar-row .bar-top span:first-child{color:var(--muted-foreground);}
+  .bar-row .pct{font-variant-numeric:tabular-nums;}
+  .bar-track{height:8px;background:#fff;border-radius:20px;overflow:hidden;}
+  .bar-fill{
+    height:100%;background:var(--warm);border-radius:20px;
+    transform-origin:left;transform:scaleX(0);
+    transition:transform calc(var(--dur)*1.9) var(--ease-out-expo);
+  }
+  .bar-fill.soft{background:var(--warm-soft);}
+  /* hybrid: the fills are the money moment — they play on the clock at the designed
+     tempo, triggered as soon as the bars are visible (not on full settle) */
+  body.bars-live .bar-fill{transform:scaleX(var(--w));}
+  body.bars-live .bar-row:nth-child(2) .bar-fill{transition-delay:calc(var(--dur)*.12);}
+  body.bars-live .bar-row:nth-child(3) .bar-fill{transition-delay:calc(var(--dur)*.24);}
+  .prompt{font-size:13px;color:var(--muted-foreground);margin:0;}
+
+  /* ---------- §3 layer: Behind the Scenes — rises over the settled demo ---------- */
+  .scene-layer{
+    position:absolute;inset:0;background:var(--wash-sage);
+    z-index:3;transform:translate3d(0,100%,0);
+    display:flex;align-items:center;padding:clamp(24px,5vw,72px);
+  }
+  .scene-inner{max-width:880px;margin:0 auto;width:100%;}
+  .scene-title{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
+    text-transform:uppercase;font-size:clamp(34px,6vw,64px);margin:0;line-height:1;
+  }
+  .scene-lead{margin:14px 0 0;font-size:clamp(16px,2vw,20px);color:var(--muted-foreground);}
+  .flow{display:flex;align-items:center;flex-wrap:wrap;margin-top:clamp(30px,5vh,54px);}
+  .flow .stop{display:flex;flex-direction:column;align-items:center;gap:9px;}
+  .flow .dot{width:11px;height:11px;border-radius:50%;background:var(--foreground);}
+  .flow .lbl{font-size:12px;color:var(--muted-foreground);}
+  .flow .conn{display:flex;align-items:center;color:var(--foreground);margin:0 6px 26px;}
+  .scene-link{margin:clamp(26px,4vh,40px) 0 0;font-size:15px;}
+  .link{
+    color:var(--deep-ochre);text-decoration:none;
+    border-bottom:1px solid rgba(150,96,10,.32);
+    transition:color .3s var(--ease-out-expo),border-color .3s var(--ease-out-expo);
+  }
+  .link:hover{color:var(--warm);border-bottom-color:var(--warm);}
+
+  /* §3 reveal — SCRUBBED like the demo: title + lead first, then the pipeline
+     draws itself left-to-right under the scroll, then the link. Opacity and
+     translate are driven per-frame by the scroll script. */
+  .scene-title,.scene-lead,.scene-link,.flow>*{opacity:0;}
+
+  /* ---------- §4 layer: The Journey — rises over the diagram ---------- */
+  .journey-layer{
+    position:absolute;inset:0;background:var(--wash-ochre);
+    z-index:4;transform:translate3d(0,100%,0);
+    display:flex;align-items:center;padding:clamp(24px,5vw,72px);
+  }
+  .j-inner{max-width:820px;margin:0 auto;width:100%;}
+  .j-path-wrap{position:relative;margin-top:clamp(20px,3.5vh,36px);max-width:760px;}
+  .j-path-wrap svg{width:100%;height:auto;display:block;}
+  .j-path{fill:none;stroke:var(--foreground);stroke-width:1.4;stroke-linecap:round;}
+  .j-dot{fill:var(--foreground);opacity:0;}
+  .j-end{fill:var(--foreground);opacity:0;}
+  .j-entry{position:absolute;width:min(240px,34%);opacity:0;}
+  .j-entry .d{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted-foreground);font-weight:500;}
+  .j-entry h4{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 40;font-weight:500;letter-spacing:-.01em;
+    font-size:clamp(16px,2.2vw,21px);margin:4px 0 3px;line-height:1.1;
+  }
+  .j-entry p{margin:0;font-size:12.5px;color:var(--muted-foreground);line-height:1.45;}
+
+  /* ---------- §5 layer: Skills + closing — rises over the Journey ---------- */
+  .skills-layer{
+    position:absolute;inset:0;background:var(--wash-rose);
+    z-index:5;transform:translate3d(0,100%,0);
+    display:flex;align-items:center;padding:clamp(24px,5vw,72px);
+  }
+  .s-inner{max-width:880px;margin:0 auto;width:100%;}
+  .s-lines{display:flex;flex-direction:column;gap:clamp(10px,2vh,18px);margin-top:clamp(22px,4vh,40px);}
+  .s-line{font-size:clamp(20px,3.4vw,34px);font-weight:350;letter-spacing:-.005em;opacity:0;}
+  /* drifting offsets — no two lines share an edge */
+  .s-line.l2{margin-left:26%;}
+  .s-line.l3{margin-left:6%;}
+  .s-line.l4{margin-left:38%;}
+  /* §5 ends on the skills link — the closing button + footer live on the bookend */
+
+  /* ---------- the bookend: a stand-alone white page, like the Hero ---------- */
+  .after{
+    background:#fff;padding:clamp(24px,5vw,72px);
+    min-height:100vh;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center;
+    scroll-snap-align:start;scroll-snap-stop:always;
+  }
+  .after h2{font-size:clamp(44px,10vw,110px);margin:0;}
+  .after .copied{
+    margin-top:8px;font-size:12px;color:var(--deep-ochre);
+    opacity:0;transition:opacity .4s var(--ease-out-expo);
+  }
+  .after .or-link{margin-top:30px;font-size:15.5px;}
+  .after .b-foot{
+    margin-top:30px;display:flex;gap:26px;justify-content:center;
+  }
+  .after .b-foot a,.after .b-foot button{
+    background:none;border:0;padding:0;cursor:pointer;line-height:0;
+    color:var(--foreground);transition:color .3s var(--ease-out-expo);
+  }
+  .after .b-foot a:hover,.after .b-foot button:hover{color:var(--warm);}
+  .after .b-foot a:focus-visible,.after .b-foot button:focus-visible{outline:2px solid var(--warm);outline-offset:3px;border-radius:3px;}
+  .after .note{
+    margin-top:clamp(40px,8vh,80px);font-size:12.5px;
+    color:var(--muted-foreground);max-width:60ch;
+  }
+
+  /* ---------- speed dock (the tester, from the user's POV) ---------- */
+  .speed-dock{
+    position:fixed;right:18px;bottom:18px;z-index:40;
+    background:#fff;border:1px solid var(--border);border-radius:5px;
+    padding:10px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    box-shadow:0 8px 24px -16px rgba(10,10,10,.4);max-width:min(420px,calc(100vw - 36px));
+  }
+  .speed-dock .micro{margin-right:2px;}
+  .chip-btn{
+    font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:var(--muted-foreground);
+    background:none;border:1px solid var(--border);border-radius:20px;padding:3px 10px;cursor:pointer;
+    transition:border-color .3s var(--ease-out-expo),color .3s var(--ease-out-expo);
+  }
+  .chip-btn:hover{border-color:var(--warm);color:#96600a;}
+  .chip-btn.active{border-color:var(--warm);color:#96600a;background:#f4cc9e38;}
+  .chip-btn:focus-visible{outline:2px solid var(--warm);outline-offset:2px;}
+
+  @media(max-width:700px){
+    .panel-layer{flex-direction:column;gap:20px;padding-top:clamp(90px,16vh,130px);}
+    .canvas-card{width:min(84vw,420px);}
+    .pred{width:min(84vw,420px);}
+    .demo-title{top:clamp(48px,7vh,64px);left:24px;font-size:clamp(26px,7vw,34px);}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="indicator" id="indicator">Live demo</span>
+  <button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="menuPanel">
+    <svg width="26" height="14" viewBox="0 0 26 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 1h24M1 7h24M1 13h24" stroke-linecap="round"/></svg>
+  </button>
+</div>
+
+<div class="m-scrim" id="mScrim"></div>
+<aside class="menu-panel" id="menuPanel" aria-hidden="true" aria-label="Site menu">
+  <div class="menu-head">
+    <span class="micro">Menu</span>
+    <button class="m-close" id="mClose" aria-label="Close menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 2l16 16M18 2L2 18" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <nav>
+    <a class="menu-link" href="#" id="mHome">Home</a>
+    <a class="menu-link" href="#" onclick="return false">Journey</a>
+    <a class="menu-link" href="#" onclick="return false">Architecture</a>
+    <a class="menu-link" href="#" onclick="return false">Skills</a>
+    <a class="menu-link" href="#" onclick="return false">About</a>
+    <a class="menu-link" href="#" id="mContact">Contact</a>
+  </nav>
+</aside>
+
+<div class="runway" id="runway">
+  <!-- section floors: positioned by the script at each resting progress -->
+  <div class="floor" data-p="0"></div>
+  <div class="floor" data-p=".24"></div>
+  <div class="floor" data-p=".55"></div>
+  <div class="floor" data-p=".81"></div>
+  <div class="floor" data-p="1"></div>
+  <div class="viewport">
+    <div class="bg-wash" id="bgWash"></div>
+
+    <div class="hero-layer" id="heroLayer">
+      <h1 class="display hero-name">Monish Kamwal</h1>
+      <button class="arrow-btn" id="arrowBtn" aria-label="Scroll to the live demo">
+        <svg viewBox="0 0 34 54" fill="none" stroke="currentColor" stroke-width="1.4">
+          <path d="M17 2v46M6 37l11 11 11-11" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="panel-layer" id="panelLayer">
+      <div class="demo-title" id="demoTitle">Draw something.</div>
+      <div class="canvas-card" id="canvasCard">
+        <svg viewBox="0 0 120 80" fill="none" stroke="#0a0a0a" stroke-width="1.6">
+          <path d="M22 56 C 26 26, 54 20, 60 40 C 64 53, 44 61, 38 50 M70 46 C 74 28, 96 27, 99 42 C 101 55, 81 59, 77 48" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="pred" id="pred">
+        <div class="bar-row"><div class="bar-top"><span>cat</span><span class="pct">87%</span></div><div class="bar-track"><div class="bar-fill" style="--w:.87"></div></div></div>
+        <div class="bar-row"><div class="bar-top"><span>dog</span><span class="pct">9%</span></div><div class="bar-track"><div class="bar-fill soft" style="--w:.09"></div></div></div>
+        <div class="bar-row"><div class="bar-top"><span>rabbit</span><span class="pct">4%</span></div><div class="bar-track"><div class="bar-fill soft" style="--w:.04"></div></div></div>
+        <p class="prompt">try: cat, bicycle, umbrella…</p>
+      </div>
+      <div class="demo-arrow-wrap" id="demoArrowWrap">
+        <button class="arrow-btn" id="demoArrow" aria-label="Continue to Behind the Scenes">
+          <svg viewBox="0 0 34 54" fill="none" stroke="currentColor" stroke-width="1.4">
+            <path d="M17 2v46M6 37l11 11 11-11" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="scene-layer" id="sceneLayer">
+      <div class="scene-inner">
+        <h2 class="scene-title display">Behind the Scenes</h2>
+        <p class="scene-lead">From strokes to prediction</p>
+        <div class="flow">
+          <div class="stop"><div class="dot"></div><div class="lbl">draw</div></div>
+          <div class="conn"><svg width="52" height="8" viewBox="0 0 52 8" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M0 4h46M42 1l5 3-5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="stop"><div class="dot"></div><div class="lbl">preprocess</div></div>
+          <div class="conn"><svg width="52" height="8" viewBox="0 0 52 8" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M0 4h46M42 1l5 3-5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="stop"><div class="dot"></div><div class="lbl">model</div></div>
+          <div class="conn"><svg width="52" height="8" viewBox="0 0 52 8" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M0 4h46M42 1l5 3-5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="stop"><div class="dot"></div><div class="lbl">serve</div></div>
+          <div class="conn"><svg width="52" height="8" viewBox="0 0 52 8" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M0 4h46M42 1l5 3-5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="stop"><div class="dot"></div><div class="lbl">monitor</div></div>
+        </div>
+        <p class="scene-link"><a class="link" href="#" onclick="return false">Explore the full architecture →</a></p>
+      </div>
+    </div>
+
+    <div class="journey-layer" id="journeyLayer">
+      <div class="j-inner">
+        <h2 class="scene-title" id="jTitle">The Journey</h2>
+        <p class="scene-lead" id="jLead">Roads not taken</p>
+        <div class="j-path-wrap">
+          <svg viewBox="0 0 700 360" fill="none" aria-hidden="true">
+            <path class="j-path" id="jPath" d="M360 8 C 560 52, 150 92, 330 148 C 505 202, 170 224, 320 278 C 450 325, 365 330, 352 344"/>
+            <path class="j-end" id="jEnd" d="M345 346 l7 12 7 -12 z"/>
+            <circle class="j-dot" r="5.5"/>
+            <circle class="j-dot" r="5.5"/>
+            <circle class="j-dot" r="5.5"/>
+          </svg>
+          <div class="j-entry"><div class="d">10 Jun 2026 · Phase 2</div><h4>One bucket, three jobs</h4><p>DVC, MLflow and the case for a single S3 bucket.</p></div>
+          <div class="j-entry"><div class="d">02 Jul 2026 · Phase 2</div><h4>The gate that says no</h4><p>Letting CI block a worse model felt wrong — until it didn't.</p></div>
+          <div class="j-entry"><div class="d">18 Jul 2026 · Phase 2</div><h4>Pandera at the door</h4><p>Validating data before it ever reaches training.</p></div>
+        </div>
+        <p class="scene-link" id="jLinkWrap"><a class="link" href="#" onclick="return false">Read the journey →</a></p>
+      </div>
+    </div>
+
+    <div class="skills-layer" id="skillsLayer">
+      <div class="s-inner">
+        <h2 class="scene-title" id="sTitle">Skills</h2>
+        <p class="scene-lead" id="sLead">What I build with</p>
+        <div class="s-lines">
+          <div class="s-line l1">Python · PyTorch · scikit-learn</div>
+          <div class="s-line l2 r">AWS · Kubernetes · Terraform</div>
+          <div class="s-line l3">GitHub Actions · Docker · MLflow</div>
+          <div class="s-line l4 r">Next.js · TypeScript</div>
+        </div>
+        <p class="scene-link" id="sLink"><a class="link" href="#" onclick="return false">See all skills →</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="after">
+  <h2 class="display">Say hello.</h2>
+  <div class="b-foot">
+    <a href="#" onclick="return false" aria-label="GitHub"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.2-1.5 6.2-6.7A5.2 5.2 0 0 0 20 4.8 4.9 4.9 0 0 0 19.9 1S18.7.6 16 2.5a13.4 13.4 0 0 0-7 0C6.3.6 5.1 1 5.1 1A4.9 4.9 0 0 0 5 4.8a5.2 5.2 0 0 0-1.4 3.7c0 5.2 3.2 6.4 6.2 6.7A3.4 3.4 0 0 0 9 17.8V22" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    <a href="#" onclick="return false" aria-label="LinkedIn"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="2" width="20" height="20" rx="2.5"/><path d="M7 10v7M7 6.5v.01M12 17v-4a2 2 0 0 1 4 0v4M12 10v7" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    <button id="bMail" aria-label="Copy email address"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><path d="M3 6l9 7 9-7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  </div>
+  <div class="copied" id="emailCopied">Copied</div>
+  <a class="link or-link" href="#" onclick="return false">Or learn more about me →</a>
+  <p class="note">End of the prototype — the Hero's white bookend closes the scroll.
+     Scroll back up to replay: all four transitions are scrubbed, so they play in either direction.</p>
+</div>
+
+<div class="speed-dock" role="group" aria-label="Motion speed">
+  <span class="micro">motion</span>
+  <button class="chip-btn active" data-dur=".48s">.48s</button>
+  <button class="chip-btn" data-dur=".6s">.6s</button>
+  <button class="chip-btn" data-dur=".75s">.75s</button>
+  <button class="chip-btn" data-dur=".9s">.9s</button>
+  <button class="chip-btn" data-dur="1.2s">1.2s</button>
+  <button class="chip-btn" data-dur="1.5s">1.5s</button>
+  <button class="chip-btn" data-dur="2s">2s</button>
+</div>
+
+<script>
+  const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const runway=document.getElementById('runway');
+  const heroLayer=document.getElementById('heroLayer');
+  const panelLayer=document.getElementById('panelLayer');
+  const sceneLayer=document.getElementById('sceneLayer');
+  const bgWash=document.getElementById('bgWash');
+  const arrowBtn=document.getElementById('arrowBtn');
+  const indicator=document.getElementById('indicator');
+  const demoTitle=document.getElementById('demoTitle');
+  const canvasCard=document.getElementById('canvasCard');
+  const pred=document.getElementById('pred');
+  const demoArrowWrap=document.getElementById('demoArrowWrap');
+  const demoArrow=document.getElementById('demoArrow');
+  const sceneTitle=document.querySelector('.scene-title');
+  const sceneLead=document.querySelector('.scene-lead');
+  const sceneLink=document.querySelector('.scene-link');
+  const flowItems=[...document.querySelectorAll('.flow>*')];
+  const journeyLayer=document.getElementById('journeyLayer');
+  const jTitle=document.getElementById('jTitle');
+  const jLead=document.getElementById('jLead');
+  const jLinkWrap=document.getElementById('jLinkWrap');
+  const jPath=document.getElementById('jPath');
+  const jEnd=document.getElementById('jEnd');
+  const jDots=[...document.querySelectorAll('.j-dot')];
+  const jEntries=[...document.querySelectorAll('.j-entry')];
+  const skillsLayer=document.getElementById('skillsLayer');
+  const sTitle=document.getElementById('sTitle');
+  const sLead=document.getElementById('sLead');
+  const sLink=document.getElementById('sLink');
+  const sLines=[...document.querySelectorAll('.s-line')];
+
+  // ---- Journey path layout: dots sit at fractions of the drawn line, and
+  //      each entry hangs beside its dot, alternating sides ----
+  const jFr=[.18,.52,.84];
+  let pathLen=0;
+  function layoutPath(){
+    pathLen=jPath.getTotalLength();
+    jPath.style.strokeDasharray=String(pathLen);
+    jPath.style.strokeDashoffset=String(pathLen);
+    jFr.forEach((f,i)=>{
+      const pt=jPath.getPointAtLength(pathLen*f);
+      jDots[i].setAttribute('cx',pt.x); jDots[i].setAttribute('cy',pt.y);
+      const e=jEntries[i], xPct=pt.x/700*100, yPct=pt.y/360*100;
+      e.style.top='calc('+yPct+'% - 12px)';
+      if(i%2===0){ e.style.left='calc('+xPct+'% + 26px)'; e.style.right='auto'; }
+      else{ e.style.right='calc('+(100-xPct)+'% + 26px)'; e.style.left='auto'; }
+    });
+  }
+  layoutPath();
+  window.addEventListener('resize',layoutPath);
+
+  // ---- the loose global value, read from --dur (the dock retunes it) ----
+  function durMs(){
+    return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--dur'))*1000;
+  }
+
+  // ---- scroll segments over the runway: four transitions with a dwell
+  //      (and a hard floor) between each ----
+  const T1=[0,.15], T2=[.26,.40], T3=[.58,.70], T4=[.83,.93];
+  let runwayEnd=0;
+  function measure(){
+    runwayEnd=runway.offsetHeight-window.innerHeight;
+    // pin each floor at its resting progress (floors align to the scroller top)
+    document.querySelectorAll('.floor').forEach(f=>{
+      f.style.top=(parseFloat(f.dataset.p)*runwayEnd)+'px';
+    });
+  }
+  measure();
+  window.addEventListener('resize',measure);
+  function targetProgress(){
+    return Math.min(1,Math.max(0,window.scrollY/runwayEnd));
+  }
+  function segP(p,seg){
+    return Math.min(1,Math.max(0,(p-seg[0])/(seg[1]-seg[0])));
+  }
+
+  // ---- exponential smoothing: the scrubbed layers chase the scroll with
+  //      an ease-out-expo character whose time constant follows --dur ----
+  let current=targetProgress(), lastT=performance.now();
+  let barsLive=false;
+  // scrub helpers: an element's reveal is a pure function of its slice of the scroll
+  function setReveal(el,sp){
+    el.style.opacity=String(sp);
+    el.style.transform=reduce?'none':'translate3d(0,'+((1-sp)*16)+'px,0)';
+  }
+  function setRevealX(el,sp,max,fromRight){ // slides in from its own side
+    el.style.opacity=String(sp*(max||1));
+    el.style.transform=reduce?'none':'translate3d('+((1-sp)*(fromRight?24:-24))+'px,0,0)';
+  }
+  function apply(p){
+    const p1=segP(p,T1), p2=segP(p,T2), p3=segP(p,T3), p4=segP(p,T4);
+    // §1→§2 — name fades in place above the rising panel (gone by ~75%), no drift
+    const nameO=Math.max(0,1-p1*1.35);
+    heroLayer.style.opacity=String(nameO);
+    heroLayer.style.visibility=nameO<=0?'hidden':'visible';
+    // ground cross-fades white → pale blue under the motion
+    bgWash.style.opacity=String(p1);
+    // the demo panel rises beneath the fading name
+    panelLayer.style.transform=reduce?'none':'translate3d(0,'+((1-p1)*100)+'%,0)';
+    if(reduce){ panelLayer.style.opacity=String(p1); }
+    // §2 contents — scrubbed (hybrid): each element assembles over its own
+    // slice of the scroll, overlapping slices making the stagger. Can't be
+    // skipped — a hard flick just plays it fast.
+    setReveal(demoTitle,segP(p,[.135,.17]));
+    setReveal(canvasCard,segP(p,[.155,.195]));
+    const bT=segP(p,[.175,.21]);
+    setReveal(pred,bT);
+    // …except the bar fills, which play on the clock once the bars are visible
+    if(!barsLive && bT>.55){ barsLive=true; document.body.classList.add('bars-live'); }
+    else if(barsLive && bT<.25){ barsLive=false; document.body.classList.remove('bars-live'); }
+    // the demo's ↓ cue: appears once the demo is built, retires as §3 rises
+    const aO=Math.min(segP(p,[.20,.23]),1-segP(p,[.26,.30]));
+    demoArrowWrap.style.opacity=String(aO);
+    demoArrowWrap.style.visibility=aO<=0?'hidden':'visible';
+    // the menu arrives with the demo — the Hero stays bare
+    const mB=segP(p,[.15,.185]);
+    menuBtn.style.opacity=String(mB);
+    menuBtn.style.visibility=mB<=0?'hidden':'visible';
+    // §2→§3 — the sage section rises over the settled demo (the sticky roll-over)
+    sceneLayer.style.transform=reduce?'none':'translate3d(0,'+((1-p2)*100)+'%,0)';
+    if(reduce){ sceneLayer.style.opacity=String(p2); }
+    // §3 contents — scrubbed like the demo: title + lead first, then the
+    // pipeline draws itself left-to-right under the scroll, then the link
+    setReveal(sceneTitle,segP(p,[.385,.42]));
+    setReveal(sceneLead,segP(p,[.40,.435]));
+    for(let i=0;i<flowItems.length;i++){
+      const s=.415+i*.009;
+      setRevealX(flowItems[i],segP(p,[s,s+.025]),flowItems[i].classList.contains('conn')?.85:1);
+    }
+    setReveal(sceneLink,segP(p,[.50,.53]));
+    // §3→§4 — the Journey rises over the diagram
+    journeyLayer.style.transform=reduce?'none':'translate3d(0,'+((1-p3)*100)+'%,0)';
+    if(reduce){ journeyLayer.style.opacity=String(p3); }
+    // §4 contents — title + lead, then the path draws downward under the
+    // scroll, each dot + entry appearing as the line reaches it
+    setReveal(jTitle,segP(p,[.69,.72]));
+    setReveal(jLead,segP(p,[.70,.73]));
+    const dP=segP(p,[.71,.78]);
+    jPath.style.strokeDashoffset=String(reduce?(dP>0?0:pathLen):pathLen*(1-dP));
+    jFr.forEach((f,i)=>{
+      jDots[i].style.opacity=String(segP(dP,[f,f+.08]));
+      setReveal(jEntries[i],segP(dP,[f+.02,f+.16]));
+    });
+    jEnd.style.opacity=String(segP(dP,[.95,1]));
+    setReveal(jLinkWrap,segP(p,[.775,.80]));
+    // §4→§5 — Skills rises over the Journey
+    skillsLayer.style.transform=reduce?'none':'translate3d(0,'+((1-p4)*100)+'%,0)';
+    if(reduce){ skillsLayer.style.opacity=String(p4); }
+    // §5 contents — title + lead, then the lines drift in from their own
+    // sides, then the skills link (the closing button + footer live on the bookend)
+    setReveal(sTitle,segP(p,[.92,.945]));
+    setReveal(sLead,segP(p,[.93,.955]));
+    for(let i=0;i<sLines.length;i++){
+      const s=.94+i*.012;
+      setRevealX(sLines[i],segP(p,[s,s+.03]),1,sLines[i].classList.contains('r'));
+    }
+    setReveal(sLink,segP(p,[.975,1]));
+    // current-section indicator: blank on Hero, then follows the section in view
+    let label='';
+    if(p4>.6) label='Skills';
+    else if(p3>.6 && p4<.4) label='Journey';
+    else if(p2>.6 && p3<.4) label='Behind the demo';
+    else if(p1>.97 && p2<.4) label='Live demo';
+    if(label) indicator.textContent=label;
+    indicator.style.opacity=label?'1':'0';
+  }
+  function frame(now){
+    const dt=now-lastT; lastT=now;
+    const t=targetProgress();
+    if(reduce){ current=t; }
+    else{
+      const tau=durMs()/3; // smaller --dur = snappier chase, larger = calmer float
+      current+=(t-current)*(1-Math.exp(-dt/tau));
+      if(Math.abs(t-current)<.0005) current=t;
+    }
+    apply(current);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  // ---- the ↓ arrows: hero → demo (past its assembly), demo → §3 (fully built) ----
+  arrowBtn.addEventListener('click',()=>{
+    window.scrollTo({top:runwayEnd*.24,behavior:reduce?'auto':'smooth'});
+  });
+  demoArrow.addEventListener('click',()=>{
+    window.scrollTo({top:runwayEnd*.55,behavior:reduce?'auto':'smooth'});
+  });
+
+  // ---- slide-in menu: panel from the right, staircase stagger ----
+  const menuBtn=document.getElementById('menuBtn');
+  const menuPanel=document.getElementById('menuPanel');
+  const mScrim=document.getElementById('mScrim');
+  const mClose=document.getElementById('mClose');
+  function setMenu(open){
+    menuPanel.classList.toggle('open',open);
+    mScrim.classList.toggle('open',open);
+    menuPanel.setAttribute('aria-hidden',String(!open));
+    menuBtn.setAttribute('aria-expanded',String(open));
+    (open?mClose:menuBtn).focus();
+  }
+  menuBtn.addEventListener('click',()=>setMenu(true));
+  mClose.addEventListener('click',()=>setMenu(false));
+  mScrim.addEventListener('click',()=>setMenu(false));
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&menuPanel.classList.contains('open')) setMenu(false); });
+  // destinations that exist in this prototype: Home → top, Contact → the bookend
+  document.getElementById('mHome').addEventListener('click',e=>{
+    e.preventDefault(); setMenu(false);
+    window.scrollTo({top:0,behavior:reduce?'auto':'smooth'});
+  });
+  document.getElementById('mContact').addEventListener('click',e=>{
+    e.preventDefault(); setMenu(false);
+    window.scrollTo({top:document.querySelector('.after').offsetTop,behavior:reduce?'auto':'smooth'});
+  });
+
+  // ---- the bookend's click-to-copy email (the footer's mail icon) ----
+  const emailCopied=document.getElementById('emailCopied');
+  document.getElementById('bMail').addEventListener('click',async()=>{
+    try{ await navigator.clipboard.writeText('kallukalia01@outlook.com'); }catch(e){}
+    emailCopied.style.opacity='1';
+    setTimeout(()=>{ emailCopied.style.opacity='0'; },1600);
+  });
+
+  // ---- speed dock ----
+  const chips=document.querySelectorAll('.speed-dock .chip-btn');
+  chips.forEach(b=>{
+    b.addEventListener('click',()=>{
+      document.documentElement.style.setProperty('--dur',b.dataset.dur);
+      chips.forEach(x=>x.classList.toggle('active',x===b));
+    });
+  });
+</script>
+</body>
+</html>

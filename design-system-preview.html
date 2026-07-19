@@ -30,6 +30,7 @@
     --wash-rose:#ffe8ee;   /* Skills            (base #b3637b) */
 
     --ease-out-expo:cubic-bezier(.16,1,.3,1);
+    --dur:.48s; /* motion character — retuned live by the ease speed tester */
 
     --measure:70ch;
     --page:1080px;
@@ -184,7 +185,7 @@
   .bar-row .bar-top{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:6px;}
   .bar-row .pct{font-variant-numeric:tabular-nums;color:var(--foreground);}
   .bar-track{height:8px;background:var(--muted);border-radius:20px;overflow:hidden;}
-  .bar-fill{height:100%;background:var(--warm);border-radius:20px;transform-origin:left;transform:scaleX(0);transition:transform 1.2s var(--ease-out-expo);}
+  .bar-fill{height:100%;background:var(--warm);border-radius:20px;transform-origin:left;transform:scaleX(0);transition:transform calc(var(--dur)*2.5) var(--ease-out-expo);}
   .bar-fill.soft{background:var(--warm-soft);}
 
   /* pipeline line-and-dot */
@@ -222,6 +223,44 @@
   .icon-btn:hover{color:var(--warm);}
   .icon-btn:focus-visible{outline:2px solid var(--warm);outline-offset:2px;border-radius:3px;}
 
+  /* slide-in menu panel (nav spec) */
+  .scrim{
+    position:fixed;inset:0;background:rgba(10,10,10,.16);z-index:40;
+    opacity:0;pointer-events:none;transition:opacity calc(var(--dur)*.8) var(--ease-out-expo);
+  }
+  .scrim.open{opacity:1;pointer-events:auto;}
+  .menu-panel{
+    position:fixed;top:0;right:0;bottom:0;width:min(400px,88vw);z-index:41;
+    background:#fff;border-left:1px solid var(--border);
+    padding:24px 34px 34px;display:flex;flex-direction:column;
+    transform:translateX(102%);visibility:hidden;
+    transition:transform var(--dur) var(--ease-out-expo),visibility 0s var(--dur);
+  }
+  .menu-panel.open{
+    transform:none;visibility:visible;
+    transition:transform var(--dur) var(--ease-out-expo),visibility 0s 0s;
+  }
+  .menu-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:38px;}
+  .menu-panel nav{display:flex;flex-direction:column;gap:18px;}
+  .menu-link{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
+    text-transform:uppercase;font-size:clamp(28px,4.5vw,38px);line-height:1.05;
+    color:var(--foreground);text-decoration:none;width:fit-content;
+    opacity:0;transform:translate(30px,10px);
+    transition:opacity var(--dur) var(--ease-out-expo),transform var(--dur) var(--ease-out-expo),color .3s var(--ease-out-expo);
+  }
+  .menu-link:hover{color:var(--warm);}
+  .menu-link:focus-visible{outline:2px solid var(--warm);outline-offset:4px;}
+  .menu-panel.open .menu-link{opacity:1;transform:none;}
+  /* staircase stagger: ~10% of --dur per item (≈50ms at .48s), after the panel lands */
+  .menu-panel.open .menu-link:nth-of-type(1){transition-delay:calc(var(--dur)*.2)}
+  .menu-panel.open .menu-link:nth-of-type(2){transition-delay:calc(var(--dur)*.3)}
+  .menu-panel.open .menu-link:nth-of-type(3){transition-delay:calc(var(--dur)*.4)}
+  .menu-panel.open .menu-link:nth-of-type(4){transition-delay:calc(var(--dur)*.5)}
+  .menu-panel.open .menu-link:nth-of-type(5){transition-delay:calc(var(--dur)*.6)}
+  .menu-panel.open .menu-link:nth-of-type(6){transition-delay:calc(var(--dur)*.7)}
+
   /* footer icons */
   .foot-icons{display:flex;gap:26px;align-items:center;}
 
@@ -239,6 +278,80 @@
   /* motion demo */
   .motion-wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;align-items:start;}
   .motion-card{border:1px solid var(--border);border-radius:5px;padding:24px;}
+  .ease-track{margin-top:16px;height:36px;background:var(--muted);border-radius:20px;position:relative;}
+  .ease-dot{
+    position:absolute;top:50%;left:8px;width:14px;height:14px;margin-top:-7px;
+    border-radius:50%;background:var(--warm);
+    transition:transform var(--dur) var(--ease-out-expo);
+  }
+  .speed-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+  .chip-btn{
+    font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:var(--muted-foreground);
+    background:none;border:1px solid var(--border);border-radius:20px;padding:4px 12px;cursor:pointer;
+    transition:border-color .3s var(--ease-out-expo),color .3s var(--ease-out-expo);
+  }
+  .chip-btn:hover{border-color:var(--warm);color:var(--deep-ochre);}
+  .chip-btn.active{border-color:var(--warm);color:var(--deep-ochre);background:var(--warm-glow);}
+  .chip-btn:focus-visible{outline:2px solid var(--warm);outline-offset:2px;}
+
+  /* hero → demo transition demo (Home §1 → §2) */
+  .hd-stage{
+    position:relative;margin-top:16px;height:clamp(280px,38vw,380px);
+    border:1px solid var(--border);border-radius:5px;overflow:hidden;
+    background:#fff;transition:background calc(var(--dur)*1.9) var(--ease-out-expo);
+  }
+  .hd-stage.play{background:var(--wash-blue);}
+  .hd-stage.resetting,.hd-stage.resetting *{transition:none!important;}
+  .hd-hero{
+    position:absolute;inset:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:14px;
+    z-index:2;pointer-events:none; /* floats above the rising panel; fades in place */
+    transition:opacity var(--dur) var(--ease-out-expo);
+  }
+  .hd-stage.play .hd-hero{opacity:0;}
+  .hd-name{font-size:clamp(26px,4.6vw,46px);text-transform:uppercase;}
+  .hd-arrow{color:var(--warm);width:20px;height:32px;}
+  .hd-panel{
+    position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;
+    gap:clamp(16px,3vw,34px);padding:clamp(16px,3vw,34px);background:var(--wash-blue);
+    transform:translateY(103%);transition:transform calc(var(--dur)*1.35) var(--ease-out-expo);
+  }
+  .hd-stage.play .hd-panel{transform:translateY(0);}
+  .hd-title{
+    position:absolute;top:16px;left:22px;
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
+    font-size:clamp(18px,2.6vw,26px);
+    opacity:0;transform:translateY(10px);
+    transition:opacity var(--dur) var(--ease-out-expo),transform var(--dur) var(--ease-out-expo);
+  }
+  .hd-stage.play .hd-title{opacity:1;transform:none;transition-delay:calc(var(--dur)*.8);}
+  .hd-canvas{
+    width:min(46%,300px);aspect-ratio:4/3;background:#fff;
+    border:1px solid var(--border);border-radius:5px;
+    box-shadow:0 18px 40px -26px rgba(10,10,10,.35),0 2px 8px -4px rgba(10,10,10,.12);
+    display:flex;align-items:center;justify-content:center;
+    opacity:0;transform:translateY(14px);
+    transition:opacity var(--dur) var(--ease-out-expo),transform var(--dur) var(--ease-out-expo);
+  }
+  .hd-stage.play .hd-canvas{opacity:1;transform:none;transition-delay:calc(var(--dur)*.95);}
+  .hd-canvas svg{width:70%;height:auto;}
+  .hd-bars{
+    width:min(40%,240px);display:flex;flex-direction:column;gap:10px;
+    opacity:0;transform:translateY(14px);
+    transition:opacity var(--dur) var(--ease-out-expo),transform var(--dur) var(--ease-out-expo);
+  }
+  .hd-stage.play .hd-bars{opacity:1;transform:none;transition-delay:calc(var(--dur)*1.25);}
+  .hd-bar .bt{display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:4px;}
+  .hd-bar .bt .p{font-variant-numeric:tabular-nums;}
+  .hd-bar .tr{height:6px;background:#fff;border-radius:20px;overflow:hidden;}
+  .hd-fill{
+    height:100%;background:var(--warm);border-radius:20px;
+    transform-origin:left;transform:scaleX(0);
+    transition:transform calc(var(--dur)*1.9) var(--ease-out-expo);
+  }
+  .hd-fill.soft{background:var(--warm-soft);}
+  .hd-stage.play .hd-fill{transform:scaleX(var(--w));transition-delay:calc(var(--dur)*1.6);}
   .motion-card .code{margin-top:14px;color:var(--muted-foreground);}
   .reveal-target{padding:20px;background:var(--muted);border-radius:4px;margin-top:16px;text-align:center;font-size:14px;}
   .replay{margin-top:14px;}
@@ -466,16 +579,16 @@
 
       <!-- top bar -->
       <div class="demo">
-        <div class="cap"><span class="t">Top bar</span><span class="micro">indicator + menu</span></div>
+        <div class="cap"><span class="t">Top bar</span><span class="micro">click the menu</span></div>
         <div class="stage">
           <div class="topbar">
             <span class="indicator">Live demo</span>
-            <button class="icon-btn" aria-label="Open menu">
+            <button class="icon-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="menuPanel">
               <svg width="26" height="14" viewBox="0 0 26 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 1h24M1 7h24M1 13h24" stroke-linecap="round"/></svg>
             </button>
           </div>
         </div>
-        <p style="margin:0;font-size:12.5px;color:var(--muted-foreground);text-align:center">Current-section indicator left, hamburger right.</p>
+        <p style="margin:0;font-size:12.5px;color:var(--muted-foreground);text-align:center">Current-section indicator left, hamburger right — opens the slide-in panel with the staircase stagger.</p>
       </div>
 
       <!-- thin line icons -->
@@ -569,9 +682,21 @@
     </div>
     <div class="motion-wrap">
       <div class="motion-card">
-        <p class="micro tag">The ease</p>
+        <p class="micro tag">The ease · speed tester</p>
         <div class="display" style="font-size:30px;text-transform:uppercase;font-variation-settings:'opsz' 72">Ease-out-expo</div>
-        <p class="mono code">cubic-bezier(.16, 1, .3, 1)<br>~.48s character</p>
+        <p class="mono code">cubic-bezier(.16, 1, .3, 1)<br>~<span id="durLabel">.48s</span> character</p>
+        <div class="ease-track" id="easeTrack"><div class="ease-dot" id="easeDot"></div></div>
+        <div class="speed-chips" id="speedChips" role="group" aria-label="Motion speed">
+          <button class="chip-btn active" data-dur=".48s">.48s</button>
+          <button class="chip-btn" data-dur=".6s">.6s</button>
+          <button class="chip-btn" data-dur=".75s">.75s</button>
+          <button class="chip-btn" data-dur=".9s">.9s</button>
+          <button class="chip-btn" data-dur="1.2s">1.2s</button>
+          <button class="chip-btn" data-dur="1.5s">1.5s</button>
+          <button class="chip-btn" data-dur="2s">2s</button>
+        </div>
+        <p style="margin:12px 0 0;font-size:12.5px;color:var(--muted-foreground)">Picking a speed retunes every choreographed animation on this sheet — replay the other demos, the transition and the menu to feel it at scale.</p>
+        <button class="btn-ghost replay" id="replayEase">Replay ease</button>
       </div>
       <div class="motion-card">
         <p class="micro tag">Reveal on scroll-in</p>
@@ -591,6 +716,41 @@
     </div>
   </section>
 
+  <!-- ===================== TRANSITION ===================== -->
+  <section class="block">
+    <div class="sec-head">
+      <h2>Transition</h2>
+      <p>Home §1 → §2, hero into demo: overlap + fade. Scroll-linked on the site — played here as a timed sequence.</p>
+    </div>
+    <div class="motion-card">
+      <p class="micro tag">Name fades in place over the rising panel · ground cross-fades · canvas → bars</p>
+      <div class="hd-stage" id="hdStage" aria-label="Hero to demo transition preview">
+        <div class="hd-hero">
+          <div class="hd-name display">Monish Kamwal</div>
+          <svg class="hd-arrow" viewBox="0 0 34 54" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M17 2v46M6 37l11 11 11-11" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="hd-panel">
+          <div class="hd-title">Draw something.</div>
+          <div class="hd-canvas">
+            <svg viewBox="0 0 120 80" fill="none" stroke="#0a0a0a" stroke-width="1.6">
+              <path d="M22 56 C 26 26, 54 20, 60 40 C 64 53, 44 61, 38 50 M70 46 C 74 28, 96 27, 99 42 C 101 55, 81 59, 77 48" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="hd-bars">
+            <div class="hd-bar"><div class="bt"><span style="color:var(--muted-foreground)">cat</span><span class="p">87%</span></div><div class="tr"><div class="hd-fill" style="--w:.87"></div></div></div>
+            <div class="hd-bar"><div class="bt"><span style="color:var(--muted-foreground)">dog</span><span class="p">9%</span></div><div class="tr"><div class="hd-fill soft" style="--w:.09"></div></div></div>
+            <div class="hd-bar"><div class="bt"><span style="color:var(--muted-foreground)">rabbit</span><span class="p">4%</span></div><div class="tr"><div class="hd-fill soft" style="--w:.04"></div></div></div>
+          </div>
+        </div>
+      </div>
+      <p style="margin:14px 0 0;font-size:12.5px;color:var(--muted-foreground)">The name stays exactly where it is and fades in place, floating above the wash panel as it rises beneath; the ↓ arrow goes with it. The ground cross-fades white → pale blue under the motion, then the contents settle in a short expo stagger — canvas card first, then the confidence bars.</p>
+      <button class="btn-ghost replay" id="replayHd">Replay transition</button>
+      <p style="margin:16px 0 0;font-size:13.5px">To feel it as a visitor — full viewport, driven by your actual scroll or the ↓ arrow — <a class="link" href="transition-prototype.html" target="_blank" rel="noopener">open the scroll-linked prototype →</a></p>
+    </div>
+  </section>
+
   <footer class="end">
     <p>Reference sheet only — the design in parts, not the built site. Source of truth is <code>DESIGN.md</code>; implementation waits on the mlops build (Stage 5).</p>
     <p><b style="color:var(--foreground)">Contrast rules shown live:</b> bright ochre <code>#c98a3a</code> does every large job (arrow, bar fills, hovers); small text &amp; links use deep ochre <code>#96600a</code> for AA. Drawn lines &amp; dots are ink <code>#0a0a0a</code>; the hairline <code>#e8e8e8</code> is white-surfaces only.</p>
@@ -598,6 +758,25 @@
   </footer>
 
 </div>
+
+<!-- slide-in menu (opens from the Top bar demo) -->
+<div class="scrim" id="menuScrim"></div>
+<aside class="menu-panel" id="menuPanel" aria-hidden="true" aria-label="Site menu">
+  <div class="menu-head">
+    <span class="micro">Menu</span>
+    <button class="icon-btn" id="menuClose" aria-label="Close menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 2l16 16M18 2L2 18" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <nav>
+    <a class="menu-link" href="#">Home</a>
+    <a class="menu-link" href="#">Journey</a>
+    <a class="menu-link" href="#">Architecture</a>
+    <a class="menu-link" href="#">Skills</a>
+    <a class="menu-link" href="#">About</a>
+    <a class="menu-link" href="#">Contact</a>
+  </nav>
+</aside>
 
 <script>
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -621,6 +800,62 @@
     setTimeout(()=>{ c.style.opacity='0'; }, 1600);
   });
 
+  // ease demo — one dot crossing the track on the expo ease
+  const easeDot=document.getElementById('easeDot');
+  const easeTrack=document.getElementById('easeTrack');
+  function runEase(){
+    const d=easeTrack.clientWidth-easeDot.offsetWidth-16;
+    if(reduce){ easeDot.style.transform='translateX('+d+'px)'; return; }
+    easeDot.style.transition='none';
+    easeDot.style.transform='translateX(0)';
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      easeDot.style.transition='transform var(--dur) var(--ease-out-expo)';
+      easeDot.style.transform='translateX('+d+'px)';
+    }));
+  }
+  runEase();
+  document.getElementById('replayEase').addEventListener('click',runEase);
+
+  // speed tester — one token drives every choreographed duration on the sheet
+  const chips=document.querySelectorAll('#speedChips .chip-btn');
+  chips.forEach(b=>{
+    b.addEventListener('click',()=>{
+      document.documentElement.style.setProperty('--dur',b.dataset.dur);
+      chips.forEach(x=>x.classList.toggle('active',x===b));
+      document.getElementById('durLabel').textContent=b.dataset.dur;
+      runEase();
+    });
+  });
+
+  // slide-in menu — panel from the right, staircase stagger on the items
+  const menuPanel=document.getElementById('menuPanel');
+  const menuScrim=document.getElementById('menuScrim');
+  const menuBtn=document.getElementById('menuBtn');
+  const menuClose=document.getElementById('menuClose');
+  function setMenu(open){
+    menuPanel.classList.toggle('open',open);
+    menuScrim.classList.toggle('open',open);
+    menuPanel.setAttribute('aria-hidden',String(!open));
+    menuBtn.setAttribute('aria-expanded',String(open));
+    (open?menuClose:menuBtn).focus();
+  }
+  menuBtn.addEventListener('click',()=>setMenu(true));
+  menuClose.addEventListener('click',()=>setMenu(false));
+  menuScrim.addEventListener('click',()=>setMenu(false));
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&menuPanel.classList.contains('open')) setMenu(false); });
+
+  // hero → demo transition — reset without transitions, then play the sequence
+  const hdStage=document.getElementById('hdStage');
+  function runHd(){
+    hdStage.classList.add('resetting');
+    hdStage.classList.remove('play');
+    void hdStage.offsetWidth;
+    hdStage.classList.remove('resetting');
+    requestAnimationFrame(()=>requestAnimationFrame(()=>hdStage.classList.add('play')));
+  }
+  runHd();
+  document.getElementById('replayHd').addEventListener('click',runHd);
+
   // reveal demo
   const box=document.getElementById('revealBox');
   function doReveal(){
@@ -629,7 +864,7 @@
     box.style.opacity='0';
     box.style.transform='translateY(16px)';
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
-      box.style.transition='opacity .48s cubic-bezier(.16,1,.3,1), transform .48s cubic-bezier(.16,1,.3,1)';
+      box.style.transition='opacity var(--dur) var(--ease-out-expo), transform var(--dur) var(--ease-out-expo)';
       box.style.opacity='1';
       box.style.transform='translateY(0)';
     }));
@@ -644,7 +879,7 @@
     },{threshold:.08});
     document.querySelectorAll('section.block').forEach(s=>{
       s.style.opacity='0'; s.style.transform='translateY(22px)';
-      s.style.transition='opacity .55s cubic-bezier(.16,1,.3,1), transform .55s cubic-bezier(.16,1,.3,1)';
+      s.style.transition='opacity calc(var(--dur)*1.15) var(--ease-out-expo), transform calc(var(--dur)*1.15) var(--ease-out-expo)';
       io.observe(s);
     });
   }

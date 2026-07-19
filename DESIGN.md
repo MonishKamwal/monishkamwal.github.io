@@ -127,6 +127,9 @@ around a **dramatic editorial serif**, with the **os.me light palette** for colo
   transform/opacity reveals on `--ease-out-expo: cubic-bezier(.16, 1, .3, 1)`, ~.48s.
   GPU-composited properties only; never bouncy. omswami's rotation/`mix-blend-mode` set pieces
   are **not** adopted. Respect `prefers-reduced-motion`.
+  **Amended in Stage 4.5 (2026-07-19):** reveals are **scroll-scrubbed** (with clocked
+  money-moment exceptions), all durations hang off one `--dur` token, and the Home
+  scroll has **hard snap floors** — see Stage 4.5.
 
 ---
 
@@ -150,7 +153,7 @@ Journey / Projects / About / Resume) against the new direction and revised it.
   | **Architecture** | mlops deep-dive — clickable diagram, per-component write-ups, evidence-hub links |
   | **Skills** | Dedicated skills page |
   | **About** | Bio + **education + work history** (the CV) |
-  | **Contact** | Email + socials (GitHub, LinkedIn) |
+  | **Contact** | *(Stage 4.5)* menu entry → **Home's closing bookend**; no standalone page |
 
 - **Navigation pattern — top-right menu button + overlay** (2026-07-16). No persistent horizontal
   nav bar. A minimal top bar carries a **current-section indicator (left)** — see Hero spec — and a
@@ -173,7 +176,8 @@ Journey / Projects / About / Resume) against the new direction and revised it.
   | 2 | **The live demo** | dusty blue `#3f5286` | "Draw something — my model will guess." Canvas + ochre confidence bars. The hook, placed early so it lands within one scroll |
   | 3 | **Behind the demo** | sage `#6f9d7e` | The reveal: that doodle ran through a real pipeline (ephemeral K8s, CI gates, drift). High-level architecture snapshot → "explore the full architecture" → `/architecture` |
   | 4 | **Journey teaser** | ochre `#c2701f` | 2–3 latest devlog entries → Journey |
-  | 5 | **Skills + closing** | dusty rose `#b3637b` | Skills content, closing button, footer — Stage 3 §5 folded the About teaser into the button |
+  | 5 | **Skills + closing** | dusty rose `#b3637b` | Skills content — ends on "See all skills →" (Stage 4.5 moved button + footer to the bookend) |
+  | 6 | **Bookend** *(added Stage 4.5)* | white | "Say hello." + icon trio (mail copies address) + "Or learn more about me →" |
 
   Grounds are heavily desaturated per Stage 1 (grounds only, never on type/controls). Ochre
   `#c98a3a` accent and calm expo reveals throughout.
@@ -190,6 +194,10 @@ Journey / Projects / About / Resume) against the new direction and revised it.
 One section at a time, each to a locked spec (content, layout, type, motion).
 
 ### Navigation / menu  _(LOCKED 2026-07-16)_
+
+> **Amended in Stage 4.5 (2026-07-19):** the menu is **absent on the Hero** and arrives
+> with §2; the **Contact entry points to Home's closing bookend**; there is deliberately
+> **no demo entry**.
 
 - **Trigger:** a **hamburger icon** at top-right (not a "Menu" wordmark). Minimal top bar,
   current-section indicator left / icon right.
@@ -216,7 +224,9 @@ it; no clever claim, no tagline. White ground.
 - **Scroll cue:** a single ochre **down arrow (↓) only — no text**, at the bottom.
 - **Top bar — current-section indicator (upper-left):** the upper-left shows the **section the
   visitor is currently in**, and is **blank on the Hero**. It updates as the scroll moves into later
-  Home sections (and shows the page name on inner pages). Hamburger icon top-right as specced.
+  Home sections (and shows the page name on inner pages). ~~Hamburger icon top-right as
+  specced.~~ **Amended in Stage 4.5:** the Hero carries **no hamburger** — the menu
+  arrives with §2 (see Stage 4.5).
 - **Motion:** headline does a calm expo reveal on load (opacity + small translate on
   `--ease-out-expo`); arrow follows subtly. Respects `prefers-reduced-motion`.
 - **Scroll:** proceeds down into §2 the live demo — see the **Home §1 → §2 transition** spec below.
@@ -250,6 +260,10 @@ buttons use text or thin line icons.
   `prefers-reduced-motion`.
 
 ### Home §1 → §2 transition (Hero → Demo)  _(LOCKED 2026-07-16)_
+
+> **Amended in Stage 4.5 (2026-07-19):** the name **floats above the rising panel**,
+> fading in place in full view; the transition (and all reveals) are **scrubbed** by the
+> scroll with hard snap floors — see Stage 4.5.
 
 **Feel: a mix of overlap + fade.** As the scroll begins the demo panel rises and takes over, while
 the hero fades in place — three things happening on the same scroll:
@@ -321,6 +335,9 @@ downward path. Ochre ground; section indicator reads **"Journey"**.
   once, no drawing, no stagger).
 
 ### Home §5 — Skills + closing  _(LOCKED 2026-07-17)_
+
+> **Amended in Stage 4.5 (2026-07-19):** §5 now ends on **"See all skills →"** — the
+> closing button and footer icons moved to the new **Home §6 bookend** (see Stage 4.5).
 
 The flow **keeps rolling** — no teaser break. §4's ending arrow delivers the scroll straight
 into real skills content, and the page closes on one button plus the footer. The About teaser
@@ -528,7 +545,11 @@ Bio + the CV, on the one wash no inner page had claimed. Section indicator reads
 - **Mobile:** portrait above bio; the CV lines are already vertical — entries sit to the
   line's right.
 
-### Contact page (`/contact`)  _(LOCKED 2026-07-17)_
+### Contact page (`/contact`)  _(LOCKED 2026-07-17 · SUPERSEDED 2026-07-19)_
+
+> **Superseded in Stage 4.5:** there is **no standalone Contact page** — this
+> composition lives on as **Home's closing bookend**, and the menu's Contact entry
+> points there. About keeps the full contact block (the carried requirement).
 
 **The Hero's bookend.** The site opens on white with nothing but a name; it closes on white
 with nothing but a way to reach that name. Section indicator reads **"Contact"**.
@@ -631,10 +652,104 @@ done, per the process rules.
 
 ---
 
+## Stage 4.5 — Motion & flow amendments from prototyping  _(LOCKED 2026-07-19)_
+
+The finalized design, pressure-tested in two working artifacts before Stage 5:
+`design-system-preview.html` (motion demos: ease speed tester, slide-in menu, transition
+compartment) and `transition-prototype.html` (the **full Home scroll** as a scrubbed,
+full-viewport prototype — hero through bookend). Testing from the visitor's POV revised
+the motion model, Home's ending, and the IA. Supersedes the affected Stage 1–3 text
+where noted inline; the prototypes are the working reference.
+
+### Motion model — scrubbed, with clocked money moments
+
+- **Scrub-driven reveals.** Section transitions and content reveals are driven by scroll
+  position, not timers: each element owns a **slice of the scroll** and its
+  opacity/transform is a pure function of progress through that slice; overlapping
+  slices produce the staggers. A hard flick can't skip choreography — it just plays
+  fast, and scrolling back plays it in reverse. Chosen after A/B-ing against
+  settle-triggered reveals, which fire on arrival and get missed by fast scrollers.
+- **The hybrid exception — clocked money moments.** A few payoff animations play on the
+  clock at their designed tempo, triggered when they become **visible** (not on full
+  settle): the demo's confidence-bar fills. Structure scrubs; payoffs play.
+- **The ease survives as smoothing.** Scrubbed layers chase the scroll target with
+  exponential smoothing whose time constant follows `--dur` — the ease-out-expo
+  character, applied to scrubbing.
+- **`--dur` — one loose global duration token.** Every choreographed duration and
+  stagger delay is a multiple of a single `--dur` token (default **.48s**; final value
+  tuned via the preview's speed tester at implementation). Hover/feedback transitions
+  stay fast and off the token.
+- **Hard floors.** The Home scroll snaps: `scroll-snap-type: y mandatory` with
+  `scroll-snap-stop: always` at each section's resting point. A fling stops at the next
+  section (each section demands its own gesture to leave); released scroll always
+  resolves onto a section, so transitions self-complete and parking mid-transition is
+  deliberately impossible.
+
+### Home flow amendments
+
+- **§1→§2 — the name floats above the rising panel.** The name fades in place **in full
+  view**, the wash panel rising beneath it (was: panel overlaps and covers the name —
+  which swallowed the fade behind an opaque surface).
+- **§2 gains its own ↓ cue.** The hero's arrow grammar repeated: an ochre floating
+  arrow at the demo panel's bottom, appearing once the demo has assembled and retiring
+  as §3 rises; clicking carries the visitor to §3 fully built. (The hero arrow's target
+  is the built demo.)
+- **§5 slims.** Skills ends on **"See all skills →"** — its closing button and footer
+  icons move to the bookend below.
+- **Home §6 — the closing bookend (new).** Home ends as it opens: a **stand-alone white
+  page**. After §5 the sticky stack releases and the bookend scrolls up in normal
+  document flow — the break in the roll-over pattern *is* the ending gesture. Centered,
+  top to bottom, reading as one sentence:
+  1. **"Say hello."** in Bodoni display — the Hero's mirror;
+  2. the **three thin-line icons** directly beneath (GitHub · LinkedIn · mail), ink
+     warming to ochre; the mail icon **copies the address** with the "Copied"
+     confirmation. No ink rule — the icons are the invitation's answer, not a footer;
+  3. **"Or learn more about me →"** as a deep-ochre text link → `/about`, last because
+     "or" follows the offer it's an alternative to.
+  Accepted, deliberate: **Home no longer has a solid button anywhere.**
+- **IA — the Contact page is folded into the bookend.** No standalone `/contact` route.
+  The bookend *is* the site's contact surface; About keeps the full contact block (the
+  carried requirement, unchanged); and the **menu keeps its "Contact" entry, pointing
+  at the bookend** (anchor to Home's end — scrubbed state renders finished on direct
+  arrival). Rationale: after the bookend, the page duplicated contact info already
+  available in three places, and by the Stage-2 Résumé precedent a thin page doesn't
+  earn a route. The Stage 3 Contact spec's composition lives on in the bookend.
+- **Nav — the menu arrives with §2; the Hero is bare.** The hamburger is **not present
+  on the Hero**: it fades in (scrubbed) as the demo panel rises, and retires if the
+  visitor returns to the top. Combined with **no demo entry in the menu** (none will be
+  added), the first scroll is the only path in: every visitor is funneled through the
+  demo before they get the map — one affordance on the Hero (the ↓ arrow), no way to
+  unintentionally skip the flagship, and tighter control over the experience than
+  offering two competing doors. Accepted costs, on record: a visitor who never scrolls
+  sees no navigation; returning visitors pay one flick before the menu exists.
+
+---
+
 ## Decision log
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-07-19** — **Stage 4.5 locked — motion & flow amendments from prototyping.** Built
+  two working artifacts (`design-system-preview.html` motion demos and
+  `transition-prototype.html`, the full Home scroll hero→bookend) and revised from the
+  visitor's POV. **Motion is scrub-driven**: reveals map to slices of the scroll (a hard
+  flick plays choreography fast instead of skipping it; scrubbing back plays it in
+  reverse), with **clocked money moments** (the bar fills fire on visibility at their
+  designed tempo) and exponential smoothing carrying the expo character; every duration
+  hangs off one **`--dur` token** (default .48s, final value at implementation).
+  **Hard floors**: mandatory scroll-snap with `scroll-snap-stop: always` — a fling
+  can't pass a section, released scroll self-completes the transition. **§1→§2 fixed**:
+  the name floats *above* the rising panel, fading in place in full view (the old
+  stacking swallowed the fade). **§2 gains its own ↓ cue** to §3. **Home ends on a
+  white bookend** — "Say hello." / icon trio with copy-email / "Or learn more about
+  me →" → about — the Hero's mirror, arriving in normal flow as the sticky stack
+  releases; §5 slims to end on "See all skills →", and no solid button remains on Home.
+  **Contact folded into the bookend**: no standalone route (the thin page duplicated
+  info now in three places — the Résumé precedent); the menu's Contact entry targets
+  the bookend; About keeps the contact block. **The menu arrives with §2**: the Hero is
+  bare and the demo has no menu entry, so the first scroll funnels every visitor
+  through the flagship before the map appears — one affordance, no accidental skips,
+  tighter control over the experience than two competing doors.
 - **2026-07-17** — **Stage 4 locked — the design is finalized.** Front-to-back review (run in
   a fresh conversation, per practice) found the system coherent and four issues, all resolved:
   **muted gray darkened to `#6b6b6b`** (the flagged `#828282` fails AA even on white);
