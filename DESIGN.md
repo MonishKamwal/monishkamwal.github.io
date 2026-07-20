@@ -198,6 +198,11 @@ One section at a time, each to a locked spec (content, layout, type, motion).
 > **Amended in Stage 4.5 (2026-07-19):** the menu is **absent on the Hero** and arrives
 > with §2; the **Contact entry points to Home's closing bookend**; there is deliberately
 > **no demo entry**.
+>
+> **Amended in Stage 4.6 (2026-07-20):** on **inner pages** the top-bar left slot is
+> **"← Home"** (not the section indicator), and a **persistent bottom navigation tray**
+> (the four inner destinations) carries peer-jumping and the current-location indicator.
+> The menu is kept whole; Home is unaffected. See Stage 4.6.
 
 - **Trigger:** a **hamburger icon** at top-right (not a "Menu" wordmark). Minimal top bar,
   current-section indicator left / icon right.
@@ -224,9 +229,10 @@ it; no clever claim, no tagline. White ground.
 - **Scroll cue:** a single ochre **down arrow (↓) only — no text**, at the bottom.
 - **Top bar — current-section indicator (upper-left):** the upper-left shows the **section the
   visitor is currently in**, and is **blank on the Hero**. It updates as the scroll moves into later
-  Home sections (and shows the page name on inner pages). ~~Hamburger icon top-right as
+  Home sections ~~(and shows the page name on inner pages)~~. ~~Hamburger icon top-right as
   specced.~~ **Amended in Stage 4.5:** the Hero carries **no hamburger** — the menu
-  arrives with §2 (see Stage 4.5).
+  arrives with §2 (see Stage 4.5). **Amended in Stage 4.6:** the indicator is **Home-only** —
+  on inner pages the left slot is **"← Home"** and the bottom tray declares location.
 - **Motion:** headline does a calm expo reveal on load (opacity + small translate on
   `--ease-out-expo`); arrow follows subtly. Respects `prefers-reduced-motion`.
 - **Scroll:** proceeds down into §2 the live demo — see the **Home §1 → §2 transition** spec below.
@@ -725,10 +731,62 @@ where noted inline; the prototypes are the working reference.
 
 ---
 
+## Stage 4.6 — Inner-page navigation & wayfinding (from section prototyping)  _(LOCKED 2026-07-20)_
+
+Building the four inner pages as a working artifact — `sections-prototype.html` (Journey,
+Architecture, Skills, About from their locked Stage 3 specs, sharing the shell, the "line
+carries you" arrival, the slide-in menu, and the paper-card grammar) — surfaced a
+navigation gap: the four inner destinations are **peers** a visitor will want to hop
+between, and routing every hop through the slide-in menu is friction. Two additions,
+**inner-pages only**; supersedes the affected nav text where noted.
+
+- **Bottom navigation tray (new).** A small, persistent pill centered at the **bottom** of
+  every inner page listing the four inner destinations — **Journey · Architecture · Skills ·
+  About** — as peer links, the current one filled (ink) as its active state. It **doubles as
+  the current-location indicator**: on inner pages *the tray declares where you are*, so the
+  top-bar section indicator is retired (below). `aria-current="page"` on the active item.
+  Rationale: fast sibling-to-sibling jumping without opening the menu, in a light centered
+  element that doesn't span or clutter the editorial layout the way a top nav bar would.
+- **Top-left "← Home" (new).** With the tray owning location, the top-bar's left slot is
+  free; inner pages put a **"← Home"** back affordance there — a thin-line left arrow +
+  "Home", ink warming to ochre, the arrow **nudging left on hover** (the site's motion
+  character). A direct escape back to the Hero, clearer than routing through the menu.
+- **Inner-page top bar, settled: "← Home" left · hamburger right.** The **current-section
+  indicator is dropped on inner pages** (superseded by the tray). It still lives inside the
+  **Home scroll** per Home §1 — blank on the Hero, updating through §2–§5.
+- **The menu is kept as-is** — the full six-item map on every page. On inner pages its
+  unique remaining value is **Contact** (the tray covers the four inner pages; "← Home"
+  covers Home), so it stays as the Contact path and the consistent full map. **Considered
+  and deferred:** trimming or dropping the menu on inner pages — not worth the cross-page
+  inconsistency now; revisit only if it reads as pure redundancy.
+- **Home is unaffected.** No tray, no "← Home" on the Home scroll — the funnel-through-the-
+  demo flow (menu arrives with §2, bare Hero) stands. The tray + "← Home" are strictly an
+  **inner-page convention**.
+- **Supersedes:** the Stage 3 nav intent of **"no persistent nav bar"** — the bottom tray
+  *is* persistent nav, accepted on inner pages because peer-jumping earns it and the pill
+  stays visually quiet — and the **"top-bar left = current-section indicator"** slot **on
+  inner pages** (now "← Home").
+- **Mobile:** the tray sits centered at the bottom edge; the four short labels stay on one
+  row, compacting to a tighter pill on the narrowest widths.
+
+---
+
 ## Decision log
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-07-20** — **Stage 4.6 locked — inner-page navigation from section prototyping.**
+  Prototyping the four inner pages (`sections-prototype.html`) surfaced that the inner
+  destinations are peers worth hopping between directly. Added, **inner-pages only**: a
+  **persistent bottom navigation tray** (Journey · Architecture · Skills · About, active
+  item filled) that also **declares current location**, and a top-left **"← Home"**
+  back-to-Hero affordance (thin arrow, nudges on hover). The inner-page top bar is now
+  **"← Home" left / hamburger right**, and the **current-section indicator is dropped on
+  inner pages** (the tray replaces it; it survives inside the Home scroll). The **menu is
+  kept whole** — its unique inner-page value is now Contact; trimming it was considered and
+  deferred. **Home is unaffected** (no tray; the funnel-through-demo flow stands).
+  Supersedes the earlier "no persistent nav bar" intent (the quiet centered pill earns it
+  on inner pages) and the "top-bar left = section indicator" slot on inner pages.
 - **2026-07-19** — **Stage 4.5 locked — motion & flow amendments from prototyping.** Built
   two working artifacts (`design-system-preview.html` motion demos and
   `transition-prototype.html`, the full Home scroll hero→bookend) and revised from the

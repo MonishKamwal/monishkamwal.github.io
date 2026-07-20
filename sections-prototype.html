@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prototype — inner pages: Journey · Architecture · Skills · About</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..700&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --background:#ffffff;
+    --border:#e8e8e8;
+    --foreground:#0a0a0a;
+    --muted-foreground:#6b6b6b;
+    --warm:#c98a3a;
+    --warm-soft:#e8b87e;
+    --wash-blue:#e7f0ff;
+    --wash-sage:#e0f7e7;
+    --wash-ochre:#ffecdb;
+    --wash-rose:#ffe8ee;
+    --deep-ochre:#96600a;
+    --ease-out-expo:cubic-bezier(.16,1,.3,1);
+    --dur:.48s; /* the loose global motion value — retuned by the dock */
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;background:var(--background);color:var(--foreground);
+    font-family:"Outfit",system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-weight:330;line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  /* each inner page inherits its Home section's wash — the wayfinding rule */
+  body[data-page="journey"]{background:var(--wash-ochre);}
+  body[data-page="architecture"]{background:var(--wash-sage);}
+  body[data-page="skills"]{background:var(--wash-rose);}
+  body[data-page="about"]{background:var(--wash-blue);}
+
+  .micro{
+    text-transform:uppercase;letter-spacing:.22em;font-size:11.5px;
+    font-weight:500;color:var(--muted-foreground);
+  }
+  .display{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 96;font-weight:500;
+    line-height:.92;letter-spacing:-.02em;
+  }
+  .link{
+    color:var(--deep-ochre);text-decoration:none;
+    border-bottom:1px solid rgba(150,96,10,.32);
+    transition:color .3s var(--ease-out-expo),border-color .3s var(--ease-out-expo);
+  }
+  .link:hover{color:var(--warm);border-bottom-color:var(--warm);}
+  .link:focus-visible{outline:2px solid var(--warm);outline-offset:3px;border-radius:2px;}
+
+  /* ---------- top bar: "← Home" (left) + menu (right) ---------- */
+  .topbar{
+    position:fixed;top:0;left:0;right:0;z-index:30;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 26px;pointer-events:none;
+  }
+  .home-link{
+    display:inline-flex;align-items:center;gap:7px;pointer-events:auto;
+    font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--foreground);text-decoration:none;
+    transition:color .3s var(--ease-out-expo);
+  }
+  .home-link svg{transition:transform .3s var(--ease-out-expo);}
+  .home-link:hover{color:var(--warm);}
+  .home-link:hover svg{transform:translateX(-3px);}
+  .home-link:focus-visible{outline:2px solid var(--warm);outline-offset:3px;border-radius:3px;}
+  .menu-btn{
+    background:none;border:0;cursor:pointer;padding:6px;color:var(--foreground);
+    display:inline-flex;line-height:0;pointer-events:auto;
+    transition:color .3s var(--ease-out-expo);
+  }
+  .menu-btn:hover{color:var(--warm);}
+  .menu-btn:focus-visible{outline:2px solid var(--warm);outline-offset:2px;border-radius:3px;}
+
+  /* ---------- slide-in menu (nav spec, reused from the Home prototype) ---------- */
+  .m-scrim{
+    position:fixed;inset:0;background:rgba(10,10,10,.16);z-index:50;
+    opacity:0;pointer-events:none;transition:opacity calc(var(--dur)*.8) var(--ease-out-expo);
+  }
+  .m-scrim.open{opacity:1;pointer-events:auto;}
+  .menu-panel{
+    position:fixed;top:0;right:0;bottom:0;width:min(400px,88vw);z-index:51;
+    background:#fff;border-left:1px solid var(--border);
+    padding:24px 34px 34px;display:flex;flex-direction:column;
+    transform:translateX(102%);visibility:hidden;
+    transition:transform var(--dur) var(--ease-out-expo),visibility 0s var(--dur);
+  }
+  .menu-panel.open{
+    transform:none;visibility:visible;
+    transition:transform var(--dur) var(--ease-out-expo),visibility 0s 0s;
+  }
+  .menu-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:38px;}
+  .m-close{
+    background:none;border:0;cursor:pointer;padding:6px;color:var(--foreground);
+    display:inline-flex;line-height:0;transition:color .3s var(--ease-out-expo);
+  }
+  .m-close:hover{color:var(--warm);}
+  .m-close:focus-visible{outline:2px solid var(--warm);outline-offset:2px;border-radius:3px;}
+  .menu-panel nav{display:flex;flex-direction:column;gap:18px;}
+  .menu-link{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
+    text-transform:uppercase;font-size:clamp(28px,4.5vw,38px);line-height:1.05;
+    color:var(--foreground);text-decoration:none;width:fit-content;cursor:pointer;
+    background:none;border:0;text-align:left;padding:0;
+    opacity:0;transform:translate(30px,10px);
+    transition:opacity var(--dur) var(--ease-out-expo),transform var(--dur) var(--ease-out-expo),color .3s var(--ease-out-expo);
+  }
+  .menu-link:hover{color:var(--warm);}
+  .menu-link:focus-visible{outline:2px solid var(--warm);outline-offset:4px;}
+  .menu-link.elsewhere{color:var(--muted-foreground);}
+  .menu-panel.open .menu-link{opacity:1;transform:none;}
+  .menu-panel.open .menu-link:nth-of-type(1){transition-delay:calc(var(--dur)*.2)}
+  .menu-panel.open .menu-link:nth-of-type(2){transition-delay:calc(var(--dur)*.3)}
+  .menu-panel.open .menu-link:nth-of-type(3){transition-delay:calc(var(--dur)*.4)}
+  .menu-panel.open .menu-link:nth-of-type(4){transition-delay:calc(var(--dur)*.5)}
+  .menu-panel.open .menu-link:nth-of-type(5){transition-delay:calc(var(--dur)*.6)}
+  .menu-panel.open .menu-link:nth-of-type(6){transition-delay:calc(var(--dur)*.7)}
+
+  /* ---------- the arrival line — "the line carries you" ---------- */
+  .arrival-wrap{
+    position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:20;
+    pointer-events:none;opacity:1;transition:opacity calc(var(--dur)*1.2) var(--ease-out-expo);
+  }
+  .arrival-wrap.retire{opacity:0;}
+  .arrival-line{
+    stroke:var(--foreground);stroke-width:1.4;fill:none;
+    stroke-dasharray:160;stroke-dashoffset:160;
+  }
+  .arrival-wrap.draw .arrival-line{
+    transition:stroke-dashoffset calc(var(--dur)*1.7) var(--ease-out-expo);
+    stroke-dashoffset:0;
+  }
+
+  /* ---------- page shell ---------- */
+  main{position:relative;}
+  .page{display:none;}
+  .page.active{display:block;opacity:0;transition:opacity var(--dur) var(--ease-out-expo);}
+  .page.active.entered{opacity:1;}
+  .wrap{max-width:900px;margin:0 auto;padding:clamp(96px,15vh,150px) clamp(24px,5vw,40px) clamp(60px,10vh,110px);}
+  .page-head{margin-bottom:clamp(30px,6vh,60px);}
+  .page-title{font-size:clamp(46px,9vw,96px);text-transform:uppercase;margin:0;}
+  .page-lead{margin:12px 0 0;font-size:clamp(16px,2vw,21px);color:var(--muted-foreground);}
+
+  /* elements that reveal on scroll (scrubbed by viewport position) */
+  .reveal{opacity:0;}
+
+  /* ================= JOURNEY ================= */
+  .j-summary{margin:0 0 6px;font-size:14px;color:var(--muted-foreground);}
+  .j-path-wrap{position:relative;margin:clamp(20px,4vh,44px) auto 0;max-width:760px;}
+  .j-path-wrap svg{width:100%;height:auto;display:block;overflow:visible;}
+  .j-path{fill:none;stroke:var(--foreground);stroke-width:1.4;stroke-linecap:round;}
+  .j-dot{fill:var(--foreground);opacity:0;cursor:pointer;transition:fill .25s var(--ease-out-expo);}
+  .j-dot:hover{fill:var(--warm);}
+  .j-end{fill:none;stroke:var(--foreground);stroke-width:1.4;stroke-linecap:round;opacity:0;}
+  .phase-head{position:absolute;left:0;right:0;transform:translateY(-50%);text-align:center;opacity:0;pointer-events:none;z-index:2;}
+  .phase-head .chip{display:inline-block;background:var(--wash-ochre);padding:4px 22px;border-radius:2px;}
+  .phase-head .pk{display:block;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted-foreground);font-weight:600;margin-bottom:3px;}
+  .phase-head .ph{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
+    text-transform:uppercase;font-size:clamp(25px,4.6vw,42px);line-height:1;color:var(--foreground);
+  }
+  .j-entry{position:absolute;width:min(200px,30%);opacity:0;}
+  .j-entry.on-left{text-align:right;}
+  .j-entry.on-right{text-align:left;}
+  .j-entry .d{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted-foreground);font-weight:500;}
+  .j-entry h3{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 40;font-weight:500;letter-spacing:-.01em;
+    font-size:clamp(17px,2.4vw,22px);margin:4px 0 3px;line-height:1.12;
+  }
+  .j-entry h3 a{color:inherit;text-decoration:none;cursor:pointer;transition:color .25s var(--ease-out-expo);}
+  .j-entry h3 a:hover{color:var(--warm);}
+  .j-entry p{margin:0;font-size:12.5px;color:var(--muted-foreground);line-height:1.45;}
+  .j-tail{margin-top:8px;text-align:center;font-size:12px;color:var(--muted-foreground);font-style:italic;opacity:0;}
+
+  /* ================= ARCHITECTURE ================= */
+  .arch-summary{
+    display:flex;align-items:center;flex-wrap:wrap;gap:0 4px;
+    margin:clamp(14px,3vh,26px) 0 clamp(30px,6vh,56px);
+    font-size:13.5px;color:var(--muted-foreground);
+  }
+  .arch-summary .s{color:var(--foreground);font-weight:500;}
+  .arch-summary .sep{color:var(--muted-foreground);margin:0 3px;}
+  .chapter{margin:clamp(40px,8vh,80px) 0;}
+  .chapter h2{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
+    font-size:clamp(26px,4.6vw,44px);margin:0;line-height:1.02;
+  }
+  .chapter .cap{margin:10px 0 0;color:var(--muted-foreground);max-width:62ch;font-size:15px;}
+  .diagram{display:flex;align-items:flex-start;flex-wrap:wrap;margin-top:clamp(26px,5vh,46px);position:relative;}
+  .stop{display:flex;flex-direction:column;align-items:center;gap:9px;cursor:pointer;padding:2px 2px 6px;}
+  .stop .dot{width:12px;height:12px;border-radius:50%;background:var(--foreground);transition:background .25s var(--ease-out-expo);}
+  .stop .lbl{font-size:12px;color:var(--foreground);text-align:center;transition:color .25s var(--ease-out-expo);}
+  .stop .sub{font-size:10.5px;color:var(--muted-foreground);text-align:center;max-width:11ch;line-height:1.3;}
+  .stop:hover .dot{background:var(--warm);}
+  .stop:hover .lbl{color:var(--warm);}
+  .stop:focus-visible{outline:2px solid var(--warm);outline-offset:3px;border-radius:4px;}
+  .conn{display:flex;align-items:center;color:var(--foreground);margin:4px 4px 0;padding-top:1px;}
+  /* the gate's dead-end stub — a blocked branch hanging below the line */
+  .stub{display:flex;flex-direction:column;align-items:center;cursor:pointer;margin-left:6px;}
+  .stub .drop{color:var(--foreground);line-height:0;}
+  .stub .blocked{
+    display:flex;flex-direction:column;align-items:center;gap:7px;margin-top:2px;
+    padding:8px 10px;border:1px dashed var(--foreground);border-radius:6px;
+  }
+  .stub .x{width:13px;height:13px;color:var(--foreground);}
+  .stub .blbl{font-size:10.5px;color:var(--muted-foreground);text-align:center;line-height:1.25;max-width:12ch;}
+  .stub:hover .x{color:var(--warm);}
+  .stub:focus-visible{outline:2px solid var(--warm);outline-offset:3px;border-radius:4px;}
+  .arch-close{
+    margin-top:clamp(46px,9vh,90px);padding-top:clamp(22px,4vh,34px);
+    border-top:1px solid var(--foreground);
+  }
+  .arch-close p{margin:0 0 14px;font-size:14.5px;color:var(--muted-foreground);max-width:64ch;}
+  .arch-close .links{display:flex;gap:26px;flex-wrap:wrap;font-size:15px;}
+
+  /* ================= SKILLS ================= */
+  .tier-label{margin:clamp(30px,6vh,56px) 0 clamp(18px,3vh,30px);}
+  .proven{display:flex;flex-direction:column;gap:clamp(22px,4vh,40px);}
+  .skill{max-width:min(560px,82%);opacity:0;}
+  .skill.r{margin-left:auto;text-align:right;}
+  .skill .name{font-size:clamp(22px,3.6vw,34px);font-weight:350;letter-spacing:-.01em;line-height:1.1;}
+  .skill .did{margin:5px 0 6px;font-size:14px;color:var(--muted-foreground);}
+  .skill.r .did{margin-left:auto;}
+  .skill .ev{font-size:13.5px;}
+  .divider{height:1px;background:var(--foreground);margin:clamp(44px,8vh,80px) 0;opacity:.9;}
+  .toolbox{display:flex;flex-wrap:wrap;gap:10px 22px;}
+  .toolbox .t{font-size:clamp(16px,2.2vw,22px);color:var(--muted-foreground);font-weight:300;opacity:0;}
+
+  /* ================= ABOUT ================= */
+  .bio{display:flex;gap:clamp(24px,5vw,54px);align-items:flex-start;margin-bottom:clamp(36px,7vh,70px);flex-wrap:wrap;}
+  .portrait{
+    flex:0 0 auto;width:min(240px,40vw);aspect-ratio:4/5;background:#fff;
+    border:1px solid var(--border);border-radius:5px;
+    box-shadow:0 18px 40px -26px rgba(10,10,10,.35),0 2px 8px -4px rgba(10,10,10,.12);
+    display:flex;align-items:flex-end;justify-content:center;overflow:hidden;
+  }
+  .portrait svg{width:78%;height:auto;}
+  .bio-text{flex:1 1 300px;}
+  .bio-text p{margin:0 0 14px;max-width:56ch;}
+  .cv-block{margin-top:clamp(30px,6vh,56px);}
+  .cv-block h2{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
+    font-size:clamp(24px,4vw,38px);margin:0 0 clamp(16px,3vh,26px);
+  }
+  .cv{position:relative;padding-left:34px;}
+  .cv-line{position:absolute;left:5px;top:6px;width:1.4px;background:var(--foreground);transform-origin:top;transform:scaleY(0);}
+  .cv-stop{position:relative;margin-bottom:clamp(22px,4vh,38px);opacity:0;}
+  .cv-stop::before{
+    content:"";position:absolute;left:-34px;top:6px;width:11px;height:11px;
+    border-radius:50%;background:var(--foreground);transform:translateX(0.5px);
+  }
+  .cv-stop .range{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted-foreground);font-weight:500;}
+  .cv-stop .role{font-size:clamp(17px,2.4vw,21px);font-weight:450;margin:2px 0 2px;}
+  .cv-stop .what{margin:0;font-size:14px;color:var(--muted-foreground);max-width:56ch;}
+  .resume{margin:clamp(10px,2vh,18px) 0 0;font-size:15px;}
+  .contact-block{
+    margin-top:clamp(40px,8vh,80px);padding-top:clamp(24px,4vh,36px);
+    border-top:1px solid var(--border);
+  }
+  .contact-block .say{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
+    font-size:clamp(22px,3.4vw,30px);margin:0 0 14px;
+  }
+  .copy-email{
+    background:none;border:0;padding:0;cursor:pointer;font:inherit;
+    color:var(--deep-ochre);font-size:clamp(18px,2.6vw,24px);
+    border-bottom:1px solid rgba(150,96,10,.32);transition:color .3s var(--ease-out-expo),border-color .3s var(--ease-out-expo);
+  }
+  .copy-email:hover{color:var(--warm);border-bottom-color:var(--warm);}
+  .copy-email:focus-visible{outline:2px solid var(--warm);outline-offset:3px;}
+  .copied{margin-left:10px;font-size:12px;color:var(--deep-ochre);opacity:0;transition:opacity .4s var(--ease-out-expo);}
+  .contact-links{margin-top:14px;display:flex;gap:22px;font-size:15px;}
+
+  /* ================= paper card (Journey entry / Architecture stop) ================= */
+  .card-scrim{
+    position:fixed;inset:0;background:rgba(10,10,10,.20);z-index:60;
+    opacity:0;pointer-events:none;transition:opacity calc(var(--dur)*.8) var(--ease-out-expo);
+  }
+  .card-scrim.open{opacity:1;pointer-events:auto;}
+  .paper-card{
+    position:fixed;z-index:61;left:50%;top:50%;
+    width:min(680px,92vw);max-height:86vh;overflow:auto;
+    background:#fff;border:1px solid var(--border);border-radius:6px;
+    box-shadow:0 30px 70px -30px rgba(10,10,10,.5),0 4px 14px -6px rgba(10,10,10,.18);
+    padding:clamp(28px,5vw,52px);
+    transform:translate(-50%,-50%) scale(.6);opacity:0;transform-origin:var(--ox,50%) var(--oy,50%);
+    transition:transform var(--dur) var(--ease-out-expo),opacity calc(var(--dur)*.7) var(--ease-out-expo);
+  }
+  .paper-card.open{transform:translate(-50%,-50%) scale(1);opacity:1;}
+  .card-x{
+    position:absolute;top:16px;right:16px;background:none;border:0;cursor:pointer;
+    padding:6px;color:var(--foreground);line-height:0;transition:color .3s var(--ease-out-expo);
+  }
+  .card-x:hover{color:var(--warm);}
+  .card-x:focus-visible{outline:2px solid var(--warm);outline-offset:2px;border-radius:3px;}
+  .card-meta{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted-foreground);font-weight:500;}
+  .card-title{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
+    font-size:clamp(26px,4vw,38px);line-height:1.05;margin:8px 0 18px;
+  }
+  .card-body h4{margin:22px 0 6px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-foreground);font-weight:600;}
+  .card-body p{margin:0 0 12px;font-size:15px;max-width:60ch;}
+  .card-ev{margin-top:24px;padding-top:16px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:9px;font-size:14px;}
+
+  /* ---------- prototype chrome: page switcher + speed dock ---------- */
+  .switch-dock{
+    position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:40;
+    background:#fff;border:1px solid var(--border);border-radius:30px;
+    padding:6px 8px;display:flex;align-items:center;gap:4px;
+    box-shadow:0 8px 24px -16px rgba(10,10,10,.4);
+  }
+  .switch-dock .sw{
+    font-family:"Outfit",sans-serif;font-size:12.5px;color:var(--muted-foreground);
+    background:none;border:0;border-radius:20px;padding:6px 14px;cursor:pointer;
+    transition:color .25s var(--ease-out-expo),background .25s var(--ease-out-expo);
+  }
+  .switch-dock .sw:hover{color:var(--foreground);}
+  .switch-dock .sw.active{color:#fff;background:var(--foreground);}
+  .switch-dock .sw:focus-visible{outline:2px solid var(--warm);outline-offset:2px;}
+  .speed-dock{
+    position:fixed;right:18px;bottom:18px;z-index:40;
+    background:#fff;border:1px solid var(--border);border-radius:5px;
+    padding:8px 10px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+    box-shadow:0 8px 24px -16px rgba(10,10,10,.4);max-width:min(300px,calc(100vw - 36px));
+  }
+  .chip-btn{
+    font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--muted-foreground);
+    background:none;border:1px solid var(--border);border-radius:20px;padding:3px 9px;cursor:pointer;
+    transition:border-color .3s var(--ease-out-expo),color .3s var(--ease-out-expo);
+  }
+  .chip-btn:hover{border-color:var(--warm);color:var(--deep-ochre);}
+  .chip-btn.active{border-color:var(--warm);color:var(--deep-ochre);background:#f4cc9e38;}
+  .chip-btn:focus-visible{outline:2px solid var(--warm);outline-offset:2px;}
+
+  @media(max-width:640px){
+    .switch-dock{bottom:70px;}
+    .j-entry{width:44%;}
+    .bio{flex-direction:column;}
+    .portrait{width:min(200px,50vw);}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important;}
+    .reveal,.skill,.toolbox .t,.j-entry,.cv-stop{opacity:1!important;}
+  }
+</style>
+</head>
+<body data-page="journey">
+
+<!-- ---------- top bar ---------- -->
+<div class="topbar">
+  <a class="home-link" href="transition-prototype.html" aria-label="Back to the home page">
+    <svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M16 6H1M6 1 1 6l5 5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>Home</span>
+  </a>
+  <button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="menuPanel">
+    <svg width="26" height="14" viewBox="0 0 26 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 1h24M1 7h24M1 13h24" stroke-linecap="round"/></svg>
+  </button>
+</div>
+
+<!-- ---------- slide-in menu ---------- -->
+<div class="m-scrim" id="mScrim"></div>
+<aside class="menu-panel" id="menuPanel" aria-hidden="true" aria-label="Site menu">
+  <div class="menu-head">
+    <span class="micro">Menu</span>
+    <button class="m-close" id="mClose" aria-label="Close menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 2l16 16M18 2L2 18" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <nav>
+    <a class="menu-link elsewhere" href="transition-prototype.html" title="Home lives in the Home-scroll prototype">Home</a>
+    <button class="menu-link" data-goto="journey">Journey</button>
+    <button class="menu-link" data-goto="architecture">Architecture</button>
+    <button class="menu-link" data-goto="skills">Skills</button>
+    <button class="menu-link" data-goto="about">About</button>
+    <a class="menu-link elsewhere" href="transition-prototype.html" title="Contact is the Home bookend">Contact</a>
+  </nav>
+</aside>
+
+<!-- ---------- arrival line ---------- -->
+<div class="arrival-wrap" id="arrivalWrap" aria-hidden="true">
+  <svg width="2" height="150" viewBox="0 0 2 150"><path class="arrival-line" d="M1 0 V150"/></svg>
+</div>
+
+<main>
+
+  <!-- ================= JOURNEY ================= -->
+  <section class="page active" data-page="journey" data-arrival="line">
+    <div class="wrap">
+      <div class="page-head reveal">
+        <h1 class="page-title display">The Journey</h1>
+        <p class="page-lead">Roads not taken</p>
+      </div>
+      <p class="j-summary reveal">Every decision, in the order it happened — scroll is the walk from the first commit to today.</p>
+
+      <div class="j-path-wrap" id="jWrap">
+        <svg id="jSvg" viewBox="0 0 700 1500" fill="none" aria-hidden="true">
+          <path class="j-path" id="jPath" d=""/>
+          <path class="j-end" id="jEnd" d=""/>
+        </svg>
+        <!-- dots injected by script; entries positioned by script -->
+        <div class="j-entry" data-id="monorepo"><div class="d">28 May 2026 · Phase 0</div><h3><a>Why a monorepo said no</a></h3><p>Splitting the platform and the portfolio into two repos.</p></div>
+        <div class="j-entry" data-id="pages"><div class="d">03 Jun 2026 · Phase 0</div><h3><a>Pages, not a server</a></h3><p>Static export over a box that costs money while idle.</p></div>
+        <div class="j-entry" data-id="scalezero"><div class="d">10 Jun 2026 · Phase 1</div><h3><a>Scale to zero, on purpose</a></h3><p>Lambda over a warm container — the cold start is the story.</p></div>
+        <div class="j-entry" data-id="strokes"><div class="d">16 Jun 2026 · Phase 1</div><h3><a>Strokes, not pixels</a></h3><p>Send raw QuickDraw strokes; let the server normalize.</p></div>
+        <div class="j-entry" data-id="bucket"><div class="d">24 Jun 2026 · Phase 2</div><h3><a>One bucket, three jobs</a></h3><p>DVC, MLflow, and the case for a single S3 bucket.</p></div>
+        <div class="j-entry" data-id="gate"><div class="d">02 Jul 2026 · Phase 2</div><h3><a>The gate that says no</a></h3><p>Letting CI block a worse model felt wrong — until it didn't.</p></div>
+        <div class="j-entry" data-id="pandera"><div class="d">18 Jul 2026 · Phase 2</div><h3><a>Pandera at the door</a></h3><p>Validating data before it ever reaches training.</p></div>
+      </div>
+      <p class="j-tail" id="jTail">the path runs on — the project is still going</p>
+    </div>
+  </section>
+
+  <!-- ================= ARCHITECTURE ================= -->
+  <section class="page" data-page="architecture" data-arrival="line">
+    <div class="wrap">
+      <div class="page-head reveal">
+        <h1 class="page-title display">Architecture</h1>
+        <p class="page-lead">The machine behind the doodle</p>
+      </div>
+      <div class="arch-summary reveal">
+        <span class="s">draw</span><span class="sep">▸</span>
+        <span class="s">preprocess</span><span class="sep">▸</span>
+        <span class="s">model</span><span class="sep">▸</span>
+        <span class="s">serve</span><span class="sep">▸</span>
+        <span class="s">monitor</span>
+      </div>
+
+      <div class="chapter">
+        <h2 class="reveal">The road your doodle took</h2>
+        <p class="cap reveal">A replay of what you just did on the home page — from your browser to a guess and back.</p>
+        <div class="diagram">
+          <div class="stop reveal" data-stagger="0" data-card="browser" tabindex="0" role="button"><div class="dot"></div><div class="lbl">browser</div><div class="sub">raw strokes</div></div>
+          <div class="conn reveal" data-stagger="1"><svg width="46" height="8" viewBox="0 0 46 8" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M0 4h40M36 1l5 3-5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="stop reveal" data-stagger="2" data-card="lambda" tabindex="0" role="button"><div class="dot"></div><div class="lbl">Lambda</div><div class="sub">FastAPI + ONNX, cold from zero</div></div>
+          <div class="conn reveal" data-stagger="3"><svg width="46" height="8" viewBox="0 0 46 8" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M0 4h40M36 1l5 3-5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="stop reveal" data-stagger="4" data-card="guess" tabindex="0" role="button"><div class="dot"></div><div class="lbl">the guess</div><div class="sub">top-3 back to you</div></div>
+          <div class="conn reveal" data-stagger="5"><svg width="46" height="8" viewBox="0 0 46 8" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M0 4h40M36 1l5 3-5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="stop reveal" data-stagger="6" data-card="s3log" tabindex="0" role="button"><div class="dot"></div><div class="lbl">S3</div><div class="sub">doodle logged, anonymous</div></div>
+        </div>
+      </div>
+
+      <div class="chapter">
+        <h2 class="reveal">The factory that builds the model</h2>
+        <p class="cap reveal">Every model-affecting merge runs the line — and the quality gate can stop it dead.</p>
+        <div class="diagram">
+          <div class="stop reveal" data-stagger="0" data-card="data" tabindex="0" role="button"><div class="dot"></div><div class="lbl">pull data</div><div class="sub">DVC</div></div>
+          <div class="conn reveal" data-stagger="1"><svg width="40" height="8" viewBox="0 0 40 8" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M0 4h34M30 1l5 3-5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="stop reveal" data-stagger="2" data-card="validate" tabindex="0" role="button"><div class="dot"></div><div class="lbl">validate</div><div class="sub">Pandera</div></div>
+          <div class="conn reveal" data-stagger="3"><svg width="40" height="8" viewBox="0 0 40 8" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M0 4h34M30 1l5 3-5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="stop reveal" data-stagger="4" data-card="train" tabindex="0" role="button"><div class="dot"></div><div class="lbl">train</div><div class="sub">MLflow tracks</div></div>
+          <div class="conn reveal" data-stagger="5"><svg width="40" height="8" viewBox="0 0 40 8" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M0 4h34M30 1l5 3-5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <!-- the gate + its dead-end stub -->
+          <div class="stop reveal" data-stagger="6" data-card="gate" tabindex="0" role="button"><div class="dot"></div><div class="lbl">quality gate</div><div class="sub">challenger vs champion</div></div>
+          <div class="stub reveal" data-stagger="7" data-card="blocked" tabindex="0" role="button" aria-label="Blocked deploy — see the CI run">
+            <span class="drop"><svg width="8" height="30" viewBox="0 0 8 30" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M4 0v24M1 20l3 4 3-4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span class="blocked"><svg class="x" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2l10 10M12 2L2 12" stroke-linecap="round"/></svg><span class="blbl">deploy blocked — regression</span></span>
+          </div>
+          <div class="conn reveal" data-stagger="6"><svg width="40" height="8" viewBox="0 0 40 8" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M0 4h34M30 1l5 3-5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="stop reveal" data-stagger="8" data-card="registry" tabindex="0" role="button"><div class="dot"></div><div class="lbl">registry</div><div class="sub">promote winner</div></div>
+          <div class="conn reveal" data-stagger="9"><svg width="40" height="8" viewBox="0 0 40 8" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M0 4h34M30 1l5 3-5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="stop reveal" data-stagger="10" data-card="ship" tabindex="0" role="button"><div class="dot"></div><div class="lbl">ship</div><div class="sub">build image, update Lambda</div></div>
+        </div>
+      </div>
+
+      <div class="chapter">
+        <h2 class="reveal">The weekly dress rehearsal</h2>
+        <p class="cap reveal">Once a week a whole cluster appears, proves the model under load, and deletes itself.</p>
+        <div class="diagram">
+          <div class="stop reveal" data-stagger="0" data-card="tf" tabindex="0" role="button"><div class="dot"></div><div class="lbl">Terraform</div><div class="sub">VPC + EKS up</div></div>
+          <div class="conn reveal" data-stagger="1"><svg width="40" height="8" viewBox="0 0 40 8" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M0 4h34M30 1l5 3-5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="stop reveal" data-stagger="2" data-card="deploy" tabindex="0" role="button"><div class="dot"></div><div class="lbl">deploy</div><div class="sub">same image + monitoring</div></div>
+          <div class="conn reveal" data-stagger="3"><svg width="40" height="8" viewBox="0 0 40 8" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M0 4h34M30 1l5 3-5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="stop reveal" data-stagger="4" data-card="k6" tabindex="0" role="button"><div class="dot"></div><div class="lbl">load test</div><div class="sub">smoke + k6</div></div>
+          <div class="conn reveal" data-stagger="5"><svg width="40" height="8" viewBox="0 0 40 8" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M0 4h34M30 1l5 3-5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="stop reveal" data-stagger="6" data-card="grafana" tabindex="0" role="button"><div class="dot"></div><div class="lbl">capture</div><div class="sub">Grafana dashboards</div></div>
+          <div class="conn reveal" data-stagger="7"><svg width="40" height="8" viewBox="0 0 40 8" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M0 4h34M30 1l5 3-5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="stop reveal" data-stagger="8" data-card="destroy" tabindex="0" role="button"><div class="dot" style="background:none;border:1.4px solid var(--foreground);"></div><div class="lbl">destroy</div><div class="sub">nothing left running</div></div>
+        </div>
+      </div>
+
+      <div class="arch-close reveal">
+        <p>What stays running when nothing is happening: two storage buckets, one container registry, one function. Everything else is summoned on demand and torn down.</p>
+        <div class="links">
+          <a class="link" href="#" onclick="return false" title="opens the mlops evidence hub">Browse the raw evidence →</a>
+          <a class="link" href="#" onclick="return false" title="opens the GitHub repo">GitHub repo →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SKILLS ================= -->
+  <section class="page" data-page="skills" data-arrival="drift">
+    <div class="wrap">
+      <div class="page-head reveal">
+        <h1 class="page-title display">Skills</h1>
+        <p class="page-lead">What I build with</p>
+      </div>
+
+      <p class="micro tier-label reveal">Proven here</p>
+      <div class="proven">
+        <div class="skill" data-dir="left"><div class="name">PyTorch → ONNX</div><p class="did">Trained the QuickDraw CNN and exported it to ONNX for cold-start-friendly serving.</p><a class="link ev" href="#" onclick="return false">the model, in Architecture →</a></div>
+        <div class="skill r" data-dir="right"><div class="name">GitHub Actions</div><p class="did">CI retrains on every model-affecting merge and runs the quality gate.</p><a class="link ev" href="#" onclick="return false">a training run →</a></div>
+        <div class="skill" data-dir="left"><div class="name">MLflow</div><p class="did">Tracks every run and artifact; the registry promotes the winner.</p><a class="link ev" href="#" onclick="return false">the registry stop →</a></div>
+        <div class="skill r" data-dir="right"><div class="name">DVC</div><p class="did">Versions the dataset out of Git, into the one S3 bucket.</p><a class="link ev" href="#" onclick="return false">“One bucket, three jobs” →</a></div>
+        <div class="skill" data-dir="left"><div class="name">Pandera</div><p class="did">Validates the data schema before it can reach training.</p><a class="link ev" href="#" onclick="return false">“Pandera at the door” →</a></div>
+        <div class="skill r" data-dir="right"><div class="name">AWS Lambda</div><p class="did">Serves the model scale-to-zero behind a Function URL.</p><a class="link ev" href="#" onclick="return false">the serve path →</a></div>
+        <div class="skill" data-dir="left"><div class="name">Terraform</div><p class="did">Stands up the weekly EKS cluster and tears it back down.</p><a class="link ev" href="#" onclick="return false">the dress rehearsal →</a></div>
+        <div class="skill r" data-dir="right"><div class="name">k6 + Grafana</div><p class="did">Load-tests the deployed model and captures the dashboards as evidence.</p><a class="link ev" href="#" onclick="return false">a load-test result →</a></div>
+        <div class="skill" data-dir="left"><div class="name">Next.js</div><p class="did">This site — static export, client-side calls to the live model.</p><a class="link ev" href="#" onclick="return false">the repo →</a></div>
+      </div>
+
+      <div class="divider" aria-hidden="true"></div>
+
+      <p class="micro tier-label reveal">Also in the toolbox</p>
+      <div class="toolbox">
+        <span class="t">Python</span><span class="t">TypeScript</span><span class="t">FastAPI</span><span class="t">Docker</span>
+        <span class="t">scikit-learn</span><span class="t">pandas</span><span class="t">NumPy</span><span class="t">SQL</span>
+        <span class="t">Kubernetes</span><span class="t">S3</span><span class="t">CloudWatch</span><span class="t">Evidently</span>
+        <span class="t">Bash</span><span class="t">Git</span><span class="t">pytest</span><span class="t">Tailwind</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ABOUT ================= -->
+  <section class="page" data-page="about" data-arrival="line">
+    <div class="wrap">
+      <div class="page-head reveal">
+        <h1 class="page-title display">About</h1>
+        <p class="page-lead">The person behind the machine</p>
+      </div>
+
+      <div class="bio reveal">
+        <div class="portrait" aria-label="Portrait placeholder">
+          <svg viewBox="0 0 100 125" fill="none" stroke="#0a0a0a" stroke-width="1.4">
+            <circle cx="50" cy="42" r="22"/>
+            <path d="M12 125 C 14 92, 34 76, 50 76 C 66 76, 86 92, 88 125" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="bio-text">
+          <p>I&rsquo;m Monish Kamwal. I build machine-learning systems end to end — and this site is one of them, the live front of a platform I&rsquo;m growing from scratch.</p>
+          <p>My interest isn&rsquo;t the model in isolation but everything around it: how data gets versioned, how a bad model gets stopped before it ships, how infrastructure can appear for a load test and vanish by morning. <span class="micro" style="letter-spacing:.1em">(bio is placeholder — Monish writes this at implementation)</span></p>
+        </div>
+      </div>
+
+      <div class="cv-block">
+        <h2 class="reveal">Work</h2>
+        <div class="cv" id="cvWork">
+          <div class="cv-line" data-line></div>
+          <div class="cv-stop"><div class="range">2024 — present</div><div class="role">ML / Platform Engineer · Self-directed</div><p class="what">Designing and building the MLOps platform this site fronts.</p></div>
+          <div class="cv-stop"><div class="range">2022 — 2024</div><div class="role">Software Engineer · Placeholder Co.</div><p class="what">Backend services and data pipelines. (Content from Monish at implementation.)</p></div>
+          <div class="cv-stop"><div class="range">2021 — 2022</div><div class="role">Engineering Intern · Placeholder Co.</div><p class="what">First professional exposure to production systems.</p></div>
+        </div>
+      </div>
+
+      <div class="cv-block">
+        <h2 class="reveal">Education</h2>
+        <div class="cv" id="cvEdu">
+          <div class="cv-line" data-line></div>
+          <div class="cv-stop"><div class="range">2017 — 2021</div><div class="role">B.Tech · Placeholder University</div><p class="what">Computer science foundations. (Content from Monish at implementation.)</p></div>
+        </div>
+        <p class="resume reveal"><a class="link" href="#" onclick="return false">Download résumé (PDF)</a></p>
+      </div>
+
+      <div class="contact-block reveal">
+        <p class="say display">Say hello.</p>
+        <div>
+          <button class="copy-email" id="aboutMail">kallukalia01@outlook.com</button>
+          <span class="copied" id="aboutCopied">Copied</span>
+        </div>
+        <div class="contact-links">
+          <a class="link" href="#" onclick="return false">GitHub</a>
+          <a class="link" href="#" onclick="return false">LinkedIn</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ================= paper card overlay (shared) ================= -->
+<div class="card-scrim" id="cardScrim"></div>
+<div class="paper-card" id="paperCard" role="dialog" aria-modal="true" aria-labelledby="cardTitle" tabindex="-1">
+  <button class="card-x" id="cardX" aria-label="Close">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 2l16 16M18 2L2 18" stroke-linecap="round"/></svg>
+  </button>
+  <div class="card-meta" id="cardMeta"></div>
+  <div class="card-title display" id="cardTitle"></div>
+  <div class="card-body" id="cardBody"></div>
+  <div class="card-ev" id="cardEv"></div>
+</div>
+
+<!-- ---------- prototype chrome ---------- -->
+<div class="switch-dock" role="tablist" aria-label="Inner page">
+  <button class="sw active" data-goto="journey" role="tab" aria-current="page">Journey</button>
+  <button class="sw" data-goto="architecture" role="tab">Architecture</button>
+  <button class="sw" data-goto="skills" role="tab">Skills</button>
+  <button class="sw" data-goto="about" role="tab">About</button>
+</div>
+<div class="speed-dock" role="group" aria-label="Motion speed">
+  <span class="micro">motion</span>
+  <button class="chip-btn active" data-dur=".48s">.48s</button>
+  <button class="chip-btn" data-dur=".7s">.7s</button>
+  <button class="chip-btn" data-dur=".9s">.9s</button>
+  <button class="chip-btn" data-dur="1.2s">1.2s</button>
+</div>
+
+<script>
+  const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+  const easeOut=sp=>sp<=0?0:sp>=1?1:1-Math.pow(1-sp,3);
+
+  const pages=[...document.querySelectorAll('.page')];
+  const arrivalWrap=document.getElementById('arrivalWrap');
+  const titles={journey:'Journey',architecture:'Architecture',skills:'Skills',about:'About'};
+  let activeName='journey';
+  const active=()=>document.querySelector('.page.active');
+
+  // ---- reveal machinery: an element's reveal is a pure function of its
+  //      position in the viewport (scrubbed, per Stage 4.5) ----
+  let revealEls=[];
+  function cacheReveals(){
+    const p=active();
+    revealEls=[...p.querySelectorAll('.reveal,.skill,.toolbox .t,.j-entry,.cv-stop')];
+  }
+  function revealProgress(el){
+    const r=el.getBoundingClientRect();
+    const vh=window.innerHeight;
+    const st=parseFloat(el.dataset.stagger||0);
+    const start=vh*0.88 - st*vh*0.045;
+    const end=vh*0.60 - st*vh*0.045;
+    return clamp((start-r.top)/(start-end),0,1);
+  }
+  function setReveal(el,e,dir){
+    el.style.opacity=String(e);
+    if(reduce){el.style.transform='none';return;}
+    if(dir==='left') el.style.transform='translate3d('+((1-e)*-28)+'px,0,0)';
+    else if(dir==='right') el.style.transform='translate3d('+((1-e)*28)+'px,0,0)';
+    else el.style.transform='translate3d(0,'+((1-e)*16)+'px,0)';
+  }
+
+  // ---- Journey path: entries + phase headings laid out through fixed anchor
+  //      points; each entry's text sits on the SAME side of the line as its dot ----
+  const jSvg=document.getElementById('jSvg');
+  const jPath=document.getElementById('jPath');
+  const jEnd=document.getElementById('jEnd');
+  const jTail=document.getElementById('jTail');
+  const jWrap=document.getElementById('jWrap');
+  const jEntries=[...document.querySelectorAll('#jWrap .j-entry')];
+  const VBW=700, VBH=1500, LX=245, RX=455; // gentle crests, room for outer text
+  // entries at alternating crests; phase headings sit in the gaps between them
+  const jLayout=[
+    {t:'phase',k:'Phase 0',ttl:'Scaffold',y:60},
+    {t:'entry',id:'monorepo',x:LX,y:190},
+    {t:'entry',id:'pages',x:RX,y:350},
+    {t:'phase',k:'Phase 1',ttl:'Serving live',y:470},
+    {t:'entry',id:'scalezero',x:LX,y:590},
+    {t:'entry',id:'strokes',x:RX,y:750},
+    {t:'phase',k:'Phase 2',ttl:'The pipeline',y:870},
+    {t:'entry',id:'bucket',x:LX,y:990},
+    {t:'entry',id:'gate',x:RX,y:1150},
+    {t:'entry',id:'pandera',x:LX,y:1310},
+  ];
+  let jLen=0, jNodes=[], jHeads=[];
+  const entryById=id=>jEntries.find(e=>e.dataset.id===id);
+  function buildJourney(){
+    const pts=jLayout.filter(n=>n.t==='entry');
+    // the line starts under the Phase 0 heading (center-top) — masked behind its
+    // chip — then winds through the anchors with vertical control handles
+    const phase0=jLayout.find(n=>n.t==='phase');
+    const nodes=[{x:VBW/2,y:phase0.y},...pts];
+    let d='M '+nodes[0].x+' '+nodes[0].y;
+    for(let i=1;i<nodes.length;i++){
+      const a=nodes[i-1],b=nodes[i],m=(b.y-a.y)*0.5;
+      d+=' C '+a.x+' '+(a.y+m)+', '+b.x+' '+(b.y-m)+', '+b.x+' '+b.y;
+    }
+    jPath.setAttribute('d',d);
+    jLen=jPath.getTotalLength();
+    jPath.style.strokeDasharray=String(jLen);
+    jPath.style.strokeDashoffset=String(jLen);
+    // the unfinished tail continues past the last dot and fades
+    const last=pts[pts.length-1];
+    jEnd.setAttribute('d','M '+last.x+' '+last.y+' C '+last.x+' '+(last.y+70)+', 320 '+(last.y+110)+', 340 '+(last.y+160));
+    const eLen=jEnd.getTotalLength();
+    jEnd.style.strokeDasharray=String(eLen);
+    jEnd.style.strokeDashoffset=String(eLen);
+    // map each anchor to its length-fraction along the drawn path (nearest sample)
+    const N=500,samp=[];
+    for(let k=0;k<=N;k++) samp.push(jPath.getPointAtLength(jLen*k/N));
+    const fracNear=(x,y)=>{let bi=0,bd=1e9;for(let k=0;k<=N;k++){const dx=samp[k].x-x,dy=samp[k].y-y,dd=dx*dx+dy*dy;if(dd<bd){bd=dd;bi=k;}}return bi/N;};
+    const fracY=y=>{let bi=0,bd=1e9;for(let k=0;k<=N;k++){const dy=Math.abs(samp[k].y-y);if(dy<bd){bd=dy;bi=k;}}return bi/N;};
+    // rebuild injected dots + phase headings from scratch
+    jSvg.querySelectorAll('.j-dot').forEach(el=>el.remove());
+    jWrap.querySelectorAll('.phase-head').forEach(el=>el.remove());
+    jNodes=[]; jHeads=[];
+    jLayout.forEach(n=>{
+      if(n.t==='entry'){
+        const e=entryById(n.id);
+        const dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
+        dot.setAttribute('class','j-dot'); dot.setAttribute('r','6');
+        dot.setAttribute('cx',n.x); dot.setAttribute('cy',n.y);
+        dot.dataset.id=n.id;
+        dot.addEventListener('click',()=>openEntryCard(n.id,dot));
+        jSvg.appendChild(dot);
+        // text on the SAME side as the dot: left dot → text to its left, and vice versa
+        const xPct=n.x/VBW*100, yPct=n.y/VBH*100, onLeft=n.x<VBW*0.5;
+        e.classList.toggle('on-left',onLeft);
+        e.classList.toggle('on-right',!onLeft);
+        e.style.top='calc('+yPct+'% - 14px)';
+        if(onLeft){ e.style.right='calc('+(100-xPct)+'% + 20px)'; e.style.left='auto'; }
+        else{ e.style.left='calc('+xPct+'% + 20px)'; e.style.right='auto'; }
+        jNodes.push({el:e,dot,frac:fracNear(n.x,n.y)});
+      }else{
+        const h=document.createElement('div');
+        h.className='phase-head';
+        h.style.top=(n.y/VBH*100)+'%';
+        h.innerHTML='<span class="chip"><span class="pk">'+n.k+'</span><span class="ph">'+n.ttl+'</span></span>';
+        jWrap.appendChild(h);
+        jHeads.push({el:h,frac:fracY(n.y)});
+      }
+    });
+  }
+  function applyJourney(){
+    const r=jWrap.getBoundingClientRect();
+    const vh=window.innerHeight;
+    // draw progress: from when the wrap nears the fold to when its bottom clears mid-screen
+    const dP=clamp((vh*0.72 - r.top)/(r.height - vh*0.28),0,1);
+    jPath.style.strokeDashoffset=String(reduce?0:jLen*(1-dP));
+    jNodes.forEach(n=>{
+      n.dot.style.opacity=String(reduce?1:clamp((dP-n.frac)/0.03,0,1));
+      setReveal(n.el,reduce?1:easeOut(clamp((dP-(n.frac+0.005))/0.08,0,1)));
+    });
+    jHeads.forEach(h=>{
+      h.el.style.opacity=String(reduce?1:easeOut(clamp((dP-Math.max(0,h.frac-0.03))/0.06,0,1)));
+    });
+    const eLen=jEnd.getTotalLength();
+    jEnd.style.strokeDashoffset=String(reduce?0:eLen*(1-clamp((dP-0.9)/0.1,0,1)));
+    jTail.style.opacity=String(reduce?1:clamp((dP-0.96)/0.04,0,1));
+  }
+
+  // ---- About CV lines: vertical ink line draws down, stops reveal as it passes ----
+  function applyCV(id){
+    const cv=document.getElementById(id);
+    if(!cv) return;
+    const line=cv.querySelector('[data-line]');
+    const stops=[...cv.querySelectorAll('.cv-stop')];
+    const r=cv.getBoundingClientRect();
+    const vh=window.innerHeight;
+    const dP=clamp((vh*0.78 - r.top)/(r.height*0.9),0,1);
+    line.style.transform=reduce?'scaleY(1)':'scaleY('+dP+')';
+    line.style.height=(r.height-6)+'px';
+    stops.forEach((s,i)=>{
+      const f=stops.length>1?i/(stops.length-1)*0.85:0;
+      setReveal(s,reduce?1:easeOut(clamp((dP-f)/0.14,0,1)));
+    });
+  }
+
+  // ---- the per-frame apply for the active page ----
+  function applyReveals(){
+    for(const el of revealEls){
+      // path-owned elements are handled by their own functions
+      if(el.classList.contains('j-entry')||el.classList.contains('cv-stop')) continue;
+      const dir=el.dataset.dir;
+      setReveal(el,reduce?1:easeOut(revealProgress(el)),dir);
+    }
+    if(activeName==='journey') applyJourney();
+    if(activeName==='about'){ applyCV('cvWork'); applyCV('cvEdu'); }
+  }
+  function frame(){ applyReveals(); requestAnimationFrame(frame); }
+
+  // ---- page switching + the "line carries you" arrival ----
+  let arrivalTimer=null;
+  function switchPage(name){
+    if(name===activeName) return;
+    activeName=name;
+    pages.forEach(p=>p.classList.toggle('active',p.dataset.page===name));
+    document.body.dataset.page=name;
+    window.scrollTo(0,0);
+    // the bottom tray declares the current location (active state + aria-current)
+    document.querySelectorAll('.switch-dock .sw').forEach(b=>{
+      const on=b.dataset.goto===name;
+      b.classList.toggle('active',on);
+      b.setAttribute('aria-current',on?'page':'false');
+    });
+    if(name==='journey') buildJourney();
+    cacheReveals();
+    runArrival();
+    applyReveals();
+  }
+  function runArrival(){
+    const p=active();
+    const useLine=p.dataset.arrival==='line' && !reduce;
+    clearTimeout(arrivalTimer);
+    p.classList.remove('entered');
+    arrivalWrap.classList.remove('draw','retire');
+    arrivalWrap.style.display=useLine?'block':'none';
+    void p.offsetWidth; // reflow so the transitions restart
+    requestAnimationFrame(()=>{
+      p.classList.add('entered');
+      if(useLine){
+        arrivalWrap.classList.add('draw');
+        arrivalTimer=setTimeout(()=>arrivalWrap.classList.add('retire'),700);
+      }
+    });
+  }
+
+  // ---- paper card (shared by Journey entries + Architecture stops) ----
+  const cardScrim=document.getElementById('cardScrim');
+  const paperCard=document.getElementById('paperCard');
+  const cardX=document.getElementById('cardX');
+  const cardMeta=document.getElementById('cardMeta');
+  const cardTitle=document.getElementById('cardTitle');
+  const cardBody=document.getElementById('cardBody');
+  const cardEv=document.getElementById('cardEv');
+  let cardOpener=null;
+
+  const journeyCards={
+    gate:{meta:'02 Jul 2026 · Phase 2',title:'The gate that says no',
+      body:[['Context','Training produced a new model on every merge. Nothing stopped a worse one from shipping.'],
+            ['Options considered','Ship-always and roll back on complaints; a human review gate; an automatic challenger-vs-champion gate in CI.'],
+            ['Decision','An automatic gate: CI evaluates the challenger against the current champion on a held-out set and blocks the deploy if it regresses.'],
+            ['What went wrong','The first threshold was too tight — a statistically-equal model got blocked. Loosened to a confidence band, recorded in the run.']],
+      ev:[['the blocked-deploy CI run','#'],['gate.py','#']]},
+    pandera:{meta:'18 Jul 2026 · Phase 2',title:'Pandera at the door',
+      body:[['Context','A malformed data pull could poison training silently and only surface as a bad model days later.'],
+            ['Options considered','Trust the source; ad-hoc assertions in the training script; a declared schema validated as its own CI step.'],
+            ['Decision','A Pandera schema, checked before data can reach training — bad data fails the pipeline loudly and early.'],
+            ['What went wrong','The first schema was too strict on optional columns and failed valid pulls; relaxed to nullable where the data legitimately varies.']],
+      ev:[['the validation gate','#'],['the schema','#']]},
+    bucket:{meta:'24 Jun 2026 · Phase 2',title:'One bucket, three jobs',
+      body:[['Context','DVC needed remote storage, MLflow needed an artifact store, and the model needed somewhere to live.'],
+            ['Options considered','A bucket each (clean separation, more to manage); one bucket with prefixes (fewer moving parts, shared policy).'],
+            ['Decision','A single S3 bucket, partitioned by prefix — one lifecycle policy, one place to reason about cost and access.'],
+            ['What went wrong','Nothing yet — but the note is on record to split if access patterns ever diverge.']],
+      ev:[['the Terraform','#'],['the DVC remote config','#']]}
+  };
+  function genericJourney(id){
+    const el=jEntries.find(e=>e.dataset.id===id)||document.querySelector('.j-entry[data-id="'+id+'"]');
+    const d=el.querySelector('.d').textContent, t=el.querySelector('h3').textContent, p=el.querySelector('p').textContent;
+    return {meta:d,title:t,body:[['Context',p],['Options considered','(devlog body written at implementation — this is the reading-surface prototype.)'],['Decision','—'],['What went wrong','—']],ev:[['related commit','#']]};
+  }
+  const archCards={
+    lambda:{meta:'Serve',title:'AWS Lambda',
+      body:[['What it is','A FastAPI app running an ONNX model behind a Lambda Function URL.'],
+            ['Why this choice','It scales to zero — nothing runs, and nothing is billed, until someone draws. The cold start is honest, and it is the story the home page tells.'],
+            ['Trade-offs','A first request after idle is slow; a warm container would be faster but costs money at rest. The warm-up ping and cold-start UX cover it.']],
+      ev:[['the serving code','#'],['a cold-start trace','#']]},
+    gate:{meta:'Build',title:'The quality gate',
+      body:[['What it is','A CI step that compares the freshly-trained challenger against the deployed champion.'],
+            ['Why this choice','It makes "never ship a regression" a property of the pipeline, not a promise. The blocked deploy is the page\'s best proof.'],
+            ['Trade-offs','A too-tight threshold blocks equal models; tuned to a confidence band.']],
+      ev:[['the blocked-deploy run','#'],['gate.py','#']]},
+    blocked:{meta:'Build · dead end',title:'A deploy that got blocked',
+      body:[['What happened','A challenger regressed against the champion. The gate failed the job and the deploy never ran.'],
+            ['Why it matters','This is the gate working. The dead-end on the diagram is a real CI run you can open.']],
+      ev:[['the failed CI run','#']]},
+    destroy:{meta:'Rehearsal',title:'Destroy — nothing left running',
+      body:[['What it is','The final Terraform step tears down the VPC and EKS cluster built minutes earlier.'],
+            ['Why this choice','The cluster only exists to prove the model under load. Keeping it alive would burn money for no traffic.'],
+            ['Trade-offs','Each week pays the build-up time again; the evidence (dashboards, k6) is captured before teardown so nothing is lost.']],
+      ev:[['a weekly rehearsal run','#'],['the Terraform','#']]}
+  };
+  function genericArch(id,el){
+    const t=el.querySelector('.lbl')?el.querySelector('.lbl').textContent:id;
+    const sub=el.querySelector('.sub')?el.querySelector('.sub').textContent:'';
+    return {meta:'Component',title:t,body:[['What it is',sub||'—'],['Why this choice','(write-up authored against the built system at implementation.)'],['Trade-offs','—']],ev:[['related evidence','#']]};
+  }
+
+  function fillCard(data,opener){
+    cardMeta.textContent=data.meta;
+    cardTitle.textContent=data.title;
+    cardBody.innerHTML=data.body.map(([h,p])=>'<h4>'+h+'</h4><p>'+p+'</p>').join('');
+    cardEv.innerHTML=data.ev.map(([t,href])=>'<a class="link" target="_blank" rel="noopener" href="'+href+'" onclick="return false">'+t+' ↗</a>').join('');
+    // scale from the clicked element's position
+    if(opener && !reduce){
+      const r=opener.getBoundingClientRect();
+      paperCard.style.setProperty('--ox',(r.left+r.width/2)+'px');
+      paperCard.style.setProperty('--oy',(r.top+r.height/2)+'px');
+    }
+    cardOpener=opener;
+    cardScrim.classList.add('open');
+    paperCard.classList.add('open');
+    prevFocus=document.activeElement;
+    cardX.focus();
+  }
+  function openEntryCard(id,opener){
+    fillCard(journeyCards[id]||genericJourney(id),opener);
+    if(history.replaceState) history.replaceState(null,'','#journey/'+id);
+  }
+  let prevFocus=null;
+  function closeCard(){
+    cardScrim.classList.remove('open');
+    paperCard.classList.remove('open');
+    if(history.replaceState) history.replaceState(null,'','#'+activeName);
+    if(prevFocus&&prevFocus.focus) prevFocus.focus();
+  }
+  cardX.addEventListener('click',closeCard);
+  cardScrim.addEventListener('click',closeCard);
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'&&paperCard.classList.contains('open')) closeCard();
+  });
+  // architecture stops + stub open cards
+  document.querySelectorAll('.stop[data-card],.stub[data-card]').forEach(el=>{
+    const open=()=>{ const id=el.dataset.card; fillCard(archCards[id]||genericArch(id,el),el); if(history.replaceState) history.replaceState(null,'','#architecture/'+id); };
+    el.addEventListener('click',open);
+    el.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();open();} });
+  });
+
+  // ---- slide-in menu ----
+  const menuBtn=document.getElementById('menuBtn');
+  const menuPanel=document.getElementById('menuPanel');
+  const mScrim=document.getElementById('mScrim');
+  const mClose=document.getElementById('mClose');
+  function setMenu(open){
+    menuPanel.classList.toggle('open',open);
+    mScrim.classList.toggle('open',open);
+    menuPanel.setAttribute('aria-hidden',String(!open));
+    menuBtn.setAttribute('aria-expanded',String(open));
+    (open?mClose:menuBtn).focus();
+  }
+  menuBtn.addEventListener('click',()=>setMenu(true));
+  mClose.addEventListener('click',()=>setMenu(false));
+  mScrim.addEventListener('click',()=>setMenu(false));
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&menuPanel.classList.contains('open')) setMenu(false); });
+
+  // ---- goto wiring: menu buttons + switch dock ----
+  document.querySelectorAll('[data-goto]').forEach(b=>{
+    b.addEventListener('click',()=>{ setMenu(false); switchPage(b.dataset.goto); });
+  });
+
+  // ---- click-to-copy email (About) ----
+  const aboutCopied=document.getElementById('aboutCopied');
+  document.getElementById('aboutMail').addEventListener('click',async()=>{
+    try{ await navigator.clipboard.writeText('kallukalia01@outlook.com'); }catch(e){}
+    aboutCopied.style.opacity='1';
+    setTimeout(()=>{ aboutCopied.style.opacity='0'; },1600);
+  });
+
+  // ---- speed dock ----
+  document.querySelectorAll('.speed-dock .chip-btn').forEach(b=>{
+    b.addEventListener('click',()=>{
+      document.documentElement.style.setProperty('--dur',b.dataset.dur);
+      document.querySelectorAll('.speed-dock .chip-btn').forEach(x=>x.classList.toggle('active',x===b));
+    });
+  });
+
+  // ---- deep-link on load: #page or #page/cardId ----
+  function bootFromHash(){
+    const h=(location.hash||'').replace('#','');
+    const [pg,card]=h.split('/');
+    if(pg&&titles[pg]&&pg!==activeName){ activeName='__boot'; switchPage(pg); }
+    if(card){
+      if(pg==='journey') openEntryCard(card,document.querySelector('.j-entry[data-id="'+card+'"] h3 a'));
+      else if(pg==='architecture'){ const el=document.querySelector('.stop[data-card="'+card+'"],.stub[data-card="'+card+'"]'); if(el){ el.click(); } }
+    }
+  }
+
+  // journey entry titles open the same card as their dot (wired once)
+  jEntries.forEach(e=>{
+    const link=e.querySelector('h3 a');
+    if(link) link.addEventListener('click',ev=>{
+      ev.preventDefault();
+      const id=e.dataset.id;
+      openEntryCard(id,jSvg.querySelector('.j-dot[data-id="'+id+'"]'));
+    });
+  });
+
+  // ---- boot ----
+  window.addEventListener('resize',()=>{ if(activeName==='journey') buildJourney(); });
+  buildJourney();
+  cacheReveals();
+  runArrival();
+  requestAnimationFrame(frame);
+  bootFromHash();
+</script>
+</body>
+</html>
