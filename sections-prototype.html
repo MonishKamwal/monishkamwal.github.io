@@ -180,14 +180,52 @@
   .j-tail{margin-top:8px;text-align:center;font-size:12px;color:var(--muted-foreground);font-style:italic;opacity:0;}
 
   /* ================= ARCHITECTURE ================= */
-  .arch-summary{
-    display:flex;align-items:center;flex-wrap:wrap;gap:0 4px;
-    margin:clamp(14px,3vh,26px) 0 clamp(30px,6vh,56px);
-    font-size:13.5px;color:var(--muted-foreground);
+  /* consolidated system overview — the whole machine, then chapters break it down */
+  .sys-head{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
+    font-size:clamp(26px,4.6vw,44px);line-height:1.02;
+    margin:clamp(8px,2vh,16px) 0 clamp(22px,4vh,38px);
   }
-  .arch-summary .s{color:var(--foreground);font-weight:500;}
-  .arch-summary .sep{color:var(--muted-foreground);margin:0 3px;}
-  .chapter{margin:clamp(40px,8vh,80px) 0;}
+  .sys{display:flex;flex-direction:column;align-items:center;margin:0 auto clamp(46px,9vh,88px);max-width:560px;}
+  .sys-node{
+    display:flex;align-items:center;gap:12px;justify-content:center;text-align:left;
+    background:#fff;border:1px solid var(--border);border-radius:13px;padding:12px 20px;min-width:220px;
+    box-shadow:0 14px 30px -22px rgba(10,10,10,.45),0 1px 5px -3px rgba(10,10,10,.12);
+    font:inherit;color:var(--foreground);
+  }
+  .sys-ico{flex:0 0 auto;width:34px;height:34px;display:flex;align-items:center;justify-content:center;color:var(--foreground);transition:color .25s var(--ease-out-expo);}
+  .sys-ico svg{width:26px;height:26px;}
+  .sys-tt{display:flex;flex-direction:column;line-height:1.2;}
+  .sys-title{font-size:16px;font-weight:500;transition:color .25s var(--ease-out-expo);}
+  .sys-sub{font-size:12px;color:var(--muted-foreground);}
+  .sys-node.zone{cursor:pointer;position:relative;transition:border-color .25s var(--ease-out-expo);}
+  .sys-node.zone:hover,.sys-node.zone:focus-visible{border-color:var(--warm);outline:none;}
+  .sys-node.zone:hover .sys-title,.sys-node.zone:hover .sys-ico,
+  .sys-node.zone:focus-visible .sys-title,.sys-node.zone:focus-visible .sys-ico{color:var(--warm);}
+  .sys-cue{
+    font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--deep-ochre);
+    margin-left:6px;opacity:0;transition:opacity .25s var(--ease-out-expo);white-space:nowrap;
+  }
+  .sys-node.zone:hover .sys-cue,.sys-node.zone:focus-visible .sys-cue{opacity:1;}
+  .sys-conn{color:var(--foreground);line-height:0;}
+  .sys-conn svg{width:8px;height:30px;}
+  /* CSS-drawn fork (and its 180° mirror, the merge) — uniform ink, responsive */
+  .sys-fork,.sys-merge{position:relative;width:100%;max-width:540px;height:34px;}
+  .sys-merge{transform:rotate(.5turn);}
+  .fk-vt{position:absolute;left:calc(50% - .7px);top:0;width:1.4px;height:17px;background:var(--foreground);}
+  .fk-h{position:absolute;left:25%;right:25%;top:calc(17px - .7px);height:1.4px;background:var(--foreground);}
+  .fk-vl{position:absolute;left:calc(25% - .7px);top:17px;width:1.4px;height:17px;background:var(--foreground);}
+  .fk-vr{position:absolute;left:calc(75% - .7px);top:17px;width:1.4px;height:17px;background:var(--foreground);}
+  .sys-branches{display:flex;width:100%;max-width:540px;}
+  .sys-col{flex:1;display:flex;justify-content:center;}
+  @media(max-width:560px){
+    .sys-fork,.sys-merge{height:22px;}
+    .fk-h{display:none;} .fk-vl,.fk-vr{left:calc(50% - .7px);}
+    .sys-branches{flex-direction:column;align-items:center;gap:0;}
+    .sys-col+.sys-col{margin-top:22px;}
+  }
+  .chapter{margin:clamp(40px,8vh,80px) 0;scroll-margin-top:78px;}
   .chapter h2{
     font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
     font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
@@ -214,6 +252,30 @@
   .stub .blbl{font-size:10.5px;color:var(--muted-foreground);text-align:center;line-height:1.25;max-width:12ch;}
   .stub:hover .x{color:var(--warm);}
   .stub:focus-visible{outline:2px solid var(--warm);outline-offset:3px;border-radius:4px;}
+  /* chapter 2 — vertical loose flow chart with tool icons */
+  .vflow{margin-top:clamp(24px,4vh,42px);display:flex;flex-direction:column;align-items:flex-start;}
+  .vnode{display:flex;align-items:center;gap:15px;cursor:pointer;padding:6px 8px 6px 0;}
+  .vicon{
+    flex:0 0 auto;width:46px;height:46px;border-radius:12px;
+    background:#fff;border:1px solid var(--border);
+    box-shadow:0 10px 22px -18px rgba(10,10,10,.45),0 1px 4px -2px rgba(10,10,10,.1);
+    display:flex;align-items:center;justify-content:center;color:var(--foreground);
+    transition:color .25s var(--ease-out-expo),border-color .25s var(--ease-out-expo);
+  }
+  .vicon svg{width:24px;height:24px;}
+  .vicon.dashed{border-style:dashed;box-shadow:none;background:transparent;}
+  .vnode:hover .vicon,.vstub:hover .vicon{color:var(--warm);border-color:var(--warm);}
+  .vtext{display:flex;flex-direction:column;line-height:1.25;}
+  .vname{font-size:clamp(16px,2.1vw,19px);font-weight:450;transition:color .25s var(--ease-out-expo);}
+  .vnode:hover .vname,.vstub:hover .vname{color:var(--warm);}
+  .vrole{font-size:12.5px;color:var(--muted-foreground);}
+  .vnode:focus-visible,.vstub:focus-visible{outline:2px solid var(--warm);outline-offset:3px;border-radius:10px;}
+  .vconn{margin-left:20px;color:var(--foreground);line-height:0;}
+  .vconn svg{width:6px;height:28px;}
+  .vgate-row{display:flex;align-items:center;gap:0;flex-wrap:wrap;}
+  .vbranch{color:var(--foreground);line-height:0;margin:0 10px;}
+  .vbranch svg{width:50px;height:6px;}
+  .vstub{display:flex;align-items:center;gap:12px;cursor:pointer;padding:6px 8px 6px 0;}
   .arch-close{
     margin-top:clamp(46px,9vh,90px);padding-top:clamp(22px,4vh,34px);
     border-top:1px solid var(--foreground);
@@ -428,15 +490,49 @@
         <h1 class="page-title display">Architecture</h1>
         <p class="page-lead">The machine behind the doodle</p>
       </div>
-      <div class="arch-summary reveal">
-        <span class="s">draw</span><span class="sep">▸</span>
-        <span class="s">preprocess</span><span class="sep">▸</span>
-        <span class="s">model</span><span class="sep">▸</span>
-        <span class="s">serve</span><span class="sep">▸</span>
-        <span class="s">monitor</span>
+      <!-- consolidated system overview: the whole machine in one go; zones jump to chapters -->
+      <h2 class="sys-head reveal">Overview</h2>
+      <div class="sys reveal" role="group" aria-label="System overview">
+        <div class="sys-node">
+          <span class="sys-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="7" ry="3"/><path d="M5 5v14c0 1.7 3.1 3 7 3s7-1.3 7-3V5"/><path d="M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></svg></span>
+          <span class="sys-tt"><span class="sys-title">Data</span><span class="sys-sub">QuickDraw · S3 + DVC</span></span>
+        </div>
+        <div class="sys-conn" aria-hidden="true"><svg viewBox="0 0 8 30" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 0v24"/><path d="M1 20l3 4 3-4"/></svg></div>
+        <button class="sys-node zone" data-jump="ch-build" aria-label="Build — jump to the factory chapter">
+          <span class="sys-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/></svg></span>
+          <span class="sys-tt"><span class="sys-title">Build</span><span class="sys-sub">train · gate · registry</span></span>
+          <span class="sys-cue">see chapter ↓</span>
+        </button>
+        <div class="sys-conn" aria-hidden="true"><svg viewBox="0 0 8 30" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 0v24"/><path d="M1 20l3 4 3-4"/></svg></div>
+        <div class="sys-node hub">
+          <span class="sys-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></svg></span>
+          <span class="sys-tt"><span class="sys-title">Container image</span><span class="sys-sub">one artifact, two homes</span></span>
+        </div>
+        <div class="sys-fork" aria-hidden="true"><span class="fk-vt"></span><span class="fk-h"></span><span class="fk-vl"></span><span class="fk-vr"></span></div>
+        <div class="sys-branches">
+          <div class="sys-col">
+            <button class="sys-node zone" data-jump="ch-serve" aria-label="Serve — jump to the live serving chapter">
+              <span class="sys-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-2 8 9-12h-7z"/></svg></span>
+              <span class="sys-tt"><span class="sys-title">Lambda</span><span class="sys-sub">serves live</span></span>
+              <span class="sys-cue">see chapter ↓</span>
+            </button>
+          </div>
+          <div class="sys-col">
+            <button class="sys-node zone" data-jump="ch-rehearse" aria-label="Rehearse — jump to the weekly rehearsal chapter">
+              <span class="sys-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5 20.5 7v10L12 21.5 3.5 17V7z"/><path d="M12 8v8M8.5 9.5l7 5M15.5 9.5l-7 5"/></svg></span>
+              <span class="sys-tt"><span class="sys-title">Weekly EKS</span><span class="sys-sub">load-test, destroy</span></span>
+              <span class="sys-cue">see chapter ↓</span>
+            </button>
+          </div>
+        </div>
+        <div class="sys-merge" aria-hidden="true"><span class="fk-vt"></span><span class="fk-h"></span><span class="fk-vl"></span><span class="fk-vr"></span></div>
+        <div class="sys-node">
+          <span class="sys-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l2-5 4 10 2-5h8"/></svg></span>
+          <span class="sys-tt"><span class="sys-title">Monitoring</span><span class="sys-sub">drift · doodle logs → S3</span></span>
+        </div>
       </div>
 
-      <div class="chapter">
+      <div class="chapter" id="ch-serve">
         <h2 class="reveal">The road your doodle took</h2>
         <p class="cap reveal">A replay of what you just did on the home page — from your browser to a guess and back.</p>
         <div class="diagram">
@@ -450,30 +546,51 @@
         </div>
       </div>
 
-      <div class="chapter">
+      <div class="chapter" id="ch-build">
         <h2 class="reveal">The factory that builds the model</h2>
         <p class="cap reveal">Every model-affecting merge runs the line — and the quality gate can stop it dead.</p>
-        <div class="diagram">
-          <div class="stop reveal" data-stagger="0" data-card="data" tabindex="0" role="button"><div class="dot"></div><div class="lbl">pull data</div><div class="sub">DVC</div></div>
-          <div class="conn reveal" data-stagger="1"><svg width="40" height="8" viewBox="0 0 40 8" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M0 4h34M30 1l5 3-5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-          <div class="stop reveal" data-stagger="2" data-card="validate" tabindex="0" role="button"><div class="dot"></div><div class="lbl">validate</div><div class="sub">Pandera</div></div>
-          <div class="conn reveal" data-stagger="3"><svg width="40" height="8" viewBox="0 0 40 8" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M0 4h34M30 1l5 3-5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-          <div class="stop reveal" data-stagger="4" data-card="train" tabindex="0" role="button"><div class="dot"></div><div class="lbl">train</div><div class="sub">MLflow tracks</div></div>
-          <div class="conn reveal" data-stagger="5"><svg width="40" height="8" viewBox="0 0 40 8" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M0 4h34M30 1l5 3-5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-          <!-- the gate + its dead-end stub -->
-          <div class="stop reveal" data-stagger="6" data-card="gate" tabindex="0" role="button"><div class="dot"></div><div class="lbl">quality gate</div><div class="sub">challenger vs champion</div></div>
-          <div class="stub reveal" data-stagger="7" data-card="blocked" tabindex="0" role="button" aria-label="Blocked deploy — see the CI run">
-            <span class="drop"><svg width="8" height="30" viewBox="0 0 8 30" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M4 0v24M1 20l3 4 3-4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-            <span class="blocked"><svg class="x" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2l10 10M12 2L2 12" stroke-linecap="round"/></svg><span class="blbl">deploy blocked — regression</span></span>
+        <!-- vertical loose flow chart: a tool icon per stop, the gate branching to its dead end -->
+        <div class="vflow">
+          <div class="vnode reveal" data-card="data" tabindex="0" role="button">
+            <span class="vicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="7" ry="3"/><path d="M5 5v14c0 1.7 3.1 3 7 3s7-1.3 7-3V5"/><path d="M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></svg></span>
+            <span class="vtext"><span class="vname">DVC</span><span class="vrole">pull data</span></span>
           </div>
-          <div class="conn reveal" data-stagger="6"><svg width="40" height="8" viewBox="0 0 40 8" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M0 4h34M30 1l5 3-5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-          <div class="stop reveal" data-stagger="8" data-card="registry" tabindex="0" role="button"><div class="dot"></div><div class="lbl">registry</div><div class="sub">promote winner</div></div>
-          <div class="conn reveal" data-stagger="9"><svg width="40" height="8" viewBox="0 0 40 8" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M0 4h34M30 1l5 3-5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-          <div class="stop reveal" data-stagger="10" data-card="ship" tabindex="0" role="button"><div class="dot"></div><div class="lbl">ship</div><div class="sub">build image, update Lambda</div></div>
+          <div class="vconn reveal" aria-hidden="true"><svg viewBox="0 0 6 28" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 1C5 8 1 18 3 23"/><path d="M.6 20.4 3 23.6 5.4 20.4"/></svg></div>
+          <div class="vnode reveal" data-card="validate" tabindex="0" role="button">
+            <span class="vicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h7l5 5v13H6z"/><path d="M13 3v5h5"/><path d="M9 14l2 2 4-4"/></svg></span>
+            <span class="vtext"><span class="vname">Pandera</span><span class="vrole">validate schema</span></span>
+          </div>
+          <div class="vconn reveal" aria-hidden="true"><svg viewBox="0 0 6 28" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 1C1 8 5 18 3 23"/><path d="M.6 20.4 3 23.6 5.4 20.4"/></svg></div>
+          <div class="vnode reveal" data-card="train" tabindex="0" role="button">
+            <span class="vicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16h16"/><path d="M4 15l4-5 4 3 6-8"/></svg></span>
+            <span class="vtext"><span class="vname">MLflow</span><span class="vrole">train &amp; track</span></span>
+          </div>
+          <div class="vconn reveal" aria-hidden="true"><svg viewBox="0 0 6 28" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 1C5 8 1 18 3 23"/><path d="M.6 20.4 3 23.6 5.4 20.4"/></svg></div>
+          <div class="vgate-row">
+            <div class="vnode reveal" data-card="gate" tabindex="0" role="button">
+              <span class="vicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v17"/><path d="M8 21h8"/><path d="M4 7.5h16"/><circle cx="12" cy="5.4" r="1.3"/><path d="M4 7.5 1.8 12.2a3 3 0 0 0 4.4 0z"/><path d="M20 7.5 17.8 12.2a3 3 0 0 0 4.4 0z"/></svg></span>
+              <span class="vtext"><span class="vname">Quality gate</span><span class="vrole">challenger vs champion</span></span>
+            </div>
+            <div class="vbranch reveal" aria-hidden="true"><svg viewBox="0 0 50 6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M0 3h42M38 .5 43 3 38 5.5"/></svg></div>
+            <div class="vstub reveal" data-card="blocked" tabindex="0" role="button" aria-label="Blocked deploy — see the CI run">
+              <span class="vicon dashed"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M6 6l12 12"/></svg></span>
+              <span class="vtext"><span class="vname">Deploy blocked</span><span class="vrole">regression — dead end</span></span>
+            </div>
+          </div>
+          <div class="vconn reveal" aria-hidden="true"><svg viewBox="0 0 6 28" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 1C1 8 5 18 3 23"/><path d="M.6 20.4 3 23.6 5.4 20.4"/></svg></div>
+          <div class="vnode reveal" data-card="registry" tabindex="0" role="button">
+            <span class="vicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12.5V4a1 1 0 0 1 1-1h8.5a1 1 0 0 1 .7.3l7.5 7.5a1 1 0 0 1 0 1.4l-8 8a1 1 0 0 1-1.4 0l-7.5-7.5a1 1 0 0 1-.3-.7z"/><circle cx="7.6" cy="7.6" r="1.4"/></svg></span>
+            <span class="vtext"><span class="vname">Registry</span><span class="vrole">promote winner</span></span>
+          </div>
+          <div class="vconn reveal" aria-hidden="true"><svg viewBox="0 0 6 28" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 1C5 8 1 18 3 23"/><path d="M.6 20.4 3 23.6 5.4 20.4"/></svg></div>
+          <div class="vnode reveal" data-card="ship" tabindex="0" role="button">
+            <span class="vicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></svg></span>
+            <span class="vtext"><span class="vname">Docker → Lambda</span><span class="vrole">build image, deploy</span></span>
+          </div>
         </div>
       </div>
 
-      <div class="chapter">
+      <div class="chapter" id="ch-rehearse">
         <h2 class="reveal">The weekly dress rehearsal</h2>
         <p class="cap reveal">Once a week a whole cluster appears, proves the model under load, and deletes itself.</p>
         <div class="diagram">
@@ -850,6 +967,21 @@
     return {meta:d,title:t,body:[['Context',p],['Options considered','(devlog body written at implementation — this is the reading-surface prototype.)'],['Decision','—'],['What went wrong','—']],ev:[['related commit','#']]};
   }
   const archCards={
+    data:{meta:'Build · data',title:'DVC — pull data',
+      body:[['What it is','The training data is versioned with DVC and pulled from the one S3 bucket at the start of every run.'],
+            ['Why this choice','Git tracks code; DVC tracks the large dataset by hash, so a run is reproducible from an exact data version without bloating the repo.'],
+            ['Trade-offs','One more tool and a remote to configure — paid back the first time a result had to be reproduced.']],
+      ev:[['“One bucket, three jobs” →','#'],['the DVC remote →','#']]},
+    validate:{meta:'Build · data',title:'Pandera — validate',
+      body:[['What it is','A declared schema checked against the pulled data before training can start.'],
+            ['Why this choice','Bad data fails the pipeline loudly and early instead of quietly producing a bad model.'],
+            ['Trade-offs','The schema needs maintaining as the data evolves; a too-strict first version blocked valid pulls.']],
+      ev:[['“Pandera at the door” →','#'],['the schema →','#']]},
+    ship:{meta:'Build · deploy',title:'Docker → Lambda',
+      body:[['What it is','The promoted model is baked into a container image and the serving Lambda is updated to it.'],
+            ['Why this choice','The same image serves the live Lambda and the weekly EKS rehearsal — one artifact, two homes, no drift between them.'],
+            ['Trade-offs','Container cold starts are heavier than a zip; acceptable given scale-to-zero and the warm-up ping.']],
+      ev:[['the deploy step →','#'],['the image build →','#']]},
     lambda:{meta:'Serve',title:'AWS Lambda',
       body:[['What it is','A FastAPI app running an ONNX model behind a Lambda Function URL.'],
             ['Why this choice','It scales to zero — nothing runs, and nothing is billed, until someone draws. The cold start is honest, and it is the story the home page tells.'],
@@ -871,9 +1003,9 @@
       ev:[['a weekly rehearsal run','#'],['the Terraform','#']]}
   };
   function genericArch(id,el){
-    const t=el.querySelector('.lbl')?el.querySelector('.lbl').textContent:id;
-    const sub=el.querySelector('.sub')?el.querySelector('.sub').textContent:'';
-    return {meta:'Component',title:t,body:[['What it is',sub||'—'],['Why this choice','(write-up authored against the built system at implementation.)'],['Trade-offs','—']],ev:[['related evidence','#']]};
+    const t=(el.querySelector('.lbl')||el.querySelector('.vname'));
+    const s=(el.querySelector('.sub')||el.querySelector('.vrole'));
+    return {meta:'Component',title:t?t.textContent:id,body:[['What it is',s?s.textContent:'—'],['Why this choice','(write-up authored against the built system at implementation.)'],['Trade-offs','—']],ev:[['related evidence','#']]};
   }
 
   function fillCard(data,opener){
@@ -910,10 +1042,18 @@
     if(e.key==='Escape'&&paperCard.classList.contains('open')) closeCard();
   });
   // architecture stops + stub open cards
-  document.querySelectorAll('.stop[data-card],.stub[data-card]').forEach(el=>{
+  document.querySelectorAll('.stop[data-card],.vnode[data-card],.vstub[data-card]').forEach(el=>{
     const open=()=>{ const id=el.dataset.card; fillCard(archCards[id]||genericArch(id,el),el); if(history.replaceState) history.replaceState(null,'','#architecture/'+id); };
     el.addEventListener('click',open);
     el.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();open();} });
+  });
+
+  // system-overview zones scroll to their chapter's breakdown
+  document.querySelectorAll('[data-jump]').forEach(b=>{
+    b.addEventListener('click',()=>{
+      const el=document.getElementById(b.dataset.jump);
+      if(el) el.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
+    });
   });
 
   // ---- slide-in menu ----
@@ -961,7 +1101,7 @@
     if(pg&&titles[pg]&&pg!==activeName){ activeName='__boot'; switchPage(pg); }
     if(card){
       if(pg==='journey') openEntryCard(card,document.querySelector('.j-entry[data-id="'+card+'"] h3 a'));
-      else if(pg==='architecture'){ const el=document.querySelector('.stop[data-card="'+card+'"],.stub[data-card="'+card+'"]'); if(el){ el.click(); } }
+      else if(pg==='architecture'){ const el=document.querySelector('.stop[data-card="'+card+'"],.vnode[data-card="'+card+'"],.vstub[data-card="'+card+'"]'); if(el){ el.click(); } }
     }
   }
 

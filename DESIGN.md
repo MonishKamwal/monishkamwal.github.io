@@ -443,7 +443,14 @@ read, and keep walking.
 - **Mobile:** the card fills most of the screen with small margins — a reading sheet — and
   closes the same three ways.
 
-### Architecture page (`/architecture`)  _(LOCKED 2026-07-17)_
+### Architecture page (`/architecture`)  _(LOCKED 2026-07-17 · AMENDED 2026-07-20)_
+
+> **Amended in Stage 4.7 (2026-07-20):** the page now opens with a **consolidated
+> system-overview diagram** (the whole machine in one view) under an **"Overview"**
+> heading, then the three chapters as the breakdown; the **five-stop summary line is
+> removed** and chapter diagrams may use **icon tiles / a vertical flow**. Structure only —
+> every node, tool name, and stop is illustrative and changes once the platform is built.
+> See Stage 4.7.
 
 The mlops deep-dive as a **three-chapter story**, told in the site's line-and-dot grammar.
 Sage wash (inner-page tint precedent, from Home §3); section indicator reads
@@ -452,15 +459,20 @@ against the built system at implementation.
 
 - **Title:** **"Architecture"** in Bodoni Moda; Outfit lead: **"The machine behind the
   doodle"**.
-- **Summary line:** the familiar five-stop line (draw ▸ preprocess ▸ model ▸ serve ▸
-  monitor) sits under the title — the anchor to Home §3. Non-interactive here too; the
-  chapters below do the work.
+- ~~**Summary line:** the familiar five-stop line (draw ▸ preprocess ▸ model ▸ serve ▸
+  monitor) sits under the title — the anchor to Home §3.~~ **Removed in Stage 4.7** — the
+  consolidated **Overview diagram** supersedes it as the page's opening (see Stage 4.7).
 - **Arrival transition — "the line carries you," reused.** From Home §3's "Explore the full
   architecture →": the section fades and the five-stop line persists, redrawing at the top
   of the page (view-transition morph if the modified Next.js allows; fade + draw fallback;
   plain fade under reduced motion). From the menu, the page arrives with the line drawing in.
+  **Amended in Stage 4.7:** with the five-stop line gone, the Home §3 hand-off now morphs
+  into the **Overview diagram's top** instead (exact morph target TBD at implementation);
+  fallback + reduced-motion unchanged.
 - **Three chapters,** each a Bodoni Moda heading + one plain Outfit sentence + a thin-ink
-  diagram (`#0a0a0a` — dots as stops, thin connectors, Outfit labels with few-word sub-labels):
+  diagram (`#0a0a0a` — dots as stops, thin connectors, Outfit labels with few-word
+  sub-labels; **amended in Stage 4.7:** stops may instead be **icon tiles** and a chapter
+  may run **vertically** as a loose flow chart — see Stage 4.7):
   1. **The road your doodle took** — browser → Lambda wakes from zero (FastAPI + ONNX) →
      the guess comes back → the doodle is logged to S3. A replay of what the visitor just
      did on Home.
@@ -771,10 +783,73 @@ between, and routing every hop through the slide-in menu is friction. Two additi
 
 ---
 
+## Stage 4.7 — Architecture page: overview, then breakdown (from prototyping)  _(LOCKED 2026-07-20)_
+
+Prototyping the Architecture page (`sections-prototype.html`) showed the three-chapter
+story never lets a visitor see the **whole system at once** — they meet the parts before
+the shape. Fix: **an overview first, the chapters as the breakdown.** This revisits the
+Stage 3 rejection of a "one-big-map" — the difference is *overview **plus** breakdown* (not
+instead of), and the map stays high-level, so the mobile-density worry that killed the
+original one-map idea doesn't return.
+
+> **Content is illustrative.** Every node, tool name, sub-label, chapter stop, and the
+> exact diagram topology below is **placeholder** — the real system is still being built
+> and the finished content will differ significantly. Stage 4.7 fixes **structure,
+> grammar, and interaction**, not inventory.
+
+- **Overview diagram (new — replaces the summary line).** An **"Overview"** heading
+  (Bodoni, a peer to the chapter titles) over a **consolidated system diagram** — the whole
+  machine in one view. Shape = **a unified lifecycle with a fork**: a top-to-bottom flow of
+  node tiles (white, hairline + soft shadow — the paper-card family) joined by thin-ink
+  connectors, where a shared artifact **forks to two subsystems and merges back**
+  (prototype's illustrative topology: data → build → container image → forks to live-serve
+  + weekly-rehearse → merges to monitoring). The five-stop `draw ▸ preprocess ▸ …` line is
+  **removed** — the real diagram is the overview now.
+- **Zones vs. connective tissue.** The diagram's **subsystem tiles are interactive
+  "zones"** — hovering shows a **"see chapter ↓"** cue and clicking **scroll-jumps to that
+  subsystem's chapter** below (keyboard-operable). The **shared artifacts** between zones
+  are **non-interactive** — their detail lives in the chapters. So the overview both
+  explains the system *and* is the table of contents into the breakdown.
+- **Fork/merge drawing.** The branch/merge lines are **CSS-drawn** at the two branch
+  columns' centres (uniform ink weight, no distortion) and **collapse to a vertical stack
+  on mobile**, keeping the map readable small — the property the original one-map lacked.
+- **Chapter diagrams — icon tiles + optional vertical flow.** A chapter's stops may render
+  as **icon tiles** (one **monochrome thin-ink glyph per tool** + name + role, warming to
+  ochre on hover — still no colour, still no emoji) and the chapter may run **vertically as
+  a loose flow chart** when it has too many stops for one row; the quality gate's
+  **dead-end stub branches to the side**. Applied to chapter 2 ("the factory") in the
+  prototype; chapters 1 and 3 stay horizontal for now.
+- **Supersedes / affects:** the Stage 3 **"Summary line"** bullet (removed) and the
+  **"one-big-map rejected"** rationale (an overview map returns, kept high-level); the
+  **Home §3 → Architecture "line carries you" arrival** loses its five-stop anchor and now
+  hands off into the **Overview diagram's top** (exact morph target TBD at implementation).
+- **Open (deferred, not locked):**
+  - **Tool icons — glyphs vs. brand logos.** The prototype uses on-brand **monochrome
+    conceptual glyphs**; whether to switch to **actual brand logos** (which would introduce
+    colour — a real departure from the locked ink + one-ochre palette — or be rendered as
+    monochrome marks) is unresolved.
+  - **Chapter consistency.** Whether **all three** chapters adopt the vertical icon-flow, or
+    short chapters keep the horizontal dotted row as a deliberate contrast.
+
+---
+
 ## Decision log
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-07-20** — **Stage 4.7 locked — Architecture page opens with an overview, then the
+  breakdown.** Prototyping showed the three chapters never let a visitor see the whole
+  system at once. Added a **consolidated system-overview diagram** (a unified lifecycle
+  with a fork — build → image → forks to live-serve + weekly-rehearse → merges to
+  monitoring) under an **"Overview"** heading, with the three chapters as the detailed
+  breakdown; the **five-stop `draw ▸ preprocess ▸ …` summary line is removed**. The
+  overview's **subsystem tiles are "zones"** that scroll-jump to their chapter (a
+  "see chapter ↓" hover cue); shared artifacts are non-interactive. Chapter diagrams may use
+  **icon tiles** (monochrome tool glyphs) and run **vertically** when a row would wrap
+  (chapter 2 does). Revisits the Stage 3 "one-big-map rejected" call — the map returns but
+  stays high-level and collapses cleanly on mobile. **All node/tool/topology content is
+  illustrative** and changes once the platform is built. Open: glyphs vs. brand logos, and
+  whether all chapters go vertical.
 - **2026-07-20** — **Stage 4.6 locked — inner-page navigation from section prototyping.**
   Prototyping the four inner pages (`sections-prototype.html`) surfaced that the inner
   destinations are peers worth hopping between directly. Added, **inner-pages only**: a
