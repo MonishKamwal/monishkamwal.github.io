@@ -6,6 +6,7 @@ import {
   QUICKDRAW_CLASSES,
   fetchModelInfo,
   predictSketch,
+  sendFeedback,
   type ModelInfo,
   type Point,
   type PredictResult,
@@ -33,6 +34,8 @@ export default function SketchDemo() {
   const [thinking, setThinking] = useState(false);
   const [waking, setWaking] = useState(false);
   const [result, setResult] = useState<PredictResult | null>(null);
+  // null = not yet answered for the current prediction; true/false = the verdict sent.
+  const [feedback, setFeedback] = useState<boolean | null>(null);
   const [error, setError] = useState(false);
   const [modelInfo, setModelInfo] = useState<ModelInfo | null>(null);
   const [apiStatus, setApiStatus] = useState<ApiStatus>("warming");
@@ -118,6 +121,7 @@ export default function SketchDemo() {
         const res = await predictSketch(strokesRef.current);
         if (generationRef.current === generation) {
           setResult(res);
+          setFeedback(null); // a new guess deserves a fresh 👍/👎
           setApiStatus("ready"); // a successful predict beats a failed warm-up
         }
       } catch {
@@ -170,6 +174,7 @@ export default function SketchDemo() {
       schedulePredict();
     } else {
       setResult(null);
+      setFeedback(null);
       setThinking(false);
     }
   };
@@ -180,10 +185,27 @@ export default function SketchDemo() {
     currentStrokeRef.current = null;
     setStrokeCount(0);
     setResult(null);
+    setFeedback(null);
     setThinking(false);
     setError(false);
     redraw();
   };
+
+  const handleFeedback = useCallback(
+    (correct: boolean) => {
+      const top = result?.predictions[0];
+      if (!top) return;
+      setFeedback(correct);
+      void sendFeedback({
+        predicted_label: top.label,
+        confidence: top.probability,
+        correct,
+        source: result.source,
+        model_sha256: modelInfo?.model_sha256,
+      });
+    },
+    [result, modelInfo],
+  );
 
   // Prefer the live class list (/model-info) so the prompt can never drift from
   // what the deployed model actually knows; fall back while it loads.
@@ -293,6 +315,34 @@ export default function SketchDemo() {
                   {thinking &&
                     (waking ? " · waking the model (cold start)…" : " · thinking…")}
                 </p>
+
+                {/* 👍/👎 feedback — a real accuracy signal on live drawings (feeds
+                    the platform's proxy-accuracy). One answer per guess. */}
+                <div className="mt-2 flex items-center gap-2 border-t border-edge pt-3 text-sm">
+                  {feedback === null ? (
+                    <>
+                      <span className="text-muted">Did I get it right?</span>
+                      <button
+                        onClick={() => handleFeedback(true)}
+                        className="rounded-md border border-edge bg-panel px-2.5 py-1 transition-colors hover:border-accent"
+                        aria-label="Yes, the guess was correct"
+                      >
+                        👍
+                      </button>
+                      <button
+                        onClick={() => handleFeedback(false)}
+                        className="rounded-md border border-edge bg-panel px-2.5 py-1 transition-colors hover:border-accent"
+                        aria-label="No, the guess was wrong"
+                      >
+                        👎
+                      </button>
+                    </>
+                  ) : (
+                    <span className="text-muted">
+                      {feedback ? "Thanks! 🎉" : "Thanks — noted. 🙏"}
+                    </span>
+                  )}
+                </div>
               </div>
             ) : thinking ? (
               waking ? (
