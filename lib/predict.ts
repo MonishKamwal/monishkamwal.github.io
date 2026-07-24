@@ -84,22 +84,30 @@ export async function fetchModelInfo(): Promise<ModelInfo> {
 
 // A visitor's 👍/👎 on the top prediction (mlops Phase 4, task 3). Self-contained:
 // it carries the context the client already has, so the server needs no prediction id.
+// When `strokes` is present the server also captures the drawing for retraining (task 5):
+// 👍 labels it with the guess; 👎 labels it with `true_label` (what the user says they drew).
 export type FeedbackContext = {
   predicted_label: string;
   confidence: number;
   correct: boolean;
   source: "strokes" | "png";
   model_sha256?: string;
+  strokes?: Stroke[];
+  true_label?: string;
 };
 
 // Fire-and-forget: a lost verdict must never disrupt the demo, so this swallows
 // every error and never rejects — mirroring the server's fail-open logging.
 export async function sendFeedback(ctx: FeedbackContext): Promise<void> {
+  const { strokes, ...rest } = ctx;
+  const body = strokes
+    ? { ...rest, strokes: toQuickDrawStrokes(strokes) }
+    : rest;
   try {
     await fetch(`${API_URL}/feedback`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(ctx),
+      body: JSON.stringify(body),
     });
   } catch {
     // intentionally ignored
