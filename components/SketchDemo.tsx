@@ -36,6 +36,8 @@ export default function SketchDemo() {
   const [result, setResult] = useState<PredictResult | null>(null);
   // null = not yet answered for the current prediction; true/false = the verdict sent.
   const [feedback, setFeedback] = useState<boolean | null>(null);
+  // After 👎, we ask "what did you draw?" so the correction becomes a labeled training example.
+  const [picking, setPicking] = useState(false);
   const [error, setError] = useState(false);
   const [modelInfo, setModelInfo] = useState<ModelInfo | null>(null);
   const [apiStatus, setApiStatus] = useState<ApiStatus>("warming");
@@ -122,6 +124,7 @@ export default function SketchDemo() {
         if (generationRef.current === generation) {
           setResult(res);
           setFeedback(null); // a new guess deserves a fresh 👍/👎
+          setPicking(false);
           setApiStatus("ready"); // a successful predict beats a failed warm-up
         }
       } catch {
@@ -175,6 +178,7 @@ export default function SketchDemo() {
     } else {
       setResult(null);
       setFeedback(null);
+      setPicking(false);
       setThinking(false);
     }
   };
@@ -186,22 +190,43 @@ export default function SketchDemo() {
     setStrokeCount(0);
     setResult(null);
     setFeedback(null);
+    setPicking(false);
     setThinking(false);
     setError(false);
     redraw();
   };
 
-  const handleFeedback = useCallback(
-    (correct: boolean) => {
+  // 👍: the guess was right — send it (and the drawing) labeled with the guess.
+  const handleThumbsUp = useCallback(() => {
+    const top = result?.predictions[0];
+    if (!top) return;
+    setFeedback(true);
+    void sendFeedback({
+      predicted_label: top.label,
+      confidence: top.probability,
+      correct: true,
+      source: result.source,
+      model_sha256: modelInfo?.model_sha256,
+      strokes: [...strokesRef.current],
+    });
+  }, [result, modelInfo]);
+
+  // 👎: ask what it actually was, so the drawing becomes a *corrected* training example.
+  // `trueLabel` null = user skipped the picker — the verdict is logged, but no capture.
+  const handleCorrection = useCallback(
+    (trueLabel: string | null) => {
       const top = result?.predictions[0];
       if (!top) return;
-      setFeedback(correct);
+      setFeedback(false);
+      setPicking(false);
       void sendFeedback({
         predicted_label: top.label,
         confidence: top.probability,
-        correct,
+        correct: false,
         source: result.source,
         model_sha256: modelInfo?.model_sha256,
+        strokes: [...strokesRef.current],
+        ...(trueLabel ? { true_label: trueLabel } : {}),
       });
     },
     [result, modelInfo],
@@ -316,32 +341,57 @@ export default function SketchDemo() {
                     (waking ? " · waking the model (cold start)…" : " · thinking…")}
                 </p>
 
-                {/* 👍/👎 feedback — a real accuracy signal on live drawings (feeds
-                    the platform's proxy-accuracy). One answer per guess. */}
-                <div className="mt-2 flex items-center gap-2 border-t border-edge pt-3 text-sm">
-                  {feedback === null ? (
-                    <>
+                {/* 👍/👎 feedback — a real accuracy signal on live drawings (proxy-accuracy),
+                    and, with the drawing, a labeled example for retraining. One answer per guess.
+                    👎 opens a "what did you draw?" picker so the correction is a true label. */}
+                <div className="mt-2 border-t border-edge pt-3 text-sm">
+                  {feedback !== null ? (
+                    <span className="text-muted">
+                      {feedback ? "Thanks! 🎉" : "Thanks — that helps me learn. 🙏"}
+                    </span>
+                  ) : picking ? (
+                    <div className="flex flex-col gap-2">
+                      <span className="text-muted">What did you draw?</span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {classes.map((c) => (
+                          <button
+                            key={c}
+                            onClick={() => handleCorrection(c)}
+                            className="rounded-md border border-edge bg-panel px-2 py-1 text-xs transition-colors hover:border-accent"
+                          >
+                            {c}
+                          </button>
+                        ))}
+                        <button
+                          onClick={() => handleCorrection(null)}
+                          className="rounded-md px-2 py-1 text-xs text-muted underline-offset-2 hover:underline"
+                        >
+                          skip
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
                       <span className="text-muted">Did I get it right?</span>
                       <button
-                        onClick={() => handleFeedback(true)}
+                        onClick={handleThumbsUp}
                         className="rounded-md border border-edge bg-panel px-2.5 py-1 transition-colors hover:border-accent"
                         aria-label="Yes, the guess was correct"
                       >
                         👍
                       </button>
                       <button
-                        onClick={() => handleFeedback(false)}
+                        onClick={() => setPicking(true)}
                         className="rounded-md border border-edge bg-panel px-2.5 py-1 transition-colors hover:border-accent"
                         aria-label="No, the guess was wrong"
                       >
                         👎
                       </button>
-                    </>
-                  ) : (
-                    <span className="text-muted">
-                      {feedback ? "Thanks! 🎉" : "Thanks — noted. 🙏"}
-                    </span>
+                    </div>
                   )}
+                  <p className="mt-2 text-xs text-muted">
+                    Your drawing and answer help train the model — nothing else is collected.
+                  </p>
                 </div>
               </div>
             ) : thinking ? (
