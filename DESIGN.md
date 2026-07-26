@@ -776,8 +776,9 @@ proof a first-class home and reorganizes the internals into two tray-navigated *
   - _Grouping rationale: the two frequently-thin contracts (feedback, api-metrics) are placed so a
     reliable neighbour or an inherently-periodic framing covers their empty states — no page is
     routinely blank._
-- **About** — standalone; **off both trays**. Reached from the closing section (Contact bookend) and
-  the menu. The personal coda, kept apart from the technical body (decided 2026-07-26).
+- **About** — standalone; **off both trays**. Reached from the closing section (the Contact bookend
+  carries an explicit "or learn more about me →" link) and the menu. The personal coda, kept apart
+  from the technical body (decided 2026-07-26).
 - **Menu** — the **global bridge**. Lists everything: **Home · [Data pages] · Architecture · Journey
   · Skills · About · Contact** (Home and Contact both point at the hero scroll — top and bookend).
 
@@ -846,7 +847,10 @@ leads. (Revises the Stage 2 "spend all four warm washes in order" note; provisio
   encodes the mode** (see "Color & wayfinding" above). Left for the visual pass: the exact
   instrument-ground value, the status-palette hues (incl. the "watch"-vs-ochre nuance), and whether
   Data pages take quiet per-page accents.
-- **Home teaser order** and whether the closing bookend explicitly carries the About link.
+- ~~**Home teaser order** and the closing bookend's About link.~~ **Resolved 2026-07-26 — order:
+  Hero → Demo → Architecture → Journey → Skills → Closing** (matches the colour foreshadowing and the
+  original Stage 2 comp); the **closing bookend carries the About link** ("or learn more about me →"),
+  About's soft off-tray doorway.
 
 ### What this supersedes
 
@@ -861,6 +865,12 @@ leads. (Revises the Stage 2 "spend all four warm washes in order" note; provisio
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-07-26** — **Home scroll order confirmed + About's doorway.** Order: **Hero → Demo →
+  Architecture → Journey → Skills → Closing** — the demo's "behind the scenes" hands straight to
+  Architecture, then Journey deepens into process, Skills consolidates, Closing reaches out. Matches
+  both the colour foreshadowing (each section the colour of where it leads) and the original Stage 2
+  composition. The **closing bookend carries an explicit About link** ("or learn more about me →") —
+  About is off-tray, so this + the menu are its two doorways.
 - **2026-07-26** — **Color now encodes the mode, not the page.** The Stage 3 one-wash-per-destination
   rule doesn't survive three new Data pages (seven low-chroma washes stop reading as wayfinding).
   Story mode keeps its warm per-page washes (sage/ochre/rose, teaser-inherited); About keeps dusty
