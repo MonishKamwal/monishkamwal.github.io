@@ -804,14 +804,48 @@ proof a first-class home and reorganizes the internals into two tray-navigated *
 | `api-metrics.json` (latency/throughput) | Data → **Performance** |
 | — (no single contract) | Skills draws *evidence links* across both modes |
 
+### Color & wayfinding (decided 2026-07-26)
+
+**Color now encodes the *mode*, not the page.** The Stage 3 rule of one wash per destination doesn't
+survive three new Data pages — seven near-identical low-chroma washes stop working as wayfinding, and
+they'd leave the two-mode structure invisible. Instead:
+
+- **Story mode keeps the warm editorial washes, per page** — Architecture = sage `#e0f7e7`, Journey =
+  ochre `#ffecdb`, Skills = rose `#ffe8ee` — each still inherited from its Home teaser (the
+  teaser→page tint hand-off from Stage 3 is preserved). **About** stays **dusty blue `#e7f0ff`**, the
+  personal page, off-tray.
+- **Data mode gets one shared, cooler "instrument" ground** across Quality/Monitoring/Performance.
+  **Wayfinding inside the mode is the tray, not color** — so the three pages deliberately share a
+  ground; crossing from a warm story wash to the cool instrument ground *is* the "you've entered the
+  machine room" signal. Provisional ground: a light cool neutral (placeholder `#f2f4f7`, slate-tinted
+  — exact value set in the visual pass, contrast-checked like the token pass).
+- **Ochre stays the sole *interactive* accent** everywhere (bright `#c98a3a` for large marks / fills /
+  hovers, deep `#96600a` for small links + labels — unchanged from the token pass).
+- **Data mode adds a semantic *status* palette** — positive / watch / negative (pass·stable /
+  warn / fail·drifted) — used **only in charts and status marks**, never as page identity. This is
+  additive to the single-accent rule, not a replacement: the editorial pages never needed status
+  colors; the Data charts can't work without them (a gate is pass/fail, drift is drifted/stable).
+  Exact hues derived in the visual pass with WCAG checks. _Open nuance: "watch" sits near brand
+  ochre — either keep it a distinct amber, or reuse ochre as the attention colour; decide when the
+  palette is drawn._
+- **Optional per-page identity within Data mode:** each Data page may take a quiet per-page accent for
+  its tray-active state + chart primary, if the shared ground feels too flat once built. Kept quiet so
+  it never competes with ochre.
+
+**Consequence for the Home scroll.** With About now owning dusty blue, the **Demo** section — the
+doorway *into* Data mode — takes the **Data instrument ground** as foreshadowing, instead of the old
+orphaned blue. So Home reads: Hero (white) → Demo (instrument) → Architecture teaser (sage) → Journey
+teaser (ochre) → Skills teaser (rose) → Bookend (white) — every section now the colour of where it
+leads. (Revises the Stage 2 "spend all four warm washes in order" note; provisional with the rest.)
+
 ### Open (to decide — nothing locked)
 
 - ~~**Data-mode split:** one combined page vs several.~~ **Resolved 2026-07-26 — three pages:
   Quality · Monitoring · Performance** (see Data mode above).
-- **Ground/color for Data mode:** a new ground for now, TBD. Bigger question: does the Stage 3
-  wash-as-wayfinding system (four washes ↔ four inner pages) survive now that there are more inner
-  pages, or do the tray "modes" adopt a *unified* inside-treatment? The whole visual layer is being
-  reworked, so nothing here is fixed.
+- ~~**Ground/color for Data mode / does wash-per-page survive?**~~ **Resolved 2026-07-26 — color
+  encodes the mode** (see "Color & wayfinding" above). Left for the visual pass: the exact
+  instrument-ground value, the status-palette hues (incl. the "watch"-vs-ochre nuance), and whether
+  Data pages take quiet per-page accents.
 - **Home teaser order** and whether the closing bookend explicitly carries the About link.
 
 ### What this supersedes
@@ -827,6 +861,16 @@ proof a first-class home and reorganizes the internals into two tray-navigated *
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-07-26** — **Color now encodes the mode, not the page.** The Stage 3 one-wash-per-destination
+  rule doesn't survive three new Data pages (seven low-chroma washes stop reading as wayfinding).
+  Story mode keeps its warm per-page washes (sage/ochre/rose, teaser-inherited); About keeps dusty
+  blue; **Data mode shares one cool "instrument" ground**, with the **tray** (not colour) doing
+  wayfinding inside the mode. Ochre stays the sole interactive accent; Data mode **adds a semantic
+  status palette** (pass/watch/fail) for charts + status marks only — additive, not a replacement.
+  Knock-on: the Home **Demo** section takes the instrument ground (foreshadowing Data mode) now that
+  About owns the old blue. Exact hues + the watch-vs-ochre nuance deferred to the visual pass. Chosen
+  over extending wash-per-page (blurs at 7 tints) or fully unifying inner pages (loses warm
+  character).
 - **2026-07-26** — **Data mode split settled: three pages — Quality · Monitoring · Performance.**
   Arc: report card → is it holding up → is it fast. `evidence.json` → Quality (dense, every deploy);
   `drift.json` + `feedback.json` → Monitoring (drift's weekly cadence carries feedback's sparse
