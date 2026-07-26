@@ -19,6 +19,16 @@ will be superseded by decisions here).
 Each decision gets logged with a date and a short rationale. Open questions stay
 visible until resolved. Nothing here is built until Stage 5.
 
+> **2026-07-26 — the IA is reopened.** Once the mlops platform began publishing live data
+> contracts (six JSON files — see `portfolio/DATA_CONTRACTS.md`), the six-destination IA locked
+> in Stages 2–3 no longer fit: it had **no home for the four monitoring/quality contracts**
+> (evidence, drift, feedback, api-metrics) and only linked out to the hub. The IA is reworked into
+> **two internal "modes" (Story and Data), plus Home and About** — see **"IA rework (2026-07-26)"**
+> near the end of the design body. It **supersedes the Stage 2 IA** and adds the Data-mode pages.
+> **Nothing is re-locked** — this is the new working direction while the visual design is reworked
+> too; the older "LOCKED" section specs below remain useful for grammar (cards, trays, tints, motion)
+> even where the IA around them has moved.
+
 ---
 
 ## Stage 0 — Constraints & taste (settled)
@@ -133,7 +143,13 @@ around a **dramatic editorial serif**, with the **os.me light palette** for colo
 
 ---
 
-## Stage 2 — Layout  _(LOCKED 2026-07-16)_
+## Stage 2 — Layout  _(LOCKED 2026-07-16 · IA SUPERSEDED 2026-07-26)_
+
+> **IA superseded 2026-07-26.** The "six destinations" IA below is reworked into **two internal
+> modes plus Home and About** — see **"IA rework (2026-07-26)"** near the end of the doc. The Home
+> composition, ground assignments, and the funnel-through-the-demo model still hold; what changed is
+> the *destination set* (the monitoring/quality contracts are now first-class Data-mode pages, not
+> just links out to the hub).
 
 Sections, and what lives on which page. Revisited `PORTFOLIO_PLAN.md`'s IA (Home /
 Journey / Projects / About / Resume) against the new direction and revised it.
@@ -725,9 +741,92 @@ where noted inline; the prototypes are the working reference.
 
 ---
 
+## IA rework (2026-07-26) — two internal modes  _(nothing locked — working direction)_
+
+**Why now.** The mlops platform now publishes six live JSON contracts to its evidence hub
+(`portfolio/DATA_CONTRACTS.md`). Two map cleanly onto existing pages (`architecture.json` →
+Architecture, `journey.json` → Journey), but the **four monitoring/quality contracts** —
+`evidence.json` (model quality, gate, per-class F1), `drift.json` (+history), `feedback.json`
+(+history, proxy accuracy), `api-metrics.json` (live latency/throughput) — had **nowhere to live**
+in the six-destination IA; the design only linked out to the raw hub. This rework gives that live
+proof a first-class home and reorganizes the internals into two tray-navigated **modes**.
+
+### The shape
+
+- **Home (hero scroll)** — unchanged in spirit; the Stage 4.5 "funnel every visitor through the
+  demo" model holds. Sections: **Hero → Demo → Architecture teaser → Journey teaser → Skills teaser
+  → Closing (Contact bookend)**. Each *teaser* is a doorway into **Story mode**; the **Demo** is the
+  doorway into **Data mode** ("→ see how it performs"). _(Teaser order isn't fixed here — the old
+  Stage 2 spent the four washes in a set order; that's part of what the visual rework revisits.)_
+- **Story mode** — the narrative pages: **Architecture · Journey · Skills**. A bottom-center tray
+  (the `.switch-dock` from `sections-prototype.html`) hops between these three. Entered from the Home
+  teasers.
+- **Data mode** — the technical/live pages rendering the four monitoring/quality contracts as styled
+  UI: working names **Evidence · Metrics · Monitoring · Performance**. **How many pages and how the
+  contracts split/group across them is TBD.** A *second, isolated* bottom tray hops between the Data
+  pages. Entered from the Demo.
+- **About** — standalone; **off both trays**. Reached from the closing section (Contact bookend) and
+  the menu. The personal coda, kept apart from the technical body (decided 2026-07-26).
+- **Menu** — the **global bridge**. Lists everything: **Home · [Data pages] · Architecture · Journey
+  · Skills · About · Contact** (Home and Contact both point at the hero scroll — top and bookend).
+
+### The two trays
+
+- Bottom-center pill (`.switch-dock` grammar from `sections-prototype.html`): Outfit labels, active =
+  filled ink, tray declares the current location (`aria-current`). The prototype's tray currently
+  includes About; **About is pulled out** of both trays here.
+- **Isolated by mode** (decided 2026-07-26): the Story tray only cycles Architecture/Journey/Skills;
+  the Data tray only cycles the Data pages. **No cross-mode tray link — the menu is the only bridge
+  between modes.** Rationale: each mode stays focused, and the menu earns its keep as the one global
+  map. (The alternative — one continuous tray across all internal pages — was rejected to keep the
+  two modes' identities distinct.)
+
+### Where each contract lands
+
+| Contract | Mode → page (working) |
+|---|---|
+| `architecture.json` | Story → Architecture |
+| `journey.json` | Story → Journey |
+| `evidence.json` (quality, gate, per-class F1, confusion matrix) | Data → Evidence/quality |
+| `drift.json` + `drift_history.json` | Data → Monitoring |
+| `feedback.json` + `feedback_history.json` (proxy accuracy) | Data → Monitoring |
+| `api-metrics.json` (latency/throughput) | Data → Performance |
+| — (no single contract) | Skills draws *evidence links* across both modes |
+
+### Open (to decide — nothing locked)
+
+- **Data-mode split:** one combined page vs several; final page names and how
+  evidence/drift/feedback/api-metrics group. ("Metrics/Monitoring/Performance/Evidence" are working
+  labels, likely overlapping — to be rationalized.)
+- **Ground/color for Data mode:** a new ground for now, TBD. Bigger question: does the Stage 3
+  wash-as-wayfinding system (four washes ↔ four inner pages) survive now that there are more inner
+  pages, or do the tray "modes" adopt a *unified* inside-treatment? The whole visual layer is being
+  reworked, so nothing here is fixed.
+- **Home teaser order** and whether the closing bookend explicitly carries the About link.
+
+### What this supersedes
+
+- Stage 2's **six-destination IA** (Home · Journey · Architecture · Skills · About · Contact) and
+  Stage 3's Architecture-page **"Browse the raw evidence → (link out only)"** treatment of monitoring
+  data. That data is now on-site UI in Data mode. Everything else in Stages 3–4.5 (card grammar, tray
+  grammar, tints, motion model, the demo funnel) still applies as raw material.
+
+---
+
 ## Decision log
 
 Newest first. Each entry: what was decided and why.
+
+- **2026-07-26** — **IA reworked into two internal modes (nothing re-locked).** The mlops platform
+  now publishes six live data contracts, and the four monitoring/quality ones had no home in the
+  six-destination IA. New shape: **Home** (hero scroll, teasers as doorways) → **Story mode**
+  (Architecture · Journey · Skills, one bottom tray) and **Data mode** (Evidence/Metrics/Monitoring/
+  Performance — split TBD, a second bottom tray), reached from the Demo; **About** stays standalone,
+  off both trays. **Trays are isolated per mode; the menu is the only bridge** between modes (the
+  connected-tray alternative was rejected to keep each mode's identity distinct). About pulled out of
+  the prototype tray. Data-mode page split, its ground/color, and the fate of the wash-wayfinding
+  system are left open — the visual design is being reworked alongside. Supersedes the Stage 2 IA and
+  Stage 3's link-out-only treatment of monitoring data. Full spec: "IA rework (2026-07-26)" above.
 
 - **2026-07-19** — **Stage 4.5 locked — motion & flow amendments from prototyping.** Built
   two working artifacts (`design-system-preview.html` motion demos and
