@@ -761,10 +761,21 @@ proof a first-class home and reorganizes the internals into two tray-navigated *
 - **Story mode** — the narrative pages: **Architecture · Journey · Skills**. A bottom-center tray
   (the `.switch-dock` from `sections-prototype.html`) hops between these three. Entered from the Home
   teasers.
-- **Data mode** — the technical/live pages rendering the four monitoring/quality contracts as styled
-  UI: working names **Evidence · Metrics · Monitoring · Performance**. **How many pages and how the
-  contracts split/group across them is TBD.** A *second, isolated* bottom tray hops between the Data
-  pages. Entered from the Demo.
+- **Data mode** — the technical/live pages rendering the monitoring/quality contracts as styled UI.
+  **Three pages** (decided 2026-07-26): **Quality · Monitoring · Performance** — the narrative arc
+  *report card → is it holding up → is it fast*. A *second, isolated* bottom tray hops between them.
+  Entered from the Demo.
+  - **Quality** — `evidence.json`: champion card, runs table, per-class F1, the **quality gate**
+    (incl. the blocked-deploy demo run), confusion matrix. Populated every deploy — always dense.
+  - **Monitoring** — `drift.json` + `feedback.json` (+ their histories): output-distribution drift
+    and proxy accuracy from 👍/👎. Drift (weekly, reliable) carries the page through feedback's
+    sparse `n:0` weeks.
+  - **Performance** — `api-metrics.json`: latency p50–p99, RPS, throughput. Framed as a **snapshot
+    from the last EKS load test** ("captured 〈date〉"), not a live feed — which reads as intentional
+    rather than stale, and ties back to Architecture's "weekly dress rehearsal" chapter.
+  - _Grouping rationale: the two frequently-thin contracts (feedback, api-metrics) are placed so a
+    reliable neighbour or an inherently-periodic framing covers their empty states — no page is
+    routinely blank._
 - **About** — standalone; **off both trays**. Reached from the closing section (Contact bookend) and
   the menu. The personal coda, kept apart from the technical body (decided 2026-07-26).
 - **Menu** — the **global bridge**. Lists everything: **Home · [Data pages] · Architecture · Journey
@@ -787,17 +798,16 @@ proof a first-class home and reorganizes the internals into two tray-navigated *
 |---|---|
 | `architecture.json` | Story → Architecture |
 | `journey.json` | Story → Journey |
-| `evidence.json` (quality, gate, per-class F1, confusion matrix) | Data → Evidence/quality |
-| `drift.json` + `drift_history.json` | Data → Monitoring |
-| `feedback.json` + `feedback_history.json` (proxy accuracy) | Data → Monitoring |
-| `api-metrics.json` (latency/throughput) | Data → Performance |
+| `evidence.json` (quality, gate, per-class F1, confusion matrix) | Data → **Quality** |
+| `drift.json` + `drift_history.json` | Data → **Monitoring** |
+| `feedback.json` + `feedback_history.json` (proxy accuracy) | Data → **Monitoring** |
+| `api-metrics.json` (latency/throughput) | Data → **Performance** |
 | — (no single contract) | Skills draws *evidence links* across both modes |
 
 ### Open (to decide — nothing locked)
 
-- **Data-mode split:** one combined page vs several; final page names and how
-  evidence/drift/feedback/api-metrics group. ("Metrics/Monitoring/Performance/Evidence" are working
-  labels, likely overlapping — to be rationalized.)
+- ~~**Data-mode split:** one combined page vs several.~~ **Resolved 2026-07-26 — three pages:
+  Quality · Monitoring · Performance** (see Data mode above).
 - **Ground/color for Data mode:** a new ground for now, TBD. Bigger question: does the Stage 3
   wash-as-wayfinding system (four washes ↔ four inner pages) survive now that there are more inner
   pages, or do the tray "modes" adopt a *unified* inside-treatment? The whole visual layer is being
@@ -817,6 +827,14 @@ proof a first-class home and reorganizes the internals into two tray-navigated *
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-07-26** — **Data mode split settled: three pages — Quality · Monitoring · Performance.**
+  Arc: report card → is it holding up → is it fast. `evidence.json` → Quality (dense, every deploy);
+  `drift.json` + `feedback.json` → Monitoring (drift's weekly cadence carries feedback's sparse
+  weeks); `api-metrics.json` → Performance (framed as the last EKS load-test snapshot, so its monthly
+  cadence reads as intentional). Grouping deliberately pairs the two thin contracts with a reliable
+  neighbour or a periodic framing so no page is routinely blank. Chosen over a two-page (Quality/Live
+  or Model/Service) or one-page split — three stops give the Data tray real purpose and the cleanest
+  narrative.
 - **2026-07-26** — **IA reworked into two internal modes (nothing re-locked).** The mlops platform
   now publishes six live data contracts, and the four monitoring/quality ones had no home in the
   six-destination IA. New shape: **Home** (hero scroll, teasers as doorways) → **Story mode**
