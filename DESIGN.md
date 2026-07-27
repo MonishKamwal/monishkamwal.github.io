@@ -19,6 +19,16 @@ will be superseded by decisions here).
 Each decision gets logged with a date and a short rationale. Open questions stay
 visible until resolved. Nothing here is built until Stage 5.
 
+> **2026-07-26 — the IA is reopened.** Once the mlops platform began publishing live data
+> contracts (six JSON files — see `portfolio/DATA_CONTRACTS.md`), the six-destination IA locked
+> in Stages 2–3 no longer fit: it had **no home for the four monitoring/quality contracts**
+> (evidence, drift, feedback, api-metrics) and only linked out to the hub. The IA is reworked into
+> **two internal "modes" (Story and Data), plus Home and About** — see **"IA rework (2026-07-26)"**
+> near the end of the design body. It **supersedes the Stage 2 IA** and adds the Data-mode pages.
+> **Nothing is re-locked** — this is the new working direction while the visual design is reworked
+> too; the older "LOCKED" section specs below remain useful for grammar (cards, trays, tints, motion)
+> even where the IA around them has moved.
+
 ---
 
 ## Stage 0 — Constraints & taste (settled)
@@ -133,7 +143,13 @@ around a **dramatic editorial serif**, with the **os.me light palette** for colo
 
 ---
 
-## Stage 2 — Layout  _(LOCKED 2026-07-16)_
+## Stage 2 — Layout  _(LOCKED 2026-07-16 · IA SUPERSEDED 2026-07-26)_
+
+> **IA superseded 2026-07-26.** The "six destinations" IA below is reworked into **two internal
+> modes plus Home and About** — see **"IA rework (2026-07-26)"** near the end of the doc. The Home
+> composition, ground assignments, and the funnel-through-the-demo model still hold; what changed is
+> the *destination set* (the monitoring/quality contracts are now first-class Data-mode pages, not
+> just links out to the hub).
 
 Sections, and what lives on which page. Revisited `PORTFOLIO_PLAN.md`'s IA (Home /
 Journey / Projects / About / Resume) against the new direction and revised it.
@@ -833,10 +849,164 @@ original one-map idea doesn't return.
 
 ---
 
+## IA rework (2026-07-26) — two internal modes  _(nothing locked — working direction)_
+
+**Why now.** The mlops platform now publishes six live JSON contracts to its evidence hub
+(`portfolio/DATA_CONTRACTS.md`). Two map cleanly onto existing pages (`architecture.json` →
+Architecture, `journey.json` → Journey), but the **four monitoring/quality contracts** —
+`evidence.json` (model quality, gate, per-class F1), `drift.json` (+history), `feedback.json`
+(+history, proxy accuracy), `api-metrics.json` (live latency/throughput) — had **nowhere to live**
+in the six-destination IA; the design only linked out to the raw hub. This rework gives that live
+proof a first-class home and reorganizes the internals into two tray-navigated **modes**.
+
+### The shape
+
+- **Home (hero scroll)** — unchanged in spirit; the Stage 4.5 "funnel every visitor through the
+  demo" model holds. Sections: **Hero → Demo → Architecture teaser → Journey teaser → Skills teaser
+  → Closing (Contact bookend)**. Each *teaser* is a doorway into **Story mode**; the **Demo** is the
+  doorway into **Data mode** ("→ see how it performs"). _(Teaser order isn't fixed here — the old
+  Stage 2 spent the four washes in a set order; that's part of what the visual rework revisits.)_
+- **Story mode** — the narrative pages: **Architecture · Journey · Skills**. A bottom-center tray
+  (the `.switch-dock` from `sections-prototype.html`) hops between these three. Entered from the Home
+  teasers.
+- **Data mode** — the technical/live pages rendering the monitoring/quality contracts as styled UI.
+  **Three pages** (decided 2026-07-26): **Quality · Monitoring · Performance** — the narrative arc
+  *report card → is it holding up → is it fast*. A *second, isolated* bottom tray hops between them.
+  Entered from the Demo.
+  - **Quality** — `evidence.json`: champion card, runs table, per-class F1, the **quality gate**
+    (incl. the blocked-deploy demo run), confusion matrix. Populated every deploy — always dense.
+  - **Monitoring** — `drift.json` + `feedback.json` (+ their histories): output-distribution drift
+    and proxy accuracy from 👍/👎. Drift (weekly, reliable) carries the page through feedback's
+    sparse `n:0` weeks.
+  - **Performance** — `api-metrics.json`: latency p50–p99, RPS, throughput. Framed as a **snapshot
+    from the last EKS load test** ("captured 〈date〉"), not a live feed — which reads as intentional
+    rather than stale, and ties back to Architecture's "weekly dress rehearsal" chapter.
+  - _Grouping rationale: the two frequently-thin contracts (feedback, api-metrics) are placed so a
+    reliable neighbour or an inherently-periodic framing covers their empty states — no page is
+    routinely blank._
+- **About** — standalone; **off both trays**. Reached from the closing section (the Contact bookend
+  carries an explicit "or learn more about me →" link) and the menu. The personal coda, kept apart
+  from the technical body (decided 2026-07-26).
+- **Menu** — the **global bridge**. Lists everything: **Home · [Data pages] · Architecture · Journey
+  · Skills · About · Contact** (Home and Contact both point at the hero scroll — top and bookend).
+
+### The two trays
+
+- Bottom-center pill (`.switch-dock` grammar from `sections-prototype.html`): Outfit labels, active =
+  filled ink, tray declares the current location (`aria-current`). The prototype's tray currently
+  includes About; **About is pulled out** of both trays here.
+- **Isolated by mode** (decided 2026-07-26): the Story tray only cycles Architecture/Journey/Skills;
+  the Data tray only cycles the Data pages. **No cross-mode tray link — the menu is the only bridge
+  between modes.** Rationale: each mode stays focused, and the menu earns its keep as the one global
+  map. (The alternative — one continuous tray across all internal pages — was rejected to keep the
+  two modes' identities distinct.)
+
+### Where each contract lands
+
+| Contract | Mode → page (working) |
+|---|---|
+| `architecture.json` | Story → Architecture |
+| `journey.json` | Story → Journey |
+| `evidence.json` (quality, gate, per-class F1, confusion matrix) | Data → **Quality** |
+| `drift.json` + `drift_history.json` | Data → **Monitoring** |
+| `feedback.json` + `feedback_history.json` (proxy accuracy) | Data → **Monitoring** |
+| `api-metrics.json` (latency/throughput) | Data → **Performance** |
+| — (no single contract) | Skills draws *evidence links* across both modes |
+
+### Color & wayfinding (decided 2026-07-26)
+
+**Color now encodes the *mode*, not the page.** The Stage 3 rule of one wash per destination doesn't
+survive three new Data pages — seven near-identical low-chroma washes stop working as wayfinding, and
+they'd leave the two-mode structure invisible. Instead:
+
+- **Story mode keeps the warm editorial washes, per page** — Architecture = sage `#e0f7e7`, Journey =
+  ochre `#ffecdb`, Skills = rose `#ffe8ee` — each still inherited from its Home teaser (the
+  teaser→page tint hand-off from Stage 3 is preserved). **About** stays **dusty blue `#e7f0ff`**, the
+  personal page, off-tray.
+- **Data mode gets one shared, cooler "instrument" ground** across Quality/Monitoring/Performance.
+  **Wayfinding inside the mode is the tray, not color** — so the three pages deliberately share a
+  ground; crossing from a warm story wash to the cool instrument ground *is* the "you've entered the
+  machine room" signal. Provisional ground: a light cool neutral (placeholder `#f2f4f7`, slate-tinted
+  — exact value set in the visual pass, contrast-checked like the token pass).
+- **Ochre stays the sole *interactive* accent** everywhere (bright `#c98a3a` for large marks / fills /
+  hovers, deep `#96600a` for small links + labels — unchanged from the token pass).
+- **Data mode adds a semantic *status* palette** — positive / watch / negative (pass·stable /
+  warn / fail·drifted) — used **only in charts and status marks**, never as page identity. This is
+  additive to the single-accent rule, not a replacement: the editorial pages never needed status
+  colors; the Data charts can't work without them (a gate is pass/fail, drift is drifted/stable).
+  Exact hues derived in the visual pass with WCAG checks. _Open nuance: "watch" sits near brand
+  ochre — either keep it a distinct amber, or reuse ochre as the attention colour; decide when the
+  palette is drawn._
+- **Optional per-page identity within Data mode:** each Data page may take a quiet per-page accent for
+  its tray-active state + chart primary, if the shared ground feels too flat once built. Kept quiet so
+  it never competes with ochre.
+
+**Consequence for the Home scroll.** With About now owning dusty blue, the **Demo** section — the
+doorway *into* Data mode — takes the **Data instrument ground** as foreshadowing, instead of the old
+orphaned blue. So Home reads: Hero (white) → Demo (instrument) → Architecture teaser (sage) → Journey
+teaser (ochre) → Skills teaser (rose) → Bookend (white) — every section now the colour of where it
+leads. (Revises the Stage 2 "spend all four warm washes in order" note; provisional with the rest.)
+
+### Open (to decide — nothing locked)
+
+- ~~**Data-mode split:** one combined page vs several.~~ **Resolved 2026-07-26 — three pages:
+  Quality · Monitoring · Performance** (see Data mode above).
+- ~~**Ground/color for Data mode / does wash-per-page survive?**~~ **Resolved 2026-07-26 — color
+  encodes the mode** (see "Color & wayfinding" above). Left for the visual pass: the exact
+  instrument-ground value, the status-palette hues (incl. the "watch"-vs-ochre nuance), and whether
+  Data pages take quiet per-page accents.
+- ~~**Home teaser order** and the closing bookend's About link.~~ **Resolved 2026-07-26 — order:
+  Hero → Demo → Architecture → Journey → Skills → Closing** (matches the colour foreshadowing and the
+  original Stage 2 comp); the **closing bookend carries the About link** ("or learn more about me →"),
+  About's soft off-tray doorway.
+
+### What this supersedes
+
+- Stage 2's **six-destination IA** (Home · Journey · Architecture · Skills · About · Contact) and
+  Stage 3's Architecture-page **"Browse the raw evidence → (link out only)"** treatment of monitoring
+  data. That data is now on-site UI in Data mode. Everything else in Stages 3–4.5 (card grammar, tray
+  grammar, tints, motion model, the demo funnel) still applies as raw material.
+
+---
+
 ## Decision log
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-07-26** — **Home scroll order confirmed + About's doorway.** Order: **Hero → Demo →
+  Architecture → Journey → Skills → Closing** — the demo's "behind the scenes" hands straight to
+  Architecture, then Journey deepens into process, Skills consolidates, Closing reaches out. Matches
+  both the colour foreshadowing (each section the colour of where it leads) and the original Stage 2
+  composition. The **closing bookend carries an explicit About link** ("or learn more about me →") —
+  About is off-tray, so this + the menu are its two doorways.
+- **2026-07-26** — **Color now encodes the mode, not the page.** The Stage 3 one-wash-per-destination
+  rule doesn't survive three new Data pages (seven low-chroma washes stop reading as wayfinding).
+  Story mode keeps its warm per-page washes (sage/ochre/rose, teaser-inherited); About keeps dusty
+  blue; **Data mode shares one cool "instrument" ground**, with the **tray** (not colour) doing
+  wayfinding inside the mode. Ochre stays the sole interactive accent; Data mode **adds a semantic
+  status palette** (pass/watch/fail) for charts + status marks only — additive, not a replacement.
+  Knock-on: the Home **Demo** section takes the instrument ground (foreshadowing Data mode) now that
+  About owns the old blue. Exact hues + the watch-vs-ochre nuance deferred to the visual pass. Chosen
+  over extending wash-per-page (blurs at 7 tints) or fully unifying inner pages (loses warm
+  character).
+- **2026-07-26** — **Data mode split settled: three pages — Quality · Monitoring · Performance.**
+  Arc: report card → is it holding up → is it fast. `evidence.json` → Quality (dense, every deploy);
+  `drift.json` + `feedback.json` → Monitoring (drift's weekly cadence carries feedback's sparse
+  weeks); `api-metrics.json` → Performance (framed as the last EKS load-test snapshot, so its monthly
+  cadence reads as intentional). Grouping deliberately pairs the two thin contracts with a reliable
+  neighbour or a periodic framing so no page is routinely blank. Chosen over a two-page (Quality/Live
+  or Model/Service) or one-page split — three stops give the Data tray real purpose and the cleanest
+  narrative.
+- **2026-07-26** — **IA reworked into two internal modes (nothing re-locked).** The mlops platform
+  now publishes six live data contracts, and the four monitoring/quality ones had no home in the
+  six-destination IA. New shape: **Home** (hero scroll, teasers as doorways) → **Story mode**
+  (Architecture · Journey · Skills, one bottom tray) and **Data mode** (Evidence/Metrics/Monitoring/
+  Performance — split TBD, a second bottom tray), reached from the Demo; **About** stays standalone,
+  off both trays. **Trays are isolated per mode; the menu is the only bridge** between modes (the
+  connected-tray alternative was rejected to keep each mode's identity distinct). About pulled out of
+  the prototype tray. Data-mode page split, its ground/color, and the fate of the wash-wayfinding
+  system are left open — the visual design is being reworked alongside. Supersedes the Stage 2 IA and
+  Stage 3's link-out-only treatment of monitoring data. Full spec: "IA rework (2026-07-26)" above.
 - **2026-07-20** — **Stage 4.7 locked — Architecture page opens with an overview, then the
   breakdown.** Prototyping showed the three chapters never let a visitor see the whole
   system at once. Added a **consolidated system-overview diagram** (a unified lifecycle

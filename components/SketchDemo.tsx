@@ -6,6 +6,7 @@ import {
   QUICKDRAW_CLASSES,
   fetchModelInfo,
   predictSketch,
+  sendFeedback,
   type ModelInfo,
   type Point,
   type PredictResult,
@@ -33,6 +34,10 @@ export default function SketchDemo() {
   const [thinking, setThinking] = useState(false);
   const [waking, setWaking] = useState(false);
   const [result, setResult] = useState<PredictResult | null>(null);
+  // null = not yet answered for the current prediction; true/false = the verdict sent.
+  const [feedback, setFeedback] = useState<boolean | null>(null);
+  // After 👎, we ask "what did you draw?" so the correction becomes a labeled training example.
+  const [picking, setPicking] = useState(false);
   const [error, setError] = useState(false);
   const [modelInfo, setModelInfo] = useState<ModelInfo | null>(null);
   const [apiStatus, setApiStatus] = useState<ApiStatus>("warming");
@@ -118,6 +123,8 @@ export default function SketchDemo() {
         const res = await predictSketch(strokesRef.current);
         if (generationRef.current === generation) {
           setResult(res);
+          setFeedback(null); // a new guess deserves a fresh 👍/👎
+          setPicking(false);
           setApiStatus("ready"); // a successful predict beats a failed warm-up
         }
       } catch {
@@ -170,6 +177,8 @@ export default function SketchDemo() {
       schedulePredict();
     } else {
       setResult(null);
+      setFeedback(null);
+      setPicking(false);
       setThinking(false);
     }
   };
@@ -180,10 +189,48 @@ export default function SketchDemo() {
     currentStrokeRef.current = null;
     setStrokeCount(0);
     setResult(null);
+    setFeedback(null);
+    setPicking(false);
     setThinking(false);
     setError(false);
     redraw();
   };
+
+  // 👍: the guess was right — send it (and the drawing) labeled with the guess.
+  const handleThumbsUp = useCallback(() => {
+    const top = result?.predictions[0];
+    if (!top) return;
+    setFeedback(true);
+    void sendFeedback({
+      predicted_label: top.label,
+      confidence: top.probability,
+      correct: true,
+      source: result.source,
+      model_sha256: modelInfo?.model_sha256,
+      strokes: [...strokesRef.current],
+    });
+  }, [result, modelInfo]);
+
+  // 👎: ask what it actually was, so the drawing becomes a *corrected* training example.
+  // `trueLabel` null = user skipped the picker — the verdict is logged, but no capture.
+  const handleCorrection = useCallback(
+    (trueLabel: string | null) => {
+      const top = result?.predictions[0];
+      if (!top) return;
+      setFeedback(false);
+      setPicking(false);
+      void sendFeedback({
+        predicted_label: top.label,
+        confidence: top.probability,
+        correct: false,
+        source: result.source,
+        model_sha256: modelInfo?.model_sha256,
+        strokes: [...strokesRef.current],
+        ...(trueLabel ? { true_label: trueLabel } : {}),
+      });
+    },
+    [result, modelInfo],
+  );
 
   // Prefer the live class list (/model-info) so the prompt can never drift from
   // what the deployed model actually knows; fall back while it loads.
@@ -293,6 +340,59 @@ export default function SketchDemo() {
                   {thinking &&
                     (waking ? " · waking the model (cold start)…" : " · thinking…")}
                 </p>
+
+                {/* 👍/👎 feedback — a real accuracy signal on live drawings (proxy-accuracy),
+                    and, with the drawing, a labeled example for retraining. One answer per guess.
+                    👎 opens a "what did you draw?" picker so the correction is a true label. */}
+                <div className="mt-2 border-t border-edge pt-3 text-sm">
+                  {feedback !== null ? (
+                    <span className="text-muted">
+                      {feedback ? "Thanks! 🎉" : "Thanks — that helps me learn. 🙏"}
+                    </span>
+                  ) : picking ? (
+                    <div className="flex flex-col gap-2">
+                      <span className="text-muted">What did you draw?</span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {classes.map((c) => (
+                          <button
+                            key={c}
+                            onClick={() => handleCorrection(c)}
+                            className="rounded-md border border-edge bg-panel px-2 py-1 text-xs transition-colors hover:border-accent"
+                          >
+                            {c}
+                          </button>
+                        ))}
+                        <button
+                          onClick={() => handleCorrection(null)}
+                          className="rounded-md px-2 py-1 text-xs text-muted underline-offset-2 hover:underline"
+                        >
+                          skip
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <span className="text-muted">Did I get it right?</span>
+                      <button
+                        onClick={handleThumbsUp}
+                        className="rounded-md border border-edge bg-panel px-2.5 py-1 transition-colors hover:border-accent"
+                        aria-label="Yes, the guess was correct"
+                      >
+                        👍
+                      </button>
+                      <button
+                        onClick={() => setPicking(true)}
+                        className="rounded-md border border-edge bg-panel px-2.5 py-1 transition-colors hover:border-accent"
+                        aria-label="No, the guess was wrong"
+                      >
+                        👎
+                      </button>
+                    </div>
+                  )}
+                  <p className="mt-2 text-xs text-muted">
+                    Your drawing and answer help train the model — nothing else is collected.
+                  </p>
+                </div>
               </div>
             ) : thinking ? (
               waking ? (
