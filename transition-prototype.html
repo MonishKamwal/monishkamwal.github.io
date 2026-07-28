@@ -145,9 +145,11 @@
     text-align:center;padding:0 20px;
     /* the original cut, untouched (weight 500 · opsz 96 via .display) — both
        hairline fixes (heavier 680/64, then a 0.4px text-stroke) were tried and
-       rejected; the gossamer thins ARE the look. margin:0 kills the h1 default
-       so the subtitle's own clamp controls the gap. */
+       rejected; the gossamer thins ARE the look. Prominence comes from depth
+       instead: a tight + ambient text-shadow, the same layering as the lifted
+       panels. margin:0 kills the h1 default so the subtitle clamp owns the gap. */
     margin:0;
+    text-shadow:0 2px 6px rgba(10,10,10,.08),0 16px 40px rgba(10,10,10,.14);
     /* §1 spec: a calm expo reveal on load (opacity + small translate) */
     animation:heroReveal 1s var(--ease-out-expo) both;animation-delay:.1s;
   }

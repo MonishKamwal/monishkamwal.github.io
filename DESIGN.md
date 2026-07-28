@@ -1081,7 +1081,10 @@ Newest first. Each entry: what was decided and why.
   were tried against "the thins vanish on non-retina screens" — a heavier cut (weight 680 +
   opsz 64) and a 0.4px uniform text-stroke — and **both were rejected**: each dulled the didone
   character that makes the hero. Verdict: the gossamer hairlines *are* the look; keep
-  weight 500 · opsz 96 untouched and accept the trade. (Don't re-propose either fix.) The hero
+  weight 500 · opsz 96 untouched. (Don't re-propose either fix.) **Prominence comes from depth
+  instead**: a tight + ambient text-shadow (`0 2px 6px ·08 + 0 16px 40px ·14`) — the same
+  layering as the lifted panels — lifts the name off the white and gives the thins a faint
+  reinforcing halo without altering the letterforms. The hero
   does gain a subtitle: **"MLOps Project & Portfolio"** — letterspaced micro-caps under the name,
   entering between the name and the arrow (delay .32s). Rationale: a bare name reads as vanity;
   the subtitle declares what the site *is* before the demo does.
