@@ -1088,6 +1088,18 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-07-28** — **Skills → Contact gets the roll-over too** (`transition-prototype.html`). The
+  Contact bookend used to sit *outside* the sticky runway and arrive by a hard scroll-snap; it's
+  now a **6th rising layer** (z-index 6, white) that rolls up over the settled Skills exactly like
+  §2–§5 do — so the Home scroll is five scrubbed transitions, not four, and reverses cleanly. To
+  avoid re-timing the dozens of hand-tuned sub-reveals, the whole story is **squeezed into raw
+  progress `[0, STORY_END=.80]`** (a single `p = min(1, praw/STORY_END)` at the top of `apply()`,
+  so every existing `segP` fraction is unchanged) and Contact rides the tail `[.80, 1]` on
+  `T5=[.83,.96]`. Runway grew 1000vh → 1250vh (story keeps ~its old scroll length; Contact adds
+  ~230vh); floors re-spaced to six; the ↓ arrows and the menu's Contact link retargeted to the new
+  progress points. Verified the story is visually untouched (Journey et al. render identically at
+  their remapped positions).
+
 - **2026-07-28** — **Story prototype reconciled to the IA rework** (`sections-prototype.html`).
   The last stale file catches up: the `.switch-dock` drops About and now cycles only
   **Architecture · Journey · Skills** (About is off both trays — reached from the menu, and on the
