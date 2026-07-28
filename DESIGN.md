@@ -1085,7 +1085,9 @@ Newest first. Each entry: what was decided and why.
   proxy accuracy, it earns the weight) · **the doorway, finally added**: "every guess is scored —
   See how the model performs →" pinned to the instrument's foot, linking into Data mode
   (`data-prototype-white.html`). The Demo's menu Quality/Monitoring/Performance links now point
-  there too. Supersedes the same-day two-papers cut.
+  there too. Supersedes the same-day two-papers cut. _(Later that day: a live **§2-layout dock**
+  was added to the prototype chrome — instrument ↔ "causal columns" (two equal panels, the right
+  one ending on the doorway) — so the pick can be felt in place before it's final.)_
 
 - **2026-07-28** — **Demo §2 foreshadow reconciled to the white pick** (`transition-prototype.html`).
   The Demo's ground becomes Data mode's **well `#f6f8fb`** — chosen over pure white (which would
