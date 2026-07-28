@@ -285,6 +285,8 @@
   .feedback{
     display:flex;align-items:center;gap:14px;flex-wrap:wrap;
     border-top:1px solid #e7ebf1;padding-top:14px;
+    margin-top:auto; /* the elastic joint sits ABOVE the verdict: bars top,
+                        verdict → doorway → privacy cluster at the foot */
   }
   .fb-q{font-size:15px;color:var(--foreground);font-weight:420;}
   .fb-btn{
@@ -294,12 +296,13 @@
   }
   .fb-btn:hover{border-color:var(--warm);color:var(--deep-ochre);scale:1.07;}
   .fb-btn:focus-visible{outline:2px solid var(--warm);outline-offset:2px;}
-  /* the doorway into Data mode — pinned to the instrument's foot */
+  /* the doorway into Data mode — rides right under the verdict, sized as
+     the panel's true call-to-action */
   .doorway{
-    margin-top:auto;border-top:1px solid #e7ebf1;padding-top:14px;
-    display:flex;flex-direction:column;gap:5px;align-items:flex-start;
+    border-top:1px solid #e7ebf1;padding-top:14px;
+    display:flex;flex-direction:column;gap:6px;align-items:flex-start;
   }
-  .doorway .link{font-size:15.5px;}
+  .doorway .link{font-size:clamp(18px,1.8vw,21px);font-weight:380;}
   .privacy{margin:2px 0 0;font-size:11.5px;color:var(--muted-foreground);}
 
   /* ---------- §3 layer: Behind the Scenes — rises over the settled demo ---------- */
