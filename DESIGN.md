@@ -1024,12 +1024,13 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 - **The arrival line is back on Data pages** (removed, then restored 2026-07-28 — Monish's call
   both times): the plain fade was tried for a day and the pages arrived flat; every internal
   page — Story and Data — now shares the site-wide "the line carries you" ink stroke again.
-  **Per-page placement** (2026-07-28): on the Data pages the line is positioned just right of
-  each page's own title (measured live via a Range on the `.page-title`, +52px, clamped clear of
-  the menu button) so it never crosses the headline — the long titles (Monitoring, Performance)
-  reach past centre, so a fixed centre line collided. Lines deliberately don't align across pages;
-  each sits in its own header's clear zone, and it re-measures per navigation so it survives any
-  viewport width.
+  **Per-page placement** (2026-07-28): on **every internal page — Data and Story** — the line is
+  positioned just right of that page's own title (measured live via a Range on the `.page-title`,
+  +52px, clamped clear of the menu button) so it never crosses the headline. A fixed centre line
+  collided with the long titles (Monitoring, Performance; Architecture, The Journey). Lines
+  deliberately don't align across pages; each sits in its own header's clear zone, and it
+  re-measures per navigation so it survives any viewport width. `positionArrival()` is identical
+  in all three prototype files.
 - **Progressive edge dissolve** (added 2026-07-28, Monish's call): scrolling content blurs + fades
   out at the viewport's top and bottom edges — three stacked backdrop-blur layers per edge
   (2 → 6 → 14px, each mask-banded so the blur genuinely ramps) plus a soft wash toward the ground
