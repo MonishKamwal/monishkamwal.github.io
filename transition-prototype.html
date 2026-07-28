@@ -226,10 +226,9 @@
     opacity:0; /* scrubbed */
   }
   .canvas-card{
-    /* the drawing surface — the instrument's input field: hairline, no lift
-       (the instrument itself is the lifted paper) */
+    /* the drawing surface — borderless: pad and Clear/Undo share one plane,
+       drawing happens directly on the instrument's paper */
     width:100%;aspect-ratio:4/3;background:#fff;
-    border:1px solid #e7ebf1;border-radius:10px;
     display:flex;align-items:center;justify-content:center;
   }
   .canvas-card svg{width:64%;height:auto;}
