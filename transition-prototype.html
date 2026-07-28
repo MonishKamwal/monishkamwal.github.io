@@ -27,13 +27,10 @@
     --dur:.48s; /* the loose global motion value — retuned by the dock */
   }
   *{box-sizing:border-box;}
-  /* hard floors: the scroll must rest on a section, and a momentum fling
-     cannot pass one — each floor demands its own gesture to leave */
-  html{scroll-snap-type:y mandatory;}
-  .floor{
-    position:absolute;left:0;width:100%;height:2px;
-    scroll-snap-align:start;scroll-snap-stop:always;
-  }
+  /* event-driven paging: native scroll is OFF; a wheel/touch/key gesture past a
+     threshold fires exactly one section transition that always runs to completion
+     (no being stranded mid-transition by a jittery mouse). See the script. */
+  html,body{height:100%;overflow:hidden;overscroll-behavior:none;}
   body{
     margin:0;background:var(--background);color:var(--foreground);
     font-family:"Outfit",system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -127,7 +124,7 @@
   .menu-panel.open .menu-link:nth-of-type(9){--stagger:calc(var(--dur)*1)}
 
   /* ---------- the scroll runway: sticky viewport inside ---------- */
-  .runway{height:1250vh;position:relative;}
+  .runway{height:100vh;position:relative;}  /* the whole scene lives in one sticky viewport now */
   .viewport{position:sticky;top:0;height:100vh;overflow:hidden;background:#fff;}
 
   /* background cross-fade layer: white → the Data well, opacity-driven
@@ -498,13 +495,6 @@
 
 <div class="runway" id="runway">
   <!-- section floors: positioned by the script at each resting progress -->
-  <!-- six resting floors (story squeezed into [0,.80], Contact is the tail) -->
-  <div class="floor" data-p="0"></div>
-  <div class="floor" data-p=".192"></div>
-  <div class="floor" data-p=".44"></div>
-  <div class="floor" data-p=".648"></div>
-  <div class="floor" data-p=".80"></div>
-  <div class="floor" data-p="1"></div>
   <div class="viewport">
     <div class="bg-wash" id="bgWash"></div>
 
@@ -634,7 +624,7 @@
   <div class="copied" id="emailCopied">Copied</div>
   <a class="link or-link" href="#" onclick="return false">Or learn more about me →</a>
   <p class="note">End of the prototype — the Hero's white bookend closes the scroll.
-     Scroll back up to replay: all five transitions are scrubbed, so they play in either direction.</p>
+     Scroll back up to replay: every transition plays to completion and reverses, so nothing is left half-done.</p>
     </div>
   </div>
 </div>
@@ -687,6 +677,10 @@
   const sLead=document.getElementById('sLead');
   const sLink=document.getElementById('sLink');
   const sLines=[...document.querySelectorAll('.s-line')];
+  // content wrappers that fade out as the NEXT section rises (the outgoing fade)
+  const sceneInner=sceneLayer.querySelector('.scene-inner');
+  const jInner=journeyLayer.querySelector('.j-inner');
+  const sInner=skillsLayer.querySelector('.s-inner');
 
   // ---- Journey path layout: dots sit at fractions of the drawn line, and
   //      each entry hangs beside its dot, alternating sides ----
@@ -720,27 +714,20 @@
   // [0, STORY_END] so every sub-timing above stays exactly as authored (see
   // apply()), and Contact rides the tail on T5.
   const STORY_END=.80, T5=[.83,.96];
-  let runwayEnd=0;
-  function measure(){
-    runwayEnd=runway.offsetHeight-window.innerHeight;
-    // pin each floor at its resting progress (floors align to the scroller top)
-    document.querySelectorAll('.floor').forEach(f=>{
-      f.style.top=(parseFloat(f.dataset.p)*runwayEnd)+'px';
-    });
-  }
-  measure();
-  window.addEventListener('resize',measure);
-  function targetProgress(){
-    return Math.min(1,Math.max(0,window.scrollY/runwayEnd));
-  }
   function segP(p,seg){
     return Math.min(1,Math.max(0,(p-seg[0])/(seg[1]-seg[0])));
   }
 
-  // ---- exponential smoothing: the scrubbed layers chase the scroll with
-  //      an ease-out-expo character whose time constant follows --dur ----
-  let current=targetProgress(), lastT=performance.now();
+  // ---- event-driven paging: six rest points; a gesture animates progress from
+  //      one to the next and always lands (nobody gets stranded mid-transition) ----
+  const REST=[0,.192,.44,.648,.80,1];   // hero · demo · behind · journey · skills · contact
+  const SECN=REST.length;
+  let secIndex=0;         // the settled section
+  let current=0;          // animated progress fed to apply()
+  let anim=null;          // {from,to,toIndex,start,dur} while a transition runs
   let barsLive=false;
+  const easeInOut=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+  const transDur=steps=>durMs()*(1.9+0.7*(Math.abs(steps)-1)); // ~1.9×--dur, longer for jumps
   // scrub helpers: an element's reveal is a pure function of its slice of the scroll
   function setReveal(el,sp){
     el.style.opacity=String(sp);
@@ -764,7 +751,9 @@
     bgWash.style.opacity=String(p1);
     // the demo panel rises beneath the fading name
     panelLayer.style.transform=reduce?'none':'translate3d(0,'+((1-p1)*100)+'%,0)';
-    if(reduce){ panelLayer.style.opacity=String(p1); }
+    // …then the demo itself dissolves as §3 rises (its bg = the well below, so
+    // only the instrument fades — the same "previous fades away" as the Hero)
+    panelLayer.style.opacity=String((reduce?p1:1)*Math.max(0,1-p2*1.35));
     // §2 contents — scrubbed (hybrid): each element assembles over its own
     // slice of the scroll, overlapping slices making the stagger. Can't be
     // skipped — a hard flick just plays it fast.
@@ -786,6 +775,7 @@
     // §2→§3 — the sage section rises over the settled demo (the sticky roll-over)
     sceneLayer.style.transform=reduce?'none':'translate3d(0,'+((1-p2)*100)+'%,0)';
     if(reduce){ sceneLayer.style.opacity=String(p2); }
+    sceneInner.style.opacity=String(Math.max(0,1-p3*1.35)); // fades as §4 rises
     // §3 contents — scrubbed like the demo: title + lead first, then the
     // pipeline draws itself left-to-right under the scroll, then the link
     setReveal(sceneTitle,segP(p,[.385,.42]));
@@ -798,6 +788,7 @@
     // §3→§4 — the Journey rises over the diagram
     journeyLayer.style.transform=reduce?'none':'translate3d(0,'+((1-p3)*100)+'%,0)';
     if(reduce){ journeyLayer.style.opacity=String(p3); }
+    jInner.style.opacity=String(Math.max(0,1-p4*1.35)); // fades as §5 rises
     // §4 contents — title + lead, then the path draws downward under the
     // scroll, each dot + entry appearing as the line reaches it
     setReveal(jTitle,segP(p,[.69,.72]));
@@ -813,6 +804,7 @@
     // §4→§5 — Skills rises over the Journey
     skillsLayer.style.transform=reduce?'none':'translate3d(0,'+((1-p4)*100)+'%,0)';
     if(reduce){ skillsLayer.style.opacity=String(p4); }
+    sInner.style.opacity=String(Math.max(0,1-p5*1.35)); // fades as Contact rises
     // §5→§6 — the Contact bookend rises over the settled Skills (the final roll-over)
     afterLayer.style.transform=reduce?'none':'translate3d(0,'+((1-p5)*100)+'%,0)';
     if(reduce){ afterLayer.style.opacity=String(p5); }
@@ -835,27 +827,63 @@
     if(label) indicator.textContent=label;
     indicator.style.opacity=label?'1':'0';
   }
-  function frame(now){
-    const dt=now-lastT; lastT=now;
-    const t=targetProgress();
-    if(reduce){ current=t; }
-    else{
-      const tau=durMs()/3; // smaller --dur = snappier chase, larger = calmer float
-      current+=(t-current)*(1-Math.exp(-dt/tau));
-      if(Math.abs(t-current)<.0005) current=t;
+  function frame(){
+    if(anim){
+      const t=Math.min(1,(performance.now()-anim.start)/anim.dur);
+      current=anim.from+(anim.to-anim.from)*easeInOut(t);
+      if(t>=1){ current=anim.to; secIndex=anim.toIndex; anim=null; }
     }
     apply(current);
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
 
-  // ---- the ↓ arrows: hero → demo (past its assembly), demo → §3 (fully built) ----
-  arrowBtn.addEventListener('click',()=>{
-    window.scrollTo({top:runwayEnd*.192,behavior:reduce?'auto':'smooth'});
+  // ---- paging: animate to a section; ignored while a transition is running ----
+  function goTo(target){
+    target=Math.max(0,Math.min(SECN-1,target));
+    if(anim || target===secIndex) return false;
+    if(reduce){ current=REST[target]; secIndex=target; return true; } // instant, no motion
+    anim={from:current,to:REST[target],toIndex:target,start:performance.now(),dur:transDur(target-secIndex)};
+    return true;
+  }
+  const step=dir=>goTo(secIndex+dir);
+
+  // ---- input → one page per gesture; further input is ignored until the
+  //      transition finishes (+ a short settle), so a gesture can't be half-done ----
+  let wheelAccum=0, lastWheel=0, lockUntil=0;
+  const WHEEL_THRESH=48;
+  function fire(dir){ if(step(dir)) lockUntil=performance.now()+transDur(1)+220; }
+  window.addEventListener('wheel',e=>{
+    e.preventDefault();
+    const now=performance.now();
+    if(now-lastWheel>180) wheelAccum=0;   // a pause between events resets the gesture
+    lastWheel=now;
+    if(anim || now<lockUntil) return;
+    wheelAccum+=e.deltaY;
+    if(Math.abs(wheelAccum)>=WHEEL_THRESH){ fire(Math.sign(wheelAccum)); wheelAccum=0; }
+  },{passive:false});
+  // touch: a vertical swipe past a threshold pages
+  let touchY=null;
+  window.addEventListener('touchstart',e=>{ touchY=e.touches[0].clientY; },{passive:true});
+  window.addEventListener('touchmove',e=>{
+    if(touchY===null||anim||performance.now()<lockUntil) return;
+    const dy=touchY-e.touches[0].clientY;
+    if(Math.abs(dy)>=42){ fire(Math.sign(dy)); touchY=null; }
+  },{passive:true});
+  window.addEventListener('touchend',()=>{ touchY=null; });
+  // keyboard paging (not while the menu is open or a control is focused)
+  window.addEventListener('keydown',e=>{
+    if(document.getElementById('menuPanel').classList.contains('open')) return;
+    if(e.target.closest && e.target.closest('button,a,input,textarea')) return;
+    if(['ArrowDown','PageDown',' '].includes(e.key)){ e.preventDefault(); step(1); }
+    else if(['ArrowUp','PageUp'].includes(e.key)){ e.preventDefault(); step(-1); }
+    else if(e.key==='Home'){ e.preventDefault(); goTo(0); }
+    else if(e.key==='End'){ e.preventDefault(); goTo(SECN-1); }
   });
-  demoArrow.addEventListener('click',()=>{
-    window.scrollTo({top:runwayEnd*.44,behavior:reduce?'auto':'smooth'});
-  });
+
+  // ---- the ↓ arrows: hero → demo, demo → §3 ----
+  arrowBtn.addEventListener('click',()=>goTo(1));
+  demoArrow.addEventListener('click',()=>goTo(2));
 
   // ---- slide-in menu: panel from the right, staircase stagger ----
   const menuBtn=document.getElementById('menuBtn');
@@ -875,12 +903,10 @@
   document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&menuPanel.classList.contains('open')) setMenu(false); });
   // destinations that exist in this prototype: Home → top, Contact → the bookend
   document.getElementById('mHome').addEventListener('click',e=>{
-    e.preventDefault(); setMenu(false);
-    window.scrollTo({top:0,behavior:reduce?'auto':'smooth'});
+    e.preventDefault(); setMenu(false); goTo(0);
   });
   document.getElementById('mContact').addEventListener('click',e=>{
-    e.preventDefault(); setMenu(false);
-    window.scrollTo({top:runwayEnd,behavior:reduce?'auto':'smooth'});
+    e.preventDefault(); setMenu(false); goTo(SECN-1);
   });
 
   // ---- the bookend's click-to-copy email (the footer's mail icon) ----

@@ -697,6 +697,12 @@ where noted inline; the prototypes are the working reference.
 
 ### Motion model — scrubbed, with clocked money moments
 
+> **Amended 2026-07-28 → paged, not scrubbed** (see the decision log). The Home scroll no longer
+> ties progress to scroll *position*; a gesture now fires a timed, always-completing transition.
+> The scrub math below is preserved verbatim — `apply(progress)` is unchanged — but *progress* is
+> animated by the engine instead of read from `scrollY`. The two paras below describe the
+> superseded position-drive.
+
 - **Scrub-driven reveals.** Section transitions and content reveals are driven by scroll
   position, not timers: each element owns a **slice of the scroll** and its
   opacity/transform is a pure function of progress through that slice; overlapping
@@ -1087,6 +1093,24 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 ## Decision log
 
 Newest first. Each entry: what was decided and why.
+
+- **2026-07-28** — **Home motion: paged (event-driven), and the outgoing section fades**
+  (`transition-prototype.html`). Two fixes, one change:
+  1. **Every section now fades as the next rises** — not just the Hero. Each outgoing layer's
+     *content* dissolves (`inner.opacity = max(0, 1 - nextRise*1.35)`, the Hero's own curve) while
+     the incoming sheet rolls up; the section bg stays until covered (so no flash of older colours
+     underneath). The demo is the exception — its bg *is* the well below, so the whole layer fades
+     and only the instrument dissolves. All of it is a pure function of progress, so **scrolling up
+     reverses it exactly** (sheet rolls back down, previous content fades back in).
+  2. **Scroll is now paged, not scrubbed.** Native scroll is disabled (`overflow:hidden`); a
+     wheel/touch/key gesture past a threshold fires **one** transition that animates to completion
+     (`REST[]` rest points, eased `current`, ~1.9×`--dur`), and further input is **locked out until
+     it finishes** (+220 ms settle). This kills the "stranded between two sections on a jittery
+     mouse" problem — you can never be left mid-transition. The scrub *math* (`apply(progress)`) is
+     untouched; only the driver changed (progress is animated, not read from `scrollY`). The engine
+     runs on `performance.now()` (the rAF timestamp and `scrollY` are both gone). Arrows/menu
+     Home·Contact now call `goTo()`; six rest points; runway collapsed 1250vh → 100vh (one sticky
+     viewport). Revises the Stage 4.5 scrub-drive (annotated there).
 
 - **2026-07-28** — **Skills → Contact gets the roll-over too** (`transition-prototype.html`). The
   Contact bookend used to sit *outside* the sticky runway and arrive by a hard scroll-snap; it's
