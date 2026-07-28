@@ -139,6 +139,21 @@
   .menu-panel.open .menu-link:nth-of-type(8){--stagger:calc(var(--dur)*.9)}
   .menu-panel.open .menu-link:nth-of-type(9){--stagger:calc(var(--dur)*1)}
 
+  /* ---------- arrival line — "the line carries you", restored 2026-07-28 ---------- */
+  .arrival-wrap{
+    position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:20;
+    pointer-events:none;opacity:1;transition:opacity calc(var(--dur)*1.2) var(--ease-out-expo);
+  }
+  .arrival-wrap.retire{opacity:0;}
+  .arrival-line{
+    stroke:var(--foreground);stroke-width:1.4;fill:none;
+    stroke-dasharray:160;stroke-dashoffset:160;
+  }
+  .arrival-wrap.draw .arrival-line{
+    transition:stroke-dashoffset calc(var(--dur)*1.7) var(--ease-out-expo);
+    stroke-dashoffset:0;
+  }
+
   /* ---------- page shell (wider than Story — instruments need bench space) ---------- */
   main{position:relative;}
   .page{display:none;}
@@ -382,10 +397,15 @@
   </nav>
 </aside>
 
+<!-- ---------- arrival line ---------- -->
+<div class="arrival-wrap" id="arrivalWrap" aria-hidden="true">
+  <svg width="2" height="150" viewBox="0 0 2 150"><path class="arrival-line" d="M1 0 V150"/></svg>
+</div>
+
 <main>
 
   <!-- ================= QUALITY — the report card ================= -->
-  <section class="page active" data-page="quality">
+  <section class="page active" data-page="quality" data-arrival="line">
     <div class="wrap">
       <div class="page-head reveal">
         <h1 class="page-title display">Quality</h1>
@@ -472,7 +492,7 @@
   </section>
 
   <!-- ================= MONITORING — is it holding up? ================= -->
-  <section class="page" data-page="monitoring">
+  <section class="page" data-page="monitoring" data-arrival="line">
     <div class="wrap">
       <div class="page-head reveal">
         <h1 class="page-title display">Monitoring</h1>
@@ -591,7 +611,7 @@
   </section>
 
   <!-- ================= PERFORMANCE — is it fast? ================= -->
-  <section class="page" data-page="performance">
+  <section class="page" data-page="performance" data-arrival="line">
     <div class="wrap">
       <div class="page-head reveal">
         <h1 class="page-title display">Performance</h1>
@@ -1249,10 +1269,10 @@ const RENDER={quality:renderQuality,monitoring:renderMonitoring,performance:rend
 
 /* ==================================================================
    Machinery — same grammar as the Story prototype: scrubbed reveals,
-   page switch (plain fade — no arrival line in Data mode), menu,
-   speed dock, hash boot.
+   page switch + arrival line, menu, speed dock, hash boot.
    ================================================================== */
 const pages=[...document.querySelectorAll('.page')];
+const arrivalWrap=document.getElementById('arrivalWrap');
 const titles={quality:'Quality',monitoring:'Monitoring',performance:'Performance'};
 let activeName='quality';
 const active=()=>document.querySelector('.page.active');
@@ -1303,11 +1323,22 @@ function switchPage(name){
   applyReveals();
   if(history.replaceState) history.replaceState(null,'','#'+name);
 }
+let arrivalTimer=null;
 function runArrival(){
   const p=active();
+  const useLine=p.dataset.arrival==='line' && !reduce;
+  clearTimeout(arrivalTimer);
   p.classList.remove('entered');
-  void p.offsetWidth; // reflow so the fade restarts
-  requestAnimationFrame(()=>p.classList.add('entered'));
+  arrivalWrap.classList.remove('draw','retire');
+  arrivalWrap.style.display=useLine?'block':'none';
+  void p.offsetWidth; // reflow so the transitions restart
+  requestAnimationFrame(()=>{
+    p.classList.add('entered');
+    if(useLine){
+      arrivalWrap.classList.add('draw');
+      arrivalTimer=setTimeout(()=>arrivalWrap.classList.add('retire'),700);
+    }
+  });
 }
 
 /* menu */

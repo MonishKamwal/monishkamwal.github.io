@@ -1021,9 +1021,9 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 
 ### Grammar the prototype adds (Data-mode specific)
 
-- **No arrival line on Data pages** (removed 2026-07-28, Monish's call): the drawn ink stroke is
-  Story grammar — instrument pages just fade in, and the provenance row does the arriving. Story
-  mode keeps its line.
+- **The arrival line is back on Data pages** (removed, then restored 2026-07-28 — Monish's call
+  both times): the plain fade was tried for a day and the pages arrived flat; every internal
+  page — Story and Data — now shares the site-wide "the line carries you" ink stroke again.
 - **Progressive edge dissolve** (added 2026-07-28, Monish's call): scrolling content blurs + fades
   out at the viewport's top and bottom edges — three stacked backdrop-blur layers per edge
   (2 → 6 → 14px, each mask-banded so the blur genuinely ramps) plus a soft wash toward the ground
