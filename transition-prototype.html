@@ -228,10 +228,27 @@
   .canvas-card{
     /* the drawing surface — borderless: pad and Clear/Undo share one plane,
        drawing happens directly on the instrument's paper */
-    width:100%;aspect-ratio:4/3;background:#fff;
+    width:100%;aspect-ratio:4/3;background:#fff;cursor:crosshair;
     display:flex;align-items:center;justify-content:center;
   }
-  .canvas-card svg{width:64%;height:auto;}
+  .canvas-card svg{width:100%;height:100%;touch-action:none;}
+  /* idle self-demo: the pad draws its own doodle until the visitor takes over
+     (draw → hold → fade → redraw), then resumes after 15s of quiet */
+  .mock{transition:opacity .3s var(--ease-out-expo);}
+  body:not(.pad-idle) .mock{opacity:0;}
+  body.pad-idle .mock path{
+    stroke-dasharray:var(--len);
+    animation:idleDraw 5.2s cubic-bezier(.4,0,.2,1) infinite;
+  }
+  @keyframes idleDraw{
+    0%{stroke-dashoffset:var(--len);opacity:1;}
+    55%{stroke-dashoffset:0;opacity:1;}
+    74%{stroke-dashoffset:0;opacity:1;}
+    86%{stroke-dashoffset:0;opacity:0;}
+    100%{stroke-dashoffset:var(--len);opacity:0;}
+  }
+  .ink{transition:opacity .6s var(--ease-out-expo);}
+  .ink polyline{fill:none;stroke:#0a0a0a;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;}
   .canvas-tools{display:flex;gap:14px;}
   .tool-btn{
     /* proper pill controls, not whisper text */
@@ -475,13 +492,16 @@
       <div class="instrument">
         <div class="canvas-col" id="canvasCol">
           <div class="canvas-card">
-            <svg viewBox="0 0 120 80" fill="none" stroke="#0a0a0a" stroke-width="1.6">
-              <path d="M22 56 C 26 26, 54 20, 60 40 C 64 53, 44 61, 38 50 M70 46 C 74 28, 96 27, 99 42 C 101 55, 81 59, 77 48" stroke-linecap="round"/>
+            <svg id="padSvg" viewBox="0 0 120 90" preserveAspectRatio="xMidYMid meet" fill="none" stroke="#0a0a0a" stroke-width="1.6">
+              <g class="mock" id="padMock" transform="translate(18 17) scale(.7)">
+                <path d="M22 56 C 26 26, 54 20, 60 40 C 64 53, 44 61, 38 50 M70 46 C 74 28, 96 27, 99 42 C 101 55, 81 59, 77 48" stroke-linecap="round"/>
+              </g>
+              <g class="ink" id="padInk"></g>
             </svg>
           </div>
           <div class="canvas-tools">
-            <button class="tool-btn" type="button" onclick="return false">Clear</button>
-            <button class="tool-btn" type="button" onclick="return false">Undo</button>
+            <button class="tool-btn" type="button" id="padClear">Clear</button>
+            <button class="tool-btn" type="button" id="padUndo">Undo</button>
           </div>
         </div>
         <div class="instr-split" aria-hidden="true"></div>
@@ -817,6 +837,51 @@
     emailCopied.style.opacity='1';
     setTimeout(()=>{ emailCopied.style.opacity='0'; },1600);
   });
+
+  // ---- §2 pad: real ink + the idle self-drawing demo ----
+  // store-window behaviour: the pad demonstrates itself until the visitor takes
+  // over; 15s of quiet fades their sketch and the demo resumes.
+  const padSvg=document.getElementById('padSvg');
+  const padInk=document.getElementById('padInk');
+  const mockPath=document.querySelector('#padMock path');
+  mockPath.style.setProperty('--len',String(Math.ceil(mockPath.getTotalLength())));
+  let strokes=[],drawing=null,padIdleTimer=null;
+  const IDLE_AFTER=15000;
+  function padPoint(e){
+    const pt=new DOMPoint(e.clientX,e.clientY).matrixTransform(padSvg.getScreenCTM().inverse());
+    return pt.x.toFixed(1)+','+pt.y.toFixed(1);
+  }
+  function padWake(){ // any pad activity: demo off, restart the quiet clock
+    document.body.classList.remove('pad-idle');
+    clearTimeout(padIdleTimer);
+    padIdleTimer=setTimeout(padIdle,IDLE_AFTER);
+  }
+  function padIdle(){
+    if(drawing){ padIdleTimer=setTimeout(padIdle,IDLE_AFTER); return; } // never wipe mid-stroke
+    padInk.style.opacity='0';
+    setTimeout(()=>{
+      padInk.textContent=''; strokes=[];
+      padInk.style.opacity='1';
+      document.body.classList.add('pad-idle');
+    },reduce?0:650);
+  }
+  padSvg.addEventListener('pointerdown',e=>{
+    e.preventDefault();
+    padSvg.setPointerCapture(e.pointerId);
+    padWake();
+    drawing=document.createElementNS('http://www.w3.org/2000/svg','polyline');
+    const p=padPoint(e);
+    drawing.setAttribute('points',p+' '+p); // a tap still leaves a round dot
+    padInk.appendChild(drawing); strokes.push(drawing);
+  });
+  padSvg.addEventListener('pointermove',e=>{
+    if(!drawing) return;
+    drawing.setAttribute('points',drawing.getAttribute('points')+' '+padPoint(e));
+  });
+  ['pointerup','pointercancel'].forEach(ev=>padSvg.addEventListener(ev,()=>{ drawing=null; padWake(); }));
+  document.getElementById('padClear').addEventListener('click',()=>{ padInk.textContent=''; strokes=[]; padWake(); });
+  document.getElementById('padUndo').addEventListener('click',()=>{ const s=strokes.pop(); if(s) s.remove(); padWake(); });
+  document.body.classList.add('pad-idle'); // the demo plays from the start
 
   // ---- §2 layout dock: instrument ↔ causal columns ----
   document.querySelectorAll('.layout-dock .chip-btn').forEach(b=>{

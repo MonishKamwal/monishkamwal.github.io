@@ -1077,6 +1077,14 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-07-28** — **The pad demonstrates itself (idle self-drawing demo)** — store-window
+  behaviour: the mock doodle draws itself on a loop (draw → hold → fade → redraw, ~5s) whenever
+  nobody is drawing; the visitor's first touch stops the demo and inks for real (the prototype's
+  pad now captures strokes, and Clear/Undo actually work); after **15s of quiet** the sketch fades
+  and the demo resumes (never mid-stroke). This also answers the borderless pad's affordance
+  question — the self-drawing loop *is* the "draw here" hint. Reduced motion: static doodle, no
+  loop.
+
 - **2026-07-28** — **Demo §2 becomes ONE instrument** (Monish's pick over a two-panel "causal
   column"). A single wide lifted Data panel — the span-12 grammar of the Data pages — holds the
   whole demo, split by hairlines: drawpad (an inner input field: hairline, no lift) + Clear/Undo
