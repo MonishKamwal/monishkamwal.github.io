@@ -697,11 +697,11 @@ where noted inline; the prototypes are the working reference.
 
 ### Motion model — scrubbed, with clocked money moments
 
-> **Amended 2026-07-28 → paged, not scrubbed** (see the decision log). The Home scroll no longer
-> ties progress to scroll *position*; a gesture now fires a timed, always-completing transition.
-> The scrub math below is preserved verbatim — `apply(progress)` is unchanged — but *progress* is
-> animated by the engine instead of read from `scrollY`. The two paras below describe the
-> superseded position-drive.
+> **Note (2026-07-28):** an event-driven **paged** variant (one gesture = one always-completing
+> transition, native scroll off) was tried to fix the "stranded between sections on a jittery
+> mouse" problem, then **reverted** — it read as frustrating on repeat visits. Scrubbed
+> position-drive (below) stands. Two things from that round were **kept** because they're
+> independent of the driver: the per-section outgoing fade, and the ↓ next-section cues on §3–§5.
 
 - **Scrub-driven reveals.** Section transitions and content reveals are driven by scroll
   position, not timers: each element owns a **slice of the scroll** and its
@@ -1093,6 +1093,15 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 ## Decision log
 
 Newest first. Each entry: what was decided and why.
+
+- **2026-07-28** — **Reverted the paged scroll back to scrubbed** (`transition-prototype.html`).
+  The event-driven paging (previous entry) read as *frustrating* on repeat visits — the
+  gesture-lock made moving feel gated even when you knew where you were going. Restored the
+  scrubbed position-drive (native scroll, snap floors, 1250vh runway, `targetProgress` +
+  smoothing); the dangling-mid-transition risk it re-introduces is accepted as the lesser evil.
+  **Kept** from the paged round (both are driver-independent, pure functions of progress): the
+  per-section **outgoing fade** and the **↓ next-section cues** on §3–§5 (re-wired from `goTo` to
+  `scrollTo` the next floor).
 
 - **2026-07-28** — **Home motion: paged (event-driven), and the outgoing section fades**
   (`transition-prototype.html`). Two fixes, one change:
