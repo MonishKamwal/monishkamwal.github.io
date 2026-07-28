@@ -952,9 +952,10 @@ leads. (Revises the Stage 2 "spend all four warm washes in order" note; provisio
 - ~~**Data-mode split:** one combined page vs several.~~ **Resolved 2026-07-26 — three pages:
   Quality · Monitoring · Performance** (see Data mode above).
 - ~~**Ground/color for Data mode / does wash-per-page survive?**~~ **Resolved 2026-07-26 — color
-  encodes the mode** (see "Color & wayfinding" above). Left for the visual pass: the exact
+  encodes the mode** (see "Color & wayfinding" above). ~~Left for the visual pass: the exact
   instrument-ground value, the status-palette hues (incl. the "watch"-vs-ochre nuance), and whether
-  Data pages take quiet per-page accents.
+  Data pages take quiet per-page accents.~~ **Visual pass done 2026-07-28** — see "Data-mode visual
+  pass" below; all three settled (watch = ochre, by measurement; no per-page accents).
 - ~~**Home teaser order** and the closing bookend's About link.~~ **Resolved 2026-07-26 — order:
   Hero → Demo → Architecture → Journey → Skills → Closing** (matches the colour foreshadowing and the
   original Stage 2 comp); the **closing bookend carries the About link** ("or learn more about me →"),
@@ -969,9 +970,85 @@ leads. (Revises the Stage 2 "spend all four warm washes in order" note; provisio
 
 ---
 
+## Data-mode visual pass (2026-07-28) — palette settled, three pages prototyped  _(built in `data-prototype.html`; pending Monish's eyes)_
+
+The IA rework left three things "for the visual pass"; all three are now settled — by validator
+runs (the data-viz six checks + WCAG contrast), not taste — and proven on a working prototype of
+all three Data pages, rendering the **real hub contracts** (evidence/drift/feedback are live
+snapshots; api-metrics is mock-to-contract until the hub's first EKS capture lands).
+
+### The instrument instance (validated)
+
+- **Ground `#f2f4f7` confirmed** (the provisional value held). Panels/charts sit on a cool
+  card `#fcfdfe`, hairlines `#e3e7ee`/`#e7ebf1`, axis `#c9cfd9` — the warm site keeps its warm
+  `--border`; Data mode's chrome cools by a step, which is most of the "machine room" feel.
+- **Chart ink is one blue family** — primary `#2a78d6` (4.3:1 on card), a 13-step sequential ramp
+  for the confusion heatmap, and a 4-step **ordinal ramp** for latency percentiles
+  (`#86b6ef → #3987e5 → #256abf → #104281`, p50→p99 — passes the ordinal checks: monotone
+  lightness, ≥.06 step gaps, light end ≥2:1). Reference/context series are a deliberate cool gray
+  `#8a93a1` (emphasis form: the current window is the point, the reference is context) — the pair
+  separates at ΔE 16.3 normal / 14.1 CVD.
+- **Status trio:** positive `#0ca30c` (small text `#006300`, 7.4:1) · negative `#d03b3b` (4.7:1,
+  doubles as its own text step) · **watch = brand ochre `#c98a3a`** (small text = deep ochre
+  `#96600a`, 5.2:1). **The watch-vs-ochre nuance is resolved by measurement:** the best distinct
+  amber (`#fab219`) sits **ΔE 13.7** from brand ochre — under the 15 normal-vision floor, i.e. an
+  almost-collision readers can't reliably resolve. Either clearly distinct or deliberately
+  identical; so ochre *is* the attention colour, status and interactive both. Status never rides
+  on colour alone — every status mark ships **icon + label** (which also covers the red/green CVD
+  collapse every pass/fail scale has).
+- **No per-page accents inside Data mode.** Built shared-first; the pages differentiate by
+  content shape (report card / drift histograms / load-test series), and the tray carries
+  wayfinding. A per-page accent would fight the one-blue instrument identity for no informational
+  gain. Revisit only if a real build feels flat.
+
+### Grammar the prototype adds (Data-mode specific)
+
+- **Provenance row** under every page lead: contract name · generated-at · cadence, with an
+  honesty chip — `● live data` vs a dashed `mock — first capture pending` / `illustrative`. The
+  dashed chip reuses the site's "dead end" dashed grammar for not-yet-real things.
+- **Panel** = the mode's card: cool surface, 13px radius, soft shadow; Bodoni stays for page/section
+  titles, but **data figures are Outfit** (hero number, tiles, axes — a display serif on numbers
+  reads as decoration; the report-card voice is the sans).
+- **Every chart has a hover layer and a `data` table twin** (chip toggle) — tooltips enhance,
+  tables guarantee; axis/labels never wear series colour.
+- **The gate is drawn as an instrument reading**: a number line with the blocked zone, the ε band
+  (ochre wash = attention), champion (ink, upper lane) vs challenger (blue, lower lane). The runs
+  table derives a `below floor` chip from the contract itself (any run under `gate.min_test_accuracy`)
+  — v3's 0.5049 wears it, tying the registry to the blocked-run story without asserting anything
+  the data doesn't say.
+- **Monitoring leads with the verdict banner** (drifted 3/3, framed as the instrument catching the
+  world moving — the flywheel's food, not a failure), then ref-vs-current histograms (gray behind
+  blue), the class-share dumbbell sorted by shift, sparse-but-real trend dots, and feedback framed
+  as "a signal, not a score" (n=21).
+- **Performance is framed as the dress-rehearsal snapshot** ("captured 〈date〉 · monthly load
+  test"), latency percentiles on the ordinal ramp, k6 phase bands on throughput, a status ledger
+  (counts + meters — honest at 147k/1.8k/40 ratios), and the signature tile: **left running
+  after: 0**.
+
+### Follow-ups this pass surfaced
+
+- `sections-prototype.html` is stale vs the IA rework: its tray still lists About, and its menu
+  is the old 6-item list — reconcile next.
+- Producer-side (mlops): the confusion matrix exists only as a PNG (explicitly not
+  styling-agnostic) — the Quality page wants **cell-level matrix data in `evidence.json`**; until
+  then the prototype's matrix is IPF-derived from the real per-class marginals and labeled
+  `illustrative`. And `api-metrics.json` still 404s on the hub — the Performance page swaps to real
+  the moment the first capture publishes.
+
+---
+
 ## Decision log
 
 Newest first. Each entry: what was decided and why.
+
+- **2026-07-28** — **Data-mode palette settled by measurement + all three pages prototyped**
+  (`data-prototype.html`). Ground `#f2f4f7` confirmed; chart ink = one validated blue family
+  (primary `#2a78d6`, sequential ramp, ordinal p50→p99 ramp) with reference-gray for context;
+  status = green/red **+ watch = brand ochre** — the distinct-amber option measured ΔE 13.7 from
+  ochre, under the 15 normal-vision floor, so "almost the same amber, different meaning" lost to
+  deliberate reuse (status always carries icon + label anyway). **No per-page accents** inside the
+  mode. Quality/Monitoring/Performance render the real hub snapshots (api-metrics mocked to
+  contract until the hub's first capture); every chart has a hover layer + table twin.
 
 - **2026-07-26** — **Home scroll order confirmed + About's doorway.** Order: **Hero → Demo →
   Architecture → Journey → Skills → Closing** — the demo's "behind the scenes" hands straight to
