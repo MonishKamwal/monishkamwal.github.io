@@ -1021,6 +1021,13 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 - **No arrival line on Data pages** (removed 2026-07-28, Monish's call): the drawn ink stroke is
   Story grammar — instrument pages just fade in, and the provenance row does the arriving. Story
   mode keeps its line.
+- **Progressive edge dissolve** (added 2026-07-28, Monish's call): scrolling content blurs + fades
+  out at the viewport's top and bottom edges — three stacked backdrop-blur layers per edge
+  (2 → 6 → 14px, each mask-banded so the blur genuinely ramps) plus a soft wash toward the ground
+  colour. Sized subliminal: 130px bottom / 110px top, heavy blur only in the last ~40px — felt,
+  not noticed. Scroll-driven: the top edge only appears once scrolled (~140px ramp), the bottom
+  edge fades out at the document end so the footer reads crisp. Chrome (topbar, trays, tooltip)
+  sits above it, always sharp.
 - **Provenance row** under every page lead: contract name · generated-at · cadence, with an
   honesty chip — `● live data` vs a dashed `mock — first capture pending` / `illustrative`. The
   dashed chip reuses the site's "dead end" dashed grammar for not-yet-real things.

@@ -280,6 +280,32 @@
   .banner .b-text{font-size:15px;max-width:70ch;margin:8px 0 0;}
   .banner .b-facts{display:flex;gap:22px;flex-wrap:wrap;margin-top:12px;}
 
+  /* ---------- progressive edge blur: content dissolves at the viewport edges ----------
+     three stacked backdrop layers per edge, each masked into a band, so the blur
+     genuinely ramps (2 → 6 → 14px) + a soft wash toward the ground. Sized to be
+     felt, not noticed. Opacity is scroll-driven: top only once scrolled, bottom
+     until the document end. Chrome (topbar, trays, tooltip) sits above, crisp. */
+  .edge-blur{position:fixed;left:0;right:0;z-index:25;pointer-events:none;}
+  .edge-blur.top{top:0;height:110px;opacity:0;}
+  .edge-blur.bot{bottom:0;height:130px;}
+  .edge-blur i{position:absolute;inset:0;}
+  .edge-blur.bot i:nth-child(1){backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
+    -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 38%);mask-image:linear-gradient(to bottom,transparent 0,#000 38%);}
+  .edge-blur.bot i:nth-child(2){backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    -webkit-mask-image:linear-gradient(to bottom,transparent 32%,#000 68%);mask-image:linear-gradient(to bottom,transparent 32%,#000 68%);}
+  .edge-blur.bot i:nth-child(3){backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    -webkit-mask-image:linear-gradient(to bottom,transparent 62%,#000 94%);mask-image:linear-gradient(to bottom,transparent 62%,#000 94%);}
+  .edge-blur.bot::after{content:"";position:absolute;inset:0;
+    background:linear-gradient(to bottom,rgba(242,244,247,0),rgba(242,244,247,.72));}
+  .edge-blur.top i:nth-child(1){backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
+    -webkit-mask-image:linear-gradient(to top,transparent 0,#000 38%);mask-image:linear-gradient(to top,transparent 0,#000 38%);}
+  .edge-blur.top i:nth-child(2){backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    -webkit-mask-image:linear-gradient(to top,transparent 32%,#000 68%);mask-image:linear-gradient(to top,transparent 32%,#000 68%);}
+  .edge-blur.top i:nth-child(3){backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    -webkit-mask-image:linear-gradient(to top,transparent 62%,#000 94%);mask-image:linear-gradient(to top,transparent 62%,#000 94%);}
+  .edge-blur.top::after{content:"";position:absolute;inset:0;
+    background:linear-gradient(to top,rgba(242,244,247,0),rgba(242,244,247,.72));}
+
   /* ---------- prototype chrome: the ISOLATED Data tray + speed dock ---------- */
   .switch-dock{
     position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:40;
@@ -663,6 +689,9 @@
   <button class="chip-btn" data-dur=".9s">.9s</button>
   <button class="chip-btn" data-dur="1.2s">1.2s</button>
 </div>
+
+<div class="edge-blur top" id="edgeTop" aria-hidden="true"><i></i><i></i><i></i></div>
+<div class="edge-blur bot" id="edgeBot" aria-hidden="true"><i></i><i></i><i></i></div>
 
 <div class="viz-tip" id="vizTip" role="status" aria-hidden="true"></div>
 
@@ -1239,7 +1268,16 @@ function applyReveals(){
     el.style.transform=reduce?'none':'translate3d(0,'+((1-e)*16)+'px,0)';
   }
 }
-function frame(){ applyReveals(); requestAnimationFrame(frame); }
+/* edge blur is scroll-driven: top fades in over the first ~140px of scroll,
+   bottom fades out over the last ~140px so the page end reads crisp */
+const edgeTop=document.getElementById('edgeTop'), edgeBot=document.getElementById('edgeBot');
+function applyEdges(){
+  const y=window.scrollY;
+  const max=document.documentElement.scrollHeight-window.innerHeight;
+  edgeTop.style.opacity=String(clamp(y/140,0,1));
+  edgeBot.style.opacity=String(max<=0?0:clamp((max-y)/140,0,1));
+}
+function frame(){ applyReveals(); applyEdges(); requestAnimationFrame(frame); }
 
 const rendered={};
 function renderPage(name){ RENDER[name](); rendered[name]=true; }
