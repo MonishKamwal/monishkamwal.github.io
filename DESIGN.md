@@ -1018,6 +1018,9 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 
 ### Grammar the prototype adds (Data-mode specific)
 
+- **No arrival line on Data pages** (removed 2026-07-28, Monish's call): the drawn ink stroke is
+  Story grammar — instrument pages just fade in, and the provenance row does the arriving. Story
+  mode keeps its line.
 - **Provenance row** under every page lead: contract name · generated-at · cadence, with an
   honesty chip — `● live data` vs a dashed `mock — first capture pending` / `illustrative`. The
   dashed chip reuses the site's "dead end" dashed grammar for not-yet-real things.
