@@ -191,6 +191,12 @@
   .demo-arrow-wrap .arrow-btn{
     position:static;animation:floatY 2.6s var(--ease-out-expo) infinite;
   }
+  /* the same ↓ cue on §3/§4/§5 — bottom-centre of each layer, scrubbed in/out */
+  .next-cue{
+    position:absolute;bottom:34px;left:50%;transform:translateX(-50%);z-index:3;
+    opacity:0;visibility:hidden;
+  }
+  .next-cue .arrow-btn{position:static;animation:floatY 2.6s var(--ease-out-expo) infinite;}
   @keyframes floatY{0%,100%{transform:translateY(0);opacity:.75;}50%{transform:translateY(7px);opacity:1;}}
 
   /* ---------- demo panel (§2) — rises from below and overlaps ---------- */
@@ -573,6 +579,11 @@
         </div>
         <p class="scene-link"><a class="link" href="#" onclick="return false">Explore the full architecture →</a></p>
       </div>
+      <div class="next-cue" id="sceneCue">
+        <button class="arrow-btn" aria-label="Continue to the Journey">
+          <svg viewBox="0 0 34 54" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M17 2v46M6 37l11 11 11-11" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
     </div>
 
     <div class="journey-layer" id="journeyLayer">
@@ -595,6 +606,11 @@
         </div>
         <p class="scene-link" id="jLinkWrap"><a class="link" href="#" onclick="return false">Read the journey →</a></p>
       </div>
+      <div class="next-cue" id="journeyCue">
+        <button class="arrow-btn" aria-label="Continue to Skills">
+          <svg viewBox="0 0 34 54" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M17 2v46M6 37l11 11 11-11" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
     </div>
 
     <div class="skills-layer" id="skillsLayer">
@@ -610,6 +626,11 @@
           <div class="s-line l4 r">Next.js · TypeScript</div>
         </div>
         <p class="scene-link" id="sLink"><a class="link" href="#" onclick="return false">See all skills →</a></p>
+      </div>
+      <div class="next-cue" id="skillsCue">
+        <button class="arrow-btn" aria-label="Continue to Contact">
+          <svg viewBox="0 0 34 54" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M17 2v46M6 37l11 11 11-11" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
       </div>
     </div>
 
@@ -681,6 +702,10 @@
   const sceneInner=sceneLayer.querySelector('.scene-inner');
   const jInner=journeyLayer.querySelector('.j-inner');
   const sInner=skillsLayer.querySelector('.s-inner');
+  const sceneCue=document.getElementById('sceneCue');
+  const journeyCue=document.getElementById('journeyCue');
+  const skillsCue=document.getElementById('skillsCue');
+  function setCue(el,o){ el.style.opacity=String(o); el.style.visibility=o<=0?'hidden':'visible'; }
 
   // ---- Journey path layout: dots sit at fractions of the drawn line, and
   //      each entry hangs beside its dot, alternating sides ----
@@ -787,6 +812,8 @@
       setRevealX(flowItems[i],segP(p,[s,s+.025]),flowItems[i].classList.contains('conn')?.85:1);
     }
     setReveal(sceneLink,segP(p,[.50,.53]));
+    // §3 ↓ cue: in once Behind has settled, out as §4 rises
+    setCue(sceneCue,Math.min(segP(p,[.52,.55]),1-segP(p,[.58,.62])));
     // §3→§4 — the Journey rises over the diagram
     journeyLayer.style.transform=reduce?'none':'translate3d(0,'+((1-p3)*100)+'%,0)';
     if(reduce){ journeyLayer.style.opacity=String(p3); }
@@ -803,6 +830,8 @@
     });
     jEnd.style.opacity=String(segP(dP,[.95,1]));
     setReveal(jLinkWrap,segP(p,[.775,.80]));
+    // §4 ↓ cue: in once the Journey has settled, out as §5 rises
+    setCue(journeyCue,Math.min(segP(p,[.80,.82]),1-segP(p,[.83,.87])));
     // §4→§5 — Skills rises over the Journey
     skillsLayer.style.transform=reduce?'none':'translate3d(0,'+((1-p4)*100)+'%,0)';
     if(reduce){ skillsLayer.style.opacity=String(p4); }
@@ -819,6 +848,8 @@
       setRevealX(sLines[i],segP(p,[s,s+.03]),1,sLines[i].classList.contains('r'));
     }
     setReveal(sLink,segP(p,[.975,1]));
+    // §5 ↓ cue: in once Skills has settled, out as Contact rises (praw)
+    setCue(skillsCue,Math.min(segP(p,[.965,1]),1-segP(praw,[.83,.88])));
     // current-section indicator: blank on Hero, then follows the section in view
     let label='';
     if(p5>.5) label='Contact';
@@ -886,6 +917,9 @@
   // ---- the ↓ arrows: hero → demo, demo → §3 ----
   arrowBtn.addEventListener('click',()=>goTo(1));
   demoArrow.addEventListener('click',()=>goTo(2));
+  sceneCue.querySelector('.arrow-btn').addEventListener('click',()=>goTo(3));
+  journeyCue.querySelector('.arrow-btn').addEventListener('click',()=>goTo(4));
+  skillsCue.querySelector('.arrow-btn').addEventListener('click',()=>goTo(5));
 
   // ---- slide-in menu: panel from the right, staircase stagger ----
   const menuBtn=document.getElementById('menuBtn');
