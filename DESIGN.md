@@ -952,8 +952,9 @@ leads. (Revises the Stage 2 "spend all four warm washes in order" note; provisio
 _(2026-07-28: Data mode's ground went **white** in the visual pass — and the Demo foreshadow was
 **reconciled the same day**: §2 now grounds on Data mode's **well `#f6f8fb`** (a real machine-room
 surface, so the "colour of where it leads" rule stays truthful and the Hero→Demo cross-fade beat
-survives), and the **canvas card is a lifted Data panel** — cool hairline, slate shadow, 13px
-radius — the visitor's first data panel before they know it. Bar tracks take the Data grid tint.)_
+survives), and **both demo columns are lifted Data panels** — canvas and predictions, two floating
+papers on the well, the Data-mode composition before the visitor knows it. Bar tracks take the
+Data grid tint.)_
 
 ### Open (to decide — nothing locked)
 
@@ -1080,10 +1081,13 @@ Newest first. Each entry: what was decided and why.
   The Demo's ground becomes Data mode's **well `#f6f8fb`** — chosen over pure white (which would
   erase the Hero→Demo cross-fade beat) and over a made-up half-step tint (the well is a *real*
   Data-mode surface, so "every section the colour of where it leads" stays literally true). The
-  canvas card becomes a **lifted Data panel** (cool hairline `#e4e8ef`, slate shadow, 13px radius —
-  the visitor's first data panel), and the prediction-bar tracks take the Data grid `#e7ebf1`;
-  ochre fills stay, the demo's money moment is brand attention. Closes the open item from the
-  white pick.
+  **demo's two columns both become lifted Data panels** — the canvas card *and* the prediction
+  column (bars · feedback · privacy note) wear the panel chrome (cool hairline `#e4e8ef`, slate
+  shadow, 13px radius), so §2 is **two floating papers on the well: the Data-mode composition
+  itself**. (The first cut left the predictions bare on the ground and read as no change — the
+  well tint is imperceptible with nothing white beside it; the second panel is what makes the
+  cool ground *read*.) Bar tracks take the Data grid `#e7ebf1`; ochre fills stay, the demo's
+  money moment is brand attention. Closes the open item from the white pick.
 
 - **2026-07-28** — **White / lifted paper wins the Data-mode surface A/B**
   (`data-prototype-white.html`). The ground goes white; data cards lift as paper (slate-tinted
