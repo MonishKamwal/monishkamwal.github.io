@@ -758,6 +758,9 @@
   }
   measure();
   window.addEventListener('resize',measure);
+  // deep-link: arriving with #contact lands on the Contact bookend (bottom of the
+  // scroll) instead of the Hero — set before `current` inits so it doesn't fast-forward
+  if(location.hash==='#contact') window.scrollTo(0,runwayEnd);
   function targetProgress(){
     return Math.min(1,Math.max(0,window.scrollY/runwayEnd));
   }
