@@ -1094,6 +1094,15 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-07-28** — **Menu: uniform links + panel matches the page ground** (all three internal-page
+  prototypes). Dropped the mode-based muting — cross-file links (`.elsewhere`) were greyed as
+  prototype scaffolding, which read as "these options are for a different mode." **Every menu item
+  now looks identical**; the tray already declares where you are, the menu is just the full map.
+  And the slide-in panel's background now tracks a `--ground` custom property set per page, so the
+  drawer takes the current page's colour (Story: sage/ochre/rose/blue per page; Data: white /
+  instrument) instead of a generic white — it reads as part of the page, un-dimmed, against the
+  scrim. Added a soft left-edge shadow so the panel still reads when its colour equals the ground.
+
 - **2026-07-28** — **Reverted the paged scroll back to scrubbed** (`transition-prototype.html`).
   The event-driven paging (previous entry) read as *frustrating* on repeat visits — the
   gesture-lock made moving feel gated even when you knew where you were going. Restored the

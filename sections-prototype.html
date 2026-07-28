@@ -25,15 +25,16 @@
   }
   *{box-sizing:border-box;}
   body{
-    margin:0;background:var(--background);color:var(--foreground);
+    margin:0;--ground:var(--background);background:var(--ground);color:var(--foreground);
     font-family:"Outfit",system-ui,-apple-system,"Segoe UI",sans-serif;
     font-weight:330;line-height:1.6;-webkit-font-smoothing:antialiased;
   }
-  /* each inner page inherits its Home section's wash — the wayfinding rule */
-  body[data-page="journey"]{background:var(--wash-ochre);}
-  body[data-page="architecture"]{background:var(--wash-sage);}
-  body[data-page="skills"]{background:var(--wash-rose);}
-  body[data-page="about"]{background:var(--wash-blue);}
+  /* each inner page inherits its Home section's wash — the wayfinding rule.
+     --ground is reused by the slide-in menu so the drawer matches the page. */
+  body[data-page="journey"]{--ground:var(--wash-ochre);}
+  body[data-page="architecture"]{--ground:var(--wash-sage);}
+  body[data-page="skills"]{--ground:var(--wash-rose);}
+  body[data-page="about"]{--ground:var(--wash-blue);}
 
   .micro{
     text-transform:uppercase;letter-spacing:.22em;font-size:11.5px;
@@ -84,7 +85,8 @@
   .m-scrim.open{opacity:1;pointer-events:auto;}
   .menu-panel{
     position:fixed;top:0;right:0;bottom:0;width:min(400px,88vw);z-index:51;
-    background:#fff;border-left:1px solid var(--border);
+    background:var(--ground);border-left:1px solid var(--border);
+    box-shadow:-20px 0 48px -28px rgba(10,10,10,.30);
     padding:24px 34px 34px;display:flex;flex-direction:column;
     transform:translateX(102%);visibility:hidden;
     transition:transform var(--dur) var(--ease-out-expo),visibility 0s var(--dur);
@@ -112,8 +114,8 @@
   }
   .menu-link:hover{color:var(--warm);}
   .menu-link:focus-visible{outline:2px solid var(--warm);outline-offset:4px;}
-  .menu-link.elsewhere{color:var(--muted-foreground);}
-  .menu-link.elsewhere:hover{color:var(--warm);}
+  /* all menu items read the same — no mode-based muting (the highlighting was
+     just prototype scaffolding for cross-file links) */
   .menu-panel.open .menu-link{opacity:1;transform:none;}
   /* nth-child (not nth-of-type): the nav mixes <a> and <button>, so type-counting
      would scramble the staircase. Extended to the 9-item global bridge. */

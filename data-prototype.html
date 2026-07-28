@@ -38,7 +38,7 @@
   }
   *{box-sizing:border-box;}
   body{
-    margin:0;background:var(--instrument);color:var(--foreground);
+    margin:0;--ground:var(--instrument);background:var(--ground);color:var(--foreground);
     font-family:"Outfit",system-ui,-apple-system,"Segoe UI",sans-serif;
     font-weight:330;line-height:1.6;-webkit-font-smoothing:antialiased;
   }
@@ -92,7 +92,8 @@
   .m-scrim.open{opacity:1;pointer-events:auto;}
   .menu-panel{
     position:fixed;top:0;right:0;bottom:0;width:min(400px,88vw);z-index:51;
-    background:#fff;border-left:1px solid var(--border);
+    background:var(--ground);border-left:1px solid var(--border);
+    box-shadow:-20px 0 48px -28px rgba(10,10,10,.30);
     padding:24px 34px 34px;display:flex;flex-direction:column;overflow-y:auto;
     transform:translateX(102%);visibility:hidden;
     transition:transform var(--dur) var(--ease-out-expo),visibility 0s var(--dur);
@@ -125,8 +126,8 @@
   }
   .menu-link:hover,.menu-link:focus-visible{color:var(--warm);scale:1.09;}
   .menu-link:focus-visible{outline:2px solid var(--warm);outline-offset:4px;}
-  .menu-link.elsewhere{color:var(--muted-foreground);}
-  .menu-link.elsewhere:hover{color:var(--warm);}
+  /* all menu items read the same — no mode-based muting (the highlighting was
+     just prototype scaffolding for cross-file links) */
   .menu-panel.open .menu-link{opacity:1;transform:none;}
   .menu-panel.open .menu-link:nth-of-type(1){--stagger:calc(var(--dur)*.2)}
   .menu-panel.open .menu-link:nth-of-type(2){--stagger:calc(var(--dur)*.3)}
