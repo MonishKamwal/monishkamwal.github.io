@@ -1077,6 +1077,15 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-07-28** — **Hero: heavier name + a subtitle.** "Monish Kamwal" was misreading at display
+  size — Bodoni's opsz-96 hairlines vanish on non-retina screens — so the name takes
+  **weight 680 + opsz 64** (the thin diagonals track the optical-size axis more than weight).
+  And the hero gains a subtitle: **"MLOps Project & Portfolio"** — letterspaced micro-caps under
+  the name, entering between the name and the arrow (delay .32s). Rationale: a bare name reads as
+  vanity; the subtitle declares what the site *is* before the demo does. (Escalation if the thins
+  still fade on real screens: a ~0.35px text-stroke, uniform thickening without changing the
+  letterforms.)
+
 - **2026-07-28** — **The pad demonstrates itself (idle self-drawing demo)** — store-window
   behaviour: the mock doodle draws itself on a loop (draw → hold → fade → redraw, ~5s) whenever
   nobody is drawing; the visitor's first touch stops the demo and inks for real (the prototype's

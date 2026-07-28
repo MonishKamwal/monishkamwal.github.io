@@ -143,8 +143,19 @@
   .hero-name{
     font-size:clamp(52px,12vw,140px);text-transform:uppercase;
     text-align:center;padding:0 20px;
+    /* heavier weight + well down the optical-size axis: the opsz 96 hairlines
+       were vanishing at display size and the name misread. The thin diagonals
+       (N/K/M/W) track opsz more than weight, hence 96 → 64. */
+    margin:0;font-weight:680;font-variation-settings:"opsz" 64;
     /* §1 spec: a calm expo reveal on load (opacity + small translate) */
     animation:heroReveal 1s var(--ease-out-expo) both;animation-delay:.1s;
+  }
+  /* the subtitle: says what this site IS, so the name alone doesn't have to */
+  .hero-sub{
+    margin:clamp(18px,3vh,28px) 0 0;padding:0 20px;text-align:center;
+    font-size:clamp(12px,1.5vw,15px);letter-spacing:.34em;text-transform:uppercase;
+    font-weight:500;color:var(--muted-foreground);
+    animation:heroReveal 1s var(--ease-out-expo) both;animation-delay:.32s;
   }
   @keyframes heroReveal{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
   .arrow-btn{
@@ -493,6 +504,7 @@
 
     <div class="hero-layer" id="heroLayer">
       <h1 class="display hero-name">Monish Kamwal</h1>
+      <p class="hero-sub">MLOps Project &amp; Portfolio</p>
       <div class="hero-arrow-wrap">
         <button class="arrow-btn" id="arrowBtn" aria-label="Scroll to the live demo">
           <svg viewBox="0 0 34 54" fill="none" stroke="currentColor" stroke-width="1.4">
