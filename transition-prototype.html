@@ -16,7 +16,9 @@
     --warm:#c98a3a;
     --warm-soft:#e8b87e;
     --wash-blue:#e7f0ff;   /* dusty blue — now About's ground (IA rework 2026-07-26) */
-    --instrument:#f2f4f7;  /* Data-mode cool instrument ground; the Demo foreshadows it. Provisional — exact value set in the visual pass */
+    --well:#f6f8fb;        /* Data-mode's recessed "well" — the Demo's ground foreshadows the machine room
+                              (reconciled 2026-07-28: Data went white/lifted-paper, so the crossing whisper
+                              is the well tint, not the retired #f2f4f7 instrument ground) */
     --wash-sage:#e0f7e7;
     --wash-ochre:#ffecdb;
     --wash-rose:#ffe8ee;
@@ -128,9 +130,9 @@
   .runway{height:1000vh;position:relative;}
   .viewport{position:sticky;top:0;height:100vh;overflow:hidden;background:#fff;}
 
-  /* background cross-fade layer: white → instrument ground, opacity-driven
-     (IA rework: the Demo takes the Data instrument ground, foreshadowing Data mode) */
-  .bg-wash{position:absolute;inset:0;background:var(--instrument);opacity:0;}
+  /* background cross-fade layer: white → the Data well, opacity-driven
+     (the Demo grounds on Data mode's recessed well — the doorway's whisper) */
+  .bg-wash{position:absolute;inset:0;background:var(--well);opacity:0;}
 
   /* ---------- hero layer (§1) — fades in place, never moves ---------- */
   .hero-layer{
@@ -182,7 +184,7 @@
 
   /* ---------- demo panel (§2) — rises from below and overlaps ---------- */
   .panel-layer{
-    position:absolute;inset:0;background:var(--instrument);
+    position:absolute;inset:0;background:var(--well);
     z-index:1;transform:translate3d(0,100%,0);
     display:flex;align-items:center;justify-content:center;
     gap:clamp(24px,4vw,64px);padding:clamp(24px,5vw,72px);
@@ -201,9 +203,11 @@
     opacity:0; /* scrubbed */
   }
   .canvas-card{
+    /* the visitor's first Data panel: lifted paper with the machine room's cool
+       chrome (hairline + slate shadow + 13px radius, matching data-prototype) */
     width:100%;aspect-ratio:4/3;background:#fff;
-    border:1px solid var(--border);border-radius:5px;
-    box-shadow:0 18px 40px -26px rgba(10,10,10,.35),0 2px 8px -4px rgba(10,10,10,.12);
+    border:1px solid #e4e8ef;border-radius:13px;
+    box-shadow:0 22px 46px -28px rgba(15,23,42,.20),0 3px 9px -5px rgba(15,23,42,.07);
     display:flex;align-items:center;justify-content:center;
   }
   .canvas-card svg{width:64%;height:auto;}
@@ -223,7 +227,7 @@
   .bar-row .bar-top{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:6px;}
   .bar-row .bar-top span:first-child{color:var(--muted-foreground);}
   .bar-row .pct{font-variant-numeric:tabular-nums;}
-  .bar-track{height:8px;background:#fff;border-radius:20px;overflow:hidden;}
+  .bar-track{height:8px;background:#e7ebf1;border-radius:20px;overflow:hidden;} /* Data-mode meter track */
   .bar-fill{
     height:100%;background:var(--warm);border-radius:20px;
     transform-origin:left;transform:scaleX(0);
@@ -632,7 +636,7 @@
     const nameO=Math.max(0,1-p1*1.35);
     heroLayer.style.opacity=String(nameO);
     heroLayer.style.visibility=nameO<=0?'hidden':'visible';
-    // ground cross-fades white → pale blue under the motion
+    // ground cross-fades white → the Data well under the motion
     bgWash.style.opacity=String(p1);
     // the demo panel rises beneath the fading name
     panelLayer.style.transform=reduce?'none':'translate3d(0,'+((1-p1)*100)+'%,0)';

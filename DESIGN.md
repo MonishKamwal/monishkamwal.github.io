@@ -949,9 +949,11 @@ doorway *into* Data mode — takes the **Data instrument ground** as foreshadowi
 orphaned blue. So Home reads: Hero (white) → Demo (instrument) → Architecture teaser (sage) → Journey
 teaser (ochre) → Skills teaser (rose) → Bookend (white) — every section now the colour of where it
 leads. (Revises the Stage 2 "spend all four warm washes in order" note; provisional with the rest.)
-_(2026-07-28: Data mode's ground went **white** in the visual pass, so the Demo's `#f2f4f7` wash now
-foreshadows a ground that no longer exists — re-decide on the Home pass: well/lifted-paper chrome as
-the foreshadow, or a half-step tint `#f7f9fb`.)_
+_(2026-07-28: Data mode's ground went **white** in the visual pass — and the Demo foreshadow was
+**reconciled the same day**: §2 now grounds on Data mode's **well `#f6f8fb`** (a real machine-room
+surface, so the "colour of where it leads" rule stays truthful and the Hero→Demo cross-fade beat
+survives), and the **canvas card is a lifted Data panel** — cool hairline, slate shadow, 13px
+radius — the visitor's first data panel before they know it. Bar tracks take the Data grid tint.)_
 
 ### Open (to decide — nothing locked)
 
@@ -1052,12 +1054,12 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 
 ### Follow-ups this pass surfaced
 
-- **The Demo §2 foreshadow needs re-deciding** (from the white pick): Home's Demo currently wears
-  the tinted instrument ground `#f2f4f7` as "the colour of where it leads" — but Data mode's
-  ground is now white, so a tinted Demo foreshadows a ground that no longer exists. Either the
-  Demo adopts the **well + lifted-paper chrome** as the foreshadow (the demo card lifts, cool
-  shadows), or it keeps a **half-step tint `#f7f9fb`** as the crossing whisper. Decide on the
-  Home pass; `transition-prototype.html` still shows the old `#f2f4f7` wash.
+- ~~**The Demo §2 foreshadow needs re-deciding** (from the white pick).~~ **Resolved 2026-07-28 —
+  the well + lifted paper**: the Demo grounds on Data mode's well `#f6f8fb` (not the retired
+  `#f2f4f7`, not pure white — the well is a real Data surface, so the foreshadow stays truthful
+  while the Hero→Demo cross-fade beat survives), and the canvas card wears the Data panel chrome
+  (cool hairline `#e4e8ef`, slate shadow, 13px radius); bar tracks take the Data grid `#e7ebf1`.
+  Reconciled in `transition-prototype.html`.
 - Fold the white scheme into `data-prototype.html` (or retire the tinted file) once the Home-side
   foreshadow question is settled — until then both variants stay for reference.
 - `sections-prototype.html` is stale vs the IA rework: its tray still lists About, and its menu
@@ -1073,6 +1075,15 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 ## Decision log
 
 Newest first. Each entry: what was decided and why.
+
+- **2026-07-28** — **Demo §2 foreshadow reconciled to the white pick** (`transition-prototype.html`).
+  The Demo's ground becomes Data mode's **well `#f6f8fb`** — chosen over pure white (which would
+  erase the Hero→Demo cross-fade beat) and over a made-up half-step tint (the well is a *real*
+  Data-mode surface, so "every section the colour of where it leads" stays literally true). The
+  canvas card becomes a **lifted Data panel** (cool hairline `#e4e8ef`, slate shadow, 13px radius —
+  the visitor's first data panel), and the prediction-bar tracks take the Data grid `#e7ebf1`;
+  ochre fills stay, the demo's money moment is brand attention. Closes the open item from the
+  white pick.
 
 - **2026-07-28** — **White / lifted paper wins the Data-mode surface A/B**
   (`data-prototype-white.html`). The ground goes white; data cards lift as paper (slate-tinted
