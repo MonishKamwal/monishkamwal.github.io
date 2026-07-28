@@ -1324,6 +1324,16 @@ function switchPage(name){
   if(history.replaceState) history.replaceState(null,'','#'+name);
 }
 let arrivalTimer=null;
+// place the line in the header's clear zone — just right of THIS page's title,
+// so it never crosses the headline (per-page; lines needn't align across pages)
+function positionArrival(){
+  const t=document.querySelector('.page.active .page-title');
+  if(!t){ arrivalWrap.style.left='50%'; arrivalWrap.style.transform='translateX(-50%)'; return; }
+  const rg=document.createRange(); rg.selectNodeContents(t);
+  const x=Math.min(rg.getBoundingClientRect().right+52, window.innerWidth-60);
+  arrivalWrap.style.left=Math.round(x)+'px';
+  arrivalWrap.style.transform='none';
+}
 function runArrival(){
   const p=active();
   const useLine=p.dataset.arrival==='line' && !reduce;
@@ -1331,6 +1341,7 @@ function runArrival(){
   p.classList.remove('entered');
   arrivalWrap.classList.remove('draw','retire');
   arrivalWrap.style.display=useLine?'block':'none';
+  if(useLine) positionArrival();
   void p.offsetWidth; // reflow so the transitions restart
   requestAnimationFrame(()=>{
     p.classList.add('entered');
