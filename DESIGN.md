@@ -927,7 +927,10 @@ they'd leave the two-mode structure invisible. Instead:
   **Wayfinding inside the mode is the tray, not color** — so the three pages deliberately share a
   ground; crossing from a warm story wash to the cool instrument ground *is* the "you've entered the
   machine room" signal. Provisional ground: a light cool neutral (placeholder `#f2f4f7`, slate-tinted
-  — exact value set in the visual pass, contrast-checked like the token pass).
+  — exact value set in the visual pass, contrast-checked like the token pass). _(2026-07-28: the
+  visual pass A/B'd this — the shared ground became **white with lifted-paper cards + a cool well**;
+  the crossing signal now rides the chrome (slate shadows, cool hairlines), not a ground tint. See
+  "Data-mode visual pass".)_
 - **Ochre stays the sole *interactive* accent** everywhere (bright `#c98a3a` for large marks / fills /
   hovers, deep `#96600a` for small links + labels — unchanged from the token pass).
 - **Data mode adds a semantic *status* palette** — positive / watch / negative (pass·stable /
@@ -946,6 +949,9 @@ doorway *into* Data mode — takes the **Data instrument ground** as foreshadowi
 orphaned blue. So Home reads: Hero (white) → Demo (instrument) → Architecture teaser (sage) → Journey
 teaser (ochre) → Skills teaser (rose) → Bookend (white) — every section now the colour of where it
 leads. (Revises the Stage 2 "spend all four warm washes in order" note; provisional with the rest.)
+_(2026-07-28: Data mode's ground went **white** in the visual pass, so the Demo's `#f2f4f7` wash now
+foreshadows a ground that no longer exists — re-decide on the Home pass: well/lifted-paper chrome as
+the foreshadow, or a half-step tint `#f7f9fb`.)_
 
 ### Open (to decide — nothing locked)
 
@@ -970,19 +976,28 @@ leads. (Revises the Stage 2 "spend all four warm washes in order" note; provisio
 
 ---
 
-## Data-mode visual pass (2026-07-28) — palette settled, three pages prototyped  _(built in `data-prototype.html`; pending Monish's eyes)_
+## Data-mode visual pass (2026-07-28) — palette settled, three pages prototyped  _(A/B: `data-prototype.html` tinted vs `data-prototype-white.html` white/lifted paper — **white picked 2026-07-28**)_
 
 The IA rework left three things "for the visual pass"; all three are now settled — by validator
-runs (the data-viz six checks + WCAG contrast), not taste — and proven on a working prototype of
+runs (the data-viz six checks + WCAG contrast), not taste — and proven on working prototypes of
 all three Data pages, rendering the **real hub contracts** (evidence/drift/feedback are live
-snapshots; api-metrics is mock-to-contract until the hub's first EKS capture lands).
+snapshots; api-metrics is mock-to-contract until the hub's first EKS capture lands). Two surface
+schemes were built and compared; **`data-prototype-white.html` is the settled reference**.
 
 ### The instrument instance (validated)
 
-- **Ground `#f2f4f7` confirmed** (the provisional value held). Panels/charts sit on a cool
-  card `#fcfdfe`, hairlines `#e3e7ee`/`#e7ebf1`, axis `#c9cfd9` — the warm site keeps its warm
-  `--border`; Data mode's chrome cools by a step, which is most of the "machine room" feel.
-- **Chart ink is one blue family** — primary `#2a78d6` (4.3:1 on card), a 13-step sequential ramp
+- **Surfaces — white ground + lifted paper** _(picked over the tinted ground in the same-day A/B)_.
+  The provisional tinted ground (`#f2f4f7`, near-white cards) was built first, then flipped:
+  the page grounds on **white**, and the cards do the work — **data panels are lifted paper**
+  (white cards, cool hairline `#e4e8ef`, deeper **slate-tinted shadows** `rgba(15,23,42,…)` so the
+  lift reads without a ground tint), while **narrative panels sink into a faint cool well
+  `#f6f8fb`** (the verdict banner, the rehearsal explainer) instead of lifting. That yields three
+  surface levels — **well < ground < paper** — so callouts, ground, and data read as different
+  *kinds* of content; the tinted scheme only ever had one level. The "machine room" coolness now
+  lives in the **chrome** (slate shadows, cool hairlines, gridlines `#e7ebf1`, axis `#c9cfd9`),
+  not the ground — the warm site keeps its warm `--border`; Data mode's chrome cools by a step.
+- **Chart ink is one blue family** — primary `#2a78d6` (4.3:1 on the card, revalidated on
+  `#ffffff` after the white pick), a 13-step sequential ramp
   for the confusion heatmap, and a 4-step **ordinal ramp** for latency percentiles
   (`#86b6ef → #3987e5 → #256abf → #104281`, p50→p99 — passes the ordinal checks: monotone
   lightness, ≥.06 step gaps, light end ≥2:1). Reference/context series are a deliberate cool gray
@@ -1027,6 +1042,14 @@ snapshots; api-metrics is mock-to-contract until the hub's first EKS capture lan
 
 ### Follow-ups this pass surfaced
 
+- **The Demo §2 foreshadow needs re-deciding** (from the white pick): Home's Demo currently wears
+  the tinted instrument ground `#f2f4f7` as "the colour of where it leads" — but Data mode's
+  ground is now white, so a tinted Demo foreshadows a ground that no longer exists. Either the
+  Demo adopts the **well + lifted-paper chrome** as the foreshadow (the demo card lifts, cool
+  shadows), or it keeps a **half-step tint `#f7f9fb`** as the crossing whisper. Decide on the
+  Home pass; `transition-prototype.html` still shows the old `#f2f4f7` wash.
+- Fold the white scheme into `data-prototype.html` (or retire the tinted file) once the Home-side
+  foreshadow question is settled — until then both variants stay for reference.
 - `sections-prototype.html` is stale vs the IA rework: its tray still lists About, and its menu
   is the old 6-item list — reconcile next.
 - Producer-side (mlops): the confusion matrix exists only as a PNG (explicitly not
@@ -1040,6 +1063,15 @@ snapshots; api-metrics is mock-to-contract until the hub's first EKS capture lan
 ## Decision log
 
 Newest first. Each entry: what was decided and why.
+
+- **2026-07-28** — **White / lifted paper wins the Data-mode surface A/B**
+  (`data-prototype-white.html`). The ground goes white; data cards lift as paper (slate-tinted
+  shadows + cool hairline `#e4e8ef`), and narrative panels recess into a cool well `#f6f8fb` —
+  three surface levels (well < ground < paper) instead of the tinted scheme's one. Chart ink and
+  status colours unchanged, revalidated on `#ffffff` — mode identity rides the chrome, not the
+  data hues. Supersedes the same-day tinted ground `#f2f4f7`. One consequence left open: how
+  Home's Demo §2 foreshadows a white-grounded Data mode (well chrome vs a half-step tint
+  `#f7f9fb`) — decide on the Home pass.
 
 - **2026-07-28** — **Data-mode palette settled by measurement + all three pages prototyped**
   (`data-prototype.html`). Ground `#f2f4f7` confirmed; chart ink = one validated blue family
