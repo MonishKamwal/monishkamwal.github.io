@@ -143,10 +143,11 @@
   .hero-name{
     font-size:clamp(52px,12vw,140px);text-transform:uppercase;
     text-align:center;padding:0 20px;
-    /* heavier weight + well down the optical-size axis: the opsz 96 hairlines
-       were vanishing at display size and the name misread. The thin diagonals
-       (N/K/M/W) track opsz more than weight, hence 96 → 64. */
-    margin:0;font-weight:680;font-variation-settings:"opsz" 64;
+    /* original cut (weight 500 · opsz 96 via .display) — the heavier 680/64
+       experiment lost the didone elegance. Instead a hairline text-stroke
+       thickens every stroke uniformly: the thins gain the most, the
+       letterforms stay untouched. */
+    margin:0;-webkit-text-stroke:0.4px currentColor;
     /* §1 spec: a calm expo reveal on load (opacity + small translate) */
     animation:heroReveal 1s var(--ease-out-expo) both;animation-delay:.1s;
   }
