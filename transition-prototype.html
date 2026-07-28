@@ -143,11 +143,11 @@
   .hero-name{
     font-size:clamp(52px,12vw,140px);text-transform:uppercase;
     text-align:center;padding:0 20px;
-    /* original cut (weight 500 · opsz 96 via .display) — the heavier 680/64
-       experiment lost the didone elegance. Instead a hairline text-stroke
-       thickens every stroke uniformly: the thins gain the most, the
-       letterforms stay untouched. */
-    margin:0;-webkit-text-stroke:0.4px currentColor;
+    /* the original cut, untouched (weight 500 · opsz 96 via .display) — both
+       hairline fixes (heavier 680/64, then a 0.4px text-stroke) were tried and
+       rejected; the gossamer thins ARE the look. margin:0 kills the h1 default
+       so the subtitle's own clamp controls the gap. */
+    margin:0;
     /* §1 spec: a calm expo reveal on load (opacity + small translate) */
     animation:heroReveal 1s var(--ease-out-expo) both;animation-delay:.1s;
   }

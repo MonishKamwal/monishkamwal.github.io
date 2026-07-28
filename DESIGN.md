@@ -1077,14 +1077,14 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 
 Newest first. Each entry: what was decided and why.
 
-- **2026-07-28** — **Hero: legible hairlines + a subtitle.** "Monish Kamwal" was misreading at
-  display size — Bodoni's opsz-96 hairlines vanish on non-retina screens. A heavier cut
-  (weight 680 + opsz 64) was tried first and **rejected — it lost the didone elegance**; the
-  landing fix keeps the original cut (weight 500 · opsz 96) and adds a **0.4px text-stroke**,
-  which thickens every stroke uniformly so the thins gain the most and the letterforms stay
-  untouched. And the hero gains a subtitle: **"MLOps Project & Portfolio"** — letterspaced
-  micro-caps under the name, entering between the name and the arrow (delay .32s). Rationale: a
-  bare name reads as vanity; the subtitle declares what the site *is* before the demo does.
+- **2026-07-28** — **Hero: name stays the pure original cut + a subtitle.** Two hairline fixes
+  were tried against "the thins vanish on non-retina screens" — a heavier cut (weight 680 +
+  opsz 64) and a 0.4px uniform text-stroke — and **both were rejected**: each dulled the didone
+  character that makes the hero. Verdict: the gossamer hairlines *are* the look; keep
+  weight 500 · opsz 96 untouched and accept the trade. (Don't re-propose either fix.) The hero
+  does gain a subtitle: **"MLOps Project & Portfolio"** — letterspaced micro-caps under the name,
+  entering between the name and the arrow (delay .32s). Rationale: a bare name reads as vanity;
+  the subtitle declares what the site *is* before the demo does.
 
 - **2026-07-28** — **The pad demonstrates itself (idle self-drawing demo)** — store-window
   behaviour: the mock doodle draws itself on a loop (draw → hold → fade → redraw, ~5s) whenever
