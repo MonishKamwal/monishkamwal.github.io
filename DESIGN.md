@@ -1077,6 +1077,16 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-07-28** — **Demo §2 becomes ONE instrument** (Monish's pick over a two-panel "causal
+  column"). A single wide lifted Data panel — the span-12 grammar of the Data pages — holds the
+  whole demo, split by hairlines: drawpad (an inner input field: hairline, no lift) + Clear/Undo
+  as proper pill buttons · predictions (ink labels — muted gray was blending) · **verdict block**
+  ("Did I get it?" 15px ink + larger Yes/No pills, its own hairline section — it feeds Monitoring's
+  proxy accuracy, it earns the weight) · **the doorway, finally added**: "every guess is scored —
+  See how the model performs →" pinned to the instrument's foot, linking into Data mode
+  (`data-prototype-white.html`). The Demo's menu Quality/Monitoring/Performance links now point
+  there too. Supersedes the same-day two-papers cut.
+
 - **2026-07-28** — **Demo §2 foreshadow reconciled to the white pick** (`transition-prototype.html`).
   The Demo's ground becomes Data mode's **well `#f6f8fb`** — chosen over pure white (which would
   erase the Hero→Demo cross-fade beat) and over a made-up half-step tint (the well is a *real*
