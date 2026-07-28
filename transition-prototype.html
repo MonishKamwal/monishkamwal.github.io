@@ -844,7 +844,24 @@
   const padSvg=document.getElementById('padSvg');
   const padInk=document.getElementById('padInk');
   const mockPath=document.querySelector('#padMock path');
-  mockPath.style.setProperty('--len',String(Math.ceil(mockPath.getTotalLength())));
+  // the demo rotates through doodles from the model's real 15 classes,
+  // one per loop, so the idle animation doesn't wear thin
+  const MOCKS=[
+    /* cat */      'M22 56 C 26 26, 54 20, 60 40 C 64 53, 44 61, 38 50 M70 46 C 74 28, 96 27, 99 42 C 101 55, 81 59, 77 48',
+    /* house */    'M30 62 L30 34 L60 16 L90 34 L90 62 Z M52 62 L52 46 L68 46 L68 62',
+    /* star */     'M60 14 L67 36 L90 36 L72 50 L79 72 L60 58 L41 72 L48 50 L30 36 L53 36 Z',
+    /* fish */     'M28 40 C 42 22, 74 22, 88 40 C 74 58, 42 58, 28 40 Z M88 40 L102 32 L102 48 Z M76 36 a2.2 2.2 0 1 0 0.1 0',
+    /* umbrella */ 'M28 44 C 32 20, 88 20, 92 44 M28 44 C 33 38, 39 38, 44 44 C 49 38, 55 38, 60 44 C 65 38, 71 38, 76 44 C 81 38, 87 38, 92 44 M60 26 L60 64 C 60 72, 48 72, 48 65',
+    /* clock */    'M60 16 a24 24 0 1 1 -0.1 0 M60 40 L60 27 M60 40 L71 45',
+  ];
+  let mockIx=0;
+  function setMock(i){
+    mockPath.setAttribute('d',MOCKS[i]);
+    mockPath.style.setProperty('--len',String(Math.ceil(mockPath.getTotalLength())));
+  }
+  setMock(0);
+  // advance at each loop boundary (the mock sits at opacity 0 there — seamless)
+  mockPath.addEventListener('animationiteration',()=>{ mockIx=(mockIx+1)%MOCKS.length; setMock(mockIx); });
   let strokes=[],drawing=null,padIdleTimer=null;
   const IDLE_AFTER=15000;
   function padPoint(e){
@@ -862,6 +879,7 @@
     setTimeout(()=>{
       padInk.textContent=''; strokes=[];
       padInk.style.opacity='1';
+      mockIx=(mockIx+1)%MOCKS.length; setMock(mockIx); // resume on a fresh doodle
       document.body.classList.add('pad-idle');
     },reduce?0:650);
   }

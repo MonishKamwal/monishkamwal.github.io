@@ -1081,7 +1081,10 @@ Newest first. Each entry: what was decided and why.
   behaviour: the mock doodle draws itself on a loop (draw → hold → fade → redraw, ~5s) whenever
   nobody is drawing; the visitor's first touch stops the demo and inks for real (the prototype's
   pad now captures strokes, and Clear/Undo actually work); after **15s of quiet** the sketch fades
-  and the demo resumes (never mid-stroke). This also answers the borderless pad's affordance
+  and the demo resumes (never mid-stroke). **The demo rotates through six of the model's real
+  classes** — cat, house, star, fish, umbrella, clock — one per loop (swapped while the mock is
+  invisible), and resumes on a fresh doodle after an interruption, so the idle animation doesn't
+  wear thin. This also answers the borderless pad's affordance
   question — the self-drawing loop *is* the "draw here" hint. Reduced motion: static doodle, no
   loop.
 
