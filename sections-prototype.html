@@ -113,13 +113,19 @@
   .menu-link:hover{color:var(--warm);}
   .menu-link:focus-visible{outline:2px solid var(--warm);outline-offset:4px;}
   .menu-link.elsewhere{color:var(--muted-foreground);}
+  .menu-link.elsewhere:hover{color:var(--warm);}
   .menu-panel.open .menu-link{opacity:1;transform:none;}
-  .menu-panel.open .menu-link:nth-of-type(1){transition-delay:calc(var(--dur)*.2)}
-  .menu-panel.open .menu-link:nth-of-type(2){transition-delay:calc(var(--dur)*.3)}
-  .menu-panel.open .menu-link:nth-of-type(3){transition-delay:calc(var(--dur)*.4)}
-  .menu-panel.open .menu-link:nth-of-type(4){transition-delay:calc(var(--dur)*.5)}
-  .menu-panel.open .menu-link:nth-of-type(5){transition-delay:calc(var(--dur)*.6)}
-  .menu-panel.open .menu-link:nth-of-type(6){transition-delay:calc(var(--dur)*.7)}
+  /* nth-child (not nth-of-type): the nav mixes <a> and <button>, so type-counting
+     would scramble the staircase. Extended to the 9-item global bridge. */
+  .menu-panel.open .menu-link:nth-child(1){transition-delay:calc(var(--dur)*.2)}
+  .menu-panel.open .menu-link:nth-child(2){transition-delay:calc(var(--dur)*.3)}
+  .menu-panel.open .menu-link:nth-child(3){transition-delay:calc(var(--dur)*.4)}
+  .menu-panel.open .menu-link:nth-child(4){transition-delay:calc(var(--dur)*.5)}
+  .menu-panel.open .menu-link:nth-child(5){transition-delay:calc(var(--dur)*.6)}
+  .menu-panel.open .menu-link:nth-child(6){transition-delay:calc(var(--dur)*.7)}
+  .menu-panel.open .menu-link:nth-child(7){transition-delay:calc(var(--dur)*.8)}
+  .menu-panel.open .menu-link:nth-child(8){transition-delay:calc(var(--dur)*.9)}
+  .menu-panel.open .menu-link:nth-child(9){transition-delay:calc(var(--dur)*1)}
 
   /* ---------- the arrival line — "the line carries you" ---------- */
   .arrival-wrap{
@@ -439,10 +445,15 @@
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 2l16 16M18 2L2 18" stroke-linecap="round"/></svg>
     </button>
   </div>
+  <!-- the global bridge (IA rework): Home · [Data] · [Story] · About · Contact.
+       Story pages navigate in-page; everything else links to its own prototype. -->
   <nav>
     <a class="menu-link elsewhere" href="transition-prototype.html" title="Home lives in the Home-scroll prototype">Home</a>
-    <button class="menu-link" data-goto="journey">Journey</button>
+    <a class="menu-link elsewhere" href="data-prototype-white.html#quality" title="Data mode lives in the data prototype">Quality</a>
+    <a class="menu-link elsewhere" href="data-prototype-white.html#monitoring" title="Data mode lives in the data prototype">Monitoring</a>
+    <a class="menu-link elsewhere" href="data-prototype-white.html#performance" title="Data mode lives in the data prototype">Performance</a>
     <button class="menu-link" data-goto="architecture">Architecture</button>
+    <button class="menu-link" data-goto="journey">Journey</button>
     <button class="menu-link" data-goto="skills">Skills</button>
     <button class="menu-link" data-goto="about">About</button>
     <a class="menu-link elsewhere" href="transition-prototype.html" title="Contact is the Home bookend">Contact</a>
@@ -718,11 +729,12 @@
 </div>
 
 <!-- ---------- prototype chrome ---------- -->
-<div class="switch-dock" role="tablist" aria-label="Inner page">
-  <button class="sw active" data-goto="journey" role="tab" aria-current="page">Journey</button>
+<!-- Story tray (IA rework): Architecture · Journey · Skills only — About is
+     off both trays, reachable from the menu (and the Home closing bookend). -->
+<div class="switch-dock" role="tablist" aria-label="Story page">
   <button class="sw" data-goto="architecture" role="tab">Architecture</button>
+  <button class="sw active" data-goto="journey" role="tab" aria-current="page">Journey</button>
   <button class="sw" data-goto="skills" role="tab">Skills</button>
-  <button class="sw" data-goto="about" role="tab">About</button>
 </div>
 <div class="speed-dock" role="group" aria-label="Motion speed">
   <span class="micro">motion</span>

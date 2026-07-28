@@ -893,8 +893,9 @@ proof a first-class home and reorganizes the internals into two tray-navigated *
 ### The two trays
 
 - Bottom-center pill (`.switch-dock` grammar from `sections-prototype.html`): Outfit labels, active =
-  filled ink, tray declares the current location (`aria-current`). The prototype's tray currently
-  includes About; **About is pulled out** of both trays here.
+  filled ink, tray declares the current location (`aria-current`). ~~The prototype's tray currently
+  includes About;~~ **About is pulled out** of both trays here _(done in `sections-prototype.html`
+  2026-07-28: Story tray = Architecture · Journey · Skills; About active → no tray item highlights)_.
 - **Isolated by mode** (decided 2026-07-26): the Story tray only cycles Architecture/Journey/Skills;
   the Data tray only cycles the Data pages. **No cross-mode tray link — the menu is the only bridge
   between modes.** Rationale: each mode stays focused, and the menu earns its keep as the one global
@@ -1070,8 +1071,11 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
   Reconciled in `transition-prototype.html`.
 - Fold the white scheme into `data-prototype.html` (or retire the tinted file) once the Home-side
   foreshadow question is settled — until then both variants stay for reference.
-- `sections-prototype.html` is stale vs the IA rework: its tray still lists About, and its menu
-  is the old 6-item list — reconcile next.
+- ~~`sections-prototype.html` is stale vs the IA rework: its tray still lists About, and its menu
+  is the old 6-item list — reconcile next.~~ **Done 2026-07-28** — Story tray is now Architecture ·
+  Journey · Skills (About off-tray, reachable from the menu); menu is the 9-item global bridge
+  cross-linking into the Data + Home prototypes. (Default landing stays Journey — a prototype
+  detail; on the real site each Story page is entered from its own Home teaser.)
 - Producer-side (mlops): the confusion matrix exists only as a PNG (explicitly not
   styling-agnostic) — the Quality page wants **cell-level matrix data in `evidence.json`**; until
   then the prototype's matrix is IPF-derived from the real per-class marginals and labeled
@@ -1083,6 +1087,18 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 ## Decision log
 
 Newest first. Each entry: what was decided and why.
+
+- **2026-07-28** — **Story prototype reconciled to the IA rework** (`sections-prototype.html`).
+  The last stale file catches up: the `.switch-dock` drops About and now cycles only
+  **Architecture · Journey · Skills** (About is off both trays — reached from the menu, and on the
+  real site from the Home closing bookend; when About is active no tray item highlights). The menu
+  becomes the **9-item global bridge** — Home · Quality · Monitoring · Performance · Architecture ·
+  Journey · Skills · About · Contact — with the Story pages navigating in-page and everything else
+  linking to its own prototype (Data → `data-prototype-white.html`, Home/Contact →
+  `transition-prototype.html`), cross-file links muted like the Data prototype's. Fixed along the
+  way: the staircase stagger uses `:nth-child` (the nav mixes `<a>`/`<button>`, so `:nth-of-type`
+  scrambled it) and extends to 9; `.elsewhere` links now warm on hover. All three prototypes now
+  agree on the two-mode IA.
 
 - **2026-07-28** — **Hero: name stays the pure original cut + a subtitle.** Two hairline fixes
   were tried against "the thins vanish on non-retina screens" — a heavier cut (weight 680 +
