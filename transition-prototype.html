@@ -726,8 +726,10 @@
   let current=0;          // animated progress fed to apply()
   let anim=null;          // {from,to,toIndex,start,dur} while a transition runs
   let barsLive=false;
-  const easeInOut=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
-  const transDur=steps=>durMs()*(1.9+0.7*(Math.abs(steps)-1)); // ~1.9×--dur, longer for jumps
+  // ease-out (not in-out): the sheet moves at full speed the instant you scroll,
+  // then settles — reads snappy/responsive, no dead beat at the start
+  const easeOut=t=>1-Math.pow(1-t,4);
+  const transDur=steps=>durMs()*(1.25+0.5*(Math.abs(steps)-1)); // ~1.25×--dur, longer for jumps
   // scrub helpers: an element's reveal is a pure function of its slice of the scroll
   function setReveal(el,sp){
     el.style.opacity=String(sp);
@@ -830,7 +832,7 @@
   function frame(){
     if(anim){
       const t=Math.min(1,(performance.now()-anim.start)/anim.dur);
-      current=anim.from+(anim.to-anim.from)*easeInOut(t);
+      current=anim.from+(anim.to-anim.from)*easeOut(t);
       if(t>=1){ current=anim.to; secIndex=anim.toIndex; anim=null; }
     }
     apply(current);
@@ -852,7 +854,7 @@
   //      transition finishes (+ a short settle), so a gesture can't be half-done ----
   let wheelAccum=0, lastWheel=0, lockUntil=0;
   const WHEEL_THRESH=48;
-  function fire(dir){ if(step(dir)) lockUntil=performance.now()+transDur(1)+220; }
+  function fire(dir){ if(step(dir)) lockUntil=performance.now()+transDur(1)+90; }
   window.addEventListener('wheel',e=>{
     e.preventDefault();
     const now=performance.now();
