@@ -318,8 +318,12 @@
     font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
     text-transform:uppercase;font-size:clamp(30px,5vw,54px);margin:0;line-height:1;
   }
-  /* every section header anchors where the demo's does — one spot, one scale */
+  /* every section header anchors where the demo's does — one spot, one scale.
+     The demo title inherits the body's 1.6 line-height (≈.3em half-leading above
+     its glyphs); these titles are line-height:1, so pad the same .3em down to
+     land the caps on the identical visual line. */
   .sec-head{position:absolute;top:clamp(44px,7vh,64px);left:clamp(24px,5vw,72px);right:clamp(24px,5vw,72px);}
+  .sec-head .scene-title{padding-top:.3em;}
   .scene-lead{margin:14px 0 0;font-size:clamp(16px,2vw,20px);color:var(--muted-foreground);}
   .flow{display:flex;align-items:center;flex-wrap:wrap;margin-top:clamp(30px,5vh,54px);}
   .flow .stop{display:flex;flex-direction:column;align-items:center;gap:9px;}
