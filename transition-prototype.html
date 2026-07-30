@@ -23,6 +23,8 @@
     --wash-ochre:#ffecdb;
     --wash-rose:#ffe8ee;
     --deep-ochre:#96600a;
+    --ground:#ffffff;      /* the slide-in menu's ground — the scroll script tints it
+                              to the section in view (sage/ochre/rose), white elsewhere */
     --ease-out-expo:cubic-bezier(.16,1,.3,1);
     --dur:.48s; /* the loose global motion value — retuned by the dock */
   }
@@ -78,14 +80,15 @@
   .m-scrim.open{opacity:1;pointer-events:auto;}
   .menu-panel{
     position:fixed;top:0;right:0;bottom:0;width:min(400px,88vw);z-index:51;
-    background:#fff;border-left:1px solid var(--border);
+    background:var(--ground);border-left:1px solid var(--border);
+    box-shadow:-20px 0 48px -28px rgba(10,10,10,.30);
     padding:24px 34px 34px;display:flex;flex-direction:column;
     transform:translateX(102%);visibility:hidden;
-    transition:transform var(--dur) var(--ease-out-expo),visibility 0s var(--dur);
+    transition:transform var(--dur) var(--ease-out-expo),background var(--dur) var(--ease-out-expo),visibility 0s var(--dur);
   }
   .menu-panel.open{
     transform:none;visibility:visible;
-    transition:transform var(--dur) var(--ease-out-expo),visibility 0s 0s;
+    transition:transform var(--dur) var(--ease-out-expo),background var(--dur) var(--ease-out-expo),visibility 0s 0s;
   }
   .menu-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:38px;}
   .m-close{
@@ -115,16 +118,17 @@
   .menu-link:hover,.menu-link:focus-visible{color:var(--warm);scale:1.09;}
   .menu-link:focus-visible{outline:2px solid var(--warm);outline-offset:4px;}
   .menu-panel.open .menu-link{opacity:1;transform:none;}
-  /* staircase stagger: ~10% of --dur per item, after the panel lands */
-  .menu-panel.open .menu-link:nth-of-type(1){--stagger:calc(var(--dur)*.2)}
-  .menu-panel.open .menu-link:nth-of-type(2){--stagger:calc(var(--dur)*.3)}
-  .menu-panel.open .menu-link:nth-of-type(3){--stagger:calc(var(--dur)*.4)}
-  .menu-panel.open .menu-link:nth-of-type(4){--stagger:calc(var(--dur)*.5)}
-  .menu-panel.open .menu-link:nth-of-type(5){--stagger:calc(var(--dur)*.6)}
-  .menu-panel.open .menu-link:nth-of-type(6){--stagger:calc(var(--dur)*.7)}
-  .menu-panel.open .menu-link:nth-of-type(7){--stagger:calc(var(--dur)*.8)}
-  .menu-panel.open .menu-link:nth-of-type(8){--stagger:calc(var(--dur)*.9)}
-  .menu-panel.open .menu-link:nth-of-type(9){--stagger:calc(var(--dur)*1)}
+  /* staircase stagger: ~10% of --dur per item, after the panel lands.
+     nth-child (not nth-of-type) so a future <button> in the nav can't scramble it. */
+  .menu-panel.open .menu-link:nth-child(1){--stagger:calc(var(--dur)*.2)}
+  .menu-panel.open .menu-link:nth-child(2){--stagger:calc(var(--dur)*.3)}
+  .menu-panel.open .menu-link:nth-child(3){--stagger:calc(var(--dur)*.4)}
+  .menu-panel.open .menu-link:nth-child(4){--stagger:calc(var(--dur)*.5)}
+  .menu-panel.open .menu-link:nth-child(5){--stagger:calc(var(--dur)*.6)}
+  .menu-panel.open .menu-link:nth-child(6){--stagger:calc(var(--dur)*.7)}
+  .menu-panel.open .menu-link:nth-child(7){--stagger:calc(var(--dur)*.8)}
+  .menu-panel.open .menu-link:nth-child(8){--stagger:calc(var(--dur)*.9)}
+  .menu-panel.open .menu-link:nth-child(9){--stagger:calc(var(--dur)*1)}
 
   /* ---------- the scroll runway: sticky viewport inside ---------- */
   .runway{height:1250vh;position:relative;}
@@ -962,6 +966,16 @@
     else if(p3>.6 && p4<.4) label='Journey';
     else if(p2>.6 && p3<.4) label='Behind the scenes';
     else if(p1>.97 && p2<.4) label='Live demo';
+    // menu drawer ground: tints to the section in view (matching the inner pages'
+    // per-page grounds), white on Hero/Demo/Contact. Left unchanged mid-transition
+    // so an open drawer holds its tint instead of flashing white through the gaps.
+    let ground='';
+    if(p5>.5) ground='#ffffff';                             // Contact — white bookend
+    else if(p4>.6) ground='var(--wash-rose)';               // Skills
+    else if(p3>.6 && p4<.4) ground='var(--wash-ochre)';     // Journey
+    else if(p2>.6 && p3<.4) ground='var(--wash-sage)';      // Behind the Scenes → Architecture
+    else if(p1>.97 && p2<.4) ground='#ffffff';              // Live demo
+    if(ground) document.documentElement.style.setProperty('--ground',ground);
     if(label) indicator.textContent=label;
     indicator.style.opacity=label?'1':'0';
   }

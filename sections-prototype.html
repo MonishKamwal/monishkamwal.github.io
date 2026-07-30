@@ -72,9 +72,9 @@
   .menu-btn{
     background:none;border:0;cursor:pointer;padding:6px;color:var(--foreground);
     display:inline-flex;line-height:0;pointer-events:auto;
-    transition:color .3s var(--ease-out-expo);
+    transition:color .18s var(--ease-out-expo),scale .18s var(--ease-out-expo);
   }
-  .menu-btn:hover{color:var(--warm);}
+  .menu-btn:hover{color:var(--warm);scale:1.12;}
   .menu-btn:focus-visible{outline:2px solid var(--warm);outline-offset:2px;border-radius:3px;}
 
   /* ---------- slide-in menu (nav spec, reused from the Home prototype) ---------- */
@@ -89,30 +89,33 @@
     box-shadow:-20px 0 48px -28px rgba(10,10,10,.30);
     padding:24px 34px 34px;display:flex;flex-direction:column;
     transform:translateX(102%);visibility:hidden;
-    transition:transform var(--dur) var(--ease-out-expo),visibility 0s var(--dur);
+    transition:transform var(--dur) var(--ease-out-expo),background var(--dur) var(--ease-out-expo),visibility 0s var(--dur);
   }
   .menu-panel.open{
     transform:none;visibility:visible;
-    transition:transform var(--dur) var(--ease-out-expo),visibility 0s 0s;
+    transition:transform var(--dur) var(--ease-out-expo),background var(--dur) var(--ease-out-expo),visibility 0s 0s;
   }
   .menu-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:38px;}
   .m-close{
     background:none;border:0;cursor:pointer;padding:6px;color:var(--foreground);
-    display:inline-flex;line-height:0;transition:color .3s var(--ease-out-expo);
+    display:inline-flex;line-height:0;transition:color .18s var(--ease-out-expo),scale .18s var(--ease-out-expo);
   }
-  .m-close:hover{color:var(--warm);}
+  .m-close:hover{color:var(--warm);scale:1.12;}
   .m-close:focus-visible{outline:2px solid var(--warm);outline-offset:2px;border-radius:3px;}
-  .menu-panel nav{display:flex;flex-direction:column;gap:18px;}
+  .menu-panel nav{display:flex;flex-direction:column;gap:18px;flex:1;overflow-y:auto;overflow-x:hidden;}
   .menu-link{
     font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
     font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
     text-transform:uppercase;font-size:clamp(28px,4.5vw,38px);line-height:1.05;
     color:var(--foreground);text-decoration:none;width:fit-content;cursor:pointer;
-    background:none;border:0;text-align:left;padding:0;
+    background:none;border:0;text-align:left;padding:0;transform-origin:left center;
     opacity:0;transform:translate(30px,10px);
-    transition:opacity var(--dur) var(--ease-out-expo),transform var(--dur) var(--ease-out-expo),color .3s var(--ease-out-expo);
+    /* hover lift rides the independent `scale` property (not transform:scale) so it
+       doesn't clash with the entrance transform:translate — same split as the Home
+       prototype. The entrance opacity+transform keep --dur; scale+color react at once. */
+    transition:opacity var(--dur) var(--ease-out-expo),transform var(--dur) var(--ease-out-expo),scale .18s var(--ease-out-expo),color .18s var(--ease-out-expo);
   }
-  .menu-link:hover{color:var(--warm);}
+  .menu-link:hover,.menu-link:focus-visible{color:var(--warm);scale:1.09;}
   .menu-link:focus-visible{outline:2px solid var(--warm);outline-offset:4px;}
   /* all menu items read the same — no mode-based muting (the highlighting was
      just prototype scaffolding for cross-file links) */

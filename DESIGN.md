@@ -1075,8 +1075,9 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
   while the Hero→Demo cross-fade beat survives), and the canvas card wears the Data panel chrome
   (cool hairline `#e4e8ef`, slate shadow, 13px radius); bar tracks take the Data grid `#e7ebf1`.
   Reconciled in `transition-prototype.html`.
-- Fold the white scheme into `data-prototype.html` (or retire the tinted file) once the Home-side
-  foreshadow question is settled — until then both variants stay for reference.
+- ~~Fold the white scheme into `data-prototype.html` (or retire the tinted file) once the Home-side
+  foreshadow question is settled — until then both variants stay for reference.~~ **Done 2026-07-30 —
+  retired the tinted `data-prototype.html`; `data-prototype-white.html` is the single Data-mode page.**
 - ~~`sections-prototype.html` is stale vs the IA rework: its tray still lists About, and its menu
   is the old 6-item list — reconcile next.~~ **Done 2026-07-28** — Story tray is now Architecture ·
   Journey · Skills (About off-tray, reachable from the menu); menu is the 9-item global bridge
@@ -1329,7 +1330,7 @@ Newest first. Each entry: what was decided and why.
   `#f7f9fb`) — decide on the Home pass.
 
 - **2026-07-28** — **Data-mode palette settled by measurement + all three pages prototyped**
-  (`data-prototype.html`). Ground `#f2f4f7` confirmed; chart ink = one validated blue family
+  (`data-prototype.html` — tinted variant, retired 2026-07-30). Ground `#f2f4f7` confirmed; chart ink = one validated blue family
   (primary `#2a78d6`, sequential ramp, ordinal p50→p99 ramp) with reference-gray for context;
   status = green/red **+ watch = brand ochre** — the distinct-amber option measured ΔE 13.7 from
   ochre, under the 15 normal-vision floor, so "almost the same amber, different meaning" lost to
