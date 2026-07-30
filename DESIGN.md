@@ -1094,6 +1094,111 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-07-29** — **Journey line: scroll-driven "magnifying glass"** (both `transition-prototype.html`
+  and `sections-prototype.html`). Replaced the earlier hover "lift" (and its dark travelling segment,
+  which read badly) with a **circular lens that rolls down the journey as you scroll**. Implementation:
+  a faint lens **ring** (`.j-lens-ring`), a **mask** that hides the base line inside the ring, and a
+  clipped copy of the line (`.j-lens`, geometry mirrored from `#jPath`) shown only inside the ring at a
+  **bolder stroke (1.4→3px)** — so within the lens the line reads **magnified**, with no dark highlight.
+  *Note:* an earlier version scaled the line's geometry `1.4×` inside the lens, but scaling a vector line
+  offsets it from the base → a visible **duplicate/parallel "weird line"** at the rim; switched to
+  bolden-in-place (same geometry, thicker) which is perfectly aligned = no duplicate. The **dot and entry
+  text at the focus zoom in place** (dot `r` ×1.4, text via the `scale` property so it composes with the
+  reveal `transform`); text scales from its **outer edge** (`transform-origin` right/left per side) so it
+  grows *away* from the line instead of overlapping it. **Trigger differs per surface:** the internal
+  `/journey` page is a long scroll, so its lens is **scroll-driven** (tracks the viewport centre passing
+  through the journey). The Home teaser is short + static on screen and its scroll is a sticky section
+  **scrub** — driving the lens from that scrub fought the section-transition animation, so the Home lens
+  is **hover-driven** instead (cursor projects to the nearest point on the line; the lens eases in on
+  enter, out on leave). The **line is always fully drawn** now (removed the draw-in) — fixes the gap where it
+  appeared to vanish between the first entries mid scroll-in. Tunable via constants — `LENS_R` (lens
+  radius), `LENS_S` (dot/text zoom, 1.4), `NEAR` (reach) — plus `.j-lens` stroke-width for the line
+  boldness. Hooked into each rAF loop; skipped under `prefers-reduced-motion`; dots stay clickable.
+
+- **2026-07-29** — **Primary teaser CTAs emphasised — via scale, not weight** (`transition-prototype.html`).
+  Made the two deepest internal destinations' CTAs stand out from a plain text link: "Explore the
+  full architecture →" (Behind the Scenes) and "Read the journey →" (Journey preview), both via a
+  shared `.link.cta-strong` class. First attempt (~27px, weight 460, 2px underline) read as **out of
+  place** against the editorial look, so it was dialled back to a **gentle size bump at a light
+  weight** — `font-size:clamp(17px,1.7vw,20px); font-weight:380` — matching the demo's existing
+  doorway link ("See how the model performs →"). No bold, no thick underline. The Journey CTA (which
+  sits on the line's end) also gets `white-space:nowrap; width:auto` so the bigger label stays one
+  line. Principle recorded: on this site prominence comes from **scale / serif / colour / whitespace
+  at a light weight**, not bold or boxed treatments.
+
+- **2026-07-29** — **Journey teaser reflowed: the line starts on a point and ends on the CTA**
+  (`transition-prototype.html`). Was: a blank line origin, three entry dots on the crests, and a
+  "Read the journey" link sitting *below* the SVG, with a fading tail past the last dot. Now the
+  serpentine carries **four points** — the first entry ("One bucket, three jobs") sits on a dot at
+  the line's **origin**, the other two step down one crest each ("The gate", "Pandera"), and the
+  **final crest is the "Read the journey →" CTA itself** (moved onto the path terminus; the separate
+  link and the tail are gone). The serpentine is oriented so it **ends on the right crest**, with the
+  CTA and its → hanging to the right so the arrow points outward.
+  `layoutPath` now takes an explicit `jNodes` list (each with its
+  `side`) and lays out `[...jEntries, jLinkWrap]` one per point; reveal windows end at each point's
+  fraction so the origin dot is present from the first stroke and the CTA (fraction ≈1) still
+  completes by the end of the draw. Dates stay chronological top-to-bottom (10 Jun → 2 Jul → 18 Jul).
+
+- **2026-07-29** — **Journey teaser path matched to the internal Journey page** (`transition-prototype.html`).
+  The Home teaser drew a different curve from the `/journey` page — a wide, laterally-swooping weave
+  (x from 150→560, horizontal control handles) vs the internal page's gentle vertical serpentine.
+  Rebuilt the teaser's `layoutPath` to use the **same construction as `buildJourney`**: crests at
+  LX=250 / RX=450 joined with vertical control handles (`m = half the y-gap`, so the tangent is
+  vertical at every crest), starting centre-top and veering left first. Dots now sit **on** the
+  crests (not at arbitrary path fractions) and each entry hangs on the crest's **outer** side
+  (`on-left`/`on-right`, matching the internal page). viewBox 360→420 to fit the taller curve; the
+  end marker changed from a filled triangle to a stroked fading tail like the internal one. Reveal
+  windows flipped to complete **as the line reaches** each crest (`[f-.10,f-.02]` dot, `[f-.07,f]`
+  entry) since the last crest is now the path's own endpoint (f≈1) and the old `[f,f+.08]` windows
+  would have run past the draw. Verified the shapes side-by-side and the teaser in context.
+
+- **2026-07-29** — **Home teasers now link into the Story pages; About dropped from the tray on its
+  own page.** Two wayfinding fixes:
+  - *Home-scroll section CTAs wired to the internal pages* (`transition-prototype.html`). The teaser
+    links were prototype dead-ends (`href="#" onclick="return false"`). Now: "Explore the full
+    architecture" → `sections-prototype.html#architecture`, "Read the journey" → `#journey`, "See
+    all skills" → `#skills`, "Or learn more about me" → `#about` (the Demo's "See how the model
+    performs" already pointed at the data prototype). Targets deep-link via each prototype's
+    `bootFromHash`. GitHub/LinkedIn/email left as social links, not internal pages.
+  - *The Story tray is hidden on the About page* (`sections-prototype.html`). The tray was always
+    `position:fixed` and showed on every page, contradicting the standing intent (tray =
+    Architecture · Journey · Skills only; About is off it, reached from the menu / Home bookend).
+    `switchPage` now hides `.switch-dock` when the page is About and restores it otherwise. Verified:
+    pill gone on About, back when leaving via the menu.
+
+- **2026-07-29** — **Typography casing normalized — one rule per element role.** The site was already
+  cased by role; this formalizes the rule and fixes the one deviation. The rule (source casing in
+  parentheses where CSS re-cases it):
+  - *Display titles* (page / scene / phase headers): **ALL-CAPS** via `text-transform:uppercase`
+    (source kept Title Case, e.g. `The Journey`).
+  - *Eyebrows / kickers / dates / the Home scroll indicator*: **ALL-CAPS tracked** via CSS.
+  - *Section subheads (`<h2>`) and entry/panel titles*: **sentence case** ("The road your doodle
+    took", "One bucket, three jobs", "Where it gets confused").
+  - *Pipeline stop labels*: **lowercase**, proper nouns kept as-branded (`browser`, `the guess`,
+    `Lambda`, `S3`, `Terraform`).
+  - *Product / proper nouns*: **as-branded** (Draw Something, Next.js, k6 + Grafana, MLflow, DVC).
+  - *Conversational lines*: **sentence case** ("Say hello.").
+  Fixed the flagged mismatch: the Home indicator read "Behind the demo" for a section titled "Behind
+  the Scenes" — both render uppercase, so a visitor saw **BEHIND THE DEMO** on the wayfinding chip vs
+  **BEHIND THE SCENES** as the header, for the same section. Indicator is now `Behind the scenes`
+  (sentence-case source, matching the other multi-word indicator `Live demo`; renders BEHIND THE
+  SCENES to match the header). Left `Live demo` / `Contact` as intentional functional wayfinding
+  labels (they never mirrored their section titles "Draw Something" / "Say hello.").
+
+- **2026-07-29** — **Story/Data prototype punch-list cleared** (`sections-prototype.html`,
+  `data-prototype.html`, `data-prototype-white.html`).
+  - *Skills-page arrival line restored.* It carried `data-arrival="drift"`, but `runArrival()` only
+    draws the stroke for `="line"` (the "drift" arrival was never implemented), so Skills silently
+    had no line. Set to `"line"` like the other Story pages; verified the line now shows.
+  - *Edge blur-fade ported to Story internal pages.* The scroll-driven top/bottom dissolve (three
+    stacked backdrop-blur bands 2→6→14px + a wash toward the ground, top in once scrolled, bottom
+    until the document end) previously existed only on the Data prototypes. The wash now tints
+    **per page** via `color-mix(in srgb, var(--ground) 72%, transparent)` (ochre/sage/rose/blue)
+    instead of the Data prototypes' fixed grey. Verified in-browser on Journey (ochre) and Skills
+    (rose).
+  - *Monitoring emoji removed.* Dropped the 👍/👎 from the feedback / proxy-accuracy copy; reworded
+    to **"yes / no votes"** to match the demo's "Did I get it right? Yes / No" prompt.
+
 - **2026-07-28** — **Menu: uniform links + panel matches the page ground** (all three internal-page
   prototypes). Dropped the mode-based muting — cross-file links (`.elsewhere`) were greyed as
   prototype scaffolding, which read as "these options are for a different mode." **Every menu item

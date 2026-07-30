@@ -358,6 +358,12 @@
     transition:color .18s var(--ease-out-expo),border-color .18s var(--ease-out-expo),scale .18s var(--ease-out-expo);
   }
   .link:hover{color:var(--warm);border-bottom-color:var(--warm);scale:1.06;}
+  /* emphasised teaser CTA — the primary "go deeper" link of its section. Prominence
+     comes from a gentle size bump at a LIGHT weight (matching the demo's doorway
+     link), not bold/heavy underline — so it stays in the editorial register */
+  .link.cta-strong{font-size:clamp(17px,1.7vw,20px);font-weight:380;}
+  /* the Journey CTA sits on the line's end — keep the bigger label on one line */
+  #jLinkWrap{width:auto;white-space:nowrap;}
 
   /* §3 reveal — SCRUBBED like the demo: title + lead first, then the pipeline
      draws itself left-to-right under the scroll, then the link. Opacity and
@@ -374,9 +380,16 @@
   .j-path-wrap{position:relative;margin-top:clamp(20px,3.5vh,36px);max-width:760px;}
   .j-path-wrap svg{width:100%;height:auto;display:block;}
   .j-path{fill:none;stroke:var(--foreground);stroke-width:1.4;stroke-linecap:round;}
+  /* the hover "lift" overlay — a short thicker stretch that rises off the page */
+  .j-lens{fill:none;stroke:var(--foreground);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;}
+  .j-lens-ring{fill:none;stroke:var(--foreground);stroke-width:1;opacity:.2;pointer-events:none;}
   .j-dot{fill:var(--foreground);opacity:0;}
-  .j-end{fill:var(--foreground);opacity:0;}
+  .j-end{fill:none;stroke:var(--foreground);stroke-width:1.4;stroke-linecap:round;opacity:0;}
   .j-entry{position:absolute;width:min(240px,34%);opacity:0;}
+  .j-entry.on-left,.j-cta.on-left{text-align:right;transform-origin:right center;}
+  .j-entry.on-right,.j-cta.on-right{text-align:left;transform-origin:left center;}
+  /* the "Read the journey" CTA now sits on the line's end, positioned like an entry */
+  .j-cta{position:absolute;width:min(240px,34%);margin:0;}
   .j-entry .d{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted-foreground);font-weight:500;}
   .j-entry h4{
     font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
@@ -586,7 +599,7 @@
           <div class="conn"><svg width="52" height="8" viewBox="0 0 52 8" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M0 4h46M42 1l5 3-5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
           <div class="stop"><div class="dot"></div><div class="lbl">monitor</div></div>
         </div>
-        <p class="scene-link"><a class="link" href="#" onclick="return false">Explore the full architecture →</a></p>
+        <p class="scene-link"><a class="link cta-strong" href="sections-prototype.html#architecture">Explore the full architecture →</a></p>
       </div>
       <div class="next-cue" id="sceneCue">
         <button class="arrow-btn" aria-label="Continue to the Journey">
@@ -602,9 +615,15 @@
           <p class="scene-lead" id="jLead">Roads not taken</p>
         </div>
         <div class="j-path-wrap">
-          <svg viewBox="0 0 700 360" fill="none" aria-hidden="true">
-            <path class="j-path" id="jPath" d="M360 8 C 560 52, 150 92, 330 148 C 505 202, 170 224, 320 278 C 450 325, 365 330, 352 344"/>
-            <path class="j-end" id="jEnd" d="M345 346 l7 12 7 -12 z"/>
+          <svg viewBox="0 0 700 420" fill="none" aria-hidden="true">
+            <defs>
+              <clipPath id="jLensClip"><circle id="jLensCircle" cx="0" cy="0" r="0"/></clipPath>
+              <mask id="jLensMask" maskUnits="userSpaceOnUse"><rect x="-100" y="-100" width="900" height="640" fill="#fff"/><circle id="jLensHole" cx="0" cy="0" r="0" fill="#000"/></mask>
+            </defs>
+            <path class="j-path" id="jPath" d="" mask="url(#jLensMask)"/>
+            <path class="j-lens" id="jLensPath" d="" clip-path="url(#jLensClip)"/>
+            <circle class="j-lens-ring" id="jLensRing" cx="0" cy="0" r="0"/>
+            <circle class="j-dot" r="5.5"/>
             <circle class="j-dot" r="5.5"/>
             <circle class="j-dot" r="5.5"/>
             <circle class="j-dot" r="5.5"/>
@@ -612,8 +631,8 @@
           <div class="j-entry"><div class="d">10 Jun 2026 · Phase 2</div><h4>One bucket, three jobs</h4><p>DVC, MLflow and the case for a single S3 bucket.</p></div>
           <div class="j-entry"><div class="d">02 Jul 2026 · Phase 2</div><h4>The gate that says no</h4><p>Letting CI block a worse model felt wrong — until it didn't.</p></div>
           <div class="j-entry"><div class="d">18 Jul 2026 · Phase 2</div><h4>Pandera at the door</h4><p>Validating data before it ever reaches training.</p></div>
+          <p class="scene-link j-cta" id="jLinkWrap"><a class="link cta-strong" href="sections-prototype.html#journey">Read the journey →</a></p>
         </div>
-        <p class="scene-link" id="jLinkWrap"><a class="link" href="#" onclick="return false">Read the journey →</a></p>
       </div>
       <div class="next-cue" id="journeyCue">
         <button class="arrow-btn" aria-label="Continue to Skills">
@@ -634,7 +653,7 @@
           <div class="s-line l3">GitHub Actions · Docker · MLflow</div>
           <div class="s-line l4 r">Next.js · TypeScript</div>
         </div>
-        <p class="scene-link" id="sLink"><a class="link" href="#" onclick="return false">See all skills →</a></p>
+        <p class="scene-link" id="sLink"><a class="link" href="sections-prototype.html#skills">See all skills →</a></p>
       </div>
       <div class="next-cue" id="skillsCue">
         <button class="arrow-btn" aria-label="Continue to Contact">
@@ -652,7 +671,7 @@
     <button id="bMail" aria-label="Copy email address"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><path d="M3 6l9 7 9-7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
   </div>
   <div class="copied" id="emailCopied">Copied</div>
-  <a class="link or-link" href="#" onclick="return false">Or learn more about me →</a>
+  <a class="link or-link" href="sections-prototype.html#about">Or learn more about me →</a>
   <p class="note">End of the prototype — the Hero's white bookend closes the scroll.
      Scroll back up to replay: all five transitions are scrubbed, so they play in either direction.</p>
     </div>
@@ -698,7 +717,6 @@
   const jLead=document.getElementById('jLead');
   const jLinkWrap=document.getElementById('jLinkWrap');
   const jPath=document.getElementById('jPath');
-  const jEnd=document.getElementById('jEnd');
   const jDots=[...document.querySelectorAll('.j-dot')];
   const jEntries=[...document.querySelectorAll('.j-entry')];
   const skillsLayer=document.getElementById('skillsLayer');
@@ -716,25 +734,93 @@
   const skillsCue=document.getElementById('skillsCue');
   function setCue(el,o){ el.style.opacity=String(o); el.style.visibility=o<=0?'hidden':'visible'; }
 
-  // ---- Journey path layout: dots sit at fractions of the drawn line, and
-  //      each entry hangs beside its dot, alternating sides ----
-  const jFr=[.18,.52,.84];
-  let pathLen=0;
+  // ---- Journey path layout — the gentle serpentine from the internal Journey
+  //      page (vertical control handles), but the line now STARTS on a dot: the
+  //      first entry sits at the origin, the rest step down the crests, and the
+  //      final crest is the "Read the journey" destination (the CTA on the line) ----
+  const VBW=700, VBH=420, LX=250, RX=450;
+  const jLabelEls=[...jEntries, jLinkWrap];   // 3 entries + the CTA, one per point
+  // {x, y, side} — side is where the label hangs (the crest's outer/open side)
+  const jNodes=[
+    {x:VBW/2, y:40,  side:'left'},   // start — One bucket, three jobs
+    {x:RX,    y:155, side:'right'},  // The gate that says no
+    {x:LX,    y:270, side:'left'},   // Pandera at the door
+    {x:RX,    y:385, side:'right'},  // Read the journey → (line end — on the right so the → points outward)
+  ];
+  const jFr=jNodes.map(()=>0);       // each dot's fraction along the drawn line (reveal timing)
+  let pathLen=0, jSamp=[];           // jSamp: sampled points along the line (for cursor projection)
   function layoutPath(){
+    // wind through the points with vertical handles (m = half the y-gap) so the
+    // tangent is vertical at every point — identical to the internal buildJourney()
+    let d='M '+jNodes[0].x+' '+jNodes[0].y;
+    for(let i=1;i<jNodes.length;i++){
+      const a=jNodes[i-1],b=jNodes[i],m=(b.y-a.y)*0.5;
+      d+=' C '+a.x+' '+(a.y+m)+', '+b.x+' '+(b.y-m)+', '+b.x+' '+b.y;
+    }
+    jPath.setAttribute('d',d);
+    document.getElementById('jLensPath').setAttribute('d',d);   // lens mirrors the line's geometry
     pathLen=jPath.getTotalLength();
     jPath.style.strokeDasharray=String(pathLen);
     jPath.style.strokeDashoffset=String(pathLen);
-    jFr.forEach((f,i)=>{
-      const pt=jPath.getPointAtLength(pathLen*f);
-      jDots[i].setAttribute('cx',pt.x); jDots[i].setAttribute('cy',pt.y);
-      const e=jEntries[i], xPct=pt.x/700*100, yPct=pt.y/360*100;
+    // sample the drawn line so each point maps to a length-fraction (reveal timing)
+    const N=400,samp=[];
+    for(let k=0;k<=N;k++) samp.push(jPath.getPointAtLength(pathLen*k/N));
+    const fracNear=(x,y)=>{let bi=0,bd=1e9;for(let k=0;k<=N;k++){const dx=samp[k].x-x,dy=samp[k].y-y,dd=dx*dx+dy*dy;if(dd<bd){bd=dd;bi=k;}}return bi/N;};
+    jSamp=samp;
+    jNodes.forEach((n,i)=>{
+      jFr[i]=fracNear(n.x,n.y);
+      jDots[i].setAttribute('cx',n.x); jDots[i].setAttribute('cy',n.y);
+      const e=jLabelEls[i], xPct=n.x/VBW*100, yPct=n.y/VBH*100, onLeft=n.side==='left';
+      e.classList.toggle('on-left',onLeft);
+      e.classList.toggle('on-right',!onLeft);
       e.style.top='calc('+yPct+'% - 12px)';
-      if(i%2===0){ e.style.left='calc('+xPct+'% + 26px)'; e.style.right='auto'; }
-      else{ e.style.right='calc('+(100-xPct)+'% + 26px)'; e.style.left='auto'; }
+      if(onLeft){ e.style.right='calc('+(100-xPct)+'% + 22px)'; e.style.left='auto'; }
+      else{ e.style.left='calc('+xPct+'% + 22px)'; e.style.right='auto'; }
     });
   }
   layoutPath();
   window.addEventListener('resize',layoutPath);
+
+  // ---- scroll-driven magnifier: a circular lens rolls down the journey as you scroll,
+  //      magnifying the line (a clipped, scaled copy of the path) and zooming the dot +
+  //      entry text it's over. Off for reduced motion. ----
+  const jDotBaseR=jDots.map(d=>parseFloat(d.getAttribute('r'))||5.5);
+  const jLensPath=document.getElementById('jLensPath');
+  const jLensCircle=document.getElementById('jLensCircle');
+  const jLensHole=document.getElementById('jLensHole');
+  const jLensRing=document.getElementById('jLensRing');
+  const jWrapEl=jPath.closest('.j-path-wrap');
+  const LENS_R=52, LENS_S=1.4, NEAR=0.15;        // lens radius (SVG units), zoom factor, dot/text reach (path fraction)
+  const falloff=d=>d<NEAR?0.5+0.5*Math.cos(Math.PI*d/NEAR):0;
+  // Home preview is short + static on screen, so the lens is HOVER-driven (scroll here would fight the
+  // section scrub). Cursor projects to the nearest point on the line; the lens eases in on enter / out on leave.
+  let focusTarget=0, focusCur=0, lensOn=0, hoverActive=false;
+  if(!reduce){
+    jWrapEl.addEventListener('mousemove',ev=>{
+      if(!pathLen||!jSamp.length) return;
+      const svg=jPath.ownerSVGElement, rect=svg.getBoundingClientRect();
+      const x=(ev.clientX-rect.left)/rect.width*VBW, y=(ev.clientY-rect.top)/rect.height*VBH;
+      let bi=0,bd=1e9; for(let k=0;k<jSamp.length;k++){const dx=jSamp[k].x-x,dy=jSamp[k].y-y,dd=dx*dx+dy*dy; if(dd<bd){bd=dd;bi=k;}}
+      focusTarget=bi/(jSamp.length-1); hoverActive=true;
+    });
+    jWrapEl.addEventListener('mouseleave',()=>{ hoverActive=false; });
+  }
+  function updateMagnifier(){
+    if(reduce||!pathLen||!jLensPath) return;
+    lensOn+=((hoverActive?1:0)-lensOn)*0.18;
+    focusCur+=(focusTarget-focusCur)*0.30;
+    if(lensOn<0.01){
+      for(const el of [jLensCircle,jLensHole,jLensRing]) el.setAttribute('r',0);
+      jDots.forEach((c,i)=>c.setAttribute('r',jDotBaseR[i])); jLabelEls.forEach(e=>{ e.style.scale=''; });
+      return;
+    }
+    const focus=Math.max(0,Math.min(1,focusCur));
+    const pt=jPath.getPointAtLength(focus*pathLen), fx=+pt.x.toFixed(1), fy=+pt.y.toFixed(1), r=(LENS_R*lensOn).toFixed(1);
+    for(const el of [jLensCircle,jLensHole,jLensRing]){ el.setAttribute('cx',fx); el.setAttribute('cy',fy); el.setAttribute('r',r); }
+    jLensRing.style.opacity=(0.2*lensOn).toFixed(3);
+    jDots.forEach((c,i)=>{ const s=1+(LENS_S-1)*falloff(Math.abs(focus-jFr[i]))*lensOn; c.setAttribute('r',(jDotBaseR[i]*s).toFixed(2)); });
+    jLabelEls.forEach((e,i)=>{ e.style.scale=String((1+(LENS_S-1)*falloff(Math.abs(focus-jFr[i]))*lensOn).toFixed(3)); });
+  }
 
   // ---- the loose global value, read from --dur (the dock retunes it) ----
   function durMs(){
@@ -839,14 +925,16 @@
     // scroll, each dot + entry appearing as the line reaches it
     setReveal(jTitle,segP(p,[.69,.72]));
     setReveal(jLead,segP(p,[.70,.73]));
-    const dP=segP(p,[.71,.78]);
-    jPath.style.strokeDashoffset=String(reduce?(dP>0?0:pathLen):pathLen*(1-dP));
+    // the line stays fully drawn (no draw-in — that mid-draw state was the "gap");
+    // dots + entries just fade in, staggered, as §4 arrives
+    jPath.style.strokeDashoffset='0';
+    const rP=segP(p,[.71,.82]);
     jFr.forEach((f,i)=>{
-      jDots[i].style.opacity=String(segP(dP,[f,f+.08]));
-      setReveal(jEntries[i],segP(dP,[f+.02,f+.16]));
+      const s=i*0.12;
+      jDots[i].style.opacity=String(segP(rP,[s,s+.15]));
+      setReveal(jLabelEls[i],segP(rP,[s+.03,s+.25]));
     });
-    jEnd.style.opacity=String(segP(dP,[.95,1]));
-    setReveal(jLinkWrap,segP(p,[.775,.80]));
+    // (the magnifier here is hover-driven — see updateMagnifier(), run from the frame loop)
     // §4 ↓ cue: in once the Journey has settled, out as §5 rises
     setCue(journeyCue,Math.min(segP(p,[.80,.82]),1-segP(p,[.83,.87])));
     // §4→§5 — Skills rises over the Journey
@@ -872,7 +960,7 @@
     if(p5>.5) label='Contact';
     else if(p4>.6) label='Skills';
     else if(p3>.6 && p4<.4) label='Journey';
-    else if(p2>.6 && p3<.4) label='Behind the demo';
+    else if(p2>.6 && p3<.4) label='Behind the scenes';
     else if(p1>.97 && p2<.4) label='Live demo';
     if(label) indicator.textContent=label;
     indicator.style.opacity=label?'1':'0';
@@ -887,6 +975,7 @@
       if(Math.abs(t-current)<.0005) current=t;
     }
     apply(current);
+    updateMagnifier();
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);

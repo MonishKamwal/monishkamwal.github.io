@@ -149,6 +149,33 @@
   .page{display:none;}
   .page.active{display:block;opacity:0;transition:opacity var(--dur) var(--ease-out-expo);}
   .page.active.entered{opacity:1;}
+
+  /* ---------- edge blur: progressive dissolve at the top & bottom edges ----------
+     Ported from the Data prototypes. Three stacked backdrop layers per edge, each
+     masked into a band so the blur genuinely ramps (2 → 6 → 14px), plus a soft wash
+     toward the page's --ground so it tints per Story page (ochre/sage/rose/blue).
+     Scroll-driven: top only once scrolled, bottom until the document end. Chrome
+     (topbar, dock, menu, cards, arrival line) sits above, crisp. */
+  .edge-blur{position:fixed;left:0;right:0;z-index:25;pointer-events:none;}
+  .edge-blur.top{top:0;height:110px;opacity:0;}
+  .edge-blur.bot{bottom:0;height:130px;}
+  .edge-blur i{position:absolute;inset:0;}
+  .edge-blur.bot i:nth-child(1){backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
+    -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 38%);mask-image:linear-gradient(to bottom,transparent 0,#000 38%);}
+  .edge-blur.bot i:nth-child(2){backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    -webkit-mask-image:linear-gradient(to bottom,transparent 32%,#000 68%);mask-image:linear-gradient(to bottom,transparent 32%,#000 68%);}
+  .edge-blur.bot i:nth-child(3){backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    -webkit-mask-image:linear-gradient(to bottom,transparent 62%,#000 94%);mask-image:linear-gradient(to bottom,transparent 62%,#000 94%);}
+  .edge-blur.bot::after{content:"";position:absolute;inset:0;
+    background:linear-gradient(to bottom,transparent,color-mix(in srgb,var(--ground) 72%,transparent));}
+  .edge-blur.top i:nth-child(1){backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
+    -webkit-mask-image:linear-gradient(to top,transparent 0,#000 38%);mask-image:linear-gradient(to top,transparent 0,#000 38%);}
+  .edge-blur.top i:nth-child(2){backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    -webkit-mask-image:linear-gradient(to top,transparent 32%,#000 68%);mask-image:linear-gradient(to top,transparent 32%,#000 68%);}
+  .edge-blur.top i:nth-child(3){backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    -webkit-mask-image:linear-gradient(to top,transparent 62%,#000 94%);mask-image:linear-gradient(to top,transparent 62%,#000 94%);}
+  .edge-blur.top::after{content:"";position:absolute;inset:0;
+    background:linear-gradient(to top,transparent,color-mix(in srgb,var(--ground) 72%,transparent));}
   .wrap{max-width:900px;margin:0 auto;padding:clamp(96px,15vh,150px) clamp(24px,5vw,40px) clamp(60px,10vh,110px);}
   .page-head{margin-bottom:clamp(30px,6vh,60px);}
   .page-title{font-size:clamp(46px,9vw,96px);text-transform:uppercase;margin:0;}
@@ -162,6 +189,9 @@
   .j-path-wrap{position:relative;margin:clamp(20px,4vh,44px) auto 0;max-width:760px;}
   .j-path-wrap svg{width:100%;height:auto;display:block;overflow:visible;}
   .j-path{fill:none;stroke:var(--foreground);stroke-width:1.4;stroke-linecap:round;}
+  /* the hover "lift" overlay — a short thicker stretch that rises off the page */
+  .j-lens{fill:none;stroke:var(--foreground);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;}
+  .j-lens-ring{fill:none;stroke:var(--foreground);stroke-width:1;opacity:.2;pointer-events:none;}
   .j-dot{fill:var(--foreground);opacity:0;cursor:pointer;transition:fill .25s var(--ease-out-expo);}
   .j-dot:hover{fill:var(--warm);}
   .j-end{fill:none;stroke:var(--foreground);stroke-width:1.4;stroke-linecap:round;opacity:0;}
@@ -174,8 +204,8 @@
     text-transform:uppercase;font-size:clamp(25px,4.6vw,42px);line-height:1;color:var(--foreground);
   }
   .j-entry{position:absolute;width:min(200px,30%);opacity:0;}
-  .j-entry.on-left{text-align:right;}
-  .j-entry.on-right{text-align:left;}
+  .j-entry.on-left{text-align:right;transform-origin:right center;}
+  .j-entry.on-right{text-align:left;transform-origin:left center;}
   .j-entry .d{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted-foreground);font-weight:500;}
   .j-entry h3{
     font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
@@ -462,6 +492,10 @@
   </nav>
 </aside>
 
+<!-- ---------- edge blur (scroll-driven top & bottom dissolve) ---------- -->
+<div class="edge-blur top" id="edgeTop" aria-hidden="true"><i></i><i></i><i></i></div>
+<div class="edge-blur bot" id="edgeBot" aria-hidden="true"><i></i><i></i><i></i></div>
+
 <!-- ---------- arrival line ---------- -->
 <div class="arrival-wrap" id="arrivalWrap" aria-hidden="true">
   <svg width="2" height="150" viewBox="0 0 2 150"><path class="arrival-line" d="M1 0 V150"/></svg>
@@ -480,8 +514,14 @@
 
       <div class="j-path-wrap" id="jWrap">
         <svg id="jSvg" viewBox="0 0 700 1500" fill="none" aria-hidden="true">
-          <path class="j-path" id="jPath" d=""/>
+          <defs>
+            <clipPath id="jLensClip"><circle id="jLensCircle" cx="0" cy="0" r="0"/></clipPath>
+            <mask id="jLensMask" maskUnits="userSpaceOnUse"><rect x="-100" y="-100" width="900" height="1720" fill="#fff"/><circle id="jLensHole" cx="0" cy="0" r="0" fill="#000"/></mask>
+          </defs>
+          <path class="j-path" id="jPath" d="" mask="url(#jLensMask)"/>
           <path class="j-end" id="jEnd" d=""/>
+          <path class="j-lens" id="jLensPath" d="" clip-path="url(#jLensClip)"/>
+          <circle class="j-lens-ring" id="jLensRing" cx="0" cy="0" r="0"/>
         </svg>
         <!-- dots injected by script; entries positioned by script -->
         <div class="j-entry" data-id="monorepo"><div class="d">28 May 2026 · Phase 0</div><h3><a>Why a monorepo said no</a></h3><p>Splitting the platform and the portfolio into two repos.</p></div>
@@ -630,7 +670,7 @@
   </section>
 
   <!-- ================= SKILLS ================= -->
-  <section class="page" data-page="skills" data-arrival="drift">
+  <section class="page" data-page="skills" data-arrival="line">
     <div class="wrap">
       <div class="page-head reveal">
         <h1 class="page-title display">Skills</h1>
@@ -753,6 +793,7 @@
 
   const pages=[...document.querySelectorAll('.page')];
   const arrivalWrap=document.getElementById('arrivalWrap');
+  const switchDock=document.querySelector('.switch-dock');
   const titles={journey:'Journey',architecture:'Architecture',skills:'Skills',about:'About'};
   let activeName='journey';
   const active=()=>document.querySelector('.page.active');
@@ -802,7 +843,7 @@
     {t:'entry',id:'gate',x:RX,y:1150},
     {t:'entry',id:'pandera',x:LX,y:1310},
   ];
-  let jLen=0, jNodes=[], jHeads=[];
+  let jLen=0, jNodes=[], jHeads=[], jSamp=[];   // jSamp: sampled line points (for cursor projection)
   const entryById=id=>jEntries.find(e=>e.dataset.id===id);
   function buildJourney(){
     const pts=jLayout.filter(n=>n.t==='entry');
@@ -816,6 +857,7 @@
       d+=' C '+a.x+' '+(a.y+m)+', '+b.x+' '+(b.y-m)+', '+b.x+' '+b.y;
     }
     jPath.setAttribute('d',d);
+    document.getElementById('jLensPath').setAttribute('d',d);   // lens mirrors the line's geometry
     jLen=jPath.getTotalLength();
     jPath.style.strokeDasharray=String(jLen);
     jPath.style.strokeDashoffset=String(jLen);
@@ -830,6 +872,7 @@
     for(let k=0;k<=N;k++) samp.push(jPath.getPointAtLength(jLen*k/N));
     const fracNear=(x,y)=>{let bi=0,bd=1e9;for(let k=0;k<=N;k++){const dx=samp[k].x-x,dy=samp[k].y-y,dd=dx*dx+dy*dy;if(dd<bd){bd=dd;bi=k;}}return bi/N;};
     const fracY=y=>{let bi=0,bd=1e9;for(let k=0;k<=N;k++){const dy=Math.abs(samp[k].y-y);if(dy<bd){bd=dy;bi=k;}}return bi/N;};
+    jSamp=samp;
     // rebuild injected dots + phase headings from scratch
     jSvg.querySelectorAll('.j-dot').forEach(el=>el.remove());
     jWrap.querySelectorAll('.phase-head').forEach(el=>el.remove());
@@ -850,7 +893,7 @@
         e.style.top='calc('+yPct+'% - 14px)';
         if(onLeft){ e.style.right='calc('+(100-xPct)+'% + 20px)'; e.style.left='auto'; }
         else{ e.style.left='calc('+xPct+'% + 20px)'; e.style.right='auto'; }
-        jNodes.push({el:e,dot,frac:fracNear(n.x,n.y)});
+        jNodes.push({el:e,dot,frac:fracNear(n.x,n.y),cy:n.y});
       }else{
         const h=document.createElement('div');
         h.className='phase-head';
@@ -861,12 +904,29 @@
       }
     });
   }
+  // ---- scroll-driven magnifier: a circular lens rolls down the journey as you scroll
+  //      (anchored to the viewport centre), magnifying the line (a clipped, scaled copy of
+  //      the path) and zooming the dot + entry text it's over. Off for reduced motion. ----
+  const jLensPath=document.getElementById('jLensPath');
+  const jLensCircle=document.getElementById('jLensCircle');
+  const jLensHole=document.getElementById('jLensHole');
+  const jLensRing=document.getElementById('jLensRing');
+  const LENS_R=60, LENS_S=1.4, NEAR=0.06;        // lens radius (SVG units), zoom factor, dot/text reach (path fraction)
+  const falloff=d=>d<NEAR?0.5+0.5*Math.cos(Math.PI*d/NEAR):0;
+  function magnify(focus){
+    if(reduce||!jLen||!jLensPath) return;
+    focus=Math.max(0,Math.min(1,focus));
+    const pt=jPath.getPointAtLength(focus*jLen), fx=+pt.x.toFixed(1), fy=+pt.y.toFixed(1);
+    // base line is masked out inside the circle; the scaled copy shows only inside it — no duplicate
+    for(const el of [jLensCircle,jLensHole,jLensRing]){ el.setAttribute('cx',fx); el.setAttribute('cy',fy); el.setAttribute('r',LENS_R); }
+    jNodes.forEach(n=>{ const s=1+(LENS_S-1)*falloff(Math.abs(focus-n.frac)); n.dot.setAttribute('r',(6*s).toFixed(2)); n.el.style.scale=String(s.toFixed(3)); });
+  }
   function applyJourney(){
     const r=jWrap.getBoundingClientRect();
     const vh=window.innerHeight;
     // draw progress: from when the wrap nears the fold to when its bottom clears mid-screen
     const dP=clamp((vh*0.72 - r.top)/(r.height - vh*0.28),0,1);
-    jPath.style.strokeDashoffset=String(reduce?0:jLen*(1-dP));
+    jPath.style.strokeDashoffset='0';   // line stays fully drawn; the magnifier is the scroll effect
     jNodes.forEach(n=>{
       n.dot.style.opacity=String(reduce?1:clamp((dP-n.frac)/0.03,0,1));
       setReveal(n.el,reduce?1:easeOut(clamp((dP-(n.frac+0.005))/0.08,0,1)));
@@ -877,6 +937,8 @@
     const eLen=jEnd.getTotalLength();
     jEnd.style.strokeDashoffset=String(reduce?0:eLen*(1-clamp((dP-0.9)/0.1,0,1)));
     jTail.style.opacity=String(reduce?1:clamp((dP-0.96)/0.04,0,1));
+    // the lens rolls down the line, anchored to the viewport centre passing through the journey
+    magnify(clamp((vh*0.5 - r.top)/r.height,0,1));
   }
 
   // ---- About CV lines: vertical ink line draws down, stops reveal as it passes ----
@@ -907,7 +969,16 @@
     if(activeName==='journey') applyJourney();
     if(activeName==='about'){ applyCV('cvWork'); applyCV('cvEdu'); }
   }
-  function frame(){ applyReveals(); requestAnimationFrame(frame); }
+  // edge blur is scroll-driven: top fades in over the first ~140px of scroll,
+  // bottom fades out over the last ~140px so the page end reads crisp
+  const edgeTop=document.getElementById('edgeTop'), edgeBot=document.getElementById('edgeBot');
+  function applyEdges(){
+    const y=window.scrollY;
+    const max=document.documentElement.scrollHeight-window.innerHeight;
+    edgeTop.style.opacity=String(clamp(y/140,0,1));
+    edgeBot.style.opacity=String(max<=0?0:clamp((max-y)/140,0,1));
+  }
+  function frame(){ applyReveals(); applyEdges(); requestAnimationFrame(frame); }
 
   // ---- page switching + the "line carries you" arrival ----
   let arrivalTimer=null;
@@ -917,6 +988,8 @@
     pages.forEach(p=>p.classList.toggle('active',p.dataset.page===name));
     document.body.dataset.page=name;
     window.scrollTo(0,0);
+    // About is off the Story tray (Architecture · Journey · Skills only) — hide it there
+    switchDock.style.display = name==='about' ? 'none' : '';
     // the bottom tray declares the current location (active state + aria-current)
     document.querySelectorAll('.switch-dock .sw').forEach(b=>{
       const on=b.dataset.goto===name;

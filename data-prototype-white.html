@@ -581,7 +581,7 @@
         <div class="panel reveal" style="grid-column:span 5">
           <div class="p-head"><div>
             <div class="p-title">Visitors as evaluators</div>
-            <div class="p-sub">👍/👎 after each guess → proxy accuracy</div>
+            <div class="p-sub">yes / no votes after each guess → proxy accuracy</div>
           </div></div>
           <div class="hero-num" style="font-size:clamp(40px,4.6vw,56px)"><span data-fill="fb-acc"></span><span class="unit">%</span></div>
           <div class="tile-row" style="margin-top:14px">
@@ -1187,14 +1187,14 @@ function renderMonitoring(){
 
   fill('fb-acc',(FB.accuracy*100).toFixed(1));
   fill('fb-n',String(FB.window.n));
-  fill('fb-split',FB.window.n_correct+' 👍 · '+(FB.window.n-FB.window.n_correct)+' 👎');
+  fill('fb-split',FB.window.n_correct+' yes · '+(FB.window.n-FB.window.n_correct)+' no');
   const prev=FH[0];
   fill('fb-prev',(prev.accuracy*100).toFixed(0)+'%');
   fill('fb-prev-date','n = '+prev.n+' · '+fmtDay(prev.date));
   const fhost=document.getElementById('fbTable'); fhost.textContent='';
-  table('fbTable',['model guessed','votes','👍','proxy accuracy'],
+  table('fbTable',['model guessed','votes','yes votes','proxy accuracy'],
     [...FB.by_class].sort((a,b)=>b.n-a.n).map(r=>[r.predicted_label,r.n,r.n_correct,fmtPct(r.accuracy,0)]),[1,2,3]);
-  H('div','cap',fhost,'All '+FB.window.n+' votes arrived as stroke drawings via the home-page canvas. Airplanes collect the honest 👎s.');
+  H('div','cap',fhost,'All '+FB.window.n+' votes arrived as stroke drawings via the home-page canvas. Airplanes collect the honest no-votes.');
 }
 
 function renderPerformance(){
