@@ -1094,6 +1094,19 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-07-30** — **Home subtitles set in Allura (script) — PROVISIONAL (undecided).** (`transition-prototype.html`).
+  The hero subtitle (`.hero-sub`, "MLOps Project & Portfolio") and the section leads (`.scene-lead` — "From
+  strokes to prediction", "Roads not taken", "What I build with") now use **Google Allura** (regular,
+  400) for a flowing script accent against the Bodoni display titles. Added Allura to the font `<link>`.
+  `.hero-sub` dropped its uppercase + `.34em` tracking (a connected script needs mixed case and ~0
+  tracking) and both bumped in size (script reads small) — hero ~clamp(28–42px), leads ~clamp(26–36px),
+  `line-height:1`. Colour kept muted. Only the Home scroll; internal page leads unchanged.
+  **↩ To revert (this is a standalone commit):** `git revert <this commit>`. Manual undo instead:
+  (1) remove `family=Allura&` from the Google Fonts `<link>`; (2) `.hero-sub` → restore
+  `font-size:clamp(12px,1.5vw,15px);letter-spacing:.34em;text-transform:uppercase;font-weight:500;` and
+  drop the `font-family`/`line-height`; (3) `.scene-lead` → restore `font-size:clamp(16px,2vw,20px)` and
+  drop the `font-family`/`font-weight`/`line-height`.
+
 - **2026-07-29** — **Journey line: scroll-driven "magnifying glass"** (both `transition-prototype.html`
   and `sections-prototype.html`). Replaced the earlier hover "lift" (and its dark travelling segment,
   which read badly) with a **circular lens that rolls down the journey as you scroll**. Implementation:
