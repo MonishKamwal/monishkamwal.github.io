@@ -26,6 +26,7 @@
     --ground:#ffffff;      /* the slide-in menu's ground — the scroll script tints it
                               to the section in view (sage/ochre/rose), white elsewhere */
     --ease-out-expo:cubic-bezier(.16,1,.3,1);
+    --ease-hover:cubic-bezier(.2,.7,.35,1);  /* hovers: short travel, no front-load */
     --dur:.48s; /* the loose global motion value — retuned by the dock */
   }
   *{box-sizing:border-box;}
@@ -349,11 +350,6 @@
   .sec-head{position:absolute;top:clamp(44px,7vh,64px);left:clamp(24px,5vw,72px);right:clamp(24px,5vw,72px);}
   .sec-head .scene-title{padding-top:.3em;}
   .scene-lead{margin:14px 0 0;font-size:clamp(16px,2vw,20px);color:var(--muted-foreground);}
-  .flow{display:flex;align-items:center;flex-wrap:wrap;margin-top:clamp(30px,5vh,54px);}
-  .flow .stop{display:flex;flex-direction:column;align-items:center;gap:9px;}
-  .flow .dot{width:11px;height:11px;border-radius:50%;background:var(--foreground);}
-  .flow .lbl{font-size:12px;color:var(--muted-foreground);}
-  .flow .conn{display:flex;align-items:center;color:var(--foreground);margin:0 6px 26px;}
   .scene-link{margin:clamp(26px,4vh,40px) 0 0;font-size:15px;}
   .link{
     display:inline-block;transform-origin:left center;
@@ -372,7 +368,79 @@
   /* §3 reveal — SCRUBBED like the demo: title + lead first, then the pipeline
      draws itself left-to-right under the scroll, then the link. Opacity and
      translate are driven per-frame by the scroll script. */
-  .scene-title,.scene-lead,.scene-link,.flow>*{opacity:0;}
+  .scene-title,.scene-lead,.scene-link{opacity:0;}
+
+  /* ---------- §3's ring: the four planes as a closed loop (see arch-sketches.html) ---------- */
+  .arch-wrap{display:flex;justify-content:center;width:100%;}
+  .arch-ring{position:relative;width:min(560px,58vh,86vw);aspect-ratio:1;}
+  .ring-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;color:var(--foreground);}
+  /* the line draws itself round under the scroll — dasharray is the full circumference */
+  #ringPath{stroke-dasharray:943;stroke-dashoffset:943;}
+  .chev,.ring-in{opacity:0;}
+  .you-note{
+    position:absolute;left:50%;top:calc(12.5% - 88px);transform:translateX(-50%);
+    text-align:center;display:flex;flex-direction:column;line-height:1.25;opacity:0;
+  }
+  .you-note .yn-a{font-size:14px;font-weight:500;}
+  .you-note .yn-b{font-size:11.5px;color:var(--muted-foreground);}
+  /* each stop sits on the ring; its plate is what breaks the line */
+  .arch-ring .lab{position:absolute;transform:translate(-50%,-50%);text-align:center;opacity:0;}
+  .arch-ring .lab.serve{left:50%;top:12.5%;}
+  .arch-ring .lab.mon{left:87.5%;top:50%;}
+  .arch-ring .lab.cicd{left:50%;top:87.5%;transform:translate(-50%,calc(-50% - 14px));}
+  .arch-ring .lab.deploy{left:12.5%;top:50%;}
+  .dname{
+    --fs:clamp(16px,2.1vw,23px);
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 88;font-weight:500;letter-spacing:-.012em;
+    font-size:var(--fs);line-height:1;text-transform:uppercase;white-space:nowrap;
+    height:30px;display:flex;align-items:center;justify-content:center;
+    background:var(--wash-sage);padding:2px 12px;
+    transition:font-size .17s var(--ease-hover),color .17s var(--ease-hover),
+               padding .17s var(--ease-hover);
+  }
+  /* the pop is a real font-size change — transform:scale() only stretches a raster of
+     the glyphs and goes soft. The plate gives back padding as the type gains width, so
+     its outer edge holds still and stops eating the ring line. */
+  .dname.two{height:56px;flex-direction:column;gap:2px;padding:2px 16px;}
+  .dname:hover{font-size:calc(var(--fs)*1.09);color:var(--warm);padding:2px 6px;}
+  .dname.two:hover{padding:2px 6px;}
+  .bmrow{display:flex;align-items:center;justify-content:center;gap:10px;
+    margin-top:0;padding:9px 8px 3px;background:var(--wash-sage);}
+  .bm{position:relative;color:var(--bc);line-height:0;cursor:default;}
+  .bm.drawn{color:var(--foreground);}
+  .bm svg{width:20px;height:20px;display:block;
+    transition:transform .17s var(--ease-hover),filter .17s var(--ease-hover);}
+  .bm:hover svg,.bm:focus-visible svg{transform:scale(1.24);filter:drop-shadow(0 5px 9px rgba(10,10,10,.22));}
+  .bm::after{
+    content:attr(data-name);position:absolute;left:50%;top:calc(100% + 9px);
+    transform:translateX(-50%) translateY(-3px);
+    background:var(--foreground);color:#fff;font-family:"Outfit",sans-serif;font-size:10.5px;
+    font-weight:350;letter-spacing:.02em;line-height:1;padding:6px 9px;border-radius:5px;
+    white-space:nowrap;opacity:0;pointer-events:none;z-index:5;
+    transition:opacity .17s var(--ease-hover),transform .17s var(--ease-hover);
+  }
+  .bm::before{
+    content:"";position:absolute;left:50%;top:calc(100% + 3px);transform:translateX(-50%);
+    border:5px solid transparent;border-bottom-color:var(--foreground);opacity:0;
+    pointer-events:none;z-index:5;transition:opacity .17s var(--ease-hover);
+  }
+  .bm:hover::after,.bm:focus-visible::after{opacity:1;transform:translateX(-50%);}
+  .bm:hover::before,.bm:focus-visible::before{opacity:1;}
+  .bm:focus-visible{outline:2px solid var(--warm);outline-offset:5px;border-radius:4px;}
+  /* the loop draws a hole; the invitation goes in it, up in the top half so the
+     two-line stop below has the lower half to grow into */
+  .ring-mid{position:absolute;left:0;right:0;top:31%;text-align:center;white-space:nowrap;}
+  .ring-mid .scene-link{margin:0;}
+  /* this link pops by size, not by scale — same reason as the stop names */
+  .ring-mid .link{
+    --fs:clamp(15px,1.6vw,19px);font-size:var(--fs);transform-origin:center;
+    transition:color .17s var(--ease-hover),border-color .17s var(--ease-hover),
+               font-size .17s var(--ease-hover);
+  }
+  .ring-mid .link .ar{display:inline-block;transition:transform .17s var(--ease-hover);}
+  .ring-mid .link:hover{scale:1;font-size:calc(var(--fs)*1.07);}
+  .ring-mid .link:hover .ar{transform:translateX(5px);}
 
   /* ---------- §4 layer: The Journey — rises over the diagram ---------- */
   .journey-layer{
@@ -381,7 +449,7 @@
     display:flex;align-items:center;padding:clamp(24px,5vw,72px);
   }
   .j-inner{max-width:820px;margin:0 auto;width:100%;}
-  .j-path-wrap{position:relative;margin-top:clamp(20px,3.5vh,36px);max-width:760px;}
+  .j-path-wrap{position:relative;margin-top:clamp(0px,1vh,10px);max-width:760px;}
   .j-path-wrap svg{width:100%;height:auto;display:block;}
   .j-path{fill:none;stroke:var(--foreground);stroke-width:1.4;stroke-linecap:round;}
   /* the hover "lift" overlay — a short thicker stretch that rises off the page */
@@ -419,7 +487,12 @@
 
   /* with headers pulled to the top-left, bias the centered content down so it
      clears them on short viewports */
-  .scene-layer,.journey-layer,.skills-layer{padding-top:clamp(120px,17vh,170px);}
+  .skills-layer{padding-top:clamp(120px,17vh,170px);}
+  /* §3 and §4 sit higher: their diagrams want the vertical room more than the
+     header does (§3 carries a title only; §4 trims its path's own top slack) */
+  .journey-layer{padding-top:clamp(84px,10vh,120px);}
+  /* §3 carries a title only — no lead — so its content sits higher */
+  .scene-layer{padding-top:clamp(84px,10vh,120px);}
 
   /* ---------- §6 layer: the Contact bookend — a white page like the Hero,
        now a rising layer so Skills → Contact gets the same roll-over ---------- */
@@ -476,6 +549,16 @@
   .chip-btn:focus-visible{outline:2px solid var(--warm);outline-offset:2px;}
 
   @media(max-width:700px){
+    /* the two side stops sit OUTSIDE the circle, so on a phone the ring has to
+       shrink to make room for them rather than the other way round */
+    .arch-ring{width:min(62vw,44vh);}
+    .dname{--fs:13px;height:22px;padding:2px 7px;}
+    .dname.two{height:40px;padding:2px 9px;}
+    .dname:hover,.dname.two:hover{padding:2px 4px;}
+    .bm svg{width:15px;height:15px;}
+    .bmrow{gap:7px;padding:6px 6px 3px;}
+    .ring-mid .link{--fs:12.5px;}
+    .you-note{top:calc(12.5% - 68px);}
     .panel-layer{flex-direction:column;gap:20px;padding-top:clamp(90px,16vh,130px);}
     .instrument{flex-direction:column;gap:18px;max-width:min(92vw,440px);}
     .instr-split{width:auto;height:1px;align-self:auto;}
@@ -592,18 +675,29 @@
           <h2 class="scene-title display">Behind the Scenes</h2>
           <p class="scene-lead">From strokes to prediction</p>
         </div>
-        <div class="flow">
-          <div class="stop"><div class="dot"></div><div class="lbl">draw</div></div>
-          <div class="conn"><svg width="52" height="8" viewBox="0 0 52 8" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M0 4h46M42 1l5 3-5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-          <div class="stop"><div class="dot"></div><div class="lbl">preprocess</div></div>
-          <div class="conn"><svg width="52" height="8" viewBox="0 0 52 8" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M0 4h46M42 1l5 3-5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-          <div class="stop"><div class="dot"></div><div class="lbl">model</div></div>
-          <div class="conn"><svg width="52" height="8" viewBox="0 0 52 8" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M0 4h46M42 1l5 3-5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-          <div class="stop"><div class="dot"></div><div class="lbl">serve</div></div>
-          <div class="conn"><svg width="52" height="8" viewBox="0 0 52 8" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M0 4h46M42 1l5 3-5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-          <div class="stop"><div class="dot"></div><div class="lbl">monitor</div></div>
+        <div class="arch-wrap">
+          <div class="arch-ring" id="archRing">
+            <div class="you-note"><span class="yn-a">You draw</span><span class="yn-b">canvas · yes / no</span></div>
+            <svg class="ring-svg" viewBox="0 0 400 400" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+              <path id="ringPath" d="M200 50 A150 150 0 0 1 200 350 A150 150 0 0 1 200 50"/>
+              <g stroke-linecap="round" stroke-linejoin="round">
+                <path class="chev" d="M-5-5 0 0-5 5"/>
+                <path class="chev" d="M-5-5 0 0-5 5"/>
+                <path class="chev" d="M-5-5 0 0-5 5"/>
+                <path class="chev" d="M-5-5 0 0-5 5"/>
+              </g>
+              <path class="ring-in" d="M200 10v30" stroke-linecap="round"/>
+              <path class="ring-in" d="M195 33 200 41 205 33" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div class="ring-mid">
+              <p class="scene-link"><a class="link cta-strong" href="sections-prototype.html#architecture">Explore the full architecture <span class="ar">→</span></a></p>
+            </div>
+            <div class="lab serve" id="labServe"><div class="dname">Serving</div><span class="bmrow"><span class="bm" style="--bc:#FF9900" data-name="AWS Lambda" tabindex="0" role="img" aria-label="AWS Lambda"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.9855 0c-.2941.0031-.5335.2466-.534.5482L4.446 5.456c0 .1451.06.2835.159.3891a.5322.5322 0 0 0 .3806.1562h3.4282l8.197 17.6805a.5365.5365 0 0 0 .4885.3181h5.811c.2969 0 .5426-.2448.5426-.5482V18.544c0-.3035-.2392-.5482-.5425-.5482h-2.0138L12.7394.3153C12.647.124 12.4564 0 12.2452 0h-7.254Zm.5397 1.0907h6.3678l8.16 17.6804a.5365.5365 0 0 0 .4885.3181h1.8178v3.8173H17.437L9.2402 5.226a.536.536 0 0 0-.4885-.318H5.5223Zm2.0137 8.2366c-.2098.0011-.3937.1193-.4857.3096L.6002 23.2133a.5506.5506 0 0 0 .0313.5282.5334.5334 0 0 0 .4544.25h6.169a.5468.5468 0 0 0 .497-.3096l3.38-7.166a.5405.5405 0 0 0-.0029-.4686L8.036 9.637a.5468.5468 0 0 0-.4942-.3096Zm.0057 1.8036 2.488 5.1522-3.1214 6.6206H1.9465Z"/></svg></span><span class="bm" style="--bc:#009688" data-name="FastAPI" tabindex="0" role="img" aria-label="FastAPI"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .0387C5.3729.0384.0003 5.3931 0 11.9988c-.001 6.6066 5.372 11.9628 12 11.9625 6.628.0003 12.001-5.3559 12-11.9625-.0003-6.6057-5.3729-11.9604-12-11.96m-.829 5.4153h7.55l-7.5805 5.3284h5.1828L5.279 18.5436q2.9466-6.5444 5.892-13.0896"/></svg></span><span class="bm" style="--bc:#005CED" data-name="ONNX" tabindex="0" role="img" aria-label="ONNX"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.0325 11.2963c-.0503 0-.1006 0-.1508.0126l-4.021-7.4387c.0754-.1383.1131-.289.1131-.4524 0-.5403-.4398-.9675-.9675-.9675-.2765 0-.5278.113-.7037.3015L9.286 1.156C9.2357.6785 8.821.3016 8.3184.3016c-.5277 0-.9675.4398-.9675.9675 0 .1634.0377.3141.113.4524l-6.245 8.9591c-.0753-.0251-.1633-.0377-.2513-.0377-.5403 0-.9675.4398-.9675.9676 0 .5403.4398.9675.9675.9675h.0377l3.3676 8.3309c-.0503.1257-.088.2639-.088.402 0 .5404.4398.9676.9676.9676.2764 0 .5277-.113.7036-.3015l10.1152.9926c.1005.4273.49.7288.9424.7288.5403 0 .9676-.4398.9676-.9675 0-.2388-.088-.465-.2262-.6283l5.1141-8.8712c.0503.0126.1005.0126.1634.0126.5403 0 .9675-.4398.9675-.9676 0-.5403-.4272-.98-.9675-.98zM17.2272 4.021c.1131.1508.2765.264.4524.3267l-1.533 11.5728c-.1005.0252-.1885.0503-.2764.1005L7.4513 8.708c.0251-.0754.0377-.1634.0377-.2514 0-.0628-.0126-.1256-.0126-.1884zm4.8754 8.5068l-5.177 3.556a1.105 1.105 0 0 0-.1256-.0753L18.3455 4.335h.0126l3.9456 7.288c-.1508.1759-.2388.3895-.2388.6408 0 .1005.0126.1885.0377.2638zM6.3832 7.5016c-.4649.0754-.8293.4775-.8293.955v.0628l-3.4555 2.0481 5.378-7.7026zm.3519 1.91c.1256-.0252.2513-.088.3518-.1634l8.356 7.2628c-.0377.113-.0628.2262-.0628.3518v.0503l-9.311 3.845c-.1382-.201-.3518-.3518-.6031-.402zm8.8963 8.1172c.1257.1382.3016.2513.5026.289l.465 4.046c-.201.1006-.3519.264-.4524.4524l-9.8136-.955zm1.1435.2136c.3267-.1633.5403-.49.5403-.867 0-.088-.0126-.1634-.0377-.2513l4.7372-3.2545-4.8 8.331zm.2513-14.3497l-9.889 4.31-.1131-.0755 1.2565-5.3906h.0377c.3393 0 .6409-.1759.8168-.4397l7.891 1.5706zM1.935 11.6105c0-.0629-.0126-.1257-.0126-.1885l3.9079-2.2995c.0754.0754.1633.1508.2638.201L4.8252 20.243l-3.2043-7.9036c.1885-.176.3142-.4398.3142-.7288Z"/></svg></span></span></div>
+            <div class="lab mon" id="labMon"><div class="dname">Monitoring</div><span class="bmrow"><span class="bm drawn" data-name="Evidently — no logo published" tabindex="0" role="img" aria-label="Evidently"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 20h18"/><path d="M6 20v-6M10 20v-10M14 20v-4M18 20v-8"/><path d="M4.5 6.5 8 3l3.5 3.5"/><path d="M8 3v6"/></svg></span><span class="bm" style="--bc:#E6522C" data-name="Prometheus" tabindex="0" role="img" aria-label="Prometheus"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.373 0 0 5.372 0 12c0 6.627 5.373 12 12 12s12-5.373 12-12c0-6.628-5.373-12-12-12zm0 22.46c-1.885 0-3.414-1.26-3.414-2.814h6.828c0 1.553-1.528 2.813-3.414 2.813zm5.64-3.745H6.36v-2.046h11.28v2.046zm-.04-3.098H6.391c-.037-.043-.075-.086-.111-.13-1.155-1.401-1.427-2.133-1.69-2.879-.005-.025 1.4.287 2.395.511 0 0 .513.119 1.262.255-.72-.843-1.147-1.915-1.147-3.01 0-2.406 1.845-4.508 1.18-6.207.648.053 1.34 1.367 1.387 3.422.689-.951.977-2.69.977-3.755 0-1.103.727-2.385 1.454-2.429-.648 1.069.168 1.984.894 4.256.272.854.237 2.29.447 3.201.07-1.892.395-4.652 1.595-5.605-.529 1.2.079 2.702.494 3.424.671 1.164 1.078 2.047 1.078 3.716a4.642 4.642 0 01-1.11 2.996c.792-.149 1.34-.283 1.34-.283l2.573-.502s-.374 1.538-1.81 3.019z"/></svg></span><span class="bm" style="--bc:#F46800" data-name="Grafana" tabindex="0" role="img" aria-label="Grafana"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.02 10.59a8.578 8.578 0 0 0-.862-3.034 8.911 8.911 0 0 0-1.789-2.445c.337-1.342-.413-2.505-.413-2.505-1.292-.08-2.113.4-2.416.62-.052-.02-.102-.044-.154-.064-.22-.089-.446-.172-.677-.247-.231-.073-.47-.14-.711-.197a9.867 9.867 0 0 0-.875-.161C14.557.753 12.94 0 12.94 0c-1.804 1.145-2.147 2.744-2.147 2.744l-.018.093c-.098.029-.2.057-.298.088-.138.042-.275.094-.413.143-.138.055-.275.107-.41.166a8.869 8.869 0 0 0-1.557.87l-.063-.029c-2.497-.955-4.716.195-4.716.195-.203 2.658.996 4.33 1.235 4.636a11.608 11.608 0 0 0-.607 2.635C1.636 12.677.953 15.014.953 15.014c1.926 2.214 4.171 2.351 4.171 2.351.003-.002.006-.002.006-.005.285.509.615.994.986 1.446.156.19.32.371.488.548-.704 2.009.099 3.68.099 3.68 2.144.08 3.553-.937 3.849-1.173a9.784 9.784 0 0 0 3.164.501h.08l.055-.003.107-.002.103-.005.003.002c1.01 1.44 2.788 1.646 2.788 1.646 1.264-1.332 1.337-2.653 1.337-2.94v-.058c0-.02-.003-.039-.003-.06.265-.187.52-.387.758-.6a7.875 7.875 0 0 0 1.415-1.7c1.43.083 2.437-.885 2.437-.885-.236-1.49-1.085-2.216-1.264-2.354l-.018-.013-.016-.013a.217.217 0 0 1-.031-.02c.008-.092.016-.18.02-.27.011-.162.016-.323.016-.48v-.253l-.005-.098-.008-.135a1.891 1.891 0 0 0-.01-.13c-.003-.042-.008-.083-.013-.125l-.016-.124-.018-.122a6.215 6.215 0 0 0-2.032-3.73 6.015 6.015 0 0 0-3.222-1.46 6.292 6.292 0 0 0-.85-.048l-.107.002h-.063l-.044.003-.104.008a4.777 4.777 0 0 0-3.335 1.695c-.332.4-.592.84-.768 1.297a4.594 4.594 0 0 0-.312 1.817l.003.091c.005.055.007.11.013.164a3.615 3.615 0 0 0 .698 1.82 3.53 3.53 0 0 0 1.827 1.282c.33.098.66.14.971.137.039 0 .078 0 .114-.002l.063-.003c.02 0 .041-.003.062-.003.034-.002.065-.007.099-.01.007 0 .018-.003.028-.003l.031-.005.06-.008a1.18 1.18 0 0 0 .112-.02c.036-.008.072-.013.109-.024a2.634 2.634 0 0 0 .914-.415c.028-.02.056-.041.085-.065a.248.248 0 0 0 .039-.35.244.244 0 0 0-.309-.06l-.078.042c-.09.044-.184.083-.283.116a2.476 2.476 0 0 1-.475.096c-.028.003-.054.006-.083.006l-.083.002c-.026 0-.054 0-.08-.002l-.102-.006h-.012l-.024.006c-.016-.003-.031-.003-.044-.006-.031-.002-.06-.007-.091-.01a2.59 2.59 0 0 1-.724-.213 2.557 2.557 0 0 1-.667-.438 2.52 2.52 0 0 1-.805-1.475 2.306 2.306 0 0 1-.029-.444l.006-.122v-.023l.002-.031c.003-.021.003-.04.005-.06a3.163 3.163 0 0 1 1.352-2.29 3.12 3.12 0 0 1 .937-.43 2.946 2.946 0 0 1 .776-.101h.06l.07.002.045.003h.026l.07.005a4.041 4.041 0 0 1 1.635.49 3.94 3.94 0 0 1 1.602 1.662 3.77 3.77 0 0 1 .397 1.414l.005.076.003.075c.002.026.002.05.002.075 0 .024.003.052 0 .07v.065l-.002.073-.008.174a6.195 6.195 0 0 1-.08.639 5.1 5.1 0 0 1-.267.927 5.31 5.31 0 0 1-.624 1.13 5.052 5.052 0 0 1-3.237 2.014 4.82 4.82 0 0 1-.649.066l-.039.003h-.287a6.607 6.607 0 0 1-1.716-.265 6.776 6.776 0 0 1-3.4-2.274 6.75 6.75 0 0 1-.746-1.15 6.616 6.616 0 0 1-.714-2.596l-.005-.083-.002-.02v-.056l-.003-.073v-.096l-.003-.104v-.07l.003-.163c.008-.22.026-.45.054-.678a8.707 8.707 0 0 1 .28-1.355c.128-.444.286-.872.473-1.277a7.04 7.04 0 0 1 1.456-2.1 5.925 5.925 0 0 1 .953-.763c.169-.111.343-.213.524-.306.089-.05.182-.091.273-.135.047-.02.093-.042.138-.062a7.177 7.177 0 0 1 .714-.267l.145-.045c.049-.015.098-.026.148-.041.098-.029.197-.052.296-.076.049-.013.1-.02.15-.033l.15-.032.151-.028.076-.013.075-.01.153-.024c.057-.01.114-.013.171-.023l.169-.021c.036-.003.073-.008.106-.01l.073-.008.036-.003.042-.002c.057-.003.114-.008.171-.01l.086-.006h.023l.037-.003.145-.007a7.999 7.999 0 0 1 1.708.125 7.917 7.917 0 0 1 2.048.68 8.253 8.253 0 0 1 1.672 1.09l.09.077.089.078c.06.052.114.107.171.159.057.052.112.106.166.16.052.055.107.107.159.164a8.671 8.671 0 0 1 1.41 1.978c.012.026.028.052.04.078l.04.078.075.156c.023.051.05.1.07.153l.065.15a8.848 8.848 0 0 1 .45 1.34.19.19 0 0 0 .201.142.186.186 0 0 0 .172-.184c.01-.246.002-.532-.024-.856z"/></svg></span><span class="bm" style="--bc:#569A31" data-name="Amazon S3" tabindex="0" role="img" aria-label="Amazon S3"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.913 13.147l.12-.895c.947.576 1.258.922 1.354 1.071-.16.031-.562.046-1.474-.176zm-2.174 7.988a.547.547 0 0 0-.005.073c0 .084-.207.405-1.124.768a10.28 10.28 0 0 1-1.438.432c-1.405.325-3.128.504-4.853.504-4.612 0-7.412-1.184-7.412-1.704a.547.547 0 0 0-.005-.073L1.81 5.602c.135.078.28.154.432.227.042.02.086.038.128.057.134.062.272.122.417.18l.179.069c.154.058.314.114.478.168.043.013.084.029.13.043.207.065.423.127.646.187l.176.044c.175.044.353.087.534.127a23.414 23.414 0 0 0 .843.17l.121.023c.252.045.508.085.768.122.071.011.144.02.216.03.2.027.4.053.604.077l.24.027c.245.026.49.05.74.07l.081.009c.275.022.552.04.83.056l.233.012c.21.01.422.018.633.025a33.088 33.088 0 0 0 2.795-.026l.232-.011c.278-.016.555-.034.83-.056l.08-.008c.25-.02.497-.045.742-.072l.238-.026c.205-.024.408-.05.609-.077.07-.01.141-.019.211-.03.261-.037.519-.078.772-.122l.111-.02c.215-.04.427-.082.634-.125l.212-.047c.186-.041.368-.085.546-.13l.166-.042c.225-.06.444-.122.654-.189.04-.012.077-.026.115-.038a10.6 10.6 0 0 0 .493-.173c.058-.021.114-.044.17-.066.15-.06.293-.12.43-.185.038-.017.079-.034.116-.052.153-.073.3-.15.436-.228l-.976 7.245c-2.488-.78-5.805-2.292-7.311-3a1.09 1.09 0 0 0-1.088-1.085c-.6 0-1.088.489-1.088 1.088 0 .6.488 1.089 1.088 1.089.196 0 .378-.056.537-.148 1.72.812 5.144 2.367 7.715 3.15zm-7.42-20.047c5.677 0 9.676 1.759 9.75 2.736l-.014.113c-.01.033-.031.067-.048.101-.015.028-.026.057-.047.087-.024.033-.058.068-.09.102-.028.03-.051.06-.084.09-.038.035-.087.07-.133.105-.04.03-.074.06-.119.091-.053.036-.116.071-.177.107-.05.03-.095.06-.15.09-.068.036-.147.073-.222.11-.059.028-.114.057-.177.085-.084.038-.177.074-.268.111-.068.027-.13.054-.203.082-.097.036-.205.072-.31.107-.075.026-.148.053-.228.079-.111.035-.233.069-.35.103-.085.024-.165.05-.253.073-.124.034-.258.065-.389.098-.093.022-.181.046-.278.068-.139.032-.287.061-.433.091-.098.02-.191.041-.293.06-.155.03-.32.057-.482.084-.1.018-.198.036-.302.052-.166.026-.342.048-.515.072-.11.014-.213.03-.325.044-.181.023-.372.041-.56.06-.11.012-.218.025-.332.036-.188.016-.386.029-.58.043-.122.009-.24.02-.364.028-.207.012-.422.02-.635.028-.12.005-.234.012-.354.016a35.605 35.605 0 0 1-2.069 0c-.12-.004-.234-.011-.352-.016-.214-.008-.43-.016-.637-.028-.122-.008-.238-.02-.36-.027-.195-.015-.394-.028-.584-.044-.11-.01-.215-.024-.324-.035-.19-.02-.384-.038-.568-.06l-.315-.044c-.176-.024-.355-.046-.525-.073-.1-.015-.192-.033-.29-.05-.167-.028-.335-.055-.494-.086-.096-.018-.183-.038-.276-.056-.151-.032-.305-.062-.45-.095-.09-.02-.173-.043-.26-.064-.138-.034-.277-.067-.407-.102-.082-.022-.157-.046-.235-.069a11.75 11.75 0 0 1-.368-.108c-.075-.024-.141-.049-.213-.073-.11-.037-.223-.075-.325-.113-.067-.025-.125-.051-.188-.077-.096-.038-.195-.076-.282-.115-.06-.027-.11-.054-.166-.08-.08-.039-.162-.077-.233-.116-.052-.028-.094-.055-.142-.084-.063-.038-.13-.075-.185-.113-.043-.029-.075-.058-.113-.086-.048-.037-.098-.073-.139-.11-.032-.029-.054-.057-.08-.087-.033-.035-.069-.07-.093-.104-.02-.03-.031-.058-.046-.086-.018-.035-.039-.068-.049-.102l-.015-.113c.076-.977 4.074-2.736 9.748-2.736zm12.182 12.124c-.118-.628-.84-1.291-2.31-2.128l.963-7.16a.531.531 0 0 0 .005-.073C22.16 1.581 16.447 0 11.32 0 6.194 0 .482 1.581.482 3.851a.58.58 0 0 0 .005.072L2.819 21.25c.071 2.002 5.236 2.75 8.5 2.75 1.805 0 3.615-.188 5.098-.531.598-.138 1.133-.3 1.592-.48 1.18-.467 1.789-1.053 1.813-1.739l.945-7.018c.557.131 1.016.197 1.389.197.54 0 .902-.137 1.134-.413a.956.956 0 0 0 .21-.804Z"/></svg></span></span></div>
+            <div class="lab cicd" id="labBuild"><div class="dname two"><span>Build &amp;</span><span>Ephemeral K8s</span></div><span class="bmrow"><span class="bm" style="--bc:#EE4C2C" data-name="PyTorch" tabindex="0" role="img" aria-label="PyTorch"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.005 0L4.952 7.053a9.865 9.865 0 000 14.022 9.866 9.866 0 0014.022 0c3.984-3.9 3.986-10.205.085-14.023l-1.744 1.743c2.904 2.905 2.904 7.634 0 10.538s-7.634 2.904-10.538 0-2.904-7.634 0-10.538l4.647-4.646.582-.665zm3.568 3.899a1.327 1.327 0 00-1.327 1.327 1.327 1.327 0 001.327 1.328A1.327 1.327 0 0016.9 5.226 1.327 1.327 0 0015.573 3.9z"/></svg></span><span class="bm" style="--bc:#0194E2" data-name="MLflow" tabindex="0" role="img" aria-label="MLflow"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M11.883.002a12.044 12.044 0 0 0-9.326 19.463l3.668-2.694A7.573 7.573 0 0 1 12.043 4.45v2.867l6.908-5.14A12.012 12.012 0 0 0 11.883.002zm9.562 4.533L17.777 7.23a7.573 7.573 0 0 1-5.818 12.322v-2.867l-6.908 5.14a12.046 12.046 0 0 0 16.394-17.29z"/></svg></span><span class="bm" style="--bc:#844FBA" data-name="Terraform" tabindex="0" role="img" aria-label="Terraform"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M1.44 0v7.575l6.561 3.79V3.787zm21.12 4.227l-6.561 3.791v7.574l6.56-3.787zM8.72 4.23v7.575l6.561 3.787V8.018zm0 8.405v7.575L15.28 24v-7.578z"/></svg></span><span class="bm" style="--bc:#FF9900" data-name="Amazon EKS" tabindex="0" role="img" aria-label="Amazon EKS"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m14.67 8.505-2.875 3.335 3.128 3.648h-1.168l-2.808-3.277v3.368h-.842V8.421h.842v2.947l2.603-2.863Zm7.225 6.751-3.369-2.021V8.421a.42.42 0 0 0-.209-.364l-4.843-2.825V1.159l8.42 4.976Zm.635-9.724L13.267.06a.422.422 0 0 0-.635.362v5.053c0 .15.08.288.208.363l4.844 2.826v4.81a.42.42 0 0 0 .205.362l4.21 2.526a.42.42 0 0 0 .638-.361V5.895a.42.42 0 0 0-.207-.363ZM11.977 23.1l-9.872-5.248V6.135l8.421-4.976v4.084L6.09 8.066a.422.422 0 0 0-.195.355v7.158a.42.42 0 0 0 .226.373l5.665 2.948a.42.42 0 0 0 .387 0l5.496-2.84 3.382 2.03Zm10.135-5.356-4.21-2.526a.42.42 0 0 0-.411-.013l-5.51 2.847-5.244-2.729v-6.67l4.436-2.824a.422.422 0 0 0 .195-.355V.42a.421.421 0 0 0-.635-.362L1.47 5.532a.421.421 0 0 0-.207.363v12.21c0 .156.086.299.223.372l10.297 5.474a.421.421 0 0 0 .401-.004l9.915-5.473a.422.422 0 0 0 .013-.73Z"/></svg></span></span></div>
+            <div class="lab deploy" id="labDeploy"><div class="dname">Deploy</div><span class="bmrow"><span class="bm" style="--bc:#2088FF" data-name="GitHub Actions" tabindex="0" role="img" aria-label="GitHub Actions"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M10.984 13.836a.5.5 0 0 1-.353-.146l-.745-.743a.5.5 0 1 1 .706-.708l.392.391 1.181-1.18a.5.5 0 0 1 .708.707l-1.535 1.533a.504.504 0 0 1-.354.146zm9.353-.147l1.534-1.532a.5.5 0 0 0-.707-.707l-1.181 1.18-.392-.391a.5.5 0 1 0-.706.708l.746.743a.497.497 0 0 0 .706-.001zM4.527 7.452l2.557-1.585A1 1 0 0 0 7.09 4.17L4.533 2.56A1 1 0 0 0 3 3.406v3.196a1.001 1.001 0 0 0 1.527.85zm2.03-2.436L4 6.602V3.406l2.557 1.61zM24 12.5c0 1.93-1.57 3.5-3.5 3.5a3.503 3.503 0 0 1-3.46-3h-2.08a3.503 3.503 0 0 1-3.46 3 3.502 3.502 0 0 1-3.46-3h-.558c-.972 0-1.85-.399-2.482-1.042V17c0 1.654 1.346 3 3 3h.04c.244-1.693 1.7-3 3.46-3 1.93 0 3.5 1.57 3.5 3.5S13.43 24 11.5 24a3.502 3.502 0 0 1-3.46-3H8c-2.206 0-4-1.794-4-4V9.899A5.008 5.008 0 0 1 0 5c0-2.757 2.243-5 5-5s5 2.243 5 5a5.005 5.005 0 0 1-4.952 4.998A2.482 2.482 0 0 0 7.482 12h.558c.244-1.693 1.7-3 3.46-3a3.502 3.502 0 0 1 3.46 3h2.08a3.503 3.503 0 0 1 3.46-3c1.93 0 3.5 1.57 3.5 3.5zm-15 8c0 1.378 1.122 2.5 2.5 2.5s2.5-1.122 2.5-2.5-1.122-2.5-2.5-2.5S9 19.122 9 20.5zM5 9c2.206 0 4-1.794 4-4S7.206 1 5 1 1 2.794 1 5s1.794 4 4 4zm9 3.5c0-1.378-1.122-2.5-2.5-2.5S9 11.122 9 12.5s1.122 2.5 2.5 2.5 2.5-1.122 2.5-2.5zm9 0c0-1.378-1.122-2.5-2.5-2.5S18 11.122 18 12.5s1.122 2.5 2.5 2.5 2.5-1.122 2.5-2.5zm-13 8a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0zm2 0a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0zm12 0c0 1.93-1.57 3.5-3.5 3.5a3.503 3.503 0 0 1-3.46-3.002c-.007.001-.013.005-.021.005l-.506.017h-.017a.5.5 0 0 1-.016-.999l.506-.017c.018-.002.035.006.052.007A3.503 3.503 0 0 1 20.5 17c1.93 0 3.5 1.57 3.5 3.5zm-1 0c0-1.378-1.122-2.5-2.5-2.5S18 19.122 18 20.5s1.122 2.5 2.5 2.5 2.5-1.122 2.5-2.5z"/></svg></span><span class="bm" style="--bc:#2496ED" data-name="Docker" tabindex="0" role="img" aria-label="Docker"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.983 11.078h2.119a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.119a.185.185 0 00-.185.185v1.888c0 .102.083.185.185.185m-2.954-5.43h2.118a.186.186 0 00.186-.186V3.574a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m0 2.716h2.118a.187.187 0 00.186-.186V6.29a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.887c0 .102.082.185.185.186m-2.93 0h2.12a.186.186 0 00.184-.186V6.29a.185.185 0 00-.185-.185H8.1a.185.185 0 00-.185.185v1.887c0 .102.083.185.185.186m-2.964 0h2.119a.186.186 0 00.185-.186V6.29a.185.185 0 00-.185-.185H5.136a.186.186 0 00-.186.185v1.887c0 .102.084.185.186.186m5.893 2.715h2.118a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m-2.93 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.083.185.185.185m-2.964 0h2.119a.185.185 0 00.185-.185V9.006a.185.185 0 00-.184-.186h-2.12a.186.186 0 00-.186.186v1.887c0 .102.084.185.186.185m-2.92 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.082.185.185.185M23.763 9.89c-.065-.051-.672-.51-1.954-.51-.338.001-.676.03-1.01.087-.248-1.7-1.653-2.53-1.716-2.566l-.344-.199-.226.327c-.284.438-.49.922-.612 1.43-.23.97-.09 1.882.403 2.661-.595.332-1.55.413-1.744.42H.751a.751.751 0 00-.75.748 11.376 11.376 0 00.692 4.062c.545 1.428 1.355 2.48 2.41 3.124 1.18.723 3.1 1.137 5.275 1.137.983.003 1.963-.086 2.93-.266a12.248 12.248 0 003.823-1.389c.98-.567 1.86-1.288 2.61-2.136 1.252-1.418 1.998-2.997 2.553-4.4h.221c1.372 0 2.215-.549 2.68-1.009.309-.293.55-.65.707-1.046l.098-.288Z"/></svg></span><span class="bm" style="--bc:#FF9900" data-name="AWS Lambda" tabindex="0" role="img" aria-label="AWS Lambda"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.9855 0c-.2941.0031-.5335.2466-.534.5482L4.446 5.456c0 .1451.06.2835.159.3891a.5322.5322 0 0 0 .3806.1562h3.4282l8.197 17.6805a.5365.5365 0 0 0 .4885.3181h5.811c.2969 0 .5426-.2448.5426-.5482V18.544c0-.3035-.2392-.5482-.5425-.5482h-2.0138L12.7394.3153C12.647.124 12.4564 0 12.2452 0h-7.254Zm.5397 1.0907h6.3678l8.16 17.6804a.5365.5365 0 0 0 .4885.3181h1.8178v3.8173H17.437L9.2402 5.226a.536.536 0 0 0-.4885-.318H5.5223Zm2.0137 8.2366c-.2098.0011-.3937.1193-.4857.3096L.6002 23.2133a.5506.5506 0 0 0 .0313.5282.5334.5334 0 0 0 .4544.25h6.169a.5468.5468 0 0 0 .497-.3096l3.38-7.166a.5405.5405 0 0 0-.0029-.4686L8.036 9.637a.5468.5468 0 0 0-.4942-.3096Zm.0057 1.8036 2.488 5.1522-3.1214 6.6206H1.9465Z"/></svg></span></span></div>
+          </div>
         </div>
-        <p class="scene-link"><a class="link cta-strong" href="sections-prototype.html#architecture">Explore the full architecture →</a></p>
       </div>
       <div class="next-cue" id="sceneCue">
         <button class="arrow-btn" aria-label="Continue to the Journey">
@@ -713,9 +807,17 @@
   const demoArrowWrap=document.getElementById('demoArrowWrap');
   const demoArrow=document.getElementById('demoArrow');
   const sceneTitle=document.querySelector('.scene-title');
-  const sceneLead=document.querySelector('.scene-lead');
+  const sceneLead=document.querySelector('.sec-head .scene-lead');
   const sceneLink=document.querySelector('.scene-link');
-  const flowItems=[...document.querySelectorAll('.flow>*')];
+  // §3's ring — the loop, its stops, and the direction chevrons
+  const archRing=document.getElementById('archRing');
+  const ringPath=document.getElementById('ringPath');
+  const ringIn=[...document.querySelectorAll('.ring-in')];
+  const chevs=[...document.querySelectorAll('.chev')];
+  const youNote=document.querySelector('.you-note');
+  const ringLabs=['labServe','labMon','labBuild','labDeploy'].map(id=>document.getElementById(id));
+  const RING_LEN=943;                       // 2πr at r=150 in the viewBox
+  let chevF=[.125,.375,.625,.875];          // where each chevron sits, as a fraction round
   const journeyLayer=document.getElementById('journeyLayer');
   const jTitle=document.getElementById('jTitle');
   const jLead=document.getElementById('jLead');
@@ -738,18 +840,42 @@
   const skillsCue=document.getElementById('skillsCue');
   function setCue(el,o){ el.style.opacity=String(o); el.style.visibility=o<=0?'hidden':'visible'; }
 
+  // Each stop's plate hides a different slice of the ring — a wide two-line name hides
+  // far more arc than a one-word one — so the chevrons can't sit at a flat 45°/135°/…
+  // Measure what each plate actually covers and put each chevron mid-way along the arc
+  // that remains visible. Re-runs on resize and once the display face has loaded, since
+  // both change the plates' widths.
+  function layoutChevrons(){
+    const R=archRing.getBoundingClientRect(); if(!R.width) return;
+    const r=(150/400)*R.width;
+    const gap=(el,vert)=>{
+      const b=el.getBoundingClientRect();
+      return Math.asin(Math.min(.99,((vert?b.height:b.width)/2)/r))*180/Math.PI;
+    };
+    const g=[gap(ringLabs[0]),gap(ringLabs[1],1),gap(ringLabs[2]),gap(ringLabs[3],1)];
+    for(let i=0;i<4;i++){
+      const th=((i*90+g[i])+((i+1)*90-g[(i+1)%4]))/2, rad=th*Math.PI/180;
+      chevs[i].setAttribute('transform','translate('+(200+150*Math.sin(rad)).toFixed(1)+' '+
+        (200-150*Math.cos(rad)).toFixed(1)+') rotate('+th.toFixed(1)+')');
+      chevF[i]=th/360;
+    }
+  }
+  layoutChevrons();
+  window.addEventListener('resize',layoutChevrons);
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(layoutChevrons);
+
   // ---- Journey path layout — the gentle serpentine from the internal Journey
   //      page (vertical control handles), but the line now STARTS on a dot: the
   //      first entry sits at the origin, the rest step down the crests, and the
   //      final crest is the "Read the journey" destination (the CTA on the line) ----
-  const VBW=700, VBH=420, LX=250, RX=450;
+  const VBW=700, VBH=404, LX=250, RX=450;
   const jLabelEls=[...jEntries, jLinkWrap];   // 3 entries + the CTA, one per point
   // {x, y, side} — side is where the label hangs (the crest's outer/open side)
   const jNodes=[
-    {x:VBW/2, y:40,  side:'left'},   // start — One bucket, three jobs
-    {x:RX,    y:155, side:'right'},  // The gate that says no
-    {x:LX,    y:270, side:'left'},   // Pandera at the door
-    {x:RX,    y:385, side:'right'},  // Read the journey → (line end — on the right so the → points outward)
+    {x:VBW/2, y:24,  side:'left'},   // start — One bucket, three jobs
+    {x:RX,    y:139, side:'right'},  // The gate that says no
+    {x:LX,    y:254, side:'left'},   // Pandera at the door
+    {x:RX,    y:369, side:'right'},  // Read the journey → (line end — on the right so the → points outward)
   ];
   const jFr=jNodes.map(()=>0);       // each dot's fraction along the drawn line (reveal timing)
   let pathLen=0, jSamp=[];           // jSamp: sampled points along the line (for cursor projection)
@@ -914,9 +1040,23 @@
     // pipeline draws itself left-to-right under the scroll, then the link
     setReveal(sceneTitle,segP(p,[.385,.42]));
     setReveal(sceneLead,segP(p,[.40,.435]));
-    for(let i=0;i<flowItems.length;i++){
-      const s=.415+i*.009;
-      setRevealX(flowItems[i],segP(p,[s,s+.025]),flowItems[i].classList.contains('conn')?.85:1);
+    // the entry mark, then the ring drawing itself clockwise from the top, each stop
+    // and each chevron appearing as the line reaches it. Labels are centred with a
+    // transform, so their reveal rides the separate `translate` property instead of
+    // overwriting it.
+    const yn=segP(p,[.415,.44]);
+    youNote.style.opacity=String(yn);
+    youNote.style.translate=reduce?'none':'0 '+((1-yn)*10)+'px';
+    for(const el of ringIn) el.style.opacity=String(yn);
+    const dp=segP(p,[.425,.50]);
+    const draw=reduce?(dp>0?1:0):dp;
+    ringPath.style.strokeDashoffset=String(RING_LEN*(1-draw));
+    const reached=f=>Math.max(0,Math.min(1,(draw-f)/.10));
+    for(let i=0;i<4;i++){
+      const sp=reached(i*.25);
+      ringLabs[i].style.opacity=String(sp);
+      ringLabs[i].style.translate=reduce?'none':'0 '+((1-sp)*10)+'px';
+      chevs[i].style.opacity=String(reached(chevF[i]));
     }
     setReveal(sceneLink,segP(p,[.50,.53]));
     // §3 ↓ cue: in once Behind has settled, out as §4 rises

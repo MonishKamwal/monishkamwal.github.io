@@ -303,7 +303,11 @@ the hero fades in place — three things happening on the same scroll:
 - **Reduced motion:** no rise or overlap — the background still settles to the tinted blue, the name
   fades, and the demo simply fades in.
 
-### Home §3 — Behind the demo  _(LOCKED 2026-07-16)_
+### Home §3 — Behind the demo  _(LOCKED 2026-07-16 · DIAGRAM SUPERSEDED 2026-07-31)_
+
+> **Amended 2026-07-31:** the five-stop flow line is replaced by **the ring** — the four planes
+> drawn as a closed loop, with real tool logos in brand colour on each stop, and the action link
+> moved inside the ring. See the decision log entry for 2026-07-31.
 
 The reveal: recast the playful doodle as proof of real systems engineering, and hand off to the
 `/architecture` page. Sage ground; section indicator reads **"Behind the demo"**.
@@ -312,7 +316,7 @@ The reveal: recast the playful doodle as proof of real systems engineering, and 
   pass).
 - **Title:** **"Behind the Scenes"** in Bodoni Moda.
 - **Lead:** one Outfit line — **"From strokes to prediction"**.
-- **Teaser — simplified flow line:** a light horizontal line-diagram of the pipeline,
+- ~~**Teaser — simplified flow line:**~~ **Replaced 2026-07-31 by the ring** (below). Was: a light horizontal line-diagram of the pipeline,
   **draw ▸ preprocess ▸ model ▸ serve ▸ monitor**. Thin ink connectors (`#0a0a0a`, per the
   ink-line rule) with small arrows, Outfit stage labels; **non-interactive** (the clickable version lives on `/architecture`). Wraps to
   a vertical stack on mobile.
@@ -1094,6 +1098,62 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 ## Decision log
 
 Newest first. Each entry: what was decided and why.
+
+- **2026-07-31** — **The Architecture teaser becomes a ring, and it wears real tool logos**
+  (`arch-sketches.html` → ported into `transition-prototype.html` §3). The five-stop
+  `draw ▸ preprocess ▸ model ▸ serve ▸ monitor` line is retired. Four ways of drawing the system
+  were sketched on the sage ground and compared — **A the ring** (the loop as one ink circle,
+  stops breaking the line), **B the column** (cards top-to-bottom, return rail up the left),
+  **C the strata** (a band per plane), **D the stanza** (planes set as Bodoni display type, no
+  boxes) — plus **E**, three logo treatments side by side. Monish picked a **hybrid: A's ring +
+  D's display type + real logos in their own colours**, then reworked it. What the ring says now:
+  four stops — **Serving · Monitoring · Build & Ephemeral K8s · Deploy** — each a Bodoni name over
+  at most four tool marks, arrows carrying you clockwise, and **"Explore the full architecture →"
+  in the middle**, in the top half so the two-line stop below has the lower half to grow into.
+  Content comes from the platform's own `architecture.json`, which now publishes.
+  - **Brand logos, in colour — a deliberate departure.** The locked palette was ink plus one
+    ochre; the palette is **reopened** (Monish, 2026-07-31: "the palette isn't locked, we are
+    redesigning things"). Marks are CC0 from Simple Icons. Colour works here because the marks
+    are small and sit *under* a display name — as tiles (option E3) the same colour read as a
+    sponsor wall. **Two tools have no usable mark:** Evidently publishes only a wide wordmark
+    lockup, and the quality gate is an idea, not a product — both wear a drawn mark at the same
+    size and say so in their tooltip. Every mark names itself on hover **and keyboard focus**.
+  - **Text pops by font-size, never by `transform:scale()`.** Scaling doesn't re-typeset — the
+    browser stretches a raster of the glyphs and the type goes soft. Names and links animate
+    `font-size` instead, so they grow crisp and in place. Hovers also moved off
+    `--ease-out-expo` (too front-loaded over 6% of travel: it read as "big, then settling
+    smaller") onto a new **`--ease-hover: cubic-bezier(.2,.7,.35,1)` at .17s**. Marks are SVG, so
+    they still scale.
+  - **The plate gives back what the type takes.** Each stop's name sits on a plate of the ground
+    colour — that plate is what breaks the ring line. Growing the type grew the plate and ate the
+    circle, so the plate now **sheds horizontal padding at the rate the type gains width** and its
+    outer edge holds still. The gap between the name's plate and the marks' plate is padding, not
+    margin, or the arc shows through between them.
+  - **Chevrons are measured, not assumed.** Each stop hides a different slice of arc (21° for
+    Serving, 10° for the side stops, 40° for the two-line one), so a flat 45°/135°/… put every
+    chevron off-centre. `layoutChevrons()` measures each plate and places each chevron mid-way
+    along the arc that remains visible; it re-runs on resize and once Bodoni has loaded.
+  - **Reveal:** the ring **draws itself clockwise from the top** under the scroll (dash-offset on
+    the circle), each stop and each chevron appearing as the line reaches it, then the link, then
+    the ↓ cue — the same scroll windows the flow line used, so nothing downstream re-times.
+  - **Accepted losses, on record:** merging the cluster into "Build & Ephemeral K8s" (Monish's
+    call — four stops, four marks, the full page carries the rest) drops the **dashed "mostly this
+    isn't running" line and "~30 minutes a month"**, the cheapest fact in the system and the one
+    people remember; the quality gate's mark went with it. **Prometheus and Grafana sit under
+    Monitoring** though they only exist during that monthly cluster — implying more always-on
+    watching than there is. **Open:** the phone layout works but the ring has to shrink to make
+    room for the two side stops, and below ~400px it may want to stop being a ring.
+
+- **2026-07-31** — **§3 and §4 teasers lifted ~50px.** Both diagrams sat low. §3's top padding
+  went 17vh → 10vh and the ring lost its top margin; §4 got its own 10vh padding (Skills keeps the
+  original 17vh), its path wrapper lost its top margin, and **the Journey path's own slack was
+  trimmed** — its first crest sat 40 units below the top of its drawing area, so all four crests
+  moved up 16 units with the viewBox shrunk to match (uniform shift: same curve, same reveal
+  fractions). §3's lead **"From strokes to prediction" was removed and then restored** — it never
+  affected the diagram's position (`.sec-head` is absolutely positioned; the padding was doing the
+  work). Its reveal now looks the line up as `.sec-head .scene-lead` rather than the first
+  `.scene-lead` in the document, which would otherwise grab the Journey's lead if §3's is ever
+  dropped again.
 
 - **2026-07-30** — **Home subtitles set in Allura (script) — PROVISIONAL (undecided).** (`transition-prototype.html`).
   The hero subtitle (`.hero-sub`, "MLOps Project & Portfolio") and the section leads (`.scene-lead` — "From
