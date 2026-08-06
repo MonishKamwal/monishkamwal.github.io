@@ -567,6 +567,19 @@
     .demo-title,.scene-title{font-size:clamp(26px,7vw,34px);}
   }
 
+  /* Below ~430px the ring's waist is too narrow to hold the invitation. The two
+     side stops hang half inside the circle, and the link is a fixed one-liner, so
+     the three meet: measured at 320px the link overlapped Deploy by 366px² and
+     Monitoring by 481px² — it ran straight through both names. The loop itself
+     still reads at these widths (it's the stops that shrink, not the idea), so
+     the ring stays a ring and the LINK steps out of the hole to sit under it. */
+  @media(max-width:430px){
+    .ring-mid{top:calc(100% + 16px);}
+    /* out of the hole it no longer has to fit a chord, so it takes the section's
+       own link size back */
+    .ring-mid .link{--fs:clamp(14px,4vw,17px);}
+  }
+
   @media (prefers-reduced-motion:reduce){
     *{animation:none!important;transition:none!important;}
   }

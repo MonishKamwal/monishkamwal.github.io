@@ -1099,6 +1099,41 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-08-06** — **The ring stays a ring on phones; the invitation steps out of the hole**
+  (`transition-prototype.html` §3). The 2026-07-31 entry left it open whether the ring "may want
+  to stop being a ring" below ~400px. Measured rather than judged by eye — the Home scroll parked
+  at §3 in iframes of a true phone width, and every box in the section read back — and the answer
+  is **no, the loop survives; it's the link that doesn't.** The two side stops hang half inside
+  the circle and "Explore the full architecture →" is a fixed one-liner, so at phone widths the
+  three collide: the link overlapped **Deploy by 366px² and Monitoring by 481px² at 320px**
+  (175/125 at 360, 81/56 at 375, 4/3 at 390, clean from 414 up). On screen it ran straight
+  through both names.
+  - **Nothing else in §3 breaks.** No stop leaves the viewport at any width down to 320, and
+    every logo tooltip stays inside it — the widest, Evidently's 161px "no logo published", still
+    clears. The stops shrink but the four names, sixteen marks and the clockwise arrows all still
+    read at a 198px ring. So the ring was never the problem, and the "unroll it into a column
+    below 400px" option is **not needed** — it would have cost the loop, which is the whole point
+    of the 2026-07-31 rework.
+  - **Fix:** a `@media(max-width:430px)` block moves `.ring-mid` from `top:31%` to
+    `top:calc(100% + 16px)` — the link leaves the hole and sits under the ring — and, no longer
+    having to fit inside a chord, it takes its size back (`clamp(14px,4vw,17px)`). The hole is
+    left empty; the loop reads cleaner for it. Worst-case clearance to the ↓ cue (320×568) is
+    10px of box, ~35px of visible ink. Breakpoint is 430 rather than 400 so 390- and 414-wide
+    phones get margin instead of a touching fit.
+  - **The same pass swept all six Home sections at 320/360/390, and two more are broken.** The
+    whole scroll has only ever had one phone breakpoint (700px), so this was never checked.
+    **§1 Hero, §5 Skills and §6 Contact are fine.** **§2 Demo** is not: the rising panel's
+    `padding-top` is `16vh`, which on a short phone lands *above* the "Draw Something" title and
+    covers it (clean at 390×844, occluded at 320 and 360); the instrument column is also taller
+    than the viewport, so the doorway link and privacy note fall below the fold, and the ↓ cue
+    draws on top of the feedback buttons. **§4 Journey teaser** is worse: the serpentine puts
+    entry text on alternating sides of the line, and at phone widths the two columns are ~120px
+    each — entries overlap each other, the line crosses their text, and "Read the journey →" runs
+    off the right edge. **Open:** §2's overflow needs a content call (shorter canvas? drop the
+    class list?), and §4 needs a decision on what the journey line *becomes* on a phone — a
+    one-sided line with the entries stacked down it is the obvious candidate, but it changes the
+    section's character and the scroll-driven lens with it.
+
 - **2026-07-31** — **The Architecture teaser becomes a ring, and it wears real tool logos**
   (`arch-sketches.html` → ported into `transition-prototype.html` §3). The five-stop
   `draw ▸ preprocess ▸ model ▸ serve ▸ monitor` line is retired. Four ways of drawing the system
@@ -1141,8 +1176,10 @@ Newest first. Each entry: what was decided and why.
     isn't running" line and "~30 minutes a month"**, the cheapest fact in the system and the one
     people remember; the quality gate's mark went with it. **Prometheus and Grafana sit under
     Monitoring** though they only exist during that monthly cluster — implying more always-on
-    watching than there is. **Open:** the phone layout works but the ring has to shrink to make
-    room for the two side stops, and below ~400px it may want to stop being a ring.
+    watching than there is. ~~**Open:** the phone layout works but the ring has to shrink to make
+    room for the two side stops, and below ~400px it may want to stop being a ring.~~
+    **Resolved 2026-08-06 — it stays a ring** (see the 2026-08-06 entry above): measurement
+    showed the ring itself holds down to 320px, and only the centre link had to move.
 
 - **2026-07-31** — **§3 and §4 teasers lifted ~50px.** Both diagrams sat low. §3's top padding
   went 17vh → 10vh and the ring lost its top margin; §4 got its own 10vh padding (Skills keeps the
