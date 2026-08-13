@@ -1101,6 +1101,47 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-08-13** — **The scroll is tuned per input device: the mouse pages, the trackpad scrubs**
+  (`transition-prototype.html`). With the wheel working again, it still didn't feel good on either
+  device. Profiled it properly — recording scroll position *and* the whole visible scene (panel
+  position + hero fade + background wash) every frame — and fixed four things.
+  - **One rule cannot serve both devices.** A step is ~2070px and a mouse notch is ~120px, so
+    scrubbing one section by wheel is **seventeen notches**: the mouse wants to *page*. A trackpad
+    streams dozens of small deltas and wants to *scrub*, with the choreography tracking the
+    fingers. The wheel is now classified — line-mode deltas, or coarse ones with no recent fine
+    stream, are a mouse; three sub-40px deltas inside 250ms are fingers — and each gets its own
+    path. **One notch = one section**, further notches queue rather than abort (throttled to
+    220ms so leaning on the wheel walks the story instead of teleporting through it). Touch and
+    trackpad keep free scrubbing plus the settle. _Consequence on record: with a mouse you can no
+    longer free-scrub a transition; you page and watch it play. That is the trade for it working
+    at all._
+  - **The settle now runs on the site's own curve.** It was using `behavior:'smooth'` — Chrome's
+    curve, distance-dependent and ~950ms for a full step — which made the single most-seen motion
+    on the site the one motion *not* on the site's easing. It is now an rAF **smoothstep** whose
+    duration scales with distance off `--dur`: velocity is near-constant through the middle and
+    zero at both ends, so a transition plays at an even tempo rather than blasting through and
+    then crawling.
+  - **Two easings were composing.** The scrubbed layers chase the scroll exponentially, and the
+    browser was easing the scroll underneath them — a curve on a curve, which is what produced
+    the soft lurch. During a settle the layers now follow the scroll exactly (`current = t`); the
+    settle *is* the curve. Chase constant also tightened from `--dur`/3 to /4 for a more connected
+    trackpad feel.
+  - **A committed move skips the step's lead-in dwell.** Nothing is animated in the first ~9% of a
+    step — it exists so a *resting* section holds for a beat before its transition starts, not to
+    pad a move already committed to. Left in, it was about a third of the settle spent visibly
+    doing nothing.
+  - **Measured, same harness before and after.** Mouse: time to first visible change **403ms →
+    143ms**, with the transition then playing over 383ms instead of being crammed into 216ms.
+    Trackpad: the terminal snap — **47% of the travel in the last 20%** — is now **11%**. Evenness
+    (peak share of any tenth of the motion; 10% is perfectly even) 16%/24% → **15%/19%**.
+  - **Also fixed:** a settle-cancel race found on the way. At a 60ms debounce, steady wheeling
+    fired a settle *between* notches and the next notch cancelled it mid-flight, landing the
+    visitor back where they started; paging the mouse removes the race. And the wheel now yields
+    to §2's internal scroll below 390px instead of hijacking it.
+  - Verified after: every section still fully settled at its floor, the ↓-cue chain walks all six,
+    menu jumps land, real touch swipes (short and long) settle exactly one section on, phone
+    layouts unchanged, no console errors.
+
 - **2026-08-13** — **The floors move out of CSS scroll-snap and into the script — the mouse wheel
   never worked** (`transition-prototype.html`). Reported as "mouse scroll isn't working properly",
   and measurement was blunt: **twelve wheel notches moved the page 0px.** Not a regression — the
