@@ -668,10 +668,10 @@
 <div class="runway" id="runway">
   <!-- section floors: positioned by the script at each resting progress -->
   <div class="floor" data-p="0"></div>
-  <div class="floor" data-p=".192"></div>
-  <div class="floor" data-p=".44"></div>
-  <div class="floor" data-p=".648"></div>
-  <div class="floor" data-p=".80"></div>
+  <div class="floor" data-p=".2"></div>
+  <div class="floor" data-p=".4"></div>
+  <div class="floor" data-p=".6"></div>
+  <div class="floor" data-p=".8"></div>
   <div class="floor" data-p="1"></div>
   <div class="viewport">
     <div class="bg-wash" id="bgWash"></div>
@@ -1047,11 +1047,32 @@
 
   // ---- scroll segments over the runway: four transitions with a dwell
   //      (and a hard floor) between each ----
-  const T1=[0,.15], T2=[.26,.40], T3=[.58,.70], T4=[.83,.93];
-  // §5→§6 (Skills → Contact): the whole story is squeezed into raw progress
-  // [0, STORY_END] so every sub-timing above stays exactly as authored (see
-  // apply()), and Contact rides the tail on T5.
-  const STORY_END=.80, T5=[.83,.96];
+  // T1 starts a touch after 0 so the Hero gets the same brief hold every other
+  // section has before its transition begins (it used to start dissolving on the
+  // very first pixel of scroll, which made its span half again as long as the rest).
+  const T1=[.024,.15], T2=[.26,.40], T3=[.58,.70], T4=[.83,.93];
+  // §5→§6 (Skills → Contact) rides the runway's tail, keyed to RAW progress.
+  // Proportioned like steps 2–4: a tenth of the step as lead-in, half as the
+  // transition, the rest as settle before the last floor.
+  const T5=[.82,.92];
+
+  // ---- even section spacing (2026-08-13) ----
+  // The five steps used to be .192/.248/.208/.152/.200 of the runway — Journey→
+  // Skills was 39% shorter than Demo→Behind, because floors were placed by hand as
+  // the choreography grew. Rather than re-time dozens of hand-tuned sub-reveals,
+  // the scroll→progress mapping is now piecewise linear: each section still RESTS
+  // at exactly the authored progress (PF), but those rest points are spread over an
+  // even raw grid (RAWF). Every reveal inside a step keeps its relative timing and
+  // simply plays over an equal share of scroll.
+  const RAWF=[0,.2,.4,.6,.8];              // even: five equal steps to the last story floor
+  const PF  =[0,.24,.55,.81,1];            // authored: where each section sits settled
+  function storyP(praw){
+    if(praw<=RAWF[0]) return PF[0];
+    if(praw>=RAWF[RAWF.length-1]) return PF[PF.length-1];
+    let i=0; while(i<RAWF.length-2 && praw>RAWF[i+1]) i++;
+    const t=(praw-RAWF[i])/(RAWF[i+1]-RAWF[i]);
+    return PF[i]+t*(PF[i+1]-PF[i]);
+  }
   let runwayEnd=0;
   function measure(){
     runwayEnd=runway.offsetHeight-window.innerHeight;
@@ -1086,9 +1107,10 @@
     el.style.transform=reduce?'none':'translate3d('+((1-sp)*(fromRight?24:-24))+'px,0,0)';
   }
   function apply(praw){
-    // squeeze the story into [0, STORY_END] so all the sub-timings below stay
-    // exactly as authored; the tail [STORY_END..1] belongs to Contact alone
-    const p=Math.min(1,praw/STORY_END);
+    // remap scroll → authored progress so the sub-timings below stay exactly as
+    // written while each section owns an equal share of the runway; the tail
+    // past the last story floor belongs to Contact alone
+    const p=storyP(praw);
     const p5=segP(praw,T5);
     const p1=segP(p,T1), p2=segP(p,T2), p3=segP(p,T3), p4=segP(p,T4);
     // §1→§2 — name fades in place above the rising panel (gone by ~75%), no drift
@@ -1168,7 +1190,7 @@
     });
     // (the magnifier here is hover-driven — see updateMagnifier(), run from the frame loop)
     // §4 ↓ cue: in once the Journey has settled, out as §5 rises
-    setCue(journeyCue,Math.min(segP(p,[.80,.82]),1-segP(p,[.83,.87])));
+    setCue(journeyCue,Math.min(segP(p,[.78,.80]),1-segP(p,[.83,.87])));
     // §4→§5 — Skills rises over the Journey
     skillsLayer.style.transform=reduce?'none':'translate3d(0,'+((1-p4)*100)+'%,0)';
     if(reduce){ skillsLayer.style.opacity=String(p4); }
@@ -1181,12 +1203,12 @@
     setReveal(sTitle,segP(p,[.92,.945]));
     setReveal(sLead,segP(p,[.93,.955]));
     for(let i=0;i<sLines.length;i++){
-      const s=.94+i*.012;
+      const s=.932+i*.012;
       setRevealX(sLines[i],segP(p,[s,s+.03]),1,sLines[i].classList.contains('r'));
     }
-    setReveal(sLink,segP(p,[.975,1]));
+    setReveal(sLink,segP(p,[.972,.995]));
     // §5 ↓ cue: in once Skills has settled, out as Contact rises (praw)
-    setCue(skillsCue,Math.min(segP(p,[.965,1]),1-segP(praw,[.83,.88])));
+    setCue(skillsCue,Math.min(segP(p,[.965,1]),1-segP(praw,[.82,.87])));
     // current-section indicator: blank on Hero, then follows the section in view
     let label='';
     if(p5>.5) label='Contact';
@@ -1224,10 +1246,10 @@
 
   // ---- the ↓ cues scroll to the next section's floor ----
   const scrollToP=p=>window.scrollTo({top:runwayEnd*p,behavior:reduce?'auto':'smooth'});
-  arrowBtn.addEventListener('click',()=>scrollToP(.192));                          // hero → demo
-  demoArrow.addEventListener('click',()=>scrollToP(.44));                          // demo → Behind
-  sceneCue.querySelector('.arrow-btn').addEventListener('click',()=>scrollToP(.648));   // → Journey
-  journeyCue.querySelector('.arrow-btn').addEventListener('click',()=>scrollToP(.80));  // → Skills
+  arrowBtn.addEventListener('click',()=>scrollToP(.2));                            // hero → demo
+  demoArrow.addEventListener('click',()=>scrollToP(.4));                          // demo → Behind
+  sceneCue.querySelector('.arrow-btn').addEventListener('click',()=>scrollToP(.6));   // → Journey
+  journeyCue.querySelector('.arrow-btn').addEventListener('click',()=>scrollToP(.8));  // → Skills
   skillsCue.querySelector('.arrow-btn').addEventListener('click',()=>scrollToP(1));     // → Contact
 
   // ---- slide-in menu: panel from the right, staircase stagger ----

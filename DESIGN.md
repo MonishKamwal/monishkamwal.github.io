@@ -1099,6 +1099,29 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-08-13** — **Every section now owns an equal share of the Home scroll**
+  (`transition-prototype.html`). The scroll felt uneven, and measurement said it was: the five
+  steps between resting floors ran **.192 / .248 / .208 / .152 / .200** of the runway — Journey→
+  Skills was **39% shorter** than Demo→Behind. The floors had been placed by hand as the
+  choreography grew, so each section had quietly ended up with a different slice.
+  - **Fix — a piecewise scroll→progress remap, not a re-timing.** Dozens of sub-reveals are
+    authored against `p`, so rather than move them all, `apply()` now runs `p = storyP(praw)`,
+    which maps an **even raw grid** (`RAWF = [0,.2,.4,.6,.8]`) onto the **authored rest points**
+    (`PF = [0,.24,.55,.81,1]`). Each section still settles at exactly the progress it was tuned
+    at; the scroll between them is now equal. Floors and the ↓-cue jump targets moved to the same
+    grid, and `STORY_END` is retired (the remap subsumes it). Measured: **all five steps 230vh**,
+    and every section verified fully settled at its own floor.
+  - **Two reveals never actually finished, which read as unevenness.** §4's ↓ cue faded in over
+    `[.80,.82]` while §4 rests at `p=.81` — so it sat at **50% opacity** at its own resting point,
+    the only cue on the page that wasn't fully in. And §5's skills lines ran `s=.94+i*.012` over
+    `s+.03`, putting the **fourth line's window at `1.006`** — past the end of the runway, so
+    "Next.js · TypeScript" was frozen at 80% forever. Windows corrected to `[.78,.80]` and
+    `s=.932+i*.012`; the link settles at `[.972,.995]` instead of exactly on the floor.
+  - **The Hero was the last outlier.** It was the only section whose transition began on the very
+    first pixel of scroll, with no hold — which made its span 144vh against ~105vh for the others.
+    `T1` now starts at `.024`, giving it the same brief lead-in every other section has.
+    Transition spans measured after: **92–104vh across all five** (was 92–150vh).
+
 - **2026-08-13** — **§2 and §4 fixed on phones — the Home scroll's mobile sweep is complete**
   (`transition-prototype.html`). The 2026-08-06 pass found both sections broken and left them
   open pending a content call. Both are now decided, and all six sections measure clean at
@@ -1388,7 +1411,9 @@ Newest first. Each entry: what was decided and why.
   now a **6th rising layer** (z-index 6, white) that rolls up over the settled Skills exactly like
   §2–§5 do — so the Home scroll is five scrubbed transitions, not four, and reverses cleanly. To
   avoid re-timing the dozens of hand-tuned sub-reveals, the whole story is **squeezed into raw
-  progress `[0, STORY_END=.80]`** (a single `p = min(1, praw/STORY_END)` at the top of `apply()`,
+  progress `[0, STORY_END=.80]`** _(superseded 2026-08-13 — the linear squeeze became the
+  piecewise `storyP()` remap that evens the section spacing; `STORY_END` is gone)_
+  (a single `p = min(1, praw/STORY_END)` at the top of `apply()`,
   so every existing `segP` fraction is unchanged) and Contact rides the tail `[.80, 1]` on
   `T5=[.83,.96]`. Runway grew 1000vh → 1250vh (story keeps ~its old scroll length; Contact adds
   ~230vh); floors re-spaced to six; the ↓ arrows and the menu's Contact link retargeted to the new
