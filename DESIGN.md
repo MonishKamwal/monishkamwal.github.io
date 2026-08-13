@@ -1099,6 +1099,41 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-08-13** — **§2 and §4 fixed on phones — the Home scroll's mobile sweep is complete**
+  (`transition-prototype.html`). The 2026-08-06 pass found both sections broken and left them
+  open pending a content call. Both are now decided, and all six sections measure clean at
+  320/360/375/390/414/430.
+  - **§2 Demo — trimmed to one screen** (Monish's pick over an internal scroll or moving the
+    doorway). Measuring first corrected the earlier diagnosis: the title was not being covered by
+    the panel's `padding-top` but by `align-items:center` — with **703px of instrument in a 568px
+    viewport** the column overflowed *both* ends, running the pad up over the title by 7253px².
+    And because `.viewport` is `overflow:hidden`, the doorway and privacy note were not merely
+    "below the fold" — they were **unreachable**. Fixes: the panel is start-aligned; the pad drops
+    its 4/3 ratio for a height cap that scales with the **screen** (`clamp(118px,21vh,190px)`)
+    rather than the width, which alone made it 225px at 390; the 15-class roster collapses to
+    "It knows 15 doodles" and the privacy note to its short form; gaps, padding, feedback and the
+    doorway all tighten. The **↓ cue stops floating and becomes the last item in the column** — it
+    had been landing on the feedback row at 320–375 *and on the doorway at every width from 360 to
+    430*, which the earlier note missed entirely.
+  - **§2's honest residual: one screen holds from 390 up, not below.** At 320×568 the fixed text
+    alone — three bars, prompt, verdict, doorway, privacy — outruns the 477px the viewport has
+    left under the title *before the pad gets a single pixel*; no trim short of dropping content
+    closes the gap. So **≤389px gets a short scroll inside the panel** (scroll chaining left on,
+    so reaching the end carries straight into the Home scroll) instead of content sitting in
+    hidden overflow. 390+ never scrolls — it already fits.
+  - **§4 Journey — the road stops alternating below 700px** (Monish's pick over keeping the curve
+    with fewer entries, or dropping to a plain stacked list). The serpentine's two columns measured
+    ~120px each. On a phone the line runs down the **left** as a gentle wave — it still winds,
+    which is the whole reason the section is drawn rather than listed — with all four points
+    `side:'right'` and each entry stacked down its right at `calc(76% - 16px)`. Implemented as a
+    second `jNodes` set + viewBox (360×540) selected inside `layoutPath()`, so it re-picks on
+    resize; the last point was pulled to y=468 to clear the ↓ cue at 320×568. **Desktop is
+    untouched** — verified identical path `d` and dot positions. The scroll-driven lens needed no
+    change: it is hover-driven on Home, so it simply never arms on touch.
+  - **Swept clean:** §1 Hero, §3 Behind, §5 Skills and §6 Contact re-measured at all six widths —
+    no overlaps, nothing off-screen. §3's constant `ring ∩ serve` overlap is the by-design
+    half-inside stop (identical 3266px² at every width), not a breakpoint break.
+
 - **2026-08-06** — **The ring stays a ring on phones; the invitation steps out of the hole**
   (`transition-prototype.html` §3). The 2026-07-31 entry left it open whether the ring "may want
   to stop being a ring" below ~400px. Measured rather than judged by eye — the Home scroll parked
@@ -1129,10 +1164,12 @@ Newest first. Each entry: what was decided and why.
     draws on top of the feedback buttons. **§4 Journey teaser** is worse: the serpentine puts
     entry text on alternating sides of the line, and at phone widths the two columns are ~120px
     each — entries overlap each other, the line crosses their text, and "Read the journey →" runs
-    off the right edge. **Open:** §2's overflow needs a content call (shorter canvas? drop the
+    off the right edge. ~~**Open:** §2's overflow needs a content call (shorter canvas? drop the
     class list?), and §4 needs a decision on what the journey line *becomes* on a phone — a
     one-sided line with the entries stacked down it is the obvious candidate, but it changes the
-    section's character and the scroll-driven lens with it.
+    section's character and the scroll-driven lens with it.~~ **Both resolved 2026-08-13** — §2
+    trims to one screen (with a scroll net below 390px) and §4's line goes one-sided; see the
+    2026-08-13 entry above. The lens turned out to be a non-issue: it is hover-driven on Home.
 
 - **2026-07-31** — **The Architecture teaser becomes a ring, and it wears real tool logos**
   (`arch-sketches.html` → ported into `transition-prototype.html` §3). The five-stop

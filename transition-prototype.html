@@ -559,12 +559,62 @@
     .bmrow{gap:7px;padding:6px 6px 3px;}
     .ring-mid .link{--fs:12.5px;}
     .you-note{top:calc(12.5% - 68px);}
-    .panel-layer{flex-direction:column;gap:20px;padding-top:clamp(90px,16vh,130px);}
-    .instrument{flex-direction:column;gap:18px;max-width:min(92vw,440px);}
+    /* §2 stacks. align-items:center was clipping BOTH ends once the column grew
+       past the viewport (measured 703px of instrument in 568px of screen: the pad
+       ran up over the title by 7253px² and the doorway fell into the hidden
+       overflow — .viewport is overflow:hidden, so that content was unreachable,
+       not merely below the fold). Start-aligned, the overflow can only ever go
+       one way, and the trims below take the column back under the fold. */
+    .panel-layer{
+      flex-direction:column;align-items:center;justify-content:flex-start;
+      gap:20px;padding-top:clamp(90px,16vh,130px);
+    }
+    .instrument{
+      flex-direction:column;gap:14px;max-width:min(92vw,440px);
+      margin-top:clamp(14px,2.5vh,28px);padding:16px;
+    }
     .instr-split{width:auto;height:1px;align-self:auto;}
-    .canvas-col{width:100%;}
+    .canvas-col{width:100%;gap:10px;}
+    /* the pad's 4/3 ratio is the single biggest block on a phone — at 390 wide it
+       alone was 225px. Height-capped instead, so it scales with the SCREEN rather
+       than the width; a doodle still has room, the column stops growing. */
+    .canvas-card{aspect-ratio:auto;height:clamp(118px,21vh,190px);}
+    .pred{gap:10px;min-width:0;}
+    .bar-row .bar-top{margin-bottom:4px;}
+    /* the full 15-class enumeration is three lines of body text on a phone; the
+       count is the point, the roster is the detail */
+    .prompt .class-list{display:none;}
+    .privacy .privacy-tail{display:none;}
+    .doorway{padding-top:10px;gap:3px;}
+    .doorway .link{font-size:16px;}
+    .feedback{padding-top:10px;gap:10px;}
     .demo-title,.sec-head{top:clamp(48px,7vh,64px);left:24px;}
     .demo-title,.scene-title{font-size:clamp(26px,7vw,34px);}
+
+    /* §4: with the line pushed to the left edge and nothing hanging off its far
+       side, every entry gets the rest of the width instead of a ~120px column.
+       (min-width:0 so the CTA's nowrap can't blow the box out again.) */
+    .j-entry,.j-cta{width:calc(76% - 16px);min-width:0;}
+    .j-entry.on-right,.j-cta.on-right{text-align:left;}
+    /* §2's ↓ cue floats over the panel, and a full-width stacked instrument runs
+       straight under it — measured on the feedback row at 320/360/375 and on the
+       doorway at every width from 360 to 430. On a phone it stops floating and
+       becomes the last item in the column, so it can't collide by construction.
+       (§3–§5 keep the float; their layers are short enough to clear it.) */
+    .demo-arrow-wrap{position:static;transform:none;}
+    .next-cue{bottom:14px;}
+    .arrow-btn svg{width:24px;height:38px;}
+
+    /* Below 390 the instrument cannot fit one screen no matter how it is trimmed:
+       at 320×568 the fixed text alone — three bars, prompt, verdict, doorway,
+       privacy — outruns the 477px the viewport has left under the title, before
+       the pad gets a pixel. So the smallest phones get a short scroll INSIDE the
+       panel rather than content parked in unreachable overflow. Scroll chaining is
+       left on (no overscroll-behavior) so reaching the end carries straight on
+       into the Home scroll. 390+ never scrolls: it already fits. */
+    @media(max-width:389px){
+      .panel-layer{overflow-y:auto;}
+    }
   }
 
   /* Below ~430px the ring's waist is too narrow to hold the invitation. The two
@@ -660,7 +710,7 @@
           <div class="bar-row"><div class="bar-top"><span>Cat</span><span class="pct">87%</span></div><div class="bar-track"><div class="bar-fill" style="--w:.87"></div></div></div>
           <div class="bar-row"><div class="bar-top"><span>Dog</span><span class="pct">9%</span></div><div class="bar-track"><div class="bar-fill soft" style="--w:.09"></div></div></div>
           <div class="bar-row"><div class="bar-top"><span>Bird</span><span class="pct">4%</span></div><div class="bar-track"><div class="bar-fill soft" style="--w:.04"></div></div></div>
-          <p class="prompt">It knows 15 doodles — Airplane, Apple, Banana, Bicycle, Bird, Car, Cat, Clock, Dog, Face, Fish, House, Star, Tree, Umbrella.</p>
+          <p class="prompt">It knows 15 doodles<span class="class-list"> — Airplane, Apple, Banana, Bicycle, Bird, Car, Cat, Clock, Dog, Face, Fish, House, Star, Tree, Umbrella</span>.</p>
           <div class="feedback">
             <span class="fb-q">Did I get it?</span>
             <button class="fb-btn" type="button" onclick="return false">Yes</button>
@@ -670,7 +720,7 @@
             <span class="micro">every guess is scored</span>
             <a class="link" href="data-prototype-white.html">See how the model performs →</a>
           </div>
-          <p class="privacy">Anonymous — your drawing + verdict may help train the model.</p>
+          <p class="privacy">Anonymous — <span class="privacy-tail">your drawing + verdict </span>may help train the model.</p>
         </div>
       </div>
       <div class="demo-arrow-wrap" id="demoArrowWrap">
@@ -881,18 +931,43 @@
   //      page (vertical control handles), but the line now STARTS on a dot: the
   //      first entry sits at the origin, the rest step down the crests, and the
   //      final crest is the "Read the journey" destination (the CTA on the line) ----
-  const VBW=700, VBH=404, LX=250, RX=450;
+  const LX=250, RX=450;
   const jLabelEls=[...jEntries, jLinkWrap];   // 3 entries + the CTA, one per point
   // {x, y, side} — side is where the label hangs (the crest's outer/open side)
-  const jNodes=[
-    {x:VBW/2, y:24,  side:'left'},   // start — One bucket, three jobs
-    {x:RX,    y:139, side:'right'},  // The gate that says no
-    {x:LX,    y:254, side:'left'},   // Pandera at the door
-    {x:RX,    y:369, side:'right'},  // Read the journey → (line end — on the right so the → points outward)
+  const jNodesWide=[
+    {x:350, y:24,  side:'left'},     // start — One bucket, three jobs
+    {x:RX,  y:139, side:'right'},    // The gate that says no
+    {x:LX,  y:254, side:'left'},     // Pandera at the door
+    {x:RX,  y:369, side:'right'},    // Read the journey → (line end — on the right so the → points outward)
   ];
-  const jFr=jNodes.map(()=>0);       // each dot's fraction along the drawn line (reveal timing)
+  // Phone (2026-08-13). The serpentine can't alternate at this width: the two
+  // columns come out ~120px each, so entries overlapped each other, the line ran
+  // through their text and the CTA fell off the right edge. The road stops
+  // alternating and runs down the LEFT as a gentle wave — it still winds, which is
+  // the whole reason the section is drawn instead of listed — with every entry
+  // hanging off its right, stacked. Same adaptation the internal /journey page
+  // takes, so Home and the page still read as one line.
+  const MXa=76, MXb=44;
+  const jNodesPhone=[
+    {x:MXa, y:40,  side:'right'},
+    {x:MXb, y:196, side:'right'},
+    {x:MXa, y:352, side:'right'},
+    {x:MXb, y:468, side:'right'},   // pulled up off the ↓ cue (it clipped at 320×568)
+  ];
+  let jNodes=jNodesWide, VBW=700, VBH=404;
+  const jFr=[0,0,0,0];               // each dot's fraction along the drawn line (reveal timing)
   let pathLen=0, jSamp=[];           // jSamp: sampled points along the line (for cursor projection)
   function layoutPath(){
+    const phone=window.matchMedia('(max-width:700px)').matches;
+    jNodes = phone ? jNodesPhone : jNodesWide;
+    VBW = phone ? 360 : 700;
+    // the box the svg draws in vs. the height the entry %s are measured against:
+    // desktop keeps its authored 420/404 pair (the entries' hand-tuned ~15-unit
+    // drop below their dots), the phone set uses one height so they sit level.
+    VBH = phone ? 540 : 404;
+    const vbBox = phone ? 540 : 420;
+    const lblOff = phone ? 14 : 22;  // gap from the line to the label
+    jPath.ownerSVGElement.setAttribute('viewBox','0 0 '+VBW+' '+vbBox);
     // wind through the points with vertical handles (m = half the y-gap) so the
     // tangent is vertical at every point — identical to the internal buildJourney()
     let d='M '+jNodes[0].x+' '+jNodes[0].y;
@@ -917,8 +992,8 @@
       e.classList.toggle('on-left',onLeft);
       e.classList.toggle('on-right',!onLeft);
       e.style.top='calc('+yPct+'% - 12px)';
-      if(onLeft){ e.style.right='calc('+(100-xPct)+'% + 22px)'; e.style.left='auto'; }
-      else{ e.style.left='calc('+xPct+'% + 22px)'; e.style.right='auto'; }
+      if(onLeft){ e.style.right='calc('+(100-xPct)+'% + '+lblOff+'px)'; e.style.left='auto'; }
+      else{ e.style.left='calc('+xPct+'% + '+lblOff+'px)'; e.style.right='auto'; }
     });
   }
   layoutPath();
