@@ -723,7 +723,9 @@ where noted inline; the prototypes are the working reference.
   stagger delay is a multiple of a single `--dur` token (default **.48s**; final value
   tuned via the preview's speed tester at implementation). Hover/feedback transitions
   stay fast and off the token.
-- **Hard floors.** The Home scroll snaps: `scroll-snap-type: y mandatory` with
+- **Hard floors.** _(Amended 2026-08-13 — CSS scroll-snap is gone: it made the page
+  immovable by mouse wheel. The floors are enforced in the script instead; see the
+  decision log.)_ The Home scroll snapped: `scroll-snap-type: y mandatory` with
   `scroll-snap-stop: always` at each section's resting point. A fling stops at the next
   section (each section demands its own gesture to leave); released scroll always
   resolves onto a section, so transitions self-complete and parking mid-transition is
@@ -1098,6 +1100,37 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 ## Decision log
 
 Newest first. Each entry: what was decided and why.
+
+- **2026-08-13** — **The floors move out of CSS scroll-snap and into the script — the mouse wheel
+  never worked** (`transition-prototype.html`). Reported as "mouse scroll isn't working properly",
+  and measurement was blunt: **twelve wheel notches moved the page 0px.** Not a regression — the
+  same test against `b0f70d7`, before any of this session's work, is also 0px. The wheel has been
+  dead for as long as the floors have existed.
+  - **Cause.** `scroll-snap-type: y mandatory` with floors ~**2070px** apart, against a mouse notch
+    of ~**120px**. Every tick is ~6% of a step, so Chrome snapped it straight back. Confirmed by
+    isolation: with snap `none` the wheel scrolls normally (120px/tick), with `mandatory` **or**
+    `proximity` it is completely immovable. It went unnoticed because **the keyboard still works**
+    (PageDown lands exactly one step) and a trackpad's momentum can clear the halfway mark.
+  - **Fix — floors enforced in JS.** Snap is off. The scroll now scrubs freely while the wheel is
+    turning — which is what scrub-driven motion was always for, you *watch* the choreography — and
+    eases onto a floor once the gesture stops, so it still can never rest mid-transition. Any fresh
+    wheel/touch/key input cancels an in-flight settle, so this never gates a gesture the way the
+    rejected 2026-07-28 paged experiment did.
+  - **The commit threshold has to be in pixels, not a fraction of the step.** Settling on the
+    *nearest* floor reproduces the original bug exactly (a notch is 6% of a step, so it is always
+    dragged back), and a fraction-based threshold still fails for slow scrolling because each notch
+    settles back before the next one arrives — they never accumulate. At **`COMMIT_PX = 60`**,
+    under one notch, a single deliberate turn commits and the settle scrubs the rest of the
+    transition for you.
+  - **Measured after:** one notch → Demo; three slow notches → Demo; six slow → Behind; a normal
+    15-notch scroll → Demo; a 40-notch fling → Behind; trackpad drift → Demo; and scrolling back up
+    returns to the Hero. The ↓-cue chain still walks Hero→Demo→Behind→Journey→Skills→Contact, the
+    menu's Home/Contact jumps land exactly, touch is unaffected, no page errors.
+  - **Departure on record:** Stage 4.5's "a fling cannot pass a section" is **no longer strictly
+    enforced** — a long fling can cross two. That guarantee was only ever delivered by the snap
+    that made the page unusable with a mouse, and the more important half — *released scroll always
+    resolves onto a section* — is kept. A fling now scrubs both transitions on the way past, so
+    nothing is skipped unseen.
 
 - **2026-08-13** — **Every section now owns an equal share of the Home scroll**
   (`transition-prototype.html`). The scroll felt uneven, and measurement said it was: the five

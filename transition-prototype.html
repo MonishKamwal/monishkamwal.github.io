@@ -30,13 +30,15 @@
     --dur:.48s; /* the loose global motion value — retuned by the dock */
   }
   *{box-sizing:border-box;}
-  /* hard floors: the scroll must rest on a section, and a momentum fling
-     cannot pass one — each floor demands its own gesture to leave */
-  html{scroll-snap-type:y mandatory;}
-  .floor{
-    position:absolute;left:0;width:100%;height:2px;
-    scroll-snap-align:start;scroll-snap-stop:always;
-  }
+  /* Floors: the scroll must come to rest on a section, never mid-transition.
+     CSS scroll-snap used to do this and it CANNOT — the floors sit ~2070px apart
+     and a mouse notch is ~120px, so Chrome snapped every tick straight back and
+     the page was completely immovable by wheel (measured 2026-08-13: 0px of
+     travel over twelve ticks, on `mandatory` AND `proximity`; keyboard still
+     worked, which is why it went unnoticed). Snap is off; the floors are enforced
+     in the script instead — free scrubbing while the wheel turns, then a settle
+     onto the nearest floor once the gesture stops. */
+  .floor{position:absolute;left:0;width:100%;height:2px;}
   body{
     margin:0;background:var(--background);color:var(--foreground);
     font-family:"Outfit",system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -1089,6 +1091,70 @@
   function targetProgress(){
     return Math.min(1,Math.max(0,window.scrollY/runwayEnd));
   }
+
+  // ---- floors, enforced here rather than by CSS scroll-snap (see the .floor
+  //      rule for why snap had to go). The scroll scrubs freely while the wheel
+  //      is turning — you watch the choreography play, which is the whole point
+  //      of scrub-driven motion — and when the gesture stops it eases onto the
+  //      nearest floor, so it can never come to rest mid-transition. Any fresh
+  //      input releases the settle immediately, so this never gates a gesture
+  //      the way the 2026-07-28 paged experiment did. ----
+  const FLOOR_P=[...document.querySelectorAll('.floor')].map(f=>parseFloat(f.dataset.p));
+  const SETTLE_MS=150;          // quiet time that marks the end of a gesture
+  // How far you must travel to commit to the next floor, in PIXELS — not as a
+  // fraction of the step. A step is ~2070px and a mouse notch is ~120px, so any
+  // fraction-based rule (including nearest-wins, which is what CSS snap did) drags
+  // small gestures back and the page reads as immovable. Worse, slow notches never
+  // accumulate: each one settles back before the next arrives. Below one notch, so
+  // a single deliberate turn of the wheel commits and the settle scrubs the rest
+  // of the transition for you; a continuous scroll outruns the settle and scrubs
+  // freely, landing on whichever floor it reaches.
+  const COMMIT_PX=60;
+  let settling=false, settleTimer=0, gestureFrom=null;
+  function nearestFloor(p){
+    let bi=0,bd=Infinity;
+    for(let i=0;i<FLOOR_P.length;i++){
+      const d=Math.abs(FLOOR_P[i]-p);
+      if(d<bd){ bd=d; bi=i; }
+    }
+    return bi;
+  }
+  // hold the settle off while a deliberate jump (↓ cue, menu) is in flight
+  function scrollHold(top,ms){
+    settling=true;
+    window.scrollTo({top:top,behavior:reduce?'auto':'smooth'});
+    setTimeout(()=>{ settling=false; },reduce?0:(ms||900));
+  }
+  function settleToFloor(){
+    settleTimer=0;
+    if(settling||reduce) return;
+    const cur=targetProgress();
+    const from=(gestureFrom===null)?nearestFloor(cur):gestureFrom;
+    gestureFrom=null;
+    let idx=nearestFloor(cur);
+    // travelled far enough that another floor is nearer → go there (a long scroll
+    // may cross several). Otherwise commit forward if the gesture was deliberate,
+    // and fall back to where it started if it was only a nudge.
+    if(idx===from){
+      const deltaPx=(cur-FLOOR_P[from])*runwayEnd;
+      if(Math.abs(deltaPx)>=COMMIT_PX){
+        const dir=deltaPx>0?1:-1;
+        idx=Math.max(0,Math.min(FLOOR_P.length-1,from+dir));
+      }
+    }
+    const top=Math.round(runwayEnd*FLOOR_P[idx]);
+    if(Math.abs(window.scrollY-top)<2) return;
+    scrollHold(top,700);
+  }
+  window.addEventListener('scroll',()=>{
+    if(settling) return;                       // ignore the settle's own scrolling
+    if(gestureFrom===null) gestureFrom=nearestFloor(targetProgress());
+    if(settleTimer) clearTimeout(settleTimer);
+    settleTimer=setTimeout(settleToFloor,SETTLE_MS);
+  },{passive:true});
+  // a new gesture cancels the settle outright — never lock the visitor out
+  ['wheel','touchstart','keydown'].forEach(ev=>
+    window.addEventListener(ev,()=>{ settling=false; },{passive:true}));
   function segP(p,seg){
     return Math.min(1,Math.max(0,(p-seg[0])/(seg[1]-seg[0])));
   }
@@ -1245,7 +1311,7 @@
   requestAnimationFrame(frame);
 
   // ---- the ↓ cues scroll to the next section's floor ----
-  const scrollToP=p=>window.scrollTo({top:runwayEnd*p,behavior:reduce?'auto':'smooth'});
+  const scrollToP=p=>scrollHold(runwayEnd*p,900);
   arrowBtn.addEventListener('click',()=>scrollToP(.2));                            // hero → demo
   demoArrow.addEventListener('click',()=>scrollToP(.4));                          // demo → Behind
   sceneCue.querySelector('.arrow-btn').addEventListener('click',()=>scrollToP(.6));   // → Journey
@@ -1271,11 +1337,11 @@
   // destinations that exist in this prototype: Home → top, Contact → the bookend
   document.getElementById('mHome').addEventListener('click',e=>{
     e.preventDefault(); setMenu(false);
-    window.scrollTo({top:0,behavior:reduce?'auto':'smooth'});
+    scrollHold(0,900);
   });
   document.getElementById('mContact').addEventListener('click',e=>{
     e.preventDefault(); setMenu(false);
-    window.scrollTo({top:runwayEnd,behavior:reduce?'auto':'smooth'});
+    scrollHold(runwayEnd,900);
   });
 
   // ---- the bookend's click-to-copy email (the footer's mail icon) ----
