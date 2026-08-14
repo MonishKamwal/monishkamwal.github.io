@@ -30,15 +30,6 @@
     --dur:.48s; /* the loose global motion value — retuned by the dock */
   }
   *{box-sizing:border-box;}
-  /* Floors: the scroll must come to rest on a section, never mid-transition.
-     CSS scroll-snap could not do this while the floors sat ~2070px apart — Chrome
-     snapped every tick straight back and the page was immovable by wheel (measured
-     2026-08-13: 0px over twelve ticks, on `mandatory` AND `proximity`; keyboard still
-     worked, which is why it went unnoticed). Since 2026-08-14 a step is ~0.8 of a
-     screen, so snap would likely work now — but the script settle stays: it is one
-     device-agnostic rule we control, and it already carries the dwell-skip. Free
-     scrubbing while the gesture runs, then a settle onto the nearest floor. */
-  .floor{position:absolute;left:0;width:100%;height:2px;}
   body{
     margin:0;background:var(--background);color:var(--foreground);
     font-family:"Outfit",system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -69,7 +60,7 @@
   .menu-btn{
     background:none;border:0;cursor:pointer;padding:6px;color:var(--foreground);
     display:inline-flex;line-height:0;pointer-events:auto;
-    opacity:0;visibility:hidden; /* scrubbed: arrives with the demo, hidden on the Hero */
+    opacity:0;visibility:hidden; /* fades in as the Hero leaves; the Hero itself stays bare */
     transition:color .18s var(--ease-out-expo),scale .18s var(--ease-out-expo);
   }
   .menu-btn:hover{color:var(--warm);scale:1.12;}
@@ -133,28 +124,30 @@
   .menu-panel.open .menu-link:nth-child(8){--stagger:calc(var(--dur)*.9)}
   .menu-panel.open .menu-link:nth-child(9){--stagger:calc(var(--dur)*1)}
 
-  /* ---------- the scroll runway: sticky viewport inside ---------- */
-  /* Runway length decides input behaviour, and everything else followed from it. At
-     1250vh a section step was ~2070px, which no mouse can scrub — a notch is ~100px, so
-     scrubbing one section took ~21 of them. That forced a paging path, which forced
-     guessing mouse-from-trackpad, which cannot be done reliably. At 500vh a step is ~0.8
-     of a screen: ~6 notches by mouse, one comfortable trackpad swipe, about one thumb
-     flick on a phone. Every input is proportionate on its own terms, so one rule serves
-     all three and the guessing is gone.
-     svh, not vh/dvh: a collapsing mobile URL bar must not change the runway mid-scroll,
-     because progress is scrollY/runwayEnd and a moving denominator makes it jump. */
-  .runway{height:500vh;height:500svh;position:relative;}
-  .viewport{position:sticky;top:0;height:100vh;height:100dvh;overflow:hidden;background:#fff;}
+  /* ---------- the six sections: plain blocks in normal document flow ----------
+     Was: a 500vh runway with one sticky viewport, holding six absolutely-positioned
+     layers that each rose over the last (translate3d(0,(1-p)*100%,0)) as a single
+     global scroll progress drove the whole page. Retired 2026-08-14 for the grammar
+     the Data-mode pages use — every section is just a block, and content reveals as
+     it comes on screen. What that buys: the browser owns scrolling on every device,
+     nothing is intercepted, no floors to settle onto, and no section can outgrow its
+     container, because there is no container.
 
-  /* background cross-fade layer: white → the Data well, opacity-driven
-     (the Demo grounds on Data mode's recessed well — the doorway's whisper) */
-  .bg-wash{position:absolute;inset:0;background:var(--well);opacity:0;}
+     min-height, not height: a section is a screen tall AT LEAST. On a small phone §2's
+     instrument simply makes its section taller, where before it overflowed a fixed
+     viewport with `overflow:hidden` and put the doorway somewhere unreachable.
+     svh so the mobile URL bar can't make a section taller than the screen it lands on. */
+  .sec{
+    position:relative;min-height:100vh;min-height:100svh;
+    display:flex;align-items:center;
+    padding:clamp(24px,5vw,72px);
+  }
+  /* elements arrive as they come on screen — see revealProgress() */
+  .reveal{opacity:0;}
 
-  /* ---------- hero layer (§1) — fades in place, never moves ---------- */
+  /* ---------- §1 Hero — a white page, nothing over it ---------- */
   .hero-layer{
-    position:absolute;inset:0;display:flex;flex-direction:column;
-    align-items:center;justify-content:center;
-    z-index:2;pointer-events:none; /* floats above the rising panel; fades in place */
+    flex-direction:column;justify-content:center;background:#fff;
   }
   .hero-name{
     font-size:clamp(52px,12vw,140px);text-transform:uppercase;
@@ -201,36 +194,37 @@
   }
   @keyframes heroArrowIn{from{opacity:0;}to{opacity:1;}}
 
-  /* the demo's own ↓ cue: the wrapper carries the scrubbed fade (the float
-     animation owns the button's opacity, so the fade must live on the parent) */
+  /* the demo's own ↓ cue: the wrapper carries the fade (the float animation owns the
+     button's opacity, so the fade has to live on the parent) */
   .demo-arrow-wrap{
     position:absolute;bottom:34px;left:50%;transform:translateX(-50%);
-    opacity:0;visibility:hidden;
+    opacity:0;transition:opacity calc(var(--dur)*.7) var(--ease-out-expo);
   }
   .demo-arrow-wrap .arrow-btn{
     position:static;animation:floatY 2.6s var(--ease-out-expo) infinite;
   }
-  /* the same ↓ cue on §3/§4/§5 — bottom-centre of each layer, scrubbed in/out */
+  /* the same ↓ cue on §3/§4/§5 — bottom-centre of each section */
+  /* a cue belongs to its section: it is up for exactly as long as that section is
+     the one you're in (applyChrome), instead of owning a slice of a global scroll */
   .next-cue{
     position:absolute;bottom:34px;left:50%;transform:translateX(-50%);z-index:3;
-    opacity:0;visibility:hidden;
+    opacity:0;transition:opacity calc(var(--dur)*.7) var(--ease-out-expo);
   }
   .next-cue .arrow-btn{position:static;animation:floatY 2.6s var(--ease-out-expo) infinite;}
   @keyframes floatY{0%,100%{transform:translateY(0);opacity:.75;}50%{transform:translateY(7px);opacity:1;}}
 
-  /* ---------- demo panel (§2) — rises from below and overlaps ---------- */
+  /* ---------- §2 Live demo — grounds on Data mode's recessed well, which is the
+       doorway's whisper: the section is already the colour of where it leads ---------- */
   .panel-layer{
-    position:absolute;inset:0;background:var(--well);
-    z-index:1;transform:translate3d(0,100%,0);
-    display:flex;align-items:center;justify-content:center;
-    gap:clamp(24px,4vw,64px);padding:clamp(24px,5vw,72px);
+    background:var(--well);
+    justify-content:center;gap:clamp(24px,4vw,64px);
   }
   .demo-title{
     position:absolute;top:clamp(44px,7vh,64px);left:clamp(24px,5vw,72px);
     font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
     font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
     font-size:clamp(30px,5vw,54px);
-    opacity:0; /* scrubbed: opacity + translate driven per-frame by the scroll script */
+    opacity:0; /* .reveal — opacity + translate driven per-frame from its rect */
   }
 
   /* the ONE instrument (Monish's pick 2026-07-28, over the two-panel bench):
@@ -260,7 +254,7 @@
   /* canvas column: the draw surface + its Clear/Undo controls, revealed as one group */
   .canvas-col{
     width:min(42vw,470px);display:flex;flex-direction:column;align-items:center;gap:13px;
-    opacity:0; /* scrubbed */
+    opacity:0; /* .reveal */
   }
   .canvas-card{
     /* the drawing surface — borderless: pad and Clear/Undo share one plane,
@@ -299,7 +293,7 @@
 
   .pred{
     flex:1;min-width:260px;display:flex;flex-direction:column;gap:14px;
-    opacity:0; /* scrubbed */
+    opacity:0; /* .reveal */
   }
   .bar-row .bar-top{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:6px;}
   .bar-row .bar-top span:first-child{color:var(--foreground);}
@@ -312,7 +306,7 @@
   }
   .bar-fill.soft{background:var(--warm-soft);}
   /* hybrid: the fills are the money moment — they play on the clock at the designed
-     tempo, triggered as soon as the bars are visible (not on full settle) */
+     tempo, triggered as soon as §2 is on screen. Structure reveals, payoffs play. */
   body.bars-live .bar-fill{transform:scaleX(var(--w));}
   body.bars-live .bar-row:nth-child(2) .bar-fill{transition-delay:calc(var(--dur)*.12);}
   body.bars-live .bar-row:nth-child(3) .bar-fill{transition-delay:calc(var(--dur)*.24);}
@@ -342,12 +336,8 @@
   .doorway .link{font-size:clamp(18px,1.8vw,21px);font-weight:380;}
   .privacy{margin:2px 0 0;font-size:11.5px;color:var(--muted-foreground);}
 
-  /* ---------- §3 layer: Behind the Scenes — rises over the settled demo ---------- */
-  .scene-layer{
-    position:absolute;inset:0;background:var(--wash-sage);
-    z-index:3;transform:translate3d(0,100%,0);
-    display:flex;align-items:center;padding:clamp(24px,5vw,72px);
-  }
+  /* ---------- §3 Behind the Scenes ---------- */
+  .scene-layer{background:var(--wash-sage);}
   .scene-inner{max-width:880px;margin:0 auto;width:100%;}
   .scene-title{
     font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
@@ -376,9 +366,9 @@
   /* the Journey CTA sits on the line's end — keep the bigger label on one line */
   #jLinkWrap{width:auto;white-space:nowrap;}
 
-  /* §3 reveal — SCRUBBED like the demo: title + lead first, then the pipeline
-     draws itself left-to-right under the scroll, then the link. Opacity and
-     translate are driven per-frame by the scroll script. */
+  /* §3 reveal — like the demo: title, then lead, then the link, each sliced out of
+     the section's own arrival (data-stagger). The ring draws itself over the same
+     arrival — see applyRing(). */
   .scene-title,.scene-lead,.scene-link{opacity:0;}
 
   /* ---------- §3's ring: the four planes as a closed loop (see arch-sketches.html) ---------- */
@@ -453,12 +443,8 @@
   .ring-mid .link:hover{scale:1;font-size:calc(var(--fs)*1.07);}
   .ring-mid .link:hover .ar{transform:translateX(5px);}
 
-  /* ---------- §4 layer: The Journey — rises over the diagram ---------- */
-  .journey-layer{
-    position:absolute;inset:0;background:var(--wash-ochre);
-    z-index:4;transform:translate3d(0,100%,0);
-    display:flex;align-items:center;padding:clamp(24px,5vw,72px);
-  }
+  /* ---------- §4 The Journey ---------- */
+  .journey-layer{background:var(--wash-ochre);}
   .j-inner{max-width:820px;margin:0 auto;width:100%;}
   .j-path-wrap{position:relative;margin-top:clamp(0px,1vh,10px);max-width:760px;}
   .j-path-wrap svg{width:100%;height:auto;display:block;}
@@ -480,12 +466,8 @@
   }
   .j-entry p{margin:0;font-size:12.5px;color:var(--muted-foreground);line-height:1.45;}
 
-  /* ---------- §5 layer: Skills + closing — rises over the Journey ---------- */
-  .skills-layer{
-    position:absolute;inset:0;background:var(--wash-rose);
-    z-index:5;transform:translate3d(0,100%,0);
-    display:flex;align-items:center;padding:clamp(24px,5vw,72px);
-  }
+  /* ---------- §5 Skills + closing ---------- */
+  .skills-layer{background:var(--wash-rose);}
   .s-inner{max-width:880px;margin:0 auto;width:100%;}
   .s-lines{display:flex;flex-direction:column;gap:clamp(10px,2vh,18px);margin-top:clamp(22px,4vh,40px);}
   .s-line{font-size:clamp(20px,3.4vw,34px);font-weight:350;letter-spacing:-.005em;opacity:0;}
@@ -504,13 +486,9 @@
   /* §3 carries a title only — no lead — so its content sits higher */
   .scene-layer{padding-top:clamp(84px,10vh,120px);}
 
-  /* ---------- §6 layer: the Contact bookend — a white page like the Hero,
-       now a rising layer so Skills → Contact gets the same roll-over ---------- */
+  /* ---------- §6 the Contact bookend — Home ends as it opens, on a white page ---------- */
   .after{
-    position:absolute;inset:0;z-index:6;background:#fff;
-    transform:translate3d(0,100%,0);
-    padding:clamp(24px,5vw,72px);display:flex;flex-direction:column;
-    align-items:center;justify-content:center;text-align:center;
+    background:#fff;flex-direction:column;justify-content:center;text-align:center;
   }
   .after h2{font-size:clamp(44px,10vw,110px);margin:0;}
   .after .copied{
@@ -569,12 +547,12 @@
     .bmrow{gap:7px;padding:6px 6px 3px;}
     .ring-mid .link{--fs:12.5px;}
     .you-note{top:calc(12.5% - 68px);}
-    /* §2 stacks. align-items:center was clipping BOTH ends once the column grew
-       past the viewport (measured 703px of instrument in 568px of screen: the pad
-       ran up over the title by 7253px² and the doorway fell into the hidden
-       overflow — .viewport is overflow:hidden, so that content was unreachable,
-       not merely below the fold). Start-aligned, the overflow can only ever go
-       one way, and the trims below take the column back under the fold. */
+    /* §2 stacks, start-aligned. Under the old sticky viewport, centring clipped BOTH
+       ends once the column outgrew the screen (measured 703px of instrument in 568px:
+       the pad ran up over the title by 7253px² and the doorway fell into overflow that
+       was hidden, so it could not be reached at all). In normal flow the section just
+       grows, but start-alignment stays: it keeps the title at a fixed place instead of
+       drifting with the column's height, and the trims below still earn their keep. */
     .panel-layer{
       flex-direction:column;align-items:center;justify-content:flex-start;
       gap:20px;padding-top:clamp(90px,16vh,130px);
@@ -615,16 +593,11 @@
     .next-cue{bottom:14px;}
     .arrow-btn svg{width:24px;height:38px;}
 
-    /* Below 390 the instrument cannot fit one screen no matter how it is trimmed:
-       at 320×568 the fixed text alone — three bars, prompt, verdict, doorway,
-       privacy — outruns the 477px the viewport has left under the title, before
-       the pad gets a pixel. So the smallest phones get a short scroll INSIDE the
-       panel rather than content parked in unreachable overflow. Scroll chaining is
-       left on (no overscroll-behavior) so reaching the end carries straight on
-       into the Home scroll. 390+ never scrolls: it already fits. */
-    @media(max-width:389px){
-      .panel-layer{overflow-y:auto;}
-    }
+    /* Below 390 the instrument cannot fit one screen no matter how it is trimmed.
+       That used to need a scroll INSIDE the panel, because the sticky viewport was
+       overflow:hidden and anything past one screen was unreachable rather than merely
+       below the fold. In normal flow the section is min-height, so it simply grows and
+       the page scrolls — the special case is gone. */
   }
 
   /* Below ~430px the ring's waist is too narrow to hold the invitation. The two
@@ -642,6 +615,7 @@
 
   @media (prefers-reduced-motion:reduce){
     *{animation:none!important;transition:none!important;}
+    .reveal{opacity:1!important;}
   }
 </style>
 </head>
@@ -675,18 +649,12 @@
   </nav>
 </aside>
 
-<div class="runway" id="runway">
-  <!-- section floors: positioned by the script at each resting progress -->
-  <div class="floor" data-p="0"></div>
-  <div class="floor" data-p=".2"></div>
-  <div class="floor" data-p=".4"></div>
-  <div class="floor" data-p=".6"></div>
-  <div class="floor" data-p=".8"></div>
-  <div class="floor" data-p="1"></div>
-  <div class="viewport">
-    <div class="bg-wash" id="bgWash"></div>
+<!-- Six sections, one after another, in normal document flow. There is no runway,
+     no sticky viewport and no floors: the page is just as long as its content, and
+     each section reveals what's in it as it comes on screen. -->
+<main class="story">
 
-    <div class="hero-layer" id="heroLayer">
+    <section class="sec hero-layer" id="heroLayer">
       <h1 class="display hero-name">Monish Kamwal</h1>
       <p class="hero-sub">MLOps Project &amp; Portfolio</p>
       <div class="hero-arrow-wrap">
@@ -696,12 +664,12 @@
           </svg>
         </button>
       </div>
-    </div>
+    </section>
 
-    <div class="panel-layer" id="panelLayer">
-      <div class="demo-title" id="demoTitle">Draw Something</div>
+    <section class="sec panel-layer" id="panelLayer">
+      <div class="demo-title reveal" id="demoTitle">Draw Something</div>
       <div class="instrument">
-        <div class="canvas-col" id="canvasCol">
+        <div class="canvas-col reveal" data-stagger="1" id="canvasCol">
           <div class="canvas-card">
             <svg id="padSvg" viewBox="0 0 120 90" preserveAspectRatio="xMidYMid meet" fill="none" stroke="#0a0a0a" stroke-width="1.6">
               <g class="mock" id="padMock" transform="translate(18 17) scale(.7)">
@@ -716,7 +684,7 @@
           </div>
         </div>
         <div class="instr-split" aria-hidden="true"></div>
-        <div class="pred" id="pred">
+        <div class="pred reveal" data-stagger="2" id="pred">
           <div class="bar-row"><div class="bar-top"><span>Cat</span><span class="pct">87%</span></div><div class="bar-track"><div class="bar-fill" style="--w:.87"></div></div></div>
           <div class="bar-row"><div class="bar-top"><span>Dog</span><span class="pct">9%</span></div><div class="bar-track"><div class="bar-fill soft" style="--w:.09"></div></div></div>
           <div class="bar-row"><div class="bar-top"><span>Bird</span><span class="pct">4%</span></div><div class="bar-track"><div class="bar-fill soft" style="--w:.04"></div></div></div>
@@ -740,13 +708,13 @@
           </svg>
         </button>
       </div>
-    </div>
+    </section>
 
-    <div class="scene-layer" id="sceneLayer">
+    <section class="sec scene-layer" id="sceneLayer">
       <div class="scene-inner">
         <div class="sec-head">
-          <h2 class="scene-title display">Behind the Scenes</h2>
-          <p class="scene-lead">From strokes to prediction</p>
+          <h2 class="scene-title display reveal">Behind the Scenes</h2>
+          <p class="scene-lead reveal" data-stagger="1">From strokes to prediction</p>
         </div>
         <div class="arch-wrap">
           <div class="arch-ring" id="archRing">
@@ -763,7 +731,7 @@
               <path class="ring-in" d="M195 33 200 41 205 33" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
             <div class="ring-mid">
-              <p class="scene-link"><a class="link cta-strong" href="sections-prototype.html#architecture">Explore the full architecture <span class="ar">→</span></a></p>
+              <p class="scene-link reveal" data-stagger="3"><a class="link cta-strong" href="sections-prototype.html#architecture">Explore the full architecture <span class="ar">→</span></a></p>
             </div>
             <div class="lab serve" id="labServe"><div class="dname">Serving</div><span class="bmrow"><span class="bm" style="--bc:#FF9900" data-name="AWS Lambda" tabindex="0" role="img" aria-label="AWS Lambda"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.9855 0c-.2941.0031-.5335.2466-.534.5482L4.446 5.456c0 .1451.06.2835.159.3891a.5322.5322 0 0 0 .3806.1562h3.4282l8.197 17.6805a.5365.5365 0 0 0 .4885.3181h5.811c.2969 0 .5426-.2448.5426-.5482V18.544c0-.3035-.2392-.5482-.5425-.5482h-2.0138L12.7394.3153C12.647.124 12.4564 0 12.2452 0h-7.254Zm.5397 1.0907h6.3678l8.16 17.6804a.5365.5365 0 0 0 .4885.3181h1.8178v3.8173H17.437L9.2402 5.226a.536.536 0 0 0-.4885-.318H5.5223Zm2.0137 8.2366c-.2098.0011-.3937.1193-.4857.3096L.6002 23.2133a.5506.5506 0 0 0 .0313.5282.5334.5334 0 0 0 .4544.25h6.169a.5468.5468 0 0 0 .497-.3096l3.38-7.166a.5405.5405 0 0 0-.0029-.4686L8.036 9.637a.5468.5468 0 0 0-.4942-.3096Zm.0057 1.8036 2.488 5.1522-3.1214 6.6206H1.9465Z"/></svg></span><span class="bm" style="--bc:#009688" data-name="FastAPI" tabindex="0" role="img" aria-label="FastAPI"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .0387C5.3729.0384.0003 5.3931 0 11.9988c-.001 6.6066 5.372 11.9628 12 11.9625 6.628.0003 12.001-5.3559 12-11.9625-.0003-6.6057-5.3729-11.9604-12-11.96m-.829 5.4153h7.55l-7.5805 5.3284h5.1828L5.279 18.5436q2.9466-6.5444 5.892-13.0896"/></svg></span><span class="bm" style="--bc:#005CED" data-name="ONNX" tabindex="0" role="img" aria-label="ONNX"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.0325 11.2963c-.0503 0-.1006 0-.1508.0126l-4.021-7.4387c.0754-.1383.1131-.289.1131-.4524 0-.5403-.4398-.9675-.9675-.9675-.2765 0-.5278.113-.7037.3015L9.286 1.156C9.2357.6785 8.821.3016 8.3184.3016c-.5277 0-.9675.4398-.9675.9675 0 .1634.0377.3141.113.4524l-6.245 8.9591c-.0753-.0251-.1633-.0377-.2513-.0377-.5403 0-.9675.4398-.9675.9676 0 .5403.4398.9675.9675.9675h.0377l3.3676 8.3309c-.0503.1257-.088.2639-.088.402 0 .5404.4398.9676.9676.9676.2764 0 .5277-.113.7036-.3015l10.1152.9926c.1005.4273.49.7288.9424.7288.5403 0 .9676-.4398.9676-.9675 0-.2388-.088-.465-.2262-.6283l5.1141-8.8712c.0503.0126.1005.0126.1634.0126.5403 0 .9675-.4398.9675-.9676 0-.5403-.4272-.98-.9675-.98zM17.2272 4.021c.1131.1508.2765.264.4524.3267l-1.533 11.5728c-.1005.0252-.1885.0503-.2764.1005L7.4513 8.708c.0251-.0754.0377-.1634.0377-.2514 0-.0628-.0126-.1256-.0126-.1884zm4.8754 8.5068l-5.177 3.556a1.105 1.105 0 0 0-.1256-.0753L18.3455 4.335h.0126l3.9456 7.288c-.1508.1759-.2388.3895-.2388.6408 0 .1005.0126.1885.0377.2638zM6.3832 7.5016c-.4649.0754-.8293.4775-.8293.955v.0628l-3.4555 2.0481 5.378-7.7026zm.3519 1.91c.1256-.0252.2513-.088.3518-.1634l8.356 7.2628c-.0377.113-.0628.2262-.0628.3518v.0503l-9.311 3.845c-.1382-.201-.3518-.3518-.6031-.402zm8.8963 8.1172c.1257.1382.3016.2513.5026.289l.465 4.046c-.201.1006-.3519.264-.4524.4524l-9.8136-.955zm1.1435.2136c.3267-.1633.5403-.49.5403-.867 0-.088-.0126-.1634-.0377-.2513l4.7372-3.2545-4.8 8.331zm.2513-14.3497l-9.889 4.31-.1131-.0755 1.2565-5.3906h.0377c.3393 0 .6409-.1759.8168-.4397l7.891 1.5706zM1.935 11.6105c0-.0629-.0126-.1257-.0126-.1885l3.9079-2.2995c.0754.0754.1633.1508.2638.201L4.8252 20.243l-3.2043-7.9036c.1885-.176.3142-.4398.3142-.7288Z"/></svg></span></span></div>
             <div class="lab mon" id="labMon"><div class="dname">Monitoring</div><span class="bmrow"><span class="bm drawn" data-name="Evidently — no logo published" tabindex="0" role="img" aria-label="Evidently"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 20h18"/><path d="M6 20v-6M10 20v-10M14 20v-4M18 20v-8"/><path d="M4.5 6.5 8 3l3.5 3.5"/><path d="M8 3v6"/></svg></span><span class="bm" style="--bc:#E6522C" data-name="Prometheus" tabindex="0" role="img" aria-label="Prometheus"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.373 0 0 5.372 0 12c0 6.627 5.373 12 12 12s12-5.373 12-12c0-6.628-5.373-12-12-12zm0 22.46c-1.885 0-3.414-1.26-3.414-2.814h6.828c0 1.553-1.528 2.813-3.414 2.813zm5.64-3.745H6.36v-2.046h11.28v2.046zm-.04-3.098H6.391c-.037-.043-.075-.086-.111-.13-1.155-1.401-1.427-2.133-1.69-2.879-.005-.025 1.4.287 2.395.511 0 0 .513.119 1.262.255-.72-.843-1.147-1.915-1.147-3.01 0-2.406 1.845-4.508 1.18-6.207.648.053 1.34 1.367 1.387 3.422.689-.951.977-2.69.977-3.755 0-1.103.727-2.385 1.454-2.429-.648 1.069.168 1.984.894 4.256.272.854.237 2.29.447 3.201.07-1.892.395-4.652 1.595-5.605-.529 1.2.079 2.702.494 3.424.671 1.164 1.078 2.047 1.078 3.716a4.642 4.642 0 01-1.11 2.996c.792-.149 1.34-.283 1.34-.283l2.573-.502s-.374 1.538-1.81 3.019z"/></svg></span><span class="bm" style="--bc:#F46800" data-name="Grafana" tabindex="0" role="img" aria-label="Grafana"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.02 10.59a8.578 8.578 0 0 0-.862-3.034 8.911 8.911 0 0 0-1.789-2.445c.337-1.342-.413-2.505-.413-2.505-1.292-.08-2.113.4-2.416.62-.052-.02-.102-.044-.154-.064-.22-.089-.446-.172-.677-.247-.231-.073-.47-.14-.711-.197a9.867 9.867 0 0 0-.875-.161C14.557.753 12.94 0 12.94 0c-1.804 1.145-2.147 2.744-2.147 2.744l-.018.093c-.098.029-.2.057-.298.088-.138.042-.275.094-.413.143-.138.055-.275.107-.41.166a8.869 8.869 0 0 0-1.557.87l-.063-.029c-2.497-.955-4.716.195-4.716.195-.203 2.658.996 4.33 1.235 4.636a11.608 11.608 0 0 0-.607 2.635C1.636 12.677.953 15.014.953 15.014c1.926 2.214 4.171 2.351 4.171 2.351.003-.002.006-.002.006-.005.285.509.615.994.986 1.446.156.19.32.371.488.548-.704 2.009.099 3.68.099 3.68 2.144.08 3.553-.937 3.849-1.173a9.784 9.784 0 0 0 3.164.501h.08l.055-.003.107-.002.103-.005.003.002c1.01 1.44 2.788 1.646 2.788 1.646 1.264-1.332 1.337-2.653 1.337-2.94v-.058c0-.02-.003-.039-.003-.06.265-.187.52-.387.758-.6a7.875 7.875 0 0 0 1.415-1.7c1.43.083 2.437-.885 2.437-.885-.236-1.49-1.085-2.216-1.264-2.354l-.018-.013-.016-.013a.217.217 0 0 1-.031-.02c.008-.092.016-.18.02-.27.011-.162.016-.323.016-.48v-.253l-.005-.098-.008-.135a1.891 1.891 0 0 0-.01-.13c-.003-.042-.008-.083-.013-.125l-.016-.124-.018-.122a6.215 6.215 0 0 0-2.032-3.73 6.015 6.015 0 0 0-3.222-1.46 6.292 6.292 0 0 0-.85-.048l-.107.002h-.063l-.044.003-.104.008a4.777 4.777 0 0 0-3.335 1.695c-.332.4-.592.84-.768 1.297a4.594 4.594 0 0 0-.312 1.817l.003.091c.005.055.007.11.013.164a3.615 3.615 0 0 0 .698 1.82 3.53 3.53 0 0 0 1.827 1.282c.33.098.66.14.971.137.039 0 .078 0 .114-.002l.063-.003c.02 0 .041-.003.062-.003.034-.002.065-.007.099-.01.007 0 .018-.003.028-.003l.031-.005.06-.008a1.18 1.18 0 0 0 .112-.02c.036-.008.072-.013.109-.024a2.634 2.634 0 0 0 .914-.415c.028-.02.056-.041.085-.065a.248.248 0 0 0 .039-.35.244.244 0 0 0-.309-.06l-.078.042c-.09.044-.184.083-.283.116a2.476 2.476 0 0 1-.475.096c-.028.003-.054.006-.083.006l-.083.002c-.026 0-.054 0-.08-.002l-.102-.006h-.012l-.024.006c-.016-.003-.031-.003-.044-.006-.031-.002-.06-.007-.091-.01a2.59 2.59 0 0 1-.724-.213 2.557 2.557 0 0 1-.667-.438 2.52 2.52 0 0 1-.805-1.475 2.306 2.306 0 0 1-.029-.444l.006-.122v-.023l.002-.031c.003-.021.003-.04.005-.06a3.163 3.163 0 0 1 1.352-2.29 3.12 3.12 0 0 1 .937-.43 2.946 2.946 0 0 1 .776-.101h.06l.07.002.045.003h.026l.07.005a4.041 4.041 0 0 1 1.635.49 3.94 3.94 0 0 1 1.602 1.662 3.77 3.77 0 0 1 .397 1.414l.005.076.003.075c.002.026.002.05.002.075 0 .024.003.052 0 .07v.065l-.002.073-.008.174a6.195 6.195 0 0 1-.08.639 5.1 5.1 0 0 1-.267.927 5.31 5.31 0 0 1-.624 1.13 5.052 5.052 0 0 1-3.237 2.014 4.82 4.82 0 0 1-.649.066l-.039.003h-.287a6.607 6.607 0 0 1-1.716-.265 6.776 6.776 0 0 1-3.4-2.274 6.75 6.75 0 0 1-.746-1.15 6.616 6.616 0 0 1-.714-2.596l-.005-.083-.002-.02v-.056l-.003-.073v-.096l-.003-.104v-.07l.003-.163c.008-.22.026-.45.054-.678a8.707 8.707 0 0 1 .28-1.355c.128-.444.286-.872.473-1.277a7.04 7.04 0 0 1 1.456-2.1 5.925 5.925 0 0 1 .953-.763c.169-.111.343-.213.524-.306.089-.05.182-.091.273-.135.047-.02.093-.042.138-.062a7.177 7.177 0 0 1 .714-.267l.145-.045c.049-.015.098-.026.148-.041.098-.029.197-.052.296-.076.049-.013.1-.02.15-.033l.15-.032.151-.028.076-.013.075-.01.153-.024c.057-.01.114-.013.171-.023l.169-.021c.036-.003.073-.008.106-.01l.073-.008.036-.003.042-.002c.057-.003.114-.008.171-.01l.086-.006h.023l.037-.003.145-.007a7.999 7.999 0 0 1 1.708.125 7.917 7.917 0 0 1 2.048.68 8.253 8.253 0 0 1 1.672 1.09l.09.077.089.078c.06.052.114.107.171.159.057.052.112.106.166.16.052.055.107.107.159.164a8.671 8.671 0 0 1 1.41 1.978c.012.026.028.052.04.078l.04.078.075.156c.023.051.05.1.07.153l.065.15a8.848 8.848 0 0 1 .45 1.34.19.19 0 0 0 .201.142.186.186 0 0 0 .172-.184c.01-.246.002-.532-.024-.856z"/></svg></span><span class="bm" style="--bc:#569A31" data-name="Amazon S3" tabindex="0" role="img" aria-label="Amazon S3"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.913 13.147l.12-.895c.947.576 1.258.922 1.354 1.071-.16.031-.562.046-1.474-.176zm-2.174 7.988a.547.547 0 0 0-.005.073c0 .084-.207.405-1.124.768a10.28 10.28 0 0 1-1.438.432c-1.405.325-3.128.504-4.853.504-4.612 0-7.412-1.184-7.412-1.704a.547.547 0 0 0-.005-.073L1.81 5.602c.135.078.28.154.432.227.042.02.086.038.128.057.134.062.272.122.417.18l.179.069c.154.058.314.114.478.168.043.013.084.029.13.043.207.065.423.127.646.187l.176.044c.175.044.353.087.534.127a23.414 23.414 0 0 0 .843.17l.121.023c.252.045.508.085.768.122.071.011.144.02.216.03.2.027.4.053.604.077l.24.027c.245.026.49.05.74.07l.081.009c.275.022.552.04.83.056l.233.012c.21.01.422.018.633.025a33.088 33.088 0 0 0 2.795-.026l.232-.011c.278-.016.555-.034.83-.056l.08-.008c.25-.02.497-.045.742-.072l.238-.026c.205-.024.408-.05.609-.077.07-.01.141-.019.211-.03.261-.037.519-.078.772-.122l.111-.02c.215-.04.427-.082.634-.125l.212-.047c.186-.041.368-.085.546-.13l.166-.042c.225-.06.444-.122.654-.189.04-.012.077-.026.115-.038a10.6 10.6 0 0 0 .493-.173c.058-.021.114-.044.17-.066.15-.06.293-.12.43-.185.038-.017.079-.034.116-.052.153-.073.3-.15.436-.228l-.976 7.245c-2.488-.78-5.805-2.292-7.311-3a1.09 1.09 0 0 0-1.088-1.085c-.6 0-1.088.489-1.088 1.088 0 .6.488 1.089 1.088 1.089.196 0 .378-.056.537-.148 1.72.812 5.144 2.367 7.715 3.15zm-7.42-20.047c5.677 0 9.676 1.759 9.75 2.736l-.014.113c-.01.033-.031.067-.048.101-.015.028-.026.057-.047.087-.024.033-.058.068-.09.102-.028.03-.051.06-.084.09-.038.035-.087.07-.133.105-.04.03-.074.06-.119.091-.053.036-.116.071-.177.107-.05.03-.095.06-.15.09-.068.036-.147.073-.222.11-.059.028-.114.057-.177.085-.084.038-.177.074-.268.111-.068.027-.13.054-.203.082-.097.036-.205.072-.31.107-.075.026-.148.053-.228.079-.111.035-.233.069-.35.103-.085.024-.165.05-.253.073-.124.034-.258.065-.389.098-.093.022-.181.046-.278.068-.139.032-.287.061-.433.091-.098.02-.191.041-.293.06-.155.03-.32.057-.482.084-.1.018-.198.036-.302.052-.166.026-.342.048-.515.072-.11.014-.213.03-.325.044-.181.023-.372.041-.56.06-.11.012-.218.025-.332.036-.188.016-.386.029-.58.043-.122.009-.24.02-.364.028-.207.012-.422.02-.635.028-.12.005-.234.012-.354.016a35.605 35.605 0 0 1-2.069 0c-.12-.004-.234-.011-.352-.016-.214-.008-.43-.016-.637-.028-.122-.008-.238-.02-.36-.027-.195-.015-.394-.028-.584-.044-.11-.01-.215-.024-.324-.035-.19-.02-.384-.038-.568-.06l-.315-.044c-.176-.024-.355-.046-.525-.073-.1-.015-.192-.033-.29-.05-.167-.028-.335-.055-.494-.086-.096-.018-.183-.038-.276-.056-.151-.032-.305-.062-.45-.095-.09-.02-.173-.043-.26-.064-.138-.034-.277-.067-.407-.102-.082-.022-.157-.046-.235-.069a11.75 11.75 0 0 1-.368-.108c-.075-.024-.141-.049-.213-.073-.11-.037-.223-.075-.325-.113-.067-.025-.125-.051-.188-.077-.096-.038-.195-.076-.282-.115-.06-.027-.11-.054-.166-.08-.08-.039-.162-.077-.233-.116-.052-.028-.094-.055-.142-.084-.063-.038-.13-.075-.185-.113-.043-.029-.075-.058-.113-.086-.048-.037-.098-.073-.139-.11-.032-.029-.054-.057-.08-.087-.033-.035-.069-.07-.093-.104-.02-.03-.031-.058-.046-.086-.018-.035-.039-.068-.049-.102l-.015-.113c.076-.977 4.074-2.736 9.748-2.736zm12.182 12.124c-.118-.628-.84-1.291-2.31-2.128l.963-7.16a.531.531 0 0 0 .005-.073C22.16 1.581 16.447 0 11.32 0 6.194 0 .482 1.581.482 3.851a.58.58 0 0 0 .005.072L2.819 21.25c.071 2.002 5.236 2.75 8.5 2.75 1.805 0 3.615-.188 5.098-.531.598-.138 1.133-.3 1.592-.48 1.18-.467 1.789-1.053 1.813-1.739l.945-7.018c.557.131 1.016.197 1.389.197.54 0 .902-.137 1.134-.413a.956.956 0 0 0 .21-.804Z"/></svg></span></span></div>
@@ -777,13 +745,13 @@
           <svg viewBox="0 0 34 54" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M17 2v46M6 37l11 11 11-11" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       </div>
-    </div>
+    </section>
 
-    <div class="journey-layer" id="journeyLayer">
+    <section class="sec journey-layer" id="journeyLayer">
       <div class="j-inner">
         <div class="sec-head">
-          <h2 class="scene-title" id="jTitle">The Journey</h2>
-          <p class="scene-lead" id="jLead">Roads not taken</p>
+          <h2 class="scene-title reveal" id="jTitle">The Journey</h2>
+          <p class="scene-lead reveal" data-stagger="1" id="jLead">Roads not taken</p>
         </div>
         <div class="j-path-wrap">
           <svg viewBox="0 0 700 420" fill="none" aria-hidden="true">
@@ -809,31 +777,31 @@
           <svg viewBox="0 0 34 54" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M17 2v46M6 37l11 11 11-11" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       </div>
-    </div>
+    </section>
 
-    <div class="skills-layer" id="skillsLayer">
+    <section class="sec skills-layer" id="skillsLayer">
       <div class="s-inner">
         <div class="sec-head">
-          <h2 class="scene-title" id="sTitle">Skills</h2>
-          <p class="scene-lead" id="sLead">What I build with</p>
+          <h2 class="scene-title reveal" id="sTitle">Skills</h2>
+          <p class="scene-lead reveal" data-stagger="1" id="sLead">What I build with</p>
         </div>
         <div class="s-lines">
           <div class="s-line l1">Python · PyTorch · scikit-learn</div>
-          <div class="s-line l2 r">AWS · Kubernetes · Terraform</div>
-          <div class="s-line l3">GitHub Actions · Docker · MLflow</div>
-          <div class="s-line l4 r">Next.js · TypeScript</div>
+          <div class="s-line l2 r" data-stagger="1">AWS · Kubernetes · Terraform</div>
+          <div class="s-line l3" data-stagger="2">GitHub Actions · Docker · MLflow</div>
+          <div class="s-line l4 r" data-stagger="3">Next.js · TypeScript</div>
         </div>
-        <p class="scene-link" id="sLink"><a class="link" href="sections-prototype.html#skills">See all skills →</a></p>
+        <p class="scene-link reveal" data-stagger="4" id="sLink"><a class="link" href="sections-prototype.html#skills">See all skills →</a></p>
       </div>
       <div class="next-cue" id="skillsCue">
         <button class="arrow-btn" aria-label="Continue to Contact">
           <svg viewBox="0 0 34 54" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M17 2v46M6 37l11 11 11-11" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       </div>
-    </div>
+    </section>
 
-    <!-- ---------- §6 layer: Contact bookend — rises over the settled Skills ---------- -->
-    <div class="after" id="afterLayer">
+    <!-- ---------- §6: the Contact bookend ---------- -->
+    <section class="sec after" id="afterLayer">
   <h2 class="display">Say hello.</h2>
   <div class="b-foot">
     <a href="#" onclick="return false" aria-label="GitHub"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.2-1.5 6.2-6.7A5.2 5.2 0 0 0 20 4.8 4.9 4.9 0 0 0 19.9 1S18.7.6 16 2.5a13.4 13.4 0 0 0-7 0C6.3.6 5.1 1 5.1 1A4.9 4.9 0 0 0 5 4.8a5.2 5.2 0 0 0-1.4 3.7c0 5.2 3.2 6.4 6.2 6.7A3.4 3.4 0 0 0 9 17.8V22" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
@@ -843,10 +811,10 @@
   <div class="copied" id="emailCopied">Copied</div>
   <a class="link or-link" href="sections-prototype.html#about">Or learn more about me →</a>
   <p class="note">End of the prototype — the Hero's white bookend closes the scroll.
-     Scroll back up to replay: all five transitions are scrubbed, so they play in either direction.</p>
-    </div>
-  </div>
-</div>
+     Scroll back up to replay: every reveal is a function of where its element sits on
+     screen, so it plays in either direction.</p>
+    </section>
+</main>
 
 <div class="layout-dock" role="group" aria-label="Demo section layout">
   <span class="micro">§2 layout</span>
@@ -866,21 +834,14 @@
 
 <script>
   const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const runway=document.getElementById('runway');
   const heroLayer=document.getElementById('heroLayer');
   const panelLayer=document.getElementById('panelLayer');
   const sceneLayer=document.getElementById('sceneLayer');
-  const bgWash=document.getElementById('bgWash');
   const arrowBtn=document.getElementById('arrowBtn');
   const indicator=document.getElementById('indicator');
-  const demoTitle=document.getElementById('demoTitle');
-  const canvasCol=document.getElementById('canvasCol');
-  const pred=document.getElementById('pred');
+  const pred=document.getElementById('pred');   // the bars are clocked, so this one is still held
   const demoArrowWrap=document.getElementById('demoArrowWrap');
   const demoArrow=document.getElementById('demoArrow');
-  const sceneTitle=document.querySelector('.scene-title');
-  const sceneLead=document.querySelector('.sec-head .scene-lead');
-  const sceneLink=document.querySelector('.scene-link');
   // §3's ring — the loop, its stops, and the direction chevrons
   const archRing=document.getElementById('archRing');
   const ringPath=document.getElementById('ringPath');
@@ -891,26 +852,19 @@
   const RING_LEN=943;                       // 2πr at r=150 in the viewBox
   let chevF=[.125,.375,.625,.875];          // where each chevron sits, as a fraction round
   const journeyLayer=document.getElementById('journeyLayer');
-  const jTitle=document.getElementById('jTitle');
-  const jLead=document.getElementById('jLead');
   const jLinkWrap=document.getElementById('jLinkWrap');
   const jPath=document.getElementById('jPath');
   const jDots=[...document.querySelectorAll('.j-dot')];
   const jEntries=[...document.querySelectorAll('.j-entry')];
   const skillsLayer=document.getElementById('skillsLayer');
   const afterLayer=document.getElementById('afterLayer');
-  const sTitle=document.getElementById('sTitle');
-  const sLead=document.getElementById('sLead');
-  const sLink=document.getElementById('sLink');
   const sLines=[...document.querySelectorAll('.s-line')];
-  // content wrappers that fade out as the NEXT section rises (the outgoing fade)
-  const sceneInner=sceneLayer.querySelector('.scene-inner');
-  const jInner=journeyLayer.querySelector('.j-inner');
-  const sInner=skillsLayer.querySelector('.s-inner');
   const sceneCue=document.getElementById('sceneCue');
   const journeyCue=document.getElementById('journeyCue');
   const skillsCue=document.getElementById('skillsCue');
-  function setCue(el,o){ el.style.opacity=String(o); el.style.visibility=o<=0?'hidden':'visible'; }
+  // opacity only — visibility:hidden would cut the CSS fade off at its first frame.
+  // pointer-events keeps a faded-out cue from swallowing clicks meant for the section.
+  function setCue(el,o){ el.style.opacity=String(o); el.style.pointerEvents=o>0.5?'auto':'none'; }
 
   // Each stop's plate hides a different slice of the ring — a wide two-line name hides
   // far more arc than a one-word one — so the chevrons can't sit at a flat 45°/135°/…
@@ -1022,7 +976,7 @@
   if(!reduce){
     jLabelEls.forEach((el,i)=>{
       el.addEventListener('mouseenter',()=>{
-        if(parseFloat(el.style.opacity||0)<=0.6) return;   // not revealed by the scrub yet
+        if(parseFloat(el.style.opacity||0)<=0.6) return;   // hasn't arrived yet
         clearTimeout(offTimer);
         if(lensOn<0.05) focusCur=jFr[i];                   // cold start: grow in place, don't fly in
         hoverIdx=i; focusTarget=jFr[i];
@@ -1048,365 +1002,159 @@
     for(const el of [jLensCircle,jLensHole]){ el.setAttribute('cx',fx); el.setAttribute('cy',fy); el.setAttribute('r',r); }
   }
 
-  // ---- the loose global value, read from --dur (the dock retunes it) ----
-  function durMs(){
-    return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--dur'))*1000;
-  }
-
-  // ---- scroll segments over the runway: four transitions with a dwell
-  //      (and a hard floor) between each ----
-  // T1 starts a touch after 0 so the Hero gets the same brief hold every other
-  // section has before its transition begins (it used to start dissolving on the
-  // very first pixel of scroll, which made its span half again as long as the rest).
-  const T1=[.024,.15], T2=[.26,.40], T3=[.58,.70], T4=[.83,.93];
-  // §5→§6 (Skills → Contact) rides the runway's tail, keyed to RAW progress.
-  // Proportioned like steps 2–4: a tenth of the step as lead-in, half as the
-  // transition, the rest as settle before the last floor.
-  const T5=[.82,.92];
-
-  // ---- even section spacing (2026-08-13) ----
-  // The five steps used to be .192/.248/.208/.152/.200 of the runway — Journey→
-  // Skills was 39% shorter than Demo→Behind, because floors were placed by hand as
-  // the choreography grew. Rather than re-time dozens of hand-tuned sub-reveals,
-  // the scroll→progress mapping is now piecewise linear: each section still RESTS
-  // at exactly the authored progress (PF), but those rest points are spread over an
-  // even raw grid (RAWF). Every reveal inside a step keeps its relative timing and
-  // simply plays over an equal share of scroll.
-  const RAWF=[0,.2,.4,.6,.8];              // even: five equal steps to the last story floor
-  const PF  =[0,.24,.55,.81,1];            // authored: where each section sits settled
-  function storyP(praw){
-    if(praw<=RAWF[0]) return PF[0];
-    if(praw>=RAWF[RAWF.length-1]) return PF[PF.length-1];
-    let i=0; while(i<RAWF.length-2 && praw>RAWF[i+1]) i++;
-    const t=(praw-RAWF[i])/(RAWF[i+1]-RAWF[i]);
-    return PF[i]+t*(PF[i+1]-PF[i]);
-  }
-  let runwayEnd=0;
-  let measuredW=0;
-  function measure(){
-    measuredW=window.innerWidth;
-    runwayEnd=runway.offsetHeight-window.innerHeight;
-    // pin each floor at its resting progress (floors align to the scroller top)
-    document.querySelectorAll('.floor').forEach(f=>{
-      f.style.top=(parseFloat(f.dataset.p)*runwayEnd)+'px';
-    });
-  }
-  measure();
-  // Width-only: on a phone the URL bar collapsing fires resize at the SAME width, and
-  // re-measuring there moves runwayEnd mid-scroll. Progress is scrollY/runwayEnd, so a
-  // moving denominator makes the choreography jump under a thumb that never left the
-  // glass. Rotation and real window resizes change the width and still re-measure.
-  window.addEventListener('resize',()=>{ if(window.innerWidth!==measuredW) measure(); });
-  // deep-link: arriving with #contact lands on the Contact bookend (bottom of the
-  // scroll) instead of the Hero — set before `current` inits so it doesn't fast-forward
-  if(location.hash==='#contact') window.scrollTo(0,runwayEnd);
-  function targetProgress(){
-    return Math.min(1,Math.max(0,window.scrollY/runwayEnd));
-  }
-
-  // ---- floors, enforced here rather than by CSS scroll-snap (see the .floor
-  //      rule for why snap had to go).
+  // ---- reveals: every element reads its OWN position on screen ----
+  // The entire scroll model used to live here: a 500vh runway, a sticky viewport, six
+  // floors, a scroll→progress remap, a settle with a commit threshold, and an exponential
+  // chase — ~390 lines whose only job was to turn scroll position into one global clock
+  // that ~27 hand-authored windows were then sliced out of. Every hard problem this
+  // prototype has had came from that clock: the wheel that could not move the page, the
+  // device detection that could not work, the mobile URL bar moving the denominator,
+  // content stranded in the viewport's hidden overflow.
   //
-  //      A mouse and a trackpad want OPPOSITE things and one rule cannot serve
-  //      both. A step is ~2070px; a mouse notch is ~120px, so scrubbing a section
-  //      by wheel would take seventeen notches — the mouse wants to PAGE. A
-  //      trackpad streams dozens of small deltas and wants to SCRUB, with the
-  //      choreography tracking the fingers. So the wheel is classified and each
-  //      device gets its own path.
+  // The sections are plain blocks now, and this is the grammar the Data-mode pages use:
+  // an element's reveal is a function of a rect, read every frame. No global progress, no
+  // floors, nothing to settle, and no input handling of any kind — the browser scrolls the
+  // page, on every device, by itself.
   //
-  //      (An earlier single-rule version debounced every input the same way. At a
-  //      150ms debounce the mouse sat visibly dead after each notch; dropped to
-  //      60ms, steady wheeling fired a settle BETWEEN notches and the next notch
-  //      cancelled it mid-flight — settle-cancel churn that landed you back where
-  //      you started. Paging the mouse removes the race entirely.) ----
-  const FLOOR_P=[...document.querySelectorAll('.floor')].map(f=>parseFloat(f.dataset.p));
-  const SETTLE_MS=110;    // quiet time that ends a gesture (momentum ticks ~16ms)
-  const COMMIT_FRAC=0.1;  // travel that commits a partial gesture forward, as a share of
-                          // one section — relative, so the effort is the same on a phone
-                          // as on a tall monitor (it was a flat 60px, which meant a
-                          // proportionally lighter nudge the taller the screen got)
-  const sectionPx=()=>runwayEnd*0.2;
-  // restingFloor is the floor we last actually ARRIVED at — not the nearest floor to
-  // wherever we happen to be. It is the reference a gesture is measured from, so it may
-  // only be written when a settle COMPLETES. Reading "where did this gesture start"
-  // off the live position instead was a real bug: an input cancels the settle in
-  // flight, so the page is already partway to the next floor, and the next gesture read
-  // that as having started there and travelled backwards — committing back the way it
-  // came. Steady wheeling therefore walked forwards and then home again.
-  let settling=false, settleTimer=0, settleRAF=0, restingFloor=0, pendingFloor=null;
-  const arrive=()=>{ if(pendingFloor!==null){ restingFloor=pendingFloor; pendingFloor=null; } };
-  // seed it from wherever we actually loaded — normally floor 0, but the #contact
-  // deep-link above lands on the last one (declared after that line, so seeded here)
-  restingFloor=nearestFloor(targetProgress());
+  // One difference from those pages, and it matters. Data mode is a long document: content
+  // flows past, so an element can key off its OWN rect crossing a band of the viewport.
+  // Home's sections are exactly one screen each, so anything sitting in a section's lower
+  // half would never finish while that section is the one you're looking at — measured:
+  // with the Data-mode band, §5's fourth skills line rested at 0.94 and "See all skills →"
+  // at 0. So the rect that drives a reveal is its SECTION's, and stagger slices that
+  // section's arrival. Everything in a section is fully in by the time it fills the screen.
+  const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+  const easeOut=sp=>sp<=0?0:sp>=1?1:1-Math.pow(1-sp,3);
+  const REV_STEP=0.10, REV_SPAN=0.40;   // per-stagger delay, and how long one reveal takes
 
-  function nearestFloor(p){
-    let bi=0,bd=Infinity;
-    for(let i=0;i<FLOOR_P.length;i++){
-      const d=Math.abs(FLOOR_P[i]-p);
-      if(d<bd){ bd=d; bi=i; }
-    }
-    return bi;
+  // a section's arrival: 0 when its top is near the bottom of the screen, 1 once it has
+  // come to fill it. Deliberately reaches 1 early (at .15 of a screen still to go), so a
+  // section is settled slightly before it is flush — nothing waits on the last pixel.
+  function sectionProgress(sec){
+    const r=sec.getBoundingClientRect(), vh=window.innerHeight;
+    return clamp((vh*0.85-r.top)/(vh*0.70),0,1);
   }
-
-  // One settle animation, driven here rather than by `behavior:'smooth'`. Chrome's
-  // curve is its own — distance-dependent, ease-in-out-ish, ~950ms for a full step
-  // — which made the site's most-seen motion the one motion NOT on the site's
-  // easing, and the scrubbed layers were still chasing it exponentially on top, so
-  // two easings composed into a lurch.
-  //
-  // Smoothstep rather than an expo out: velocity is near-constant through the
-  // middle and zero at both ends, so the transition plays at an even tempo instead
-  // of blasting through it and then crawling the dwell. Duration scales with
-  // distance off --dur, so a short correction is quick and a full step is calm.
-  const smoothstep=k=>k*k*(3-2*k);
-  function scrollHold(top,ms){
-    if(settleRAF){ cancelAnimationFrame(settleRAF); settleRAF=0; }
-    const from=window.scrollY, dist=top-from;
-    if(reduce||Math.abs(dist)<2){ window.scrollTo(0,top); settling=false; arrive(); return; }
-    const dur=ms||Math.max(380,Math.min(900,1.9*durMs()*Math.abs(dist)/sectionPx()));
-    const t0=performance.now();
-    settling=true;
-    settleRAF=requestAnimationFrame(function step(now){
-      const k=Math.min(1,(now-t0)/dur);
-      window.scrollTo(0,from+dist*smoothstep(k));
-      if(k<1) settleRAF=requestAnimationFrame(step);
-      else{ settleRAF=0; settling=false; arrive(); }
-    });
+  function revealProgress(el){
+    const sec=el.closest('.sec'); if(!sec) return 1;
+    const st=parseFloat(el.dataset.stagger||0);
+    return clamp((sectionProgress(sec)-st*REV_STEP)/REV_SPAN,0,1);
   }
-
-  // Move to a floor, skipping the step's lead-in dwell on the way forward. Nothing
-  // is animated in that dwell — it exists so a RESTING section holds for a beat
-  // before its transition starts, not to pad a move already committed to; left in,
-  // it was ~a third of the settle spent visibly doing nothing. The jump is
-  // invisible (no layer has moved yet), only the scrollbar notices. Steps begin
-  // their transition between .065 and .115 of their length; .09 clears most of the
-  // dwell and at worst enters a transition ~5% in, below the threshold of sight.
-  function goToFloor(idx){
-    const from=nearestFloor(targetProgress());
-    if(idx===from+1){
-      const dwellEnd=(FLOOR_P[from]+(FLOOR_P[idx]-FLOOR_P[from])*0.09)*runwayEnd;
-      if(window.scrollY<dwellEnd) window.scrollTo(0,dwellEnd);
-    }
-    const top=Math.round(runwayEnd*FLOOR_P[idx]);
-    pendingFloor=idx;                       // becomes restingFloor once we get there
-    if(Math.abs(window.scrollY-top)<2){ arrive(); return; }
-    scrollHold(top);
-  }
-
-  // --- every input: scrub freely, then settle when the gesture stops ---
-  function settleToFloor(){
-    settleTimer=0;
-    if(settling||reduce) return;
-    const cur=targetProgress();
-    const from=restingFloor;
-    let idx=nearestFloor(cur);
-    // travelled far enough that another floor is nearer → go there (a long flick
-    // may cross several). Otherwise commit forward if the gesture was deliberate,
-    // and fall back to where it started if it was only a nudge.
-    if(idx===from){
-      const deltaPx=(cur-FLOOR_P[from])*runwayEnd;
-      if(Math.abs(deltaPx)>=sectionPx()*COMMIT_FRAC){
-        const dir=deltaPx>0?1:-1;
-        idx=Math.max(0,Math.min(FLOOR_P.length-1,from+dir));
-      }
-    }
-    goToFloor(idx);
-  }
-  window.addEventListener('scroll',()=>{
-    if(settling) return;                       // ignore the settle's own scrolling
-    if(settleTimer) clearTimeout(settleTimer);
-    settleTimer=setTimeout(settleToFloor,SETTLE_MS);
-  },{passive:true});
-
-  // --- one rule for every input ---
-  // Nothing is detected and nothing is intercepted. The runway is short enough that a
-  // mouse notch, a trackpad swipe and a thumb flick are all proportionate (see the
-  // .runway comment), so all three scrub natively and settle by the path above.
-  //
-  // What used to be here: a classifier that guessed mouse-from-trackpad by wheel-delta
-  // size, and a paging path that called preventDefault() for whoever it judged a mouse.
-  // Delta size cannot identify a device — a Magic Mouse and a hi-res wheel both stream
-  // like fingers, and Windows lets a notch be ~33px. Measured 2026-08-14 in Chrome:
-  // identical wheel input advanced 0, 1, 4 or 5 sections depending on the profile, one
-  // common configuration could not move the page at all, and the same profile varied run
-  // to run (5,5,5,5,3,5) because the verdict flipped mid-gesture and cancelled the settle
-  // in flight. None of that is recoverable by tuning the thresholds.
-  //
-  // All that remains is: any input cancels a settle in flight, so it never fights you.
-  // Wheel is passive here — the page no longer takes the wheel away from the browser,
-  // which is also what lets §2's inner panel scroll itself without a special case.
-  ['wheel','touchstart','keydown'].forEach(ev=>
-    window.addEventListener(ev,()=>{
-      if(settleRAF){ cancelAnimationFrame(settleRAF); settleRAF=0; }
-      settling=false; pendingFloor=null;      // cancelled: we did not arrive
-    },{passive:true}));
-  function segP(p,seg){
-    return Math.min(1,Math.max(0,(p-seg[0])/(seg[1]-seg[0])));
-  }
-
-  // ---- exponential smoothing: the scrubbed layers chase the scroll with
-  //      an ease-out-expo character whose time constant follows --dur ----
-  let current=targetProgress(), lastT=performance.now();
-  let barsLive=false;
-  // scrub helpers: an element's reveal is a pure function of its slice of the scroll
+  // settled → no transform at all: a leftover translate3d keeps the block on its own
+  // composited layer, where the hover zoom upscales a 1× bitmap instead of re-rastering
   function setReveal(el,sp){
     el.style.opacity=String(sp);
-    // settled → no transform at all: a leftover translate3d keeps the block on its own
-    // composited layer, where the hover zoom upscales a 1× bitmap instead of re-rastering
     el.style.transform=reduce?'none':(sp>0.999?'':'translate3d(0,'+((1-sp)*16)+'px,0)');
   }
-  function setRevealX(el,sp,max,fromRight){ // slides in from its own side
-    el.style.opacity=String(sp*(max||1));
-    el.style.transform=reduce?'none':'translate3d('+((1-sp)*(fromRight?24:-24))+'px,0,0)';
+  function setRevealX(el,sp,fromRight){   // slides in from its own side
+    el.style.opacity=String(sp);
+    el.style.transform=reduce?'none':(sp>0.999?'':'translate3d('+((1-sp)*(fromRight?24:-24))+'px,0,0)');
   }
-  function apply(praw){
-    // remap scroll → authored progress so the sub-timings below stay exactly as
-    // written while each section owns an equal share of the runway; the tail
-    // past the last story floor belongs to Contact alone
-    const p=storyP(praw);
-    const p5=segP(praw,T5);
-    const p1=segP(p,T1), p2=segP(p,T2), p3=segP(p,T3), p4=segP(p,T4);
-    // §1→§2 — name fades in place above the rising panel (gone by ~75%), no drift
-    const nameO=Math.max(0,1-p1*1.35);
-    heroLayer.style.opacity=String(nameO);
-    heroLayer.style.visibility=nameO<=0?'hidden':'visible';
-    // ground cross-fades white → the Data well under the motion
-    bgWash.style.opacity=String(p1);
-    // the demo panel rises beneath the fading name
-    panelLayer.style.transform=reduce?'none':'translate3d(0,'+((1-p1)*100)+'%,0)';
-    // …then the demo itself dissolves as §3 rises (its bg = the well below, so
-    // only the instrument fades — the same "previous fades away" as the Hero)
-    panelLayer.style.opacity=String((reduce?p1:1)*Math.max(0,1-p2*1.35));
-    // §2 contents — scrubbed (hybrid): each element assembles over its own
-    // slice of the scroll, overlapping slices making the stagger. Can't be
-    // skipped — a hard flick just plays it fast.
-    setReveal(demoTitle,segP(p,[.135,.17]));
-    setReveal(canvasCol,segP(p,[.155,.195]));
-    const bT=segP(p,[.175,.21]);
-    setReveal(pred,bT);
-    // …except the bar fills, which play on the clock once the bars are visible
-    if(!barsLive && bT>.55){ barsLive=true; document.body.classList.add('bars-live'); }
-    else if(barsLive && bT<.25){ barsLive=false; document.body.classList.remove('bars-live'); }
-    // the demo's ↓ cue: appears once the demo is built, retires as §3 rises
-    const aO=Math.min(segP(p,[.20,.23]),1-segP(p,[.26,.30]));
-    demoArrowWrap.style.opacity=String(aO);
-    demoArrowWrap.style.visibility=aO<=0?'hidden':'visible';
-    // the menu arrives with the demo — the Hero stays bare
-    const mB=segP(p,[.15,.185]);
-    menuBtn.style.opacity=String(mB);
-    menuBtn.style.visibility=mB<=0?'hidden':'visible';
-    // §2→§3 — the sage section rises over the settled demo (the sticky roll-over)
-    sceneLayer.style.transform=reduce?'none':'translate3d(0,'+((1-p2)*100)+'%,0)';
-    if(reduce){ sceneLayer.style.opacity=String(p2); }
-    sceneInner.style.opacity=String(Math.max(0,1-p3*1.35)); // fades as §4 rises
-    // §3 contents — scrubbed like the demo: title + lead first, then the
-    // pipeline draws itself left-to-right under the scroll, then the link
-    setReveal(sceneTitle,segP(p,[.385,.42]));
-    setReveal(sceneLead,segP(p,[.40,.435]));
-    // the entry mark, then the ring drawing itself clockwise from the top, each stop
-    // and each chevron appearing as the line reaches it. Labels are centred with a
-    // transform, so their reveal rides the separate `translate` property instead of
-    // overwriting it.
-    const yn=segP(p,[.415,.44]);
+  const revealEls=[...document.querySelectorAll('.reveal')];
+  function applyReveals(){
+    for(const el of revealEls) setReveal(el,reduce?1:easeOut(revealProgress(el)));
+    // §5's lines drift in from their own sides instead of up — no two share an edge
+    for(const el of sLines) setRevealX(el,reduce?1:easeOut(revealProgress(el)),el.classList.contains('r'));
+  }
+
+  // ---- §3: the ring draws itself clockwise as the section crosses the screen,
+  //      each stop and each chevron appearing as the line reaches it ----
+  function applyRing(){
+    // fully drawn by ~.70 of §3's arrival, so the loop is closed before the section settles
+    const draw=reduce?1:clamp((sectionProgress(sceneLayer)-0.08)/0.62,0,1);
+    ringPath.style.strokeDashoffset=String(RING_LEN*(1-draw));
+    const yn=reduce?1:clamp(draw/0.12,0,1);          // the entry mark goes first
     youNote.style.opacity=String(yn);
     youNote.style.translate=reduce?'none':'0 '+((1-yn)*10)+'px';
     for(const el of ringIn) el.style.opacity=String(yn);
-    const dp=segP(p,[.425,.50]);
-    const draw=reduce?(dp>0?1:0):dp;
-    ringPath.style.strokeDashoffset=String(RING_LEN*(1-draw));
-    const reached=f=>Math.max(0,Math.min(1,(draw-f)/.10));
+    const reached=f=>clamp((draw-f)/0.10,0,1);
     for(let i=0;i<4;i++){
-      const sp=reached(i*.25);
+      const sp=reduce?1:reached(i*0.25);
       ringLabs[i].style.opacity=String(sp);
+      // labels are centred with a transform, so their lift rides `translate` instead
       ringLabs[i].style.translate=reduce?'none':'0 '+((1-sp)*10)+'px';
-      chevs[i].style.opacity=String(reached(chevF[i]));
+      chevs[i].style.opacity=String(reduce?1:reached(chevF[i]));
     }
-    setReveal(sceneLink,segP(p,[.50,.53]));
-    // §3 ↓ cue: in once Behind has settled, out as §4 rises
-    setCue(sceneCue,Math.min(segP(p,[.52,.55]),1-segP(p,[.58,.62])));
-    // §3→§4 — the Journey rises over the diagram
-    journeyLayer.style.transform=reduce?'none':'translate3d(0,'+((1-p3)*100)+'%,0)';
-    if(reduce){ journeyLayer.style.opacity=String(p3); }
-    jInner.style.opacity=String(Math.max(0,1-p4*1.35)); // fades as §5 rises
-    // §4 contents — title + lead, then the path draws downward under the
-    // scroll, each dot + entry appearing as the line reaches it
-    setReveal(jTitle,segP(p,[.69,.72]));
-    setReveal(jLead,segP(p,[.70,.73]));
-    // the line stays fully drawn (no draw-in — that mid-draw state was the "gap");
-    // dots + entries just fade in, staggered, as §4 arrives
-    jPath.style.strokeDashoffset='0';
-    const rP=segP(p,[.71,.82]);
-    jFr.forEach((f,i)=>{
-      const s=i*0.12;
-      jDots[i].style.opacity=String(segP(rP,[s,s+.15]));
-      setReveal(jLabelEls[i],segP(rP,[s+.03,s+.25]));
-    });
-    // (the magnifier here is hover-driven — see updateMagnifier(), run from the frame loop)
-    // §4 ↓ cue: in once the Journey has settled, out as §5 rises
-    setCue(journeyCue,Math.min(segP(p,[.78,.80]),1-segP(p,[.83,.87])));
-    // §4→§5 — Skills rises over the Journey
-    skillsLayer.style.transform=reduce?'none':'translate3d(0,'+((1-p4)*100)+'%,0)';
-    if(reduce){ skillsLayer.style.opacity=String(p4); }
-    sInner.style.opacity=String(Math.max(0,1-p5*1.35)); // fades as Contact rises
-    // §5→§6 — the Contact bookend rises over the settled Skills (the final roll-over)
-    afterLayer.style.transform=reduce?'none':'translate3d(0,'+((1-p5)*100)+'%,0)';
-    if(reduce){ afterLayer.style.opacity=String(p5); }
-    // §5 contents — title + lead, then the lines drift in from their own
-    // sides, then the skills link (the closing button + footer live on the bookend)
-    setReveal(sTitle,segP(p,[.92,.945]));
-    setReveal(sLead,segP(p,[.93,.955]));
-    for(let i=0;i<sLines.length;i++){
-      const s=.932+i*.012;
-      setRevealX(sLines[i],segP(p,[s,s+.03]),1,sLines[i].classList.contains('r'));
-    }
-    setReveal(sLink,segP(p,[.972,.995]));
-    // §5 ↓ cue: in once Skills has settled, out as Contact rises (praw)
-    setCue(skillsCue,Math.min(segP(p,[.965,1]),1-segP(praw,[.82,.87])));
-    // current-section indicator: blank on Hero, then follows the section in view
-    let label='';
-    if(p5>.5) label='Contact';
-    else if(p4>.6) label='Skills';
-    else if(p3>.6 && p4<.4) label='Journey';
-    else if(p2>.6 && p3<.4) label='Behind the scenes';
-    else if(p1>.97 && p2<.4) label='Live demo';
-    // menu drawer ground: tints to the section in view (matching the inner pages'
-    // per-page grounds), white on Hero/Demo/Contact. Left unchanged mid-transition
-    // so an open drawer holds its tint instead of flashing white through the gaps.
-    let ground='';
-    if(p5>.5) ground='#ffffff';                             // Contact — white bookend
-    else if(p4>.6) ground='var(--wash-rose)';               // Skills
-    else if(p3>.6 && p4<.4) ground='var(--wash-ochre)';     // Journey
-    else if(p2>.6 && p3<.4) ground='var(--wash-sage)';      // Behind the Scenes → Architecture
-    else if(p1>.97 && p2<.4) ground='#ffffff';              // Live demo
-    if(ground) document.documentElement.style.setProperty('--ground',ground);
-    if(label) indicator.textContent=label;
-    indicator.style.opacity=label?'1':'0';
   }
-  function frame(now){
-    const dt=now-lastT; lastT=now;
-    const t=targetProgress();
-    if(reduce||settling){ current=t; }   // the settle IS the curve — don't ease it twice
-    else{
-      const tau=durMs()/4; // smaller --dur = snappier chase, larger = calmer float
-      current+=(t-current)*(1-Math.exp(-dt/tau));
-      if(Math.abs(t-current)<.0005) current=t;
+
+  // ---- §4: the line stays fully drawn (a mid-draw state read as a gap); the dots
+  //      and their entries just arrive in order as the section comes up ----
+  function applyJourney(){
+    jPath.style.strokeDashoffset='0';
+    const rP=reduce?1:clamp((sectionProgress(journeyLayer)-0.06)/0.66,0,1);
+    for(let i=0;i<jFr.length;i++){
+      const s=i*0.12;
+      jDots[i].style.opacity=String(reduce?1:clamp((rP-s)/0.15,0,1));
+      setReveal(jLabelEls[i],reduce?1:clamp((rP-(s+0.03))/0.22,0,1));
     }
-    apply(current);
+  }
+
+  // ---- §2: the confidence bars stay a clocked payoff, not a scrub — structure
+  //      reveals with the scroll, payoffs play at their designed tempo once seen ----
+  let barsLive=false;
+  function applyBars(){
+    const v=sectionProgress(panelLayer);
+    if(!barsLive && v>0.55){ barsLive=true; document.body.classList.add('bars-live'); }
+    else if(barsLive && v<0.25){ barsLive=false; document.body.classList.remove('bars-live'); }
+  }
+
+  // ---- chrome that follows the section in view: the indicator, the menu drawer's
+  //      ground tint, and that section's own ↓ cue ----
+  const SECS=[
+    {el:heroLayer,    label:'',                  ground:'#ffffff'},
+    {el:panelLayer,   label:'Live demo',         ground:'#ffffff',           cue:demoArrowWrap},
+    {el:sceneLayer,   label:'Behind the scenes', ground:'var(--wash-sage)',  cue:sceneCue},
+    {el:journeyLayer, label:'Journey',           ground:'var(--wash-ochre)', cue:journeyCue},
+    {el:skillsLayer,  label:'Skills',            ground:'var(--wash-rose)',  cue:skillsCue},
+    {el:afterLayer,   label:'Contact',           ground:'#ffffff'},
+  ];
+  let secNow=-1;
+  function applyChrome(){
+    // whichever section holds the viewport's middle owns the chrome. This also
+    // replaces the old per-cue fade windows: a cue belongs to its section and is up
+    // for exactly as long as that section is the one you are in.
+    const mid=window.innerHeight/2;
+    let i=0;
+    for(let k=SECS.length-1;k>=0;k--){
+      if(SECS[k].el.getBoundingClientRect().top<=mid){ i=k; break; }
+    }
+    if(i!==secNow){
+      secNow=i;
+      const s=SECS[i];
+      indicator.textContent=s.label;
+      indicator.style.opacity=s.label?'1':'0';
+      document.documentElement.style.setProperty('--ground',s.ground);
+      SECS.forEach((x,k)=>{ if(x.cue) setCue(x.cue,k===i?1:0); });
+    }
+    // the menu arrives as the Hero leaves — the Hero itself stays bare, so the first
+    // scroll is still the only path in and nobody skips the demo
+    const hh=heroLayer.offsetHeight||1;
+    const mB=reduce?(window.scrollY>hh*0.5?1:0):clamp((window.scrollY-hh*0.35)/(hh*0.30),0,1);
+    menuBtn.style.opacity=String(mB);
+    menuBtn.style.visibility=mB<=0?'hidden':'visible';
+  }
+
+  function frame(){
+    applyReveals();
+    applyRing();
+    applyJourney();
+    applyBars();
+    applyChrome();
     updateMagnifier();
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
 
-  // ---- the ↓ cues scroll to the next section's floor ----
-  // routed through goToFloor, not scrollHold, so arriving records the floor — otherwise
-  // a cue click moves you without updating restingFloor and the next gesture measures
-  // from wherever you were before the click
-  const scrollToP=p=>goToFloor(nearestFloor(p));
-  arrowBtn.addEventListener('click',()=>scrollToP(.2));                            // hero → demo
-  demoArrow.addEventListener('click',()=>scrollToP(.4));                          // demo → Behind
-  sceneCue.querySelector('.arrow-btn').addEventListener('click',()=>scrollToP(.6));   // → Journey
-  journeyCue.querySelector('.arrow-btn').addEventListener('click',()=>scrollToP(.8));  // → Skills
-  skillsCue.querySelector('.arrow-btn').addEventListener('click',()=>scrollToP(1));     // → Contact
+  // ---- the ↓ cues hand you to the next section ----
+  const goTo=el=>el.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
+  arrowBtn.addEventListener('click',()=>goTo(panelLayer));     // hero → demo
+  demoArrow.addEventListener('click',()=>goTo(sceneLayer));    // demo → Behind
+  sceneCue.querySelector('.arrow-btn').addEventListener('click',()=>goTo(journeyLayer));
+  journeyCue.querySelector('.arrow-btn').addEventListener('click',()=>goTo(skillsLayer));
+  skillsCue.querySelector('.arrow-btn').addEventListener('click',()=>goTo(afterLayer));
+
+  // deep-link: arriving with #contact lands on the bookend. A plain jump now — there
+  // is no runway to fast-forward and no scrubbed state to render finished.
+  if(location.hash==='#contact') afterLayer.scrollIntoView({block:'start'});
 
   // ---- slide-in menu: panel from the right, staircase stagger ----
   const menuBtn=document.getElementById('menuBtn');
@@ -1427,11 +1175,11 @@
   // destinations that exist in this prototype: Home → top, Contact → the bookend
   document.getElementById('mHome').addEventListener('click',e=>{
     e.preventDefault(); setMenu(false);
-    goToFloor(0);
+    window.scrollTo({top:0,behavior:reduce?'auto':'smooth'});
   });
   document.getElementById('mContact').addEventListener('click',e=>{
     e.preventDefault(); setMenu(false);
-    goToFloor(FLOOR_P.length-1);
+    goTo(afterLayer);
   });
 
   // ---- the bookend's click-to-copy email (the footer's mail icon) ----

@@ -281,7 +281,11 @@ buttons use text or thin line icons.
 - **Motion:** card + bars reveal on scroll-in (expo); bar fills animate per prediction. Respects
   `prefers-reduced-motion`.
 
-### Home §1 → §2 transition (Hero → Demo)  _(LOCKED 2026-07-16)_
+### Home §1 → §2 transition (Hero → Demo)  _(LOCKED 2026-07-16 · SUPERSEDED 2026-08-14)_
+
+> **Superseded 2026-08-14** — Home is normal document flow now, so nothing rises over anything:
+> the Hero scrolls away and the Demo scrolls in. The overlap, the name fading in place above the
+> panel and the white → well cross-fade are all retired. See the decision log.
 
 > **Amended in Stage 4.5 (2026-07-19):** the name **floats above the rising panel**,
 > fading in place in full view; the transition (and all reveals) are **scrubbed** by the
@@ -690,7 +694,12 @@ done, per the process rules.
 
 ---
 
-## Stage 4.5 — Motion & flow amendments from prototyping  _(LOCKED 2026-07-19)_
+## Stage 4.5 — Motion & flow amendments from prototyping  _(LOCKED 2026-07-19 · MOTION MODEL SUPERSEDED 2026-08-14)_
+
+> **Superseded 2026-08-14** — the scrubbed global-progress model, the hard floors and the sticky
+> roll-over are gone; Home's sections are plain blocks and reveals key off their own section's
+> position. The *content* decisions below still stand (the ↓ cues, §5 slimming, the §6 bookend,
+> Contact folding into it, the bare Hero). See the decision log.
 
 The finalized design, pressure-tested in two working artifacts before Stage 5:
 `design-system-preview.html` (motion demos: ease speed tester, slide-in menu, transition
@@ -1100,6 +1109,57 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 ## Decision log
 
 Newest first. Each entry: what was decided and why.
+
+- **2026-08-14** — **Home moves to normal document flow: the layered scroll is retired for the
+  Data-mode grammar** (`transition-prototype.html`). **Supersedes the §1→§2 transition (Stage 3,
+  LOCKED 2026-07-16) and Stage 4.5's motion model, roll-over and hard floors.** Monish's call, after
+  the entry below: shorten the runway, then stop guessing the device, and the honest next question is
+  what the runway was still for. It was a global clock — scroll position remapped into one progress
+  value that ~27 hand-authored windows were sliced out of — and **every hard problem this prototype
+  has had came from having one**: the wheel that could not move the page, the device detection that
+  could not work, the mobile URL bar moving the denominator, §2's content stranded in hidden overflow.
+  The internal Data pages never had any of it. Home now works the way they do.
+  - **What went.** The 500vh runway, the sticky viewport, the six floors, `storyP()`'s scroll→progress
+    remap, the settle (`scrollHold`, `restingFloor`, `COMMIT_FRAC`), the exponential chase, the
+    `svh`/width-only resize guard, the `#contact` fast-forward, and every input listener. **390 lines
+    of scroll machinery → 143**; the file is 483 deletions against 231 insertions. There is no wheel
+    handling left at all, because there is nothing left to handle: the browser scrolls the page.
+  - **What it is now.** Six `<section>`s, `min-height:100svh`, one after another. A reveal is a pure
+    function of a rect, read every frame — fade up 16px, `data-stagger` ordering what follows what.
+  - **The one departure from Data mode, and it was measured.** Those pages are long documents where
+    content flows past, so an element can key off **its own** rect crossing a band of the viewport.
+    Home's sections are exactly one screen, so anything in a section's lower half never finishes while
+    that section is the one you're looking at: with the Data-mode band, §5's fourth skills line rested
+    at **0.94** and "See all skills →" at **0**. So a reveal keys off its **section's** rect, and
+    stagger slices the section's arrival. Everything in a section is fully in before it fills the
+    screen. (Same class of bug as the two unfinished reveals found on 2026-08-13 — a reveal window
+    that never reaches 1 at rest is the recurring failure here, and is now what gets tested.)
+  - **Kept, and it's most of the character:** every reveal and stagger, §3's ring drawing itself
+    clockwise with each stop and chevron arriving as the line reaches it, §4's dots and entries in
+    order, §5's lines drifting in from their own sides, the clocked bar fills (structure reveals,
+    payoffs play), the hover magnifier, the ↓ cue chain, the menu arriving as the Hero leaves, and the
+    drawer's per-section ground tint. The cues no longer own scroll windows: **a cue belongs to its
+    section** and is up for exactly as long as that section is the one you're in.
+  - **Retired, deliberately, on record:** the name fading in place **above** the rising panel; the
+    white → well background cross-fade under it; all five roll-overs (`translate3d(0,(1-p)*100%,0)`);
+    each section's outgoing fade as the next rose; and Stage 4.5's "released scroll always resolves
+    onto a section". Nothing covers anything now — sections simply abut and scroll. Note the §6
+    bookend was **already** a rising layer rather than the promised release into normal flow, so
+    Stage 4.5's "the break in the roll-over pattern *is* the ending gesture" was never being
+    delivered; with no pattern to break, Home ends on a white page because it opens on one.
+  - **Two long-standing problems fell out rather than being fixed.** §2's `≤389px` inner-scroll
+    special case is **deleted** — in normal flow the section grows (measured 1.28 screens at 320×568,
+    1.00 at 390 and up, exactly as the 2026-08-13 trim predicted) and the doorway and privacy note are
+    reachable by scrolling instead of parked in `overflow:hidden`. And the `svh` denominator guard is
+    moot: there is no denominator.
+  - **Measured after, Chrome via the harness.** Wheel: **1 notch → 100px, 3 → 300px, 12 → 1200px** —
+    native, exact, no interception (it was **0px** before 2026-08-13 and profile-dependent after). Six
+    sections at **1.00 screens** each at 1440×900. No page errors, no horizontal overflow. The ↓ cue
+    chain walks all six landing **0px** off, menu Home/Contact land 0px off, `#contact` lands the
+    bookend at 0px, the menu button reads **0 on the Hero → 1 past it**. Every reveal settled at
+    **320×568, 360×640, 390×844, 430×932 and 1440×900**, and under `prefers-reduced-motion: reduce`
+    everything is simply present with the ring drawn. _(Touch was not tested — the harness cannot
+    synthesize it; see the tooling note on 2026-08-13.)_
 
 - **2026-08-14** — **The runway shortens to 500vh and device detection is abandoned — one rule for
   every input** (`transition-prototype.html`). The 2026-08-13 pass got the wheel working by splitting
