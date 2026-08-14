@@ -1101,6 +1101,38 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-08-14** — **The runway shortens to 500vh and device detection is abandoned — one rule for
+  every input** (`transition-prototype.html`). The 2026-08-13 pass got the wheel working by splitting
+  the scroll two ways, mouse paging and trackpad scrubbing. It worked on the machine it was tuned on
+  and nowhere else, because **the premise was wrong: wheel-delta size cannot identify a device.** A
+  Magic Mouse and a hi-res wheel both stream like fingers, and Windows lets a notch be ~33px. Measured
+  in Chrome across wheel profiles: identical input advanced **0, 1, 4 or 5 sections** depending on the
+  profile, one common configuration **could not move the page at all**, and the same profile varied
+  run to run (5,5,5,5,3,5) because the verdict flipped mid-gesture and cancelled the settle in flight.
+  None of that is reachable by tuning thresholds — the signal isn't there to threshold.
+  - **The fix is upstream: the runway was too long.** At 1250vh a section step was ~2070px, so
+    scrubbing one section by mouse was ~21 notches. *That* is what forced a paging path, which forced
+    the guessing. At **500vh** a step is ~0.8 of a screen: about six notches by mouse, one comfortable
+    trackpad swipe, roughly one thumb flick on a phone. Every input is proportionate on its own terms,
+    so one rule serves all three and nothing needs to be detected or intercepted. The wheel listener
+    is passive again — the page no longer takes the wheel from the browser, which is also what lets
+    §2's inner panel scroll itself without a special case.
+  - **A real bug fell out of it: the gesture reference must be where you *arrived*, not where you
+    are.** "Where did this gesture start" was read off the live position, but any input cancels a
+    settle in flight, so the page is already partway to the next floor — and the next gesture read
+    that as having started there and travelled *backwards*, committing back the way it came. Steady
+    wheeling walked forward and then home again. `restingFloor` is now written **only when a settle
+    completes**, and the ↓ cues route through `goToFloor` so a cue click records its arrival too.
+  - **The commit threshold goes relative.** A flat `COMMIT_PX = 60` meant a proportionally lighter
+    nudge the taller the screen; it is now **0.1 of a section**, the same effort on a phone as on a
+    tall monitor.
+  - **`svh`, and resize only on a width change.** Progress is `scrollY/runwayEnd`, so a moving
+    denominator makes the choreography jump under a thumb that never left the glass — and a
+    collapsing mobile URL bar fires `resize` at the *same width*. The runway is sized in `svh` and
+    re-measures only when the width actually changes; rotation and real window resizes still do.
+  - **Snap stays out.** At 0.8-screen steps CSS scroll-snap would probably work now, but the script
+    settle stays: one device-agnostic rule we control, and it already carries the dwell-skip.
+
 - **2026-08-14** — **A hovered Journey block lifts above the edge blur** (`sections-prototype.html`).
   Follow-up to the hover entry below, and the first thing settled with a **real browser** rather than by
   reading code — see the note at the end. The `.edge-blur` bands (fixed, 110px at the viewport top and

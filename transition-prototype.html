@@ -31,13 +31,13 @@
   }
   *{box-sizing:border-box;}
   /* Floors: the scroll must come to rest on a section, never mid-transition.
-     CSS scroll-snap used to do this and it CANNOT — the floors sit ~2070px apart
-     and a mouse notch is ~120px, so Chrome snapped every tick straight back and
-     the page was completely immovable by wheel (measured 2026-08-13: 0px of
-     travel over twelve ticks, on `mandatory` AND `proximity`; keyboard still
-     worked, which is why it went unnoticed). Snap is off; the floors are enforced
-     in the script instead — free scrubbing while the wheel turns, then a settle
-     onto the nearest floor once the gesture stops. */
+     CSS scroll-snap could not do this while the floors sat ~2070px apart — Chrome
+     snapped every tick straight back and the page was immovable by wheel (measured
+     2026-08-13: 0px over twelve ticks, on `mandatory` AND `proximity`; keyboard still
+     worked, which is why it went unnoticed). Since 2026-08-14 a step is ~0.8 of a
+     screen, so snap would likely work now — but the script settle stays: it is one
+     device-agnostic rule we control, and it already carries the dwell-skip. Free
+     scrubbing while the gesture runs, then a settle onto the nearest floor. */
   .floor{position:absolute;left:0;width:100%;height:2px;}
   body{
     margin:0;background:var(--background);color:var(--foreground);
@@ -134,8 +134,17 @@
   .menu-panel.open .menu-link:nth-child(9){--stagger:calc(var(--dur)*1)}
 
   /* ---------- the scroll runway: sticky viewport inside ---------- */
-  .runway{height:1250vh;position:relative;}
-  .viewport{position:sticky;top:0;height:100vh;overflow:hidden;background:#fff;}
+  /* Runway length decides input behaviour, and everything else followed from it. At
+     1250vh a section step was ~2070px, which no mouse can scrub — a notch is ~100px, so
+     scrubbing one section took ~21 of them. That forced a paging path, which forced
+     guessing mouse-from-trackpad, which cannot be done reliably. At 500vh a step is ~0.8
+     of a screen: ~6 notches by mouse, one comfortable trackpad swipe, about one thumb
+     flick on a phone. Every input is proportionate on its own terms, so one rule serves
+     all three and the guessing is gone.
+     svh, not vh/dvh: a collapsing mobile URL bar must not change the runway mid-scroll,
+     because progress is scrollY/runwayEnd and a moving denominator makes it jump. */
+  .runway{height:500vh;height:500svh;position:relative;}
+  .viewport{position:sticky;top:0;height:100vh;height:100dvh;overflow:hidden;background:#fff;}
 
   /* background cross-fade layer: white → the Data well, opacity-driven
      (the Demo grounds on Data mode's recessed well — the doorway's whisper) */
@@ -1073,7 +1082,9 @@
     return PF[i]+t*(PF[i+1]-PF[i]);
   }
   let runwayEnd=0;
+  let measuredW=0;
   function measure(){
+    measuredW=window.innerWidth;
     runwayEnd=runway.offsetHeight-window.innerHeight;
     // pin each floor at its resting progress (floors align to the scroller top)
     document.querySelectorAll('.floor').forEach(f=>{
@@ -1081,7 +1092,11 @@
     });
   }
   measure();
-  window.addEventListener('resize',measure);
+  // Width-only: on a phone the URL bar collapsing fires resize at the SAME width, and
+  // re-measuring there moves runwayEnd mid-scroll. Progress is scrollY/runwayEnd, so a
+  // moving denominator makes the choreography jump under a thumb that never left the
+  // glass. Rotation and real window resizes change the width and still re-measure.
+  window.addEventListener('resize',()=>{ if(window.innerWidth!==measuredW) measure(); });
   // deep-link: arriving with #contact lands on the Contact bookend (bottom of the
   // scroll) instead of the Hero — set before `current` inits so it doesn't fast-forward
   if(location.hash==='#contact') window.scrollTo(0,runwayEnd);
@@ -1105,9 +1120,24 @@
   //      cancelled it mid-flight — settle-cancel churn that landed you back where
   //      you started. Paging the mouse removes the race entirely.) ----
   const FLOOR_P=[...document.querySelectorAll('.floor')].map(f=>parseFloat(f.dataset.p));
-  const SETTLE_MS=110;   // quiet time that ends a trackpad gesture (momentum ticks ~16ms)
-  const COMMIT_PX=60;    // travel that commits a partial trackpad gesture to the next floor
-  let settling=false, settleTimer=0, gestureFrom=null, settleRAF=0, pageTo=null;
+  const SETTLE_MS=110;    // quiet time that ends a gesture (momentum ticks ~16ms)
+  const COMMIT_FRAC=0.1;  // travel that commits a partial gesture forward, as a share of
+                          // one section — relative, so the effort is the same on a phone
+                          // as on a tall monitor (it was a flat 60px, which meant a
+                          // proportionally lighter nudge the taller the screen got)
+  const sectionPx=()=>runwayEnd*0.2;
+  // restingFloor is the floor we last actually ARRIVED at — not the nearest floor to
+  // wherever we happen to be. It is the reference a gesture is measured from, so it may
+  // only be written when a settle COMPLETES. Reading "where did this gesture start"
+  // off the live position instead was a real bug: an input cancels the settle in
+  // flight, so the page is already partway to the next floor, and the next gesture read
+  // that as having started there and travelled backwards — committing back the way it
+  // came. Steady wheeling therefore walked forwards and then home again.
+  let settling=false, settleTimer=0, settleRAF=0, restingFloor=0, pendingFloor=null;
+  const arrive=()=>{ if(pendingFloor!==null){ restingFloor=pendingFloor; pendingFloor=null; } };
+  // seed it from wherever we actually loaded — normally floor 0, but the #contact
+  // deep-link above lands on the last one (declared after that line, so seeded here)
+  restingFloor=nearestFloor(targetProgress());
 
   function nearestFloor(p){
     let bi=0,bd=Infinity;
@@ -1132,16 +1162,15 @@
   function scrollHold(top,ms){
     if(settleRAF){ cancelAnimationFrame(settleRAF); settleRAF=0; }
     const from=window.scrollY, dist=top-from;
-    if(reduce||Math.abs(dist)<2){ window.scrollTo(0,top); settling=false; pageTo=null; return; }
-    const stepPx=runwayEnd*0.2;                       // one section of travel
-    const dur=ms||Math.max(380,Math.min(900,1.9*durMs()*Math.abs(dist)/stepPx));
+    if(reduce||Math.abs(dist)<2){ window.scrollTo(0,top); settling=false; arrive(); return; }
+    const dur=ms||Math.max(380,Math.min(900,1.9*durMs()*Math.abs(dist)/sectionPx()));
     const t0=performance.now();
     settling=true;
     settleRAF=requestAnimationFrame(function step(now){
       const k=Math.min(1,(now-t0)/dur);
       window.scrollTo(0,from+dist*smoothstep(k));
       if(k<1) settleRAF=requestAnimationFrame(step);
-      else{ settleRAF=0; settling=false; pageTo=null; }
+      else{ settleRAF=0; settling=false; arrive(); }
     });
   }
 
@@ -1159,24 +1188,24 @@
       if(window.scrollY<dwellEnd) window.scrollTo(0,dwellEnd);
     }
     const top=Math.round(runwayEnd*FLOOR_P[idx]);
-    if(Math.abs(window.scrollY-top)<2){ pageTo=null; return; }
+    pendingFloor=idx;                       // becomes restingFloor once we get there
+    if(Math.abs(window.scrollY-top)<2){ arrive(); return; }
     scrollHold(top);
   }
 
-  // --- trackpad / touch: scrub freely, then settle when the gesture stops ---
+  // --- every input: scrub freely, then settle when the gesture stops ---
   function settleToFloor(){
     settleTimer=0;
-    if(settling||reduce||pageTo!==null) return;
+    if(settling||reduce) return;
     const cur=targetProgress();
-    const from=(gestureFrom===null)?nearestFloor(cur):gestureFrom;
-    gestureFrom=null;
+    const from=restingFloor;
     let idx=nearestFloor(cur);
     // travelled far enough that another floor is nearer → go there (a long flick
     // may cross several). Otherwise commit forward if the gesture was deliberate,
     // and fall back to where it started if it was only a nudge.
     if(idx===from){
       const deltaPx=(cur-FLOOR_P[from])*runwayEnd;
-      if(Math.abs(deltaPx)>=COMMIT_PX){
+      if(Math.abs(deltaPx)>=sectionPx()*COMMIT_FRAC){
         const dir=deltaPx>0?1:-1;
         idx=Math.max(0,Math.min(FLOOR_P.length-1,from+dir));
       }
@@ -1185,62 +1214,31 @@
   }
   window.addEventListener('scroll',()=>{
     if(settling) return;                       // ignore the settle's own scrolling
-    if(gestureFrom===null) gestureFrom=nearestFloor(targetProgress());
     if(settleTimer) clearTimeout(settleTimer);
     settleTimer=setTimeout(settleToFloor,SETTLE_MS);
   },{passive:true});
 
-  // --- telling the two apart ---
-  // A trackpad emits a stream of small deltas; a mouse emits sparse coarse ones.
-  // Line-mode deltas are always a mouse. Otherwise: three or more sub-40px deltas
-  // inside a 250ms window means fingers, and that verdict is held briefly so the
-  // tail of a flick (whose deltas grow as momentum builds) is not misread.
-  let fineHits=0, lastFine=0, lastPage=0;
-  function fingersOnGlass(e){
-    const now=performance.now();
-    if(e.deltaMode===0 && Math.abs(e.deltaY)<40){
-      fineHits=(now-lastFine<250)?fineHits+1:1;
-      lastFine=now;
-    }
-    return fineHits>=3 && (now-lastFine)<400;
-  }
-  window.addEventListener('wheel',e=>{
-    if(reduce||!e.deltaY) return;
-    if(fingersOnGlass(e)){
-      // trackpad: hand it back to native scrolling, and drop any settle in flight
-      // so the fingers always win
-      if(settleRAF){ cancelAnimationFrame(settleRAF); settleRAF=0; }
-      settling=false; pageTo=null;
-      return;
-    }
-    // below 390px §2's instrument scrolls inside itself — let it have the wheel
-    // until it reaches its own end, then take over
-    const inner=e.target.closest&&e.target.closest('.panel-layer');
-    if(inner&&inner.scrollHeight>inner.clientHeight+1){
-      const atTop=inner.scrollTop<=0;
-      const atEnd=inner.scrollTop+inner.clientHeight>=inner.scrollHeight-1;
-      if((e.deltaY>0&&!atEnd)||(e.deltaY<0&&!atTop)) return;
-    }
-    // mouse: take the wheel over and page. A further notch mid-flight QUEUES the
-    // next floor rather than aborting — spin the wheel and sections advance one
-    // after another instead of fighting each other. Throttled so that leaning on
-    // the wheel walks the story instead of teleporting to the end of it.
-    e.preventDefault();
-    const now2=performance.now();
-    if(now2-lastPage<220) return;
-    lastPage=now2;
-    const dir=e.deltaY>0?1:-1;
-    const base=(pageTo!==null)?pageTo:nearestFloor(targetProgress());
-    const next=Math.max(0,Math.min(FLOOR_P.length-1,base+dir));
-    if(next===base) return;
-    pageTo=next;
-    goToFloor(next);
-  },{passive:false});
-  // touch and keys still cancel an in-flight settle outright
-  ['touchstart','keydown'].forEach(ev=>
+  // --- one rule for every input ---
+  // Nothing is detected and nothing is intercepted. The runway is short enough that a
+  // mouse notch, a trackpad swipe and a thumb flick are all proportionate (see the
+  // .runway comment), so all three scrub natively and settle by the path above.
+  //
+  // What used to be here: a classifier that guessed mouse-from-trackpad by wheel-delta
+  // size, and a paging path that called preventDefault() for whoever it judged a mouse.
+  // Delta size cannot identify a device — a Magic Mouse and a hi-res wheel both stream
+  // like fingers, and Windows lets a notch be ~33px. Measured 2026-08-14 in Chrome:
+  // identical wheel input advanced 0, 1, 4 or 5 sections depending on the profile, one
+  // common configuration could not move the page at all, and the same profile varied run
+  // to run (5,5,5,5,3,5) because the verdict flipped mid-gesture and cancelled the settle
+  // in flight. None of that is recoverable by tuning the thresholds.
+  //
+  // All that remains is: any input cancels a settle in flight, so it never fights you.
+  // Wheel is passive here — the page no longer takes the wheel away from the browser,
+  // which is also what lets §2's inner panel scroll itself without a special case.
+  ['wheel','touchstart','keydown'].forEach(ev=>
     window.addEventListener(ev,()=>{
       if(settleRAF){ cancelAnimationFrame(settleRAF); settleRAF=0; }
-      settling=false; pageTo=null;
+      settling=false; pendingFloor=null;      // cancelled: we did not arrive
     },{passive:true}));
   function segP(p,seg){
     return Math.min(1,Math.max(0,(p-seg[0])/(seg[1]-seg[0])));
@@ -1400,7 +1398,10 @@
   requestAnimationFrame(frame);
 
   // ---- the ↓ cues scroll to the next section's floor ----
-  const scrollToP=p=>scrollHold(runwayEnd*p);
+  // routed through goToFloor, not scrollHold, so arriving records the floor — otherwise
+  // a cue click moves you without updating restingFloor and the next gesture measures
+  // from wherever you were before the click
+  const scrollToP=p=>goToFloor(nearestFloor(p));
   arrowBtn.addEventListener('click',()=>scrollToP(.2));                            // hero → demo
   demoArrow.addEventListener('click',()=>scrollToP(.4));                          // demo → Behind
   sceneCue.querySelector('.arrow-btn').addEventListener('click',()=>scrollToP(.6));   // → Journey
@@ -1426,11 +1427,11 @@
   // destinations that exist in this prototype: Home → top, Contact → the bookend
   document.getElementById('mHome').addEventListener('click',e=>{
     e.preventDefault(); setMenu(false);
-    scrollHold(0);
+    goToFloor(0);
   });
   document.getElementById('mContact').addEventListener('click',e=>{
     e.preventDefault(); setMenu(false);
-    scrollHold(runwayEnd);
+    goToFloor(FLOOR_P.length-1);
   });
 
   // ---- the bookend's click-to-copy email (the footer's mail icon) ----
