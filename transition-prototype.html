@@ -209,6 +209,44 @@
   /* elements arrive as they come on screen — see revealProgress() */
   .reveal{opacity:0;}
 
+  /* ---------- edge blur: the page dissolves at the top and bottom edges ----------
+     The Data-mode treatment (Quality · Monitoring · Performance), ported here. Three
+     stacked backdrop layers per edge, each masked into a band of its own, so the blur
+     genuinely ramps (2 → 6 → 14px) instead of switching on at one radius, plus a soft
+     wash toward the ground so content fades out as well as smearing. Sized to be felt,
+     not noticed. Both bands come up while a section is crossing the edges and go to
+     nothing once one is at rest flush — see edgeStrength(), which is where Home departs
+     from the Data pages and why.
+
+     Chrome sits above it and stays sharp: topbar (30), menu (50/51), and the ↓ cues,
+     which are lifted to 26 below — they live at bottom:34px, dead centre of the bottom
+     band, and a blurred affordance reads as a rendering fault rather than an edge.
+
+     What Data mode did not have to solve: Home has six grounds, not one. The wash
+     colour is per edge, set from the ground actually painted behind THAT edge — see
+     edgeGround(). One shared value would be wrong for half a screen either side of
+     every boundary, and §4's ochre washed across §3's sage reads as a stain. */
+  .edge-blur{position:fixed;left:0;right:0;z-index:25;pointer-events:none;}
+  .edge-blur.top{top:0;height:110px;opacity:0;}
+  .edge-blur.bot{bottom:0;height:130px;}
+  .edge-blur i{position:absolute;inset:0;}
+  .edge-blur.bot i:nth-child(1){backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
+    -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 38%);mask-image:linear-gradient(to bottom,transparent 0,#000 38%);}
+  .edge-blur.bot i:nth-child(2){backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    -webkit-mask-image:linear-gradient(to bottom,transparent 32%,#000 68%);mask-image:linear-gradient(to bottom,transparent 32%,#000 68%);}
+  .edge-blur.bot i:nth-child(3){backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    -webkit-mask-image:linear-gradient(to bottom,transparent 62%,#000 94%);mask-image:linear-gradient(to bottom,transparent 62%,#000 94%);}
+  .edge-blur.bot::after{content:"";position:absolute;inset:0;
+    background:linear-gradient(to bottom,transparent,color-mix(in srgb,var(--wash,#ffffff) 72%,transparent));}
+  .edge-blur.top i:nth-child(1){backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
+    -webkit-mask-image:linear-gradient(to top,transparent 0,#000 38%);mask-image:linear-gradient(to top,transparent 0,#000 38%);}
+  .edge-blur.top i:nth-child(2){backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    -webkit-mask-image:linear-gradient(to top,transparent 32%,#000 68%);mask-image:linear-gradient(to top,transparent 32%,#000 68%);}
+  .edge-blur.top i:nth-child(3){backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    -webkit-mask-image:linear-gradient(to top,transparent 62%,#000 94%);mask-image:linear-gradient(to top,transparent 62%,#000 94%);}
+  .edge-blur.top::after{content:"";position:absolute;inset:0;
+    background:linear-gradient(to top,transparent,color-mix(in srgb,var(--wash,#ffffff) 72%,transparent));}
+
   /* ---------- §1 Hero — a white page, nothing over it ---------- */
   .hero-layer{
     flex-direction:column;justify-content:center;
@@ -251,7 +289,7 @@
      then holds its own float. Wrapper carries the entrance so the button keeps
      the floatY bob (same split as .demo-arrow-wrap). */
   .hero-arrow-wrap{
-    position:absolute;bottom:34px;left:50%;transform:translateX(-50%);
+    position:absolute;bottom:34px;left:50%;transform:translateX(-50%);z-index:26;
     animation:heroArrowIn 1s var(--ease-out-expo) both;animation-delay:.45s;
   }
   .hero-arrow-wrap .arrow-btn{
@@ -262,7 +300,7 @@
   /* the demo's own ↓ cue: the wrapper carries the fade (the float animation owns the
      button's opacity, so the fade has to live on the parent) */
   .demo-arrow-wrap{
-    position:absolute;bottom:34px;left:50%;transform:translateX(-50%);
+    position:absolute;bottom:34px;left:50%;transform:translateX(-50%);z-index:26;
     opacity:0;transition:opacity calc(var(--dur)*.7) var(--ease-out-expo);
   }
   .demo-arrow-wrap .arrow-btn{
@@ -271,8 +309,11 @@
   /* the same ↓ cue on §3/§4/§5 — bottom-centre of each section */
   /* a cue belongs to its section: it is up for exactly as long as that section is
      the one you're in (applyChrome), instead of owning a slice of a global scroll */
+  /* z-index 26: a cue sits inside the bottom edge blur (25) and has to stay crisp —
+     it is the affordance that hands you to the next section. Still under the topbar
+     (30) and the menu (50/51), so it covers no chrome. */
   .next-cue{
-    position:absolute;bottom:34px;left:50%;transform:translateX(-50%);z-index:3;
+    position:absolute;bottom:34px;left:50%;transform:translateX(-50%);z-index:26;
     opacity:0;transition:opacity calc(var(--dur)*.7) var(--ease-out-expo);
   }
   .next-cue .arrow-btn{position:static;animation:floatY 2.6s var(--ease-out-expo) infinite;}
@@ -687,6 +728,9 @@
     <a class="menu-link" href="#" id="mContact">Contact</a>
   </nav>
 </aside>
+
+<div class="edge-blur top" id="edgeTop" aria-hidden="true"><i></i><i></i><i></i></div>
+<div class="edge-blur bot" id="edgeBot" aria-hidden="true"><i></i><i></i><i></i></div>
 
 <!-- Six sections, one after another, in normal document flow. There is no runway,
      no sticky viewport and no floors: the page is just as long as its content, and
@@ -1130,6 +1174,13 @@
     {el:skillsLayer,  label:'Skills',            ground:'var(--wash-rose)',  cue:skillsCue},
     {el:afterLayer,   label:'Contact',           ground:'#ffffff'},
   ];
+  // each section's OWN ground, read from its --sec-bg so the stylesheet stays the one
+  // source of truth. Not the same thing as `ground` above: that is the drawer's tint,
+  // and §2 deliberately opens a white drawer over its well. If a browser hands back the
+  // literal `var(--wash-sage)` instead of the substituted colour, it still resolves
+  // where it lands — the tokens are on :root and the wash inherits them.
+  for(const s of SECS) s.bg=getComputedStyle(s.el).getPropertyValue('--sec-bg').trim();
+
   let secNow=-1;
   function applyChrome(){
     // whichever section holds the viewport's middle owns the chrome. This also
@@ -1156,12 +1207,83 @@
     menuBtn.style.visibility=mB<=0?'hidden':'visible';
   }
 
+  // ---- the edge blur: how strong the bands are, and what colour they wash toward ----
+  // Data mode keys strength to scroll DEPTH — top on once you have scrolled, bottom on
+  // until the document ends — because it is one long document: the only thing at the top
+  // of the screen there is content on its way out. Home cannot borrow that. Its sections
+  // are a screen each, so at rest the top band lands on the section's OWN head: measured
+  // at 1440×900, every one of the five heads sits at y=63–133 inside a 110px band, and
+  // the title you are reading would be permanently soft. That reads as a rendering fault,
+  // not an edge treatment.
+  //
+  // So strength keys to the CROSSING instead: full while a section is passing through the
+  // edges, nothing once one has come to rest flush with the top. Same bands, same ramp,
+  // same wash — only the when changes. The Hero opening crisp and the bookend closing
+  // crisp both fall out of the same rule rather than being two more special cases, and a
+  // section taller than the screen (§2 on a phone) still blurs all the way down it,
+  // because then you are never near a boundary.
+  const edgeTop=document.getElementById('edgeTop'), edgeBot=document.getElementById('edgeBot');
+  function edgeStrength(){
+    let d=Infinity;   // px from the nearest section boundary to the top of the screen
+    for(const s of SECS) d=Math.min(d,Math.abs(s.el.getBoundingClientRect().top));
+    const max=document.documentElement.scrollHeight-window.innerHeight;
+    // the second term is not implied by the first: it holds the last screen crisp even
+    // if §6 ever grows past one screen and its boundary is nowhere near the top
+    return Math.min(clamp(d/140,0,1),max<=0?0:clamp((max-window.scrollY)/140,0,1));
+  }
+
+  // The wash asks what is actually painted behind its own band. Inside a section's
+  // merge band that is not the section's flat ground but the ramp toward the seam it
+  // shares with its neighbour, and the ramp is the same thing said twice: 50/50 at the
+  // boundary, all of one ground --merge away from it. So one mix reproduces it from
+  // either side, and the wash crosses a seam continuously instead of snapping when the
+  // section in view changes — which happens a whole half-screen off from the boundary.
+  const MERGE=()=>clamp(window.innerHeight*0.11,72,132);   // tracks .sec's --merge
+  const mix=(a,b,p)=>'color-mix(in oklab,'+a+','+b+' '+Math.round(p*100)+'%)';
+  function edgeGround(y){
+    let i=0, top=0;
+    for(let k=SECS.length-1;k>=0;k--){
+      const t=SECS[k].el.getBoundingClientRect().top;
+      if(t<=y){ i=k; top=t; break; }
+    }
+    const m=MERGE();
+    // §1's top and §6's bottom have no neighbour to meet, so their bands are flat
+    if(i>0 && y-top<m) return mix(SECS[i-1].bg,SECS[i].bg,0.5+(y-top)/(2*m));
+    if(i<SECS.length-1){
+      const nx=SECS[i+1].el.getBoundingClientRect().top;
+      if(nx-y<m) return mix(SECS[i].bg,SECS[i+1].bg,0.5-(nx-y)/(2*m));
+    }
+    return SECS[i].bg;
+  }
+  // written only on change: each of these is a style recalc on an element the compositor
+  // is already re-blurring, and at rest — where this page spends most of its time —
+  // nothing changes at all
+  let eNow='',wT='',wB='';
+  function applyEdges(){
+    // both edges read the same crossing. Off entirely under reduced motion: on the Data
+    // pages the bands are a static frame, but here they come and go with the scroll, and
+    // a scroll-linked effect is exactly what that preference asks us to drop
+    const e=String(reduce?0:edgeStrength());
+    if(e!==eNow){
+      eNow=e;
+      edgeTop.style.opacity=edgeBot.style.opacity=e;
+      // at rest they are not merely invisible but out of the way: six backdrop-filter
+      // layers can still be sampled and blurred at opacity 0
+      const v=e==='0'?'hidden':'visible';
+      edgeTop.style.visibility=edgeBot.style.visibility=v;
+    }
+    const gt=edgeGround(55), gb=edgeGround(window.innerHeight-65);   // each band's middle
+    if(gt!==wT) edgeTop.style.setProperty('--wash',wT=gt);
+    if(gb!==wB) edgeBot.style.setProperty('--wash',wB=gb);
+  }
+
   function frame(){
     applyReveals();
     applyRing();
     applyJourney();
     applyBars();
     applyChrome();
+    applyEdges();
     updateMagnifier();
     requestAnimationFrame(frame);
   }
