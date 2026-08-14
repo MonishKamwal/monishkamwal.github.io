@@ -192,21 +192,24 @@
   .j-path-wrap{position:relative;margin:clamp(20px,4vh,44px) auto 0;max-width:760px;}
   .j-path-wrap svg{width:100%;height:auto;display:block;overflow:visible;}
   .j-path{fill:none;stroke:var(--foreground);stroke-width:1.4;stroke-linecap:round;}
-  /* the hover "lift" overlay — a short thicker stretch that rises off the page */
+  /* the hover lens — the stretch of line under the block you're hovering, thickened */
   .j-lens{fill:none;stroke:var(--foreground);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;}
-  .j-lens-ring{fill:none;stroke:var(--foreground);stroke-width:1;opacity:.2;pointer-events:none;}
   .j-dot{fill:var(--foreground);opacity:0;cursor:pointer;transition:fill .25s var(--ease-out-expo);}
   .j-dot:hover{fill:var(--warm);}
   .j-end{fill:none;stroke:var(--foreground);stroke-width:1.4;stroke-linecap:round;opacity:0;}
   .phase-head{position:absolute;left:0;right:0;transform:translateY(-50%);text-align:center;opacity:0;pointer-events:none;z-index:2;}
-  .phase-head .chip{display:inline-block;background:var(--wash-ochre);padding:4px 22px;border-radius:2px;}
+  /* the chip is the hover target (the head itself spans the full width) and the thing
+     that scales — scaling the head would scale its own translateY(-50%) and drift it up.
+     Dead until the reveal turns it on, same as .j-entry */
+  .phase-head .chip{display:inline-block;background:var(--wash-ochre);padding:4px 22px;border-radius:2px;pointer-events:none;}
   .phase-head .pk{display:block;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted-foreground);font-weight:600;margin-bottom:3px;}
   .phase-head .ph{
     font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
     font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
     text-transform:uppercase;font-size:clamp(25px,4.6vw,42px);line-height:1;color:var(--foreground);
   }
-  .j-entry{position:absolute;width:min(200px,30%);opacity:0;}
+  /* starts dead; the reveal turns pointer-events on once the card is actually there */
+  .j-entry{position:absolute;width:min(200px,30%);opacity:0;cursor:pointer;pointer-events:none;}
   .j-entry.on-left{text-align:right;transform-origin:right center;}
   .j-entry.on-right{text-align:left;transform-origin:left center;}
   .j-entry .d{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted-foreground);font-weight:500;}
@@ -216,7 +219,8 @@
     font-size:clamp(17px,2.4vw,22px);margin:4px 0 3px;line-height:1.12;
   }
   .j-entry h3 a{color:inherit;text-decoration:none;cursor:pointer;transition:color .25s var(--ease-out-expo);}
-  .j-entry h3 a:hover{color:var(--warm);}
+  /* the whole card is the target, same as the lift — the title warms wherever you are on it */
+  .j-entry:hover h3 a{color:var(--warm);}
   .j-entry p{margin:0;font-size:12.5px;color:var(--muted-foreground);line-height:1.45;}
   .j-tail{margin-top:8px;text-align:center;font-size:12px;color:var(--muted-foreground);font-style:italic;opacity:0;}
 
@@ -524,7 +528,6 @@
           <path class="j-path" id="jPath" d="" mask="url(#jLensMask)"/>
           <path class="j-end" id="jEnd" d=""/>
           <path class="j-lens" id="jLensPath" d="" clip-path="url(#jLensClip)"/>
-          <circle class="j-lens-ring" id="jLensRing" cx="0" cy="0" r="0"/>
         </svg>
         <!-- dots injected by script; entries positioned by script -->
         <div class="j-entry" data-id="monorepo"><div class="d">28 May 2026 · Phase 0</div><h3><a>Why a monorepo said no</a></h3><p>Splitting the platform and the portfolio into two repos.</p></div>
@@ -819,6 +822,11 @@
   function setReveal(el,e,dir){
     el.style.opacity=String(e);
     if(reduce){el.style.transform='none';return;}
+    // a settled element drops its transform entirely. A leftover translate3d(0,0,0) is
+    // still a 3D transform, so the block keeps its own composited layer — text rasterized
+    // once at 1× and then GPU-upscaled by the hover zoom, which softens the glyphs and
+    // makes light-weight serif read washed out. No transform = re-rastered at the real size.
+    if(e>0.999){ el.style.transform=''; return; }
     if(dir==='left') el.style.transform='translate3d('+((1-e)*-28)+'px,0,0)';
     else if(dir==='right') el.style.transform='translate3d('+((1-e)*28)+'px,0,0)';
     else el.style.transform='translate3d(0,'+((1-e)*16)+'px,0)';
@@ -846,7 +854,7 @@
     {t:'entry',id:'gate',x:RX,y:1150},
     {t:'entry',id:'pandera',x:LX,y:1310},
   ];
-  let jLen=0, jNodes=[], jHeads=[], jSamp=[];   // jSamp: sampled line points (for cursor projection)
+  let jLen=0, jNodes=[], jHeads=[];
   const entryById=id=>jEntries.find(e=>e.dataset.id===id);
   function buildJourney(){
     const pts=jLayout.filter(n=>n.t==='entry');
@@ -875,7 +883,6 @@
     for(let k=0;k<=N;k++) samp.push(jPath.getPointAtLength(jLen*k/N));
     const fracNear=(x,y)=>{let bi=0,bd=1e9;for(let k=0;k<=N;k++){const dx=samp[k].x-x,dy=samp[k].y-y,dd=dx*dx+dy*dy;if(dd<bd){bd=dd;bi=k;}}return bi/N;};
     const fracY=y=>{let bi=0,bd=1e9;for(let k=0;k<=N;k++){const dy=Math.abs(samp[k].y-y);if(dy<bd){bd=dy;bi=k;}}return bi/N;};
-    jSamp=samp;
     // rebuild injected dots + phase headings from scratch
     jSvg.querySelectorAll('.j-dot').forEach(el=>el.remove());
     jWrap.querySelectorAll('.phase-head').forEach(el=>el.remove());
@@ -896,52 +903,95 @@
         e.style.top='calc('+yPct+'% - 14px)';
         if(onLeft){ e.style.right='calc('+(100-xPct)+'% + 20px)'; e.style.left='auto'; }
         else{ e.style.left='calc('+xPct+'% + 20px)'; e.style.right='auto'; }
-        jNodes.push({el:e,dot,frac:fracNear(n.x,n.y),cy:n.y});
+        // frac = position along the LINE (drives the lens). ry = position down the WRAP
+        // (drives the reveal) — dP is measured against the wrap, and the line ends at the
+        // last dot while the wrap runs on to the tail, so the two spans are not the same.
+        jNodes.push({el:e,dot,frac:fracNear(n.x,n.y),ry:n.y/VBH});
       }else{
         const h=document.createElement('div');
         h.className='phase-head';
         h.style.top=(n.y/VBH*100)+'%';
         h.innerHTML='<span class="chip"><span class="pk">'+n.k+'</span><span class="ph">'+n.ttl+'</span></span>';
         jWrap.appendChild(h);
-        jHeads.push({el:h,frac:fracY(n.y)});
+        jHeads.push({el:h,chip:h.querySelector('.chip'),frac:fracY(n.y),ry:n.y/VBH});
       }
     });
+    wireJourneyHover();   // headings are rebuilt here, so the hover targets are re-wired
   }
-  // ---- scroll-driven magnifier: a circular lens rolls down the journey as you scroll
-  //      (anchored to the viewport centre), magnifying the line (a clipped, scaled copy of
-  //      the path) and zooming the dot + entry text it's over. Off for reduced motion. ----
+  // ---- hover magnifier: hover a text block — an entry or a phase heading — and it lifts.
+  //      The block scales in place, its dot swells, and the lens (a clipped copy of the line
+  //      at a bolder stroke, the base line masked out under it) slides to that block's point
+  //      on the path. Nothing here is scroll-driven; the same interface runs on the Home
+  //      preview. Only the hovered block scales — no falloff onto its neighbours. ----
   const jLensPath=document.getElementById('jLensPath');
   const jLensCircle=document.getElementById('jLensCircle');
   const jLensHole=document.getElementById('jLensHole');
-  const jLensRing=document.getElementById('jLensRing');
-  const LENS_R=60, LENS_S=1.4, NEAR=0.06;        // lens radius (SVG units), zoom factor, dot/text reach (path fraction)
-  const falloff=d=>d<NEAR?0.5+0.5*Math.cos(Math.PI*d/NEAR):0;
-  function magnify(focus){
-    if(reduce||!jLen||!jLensPath) return;
-    focus=Math.max(0,Math.min(1,focus));
-    const pt=jPath.getPointAtLength(focus*jLen), fx=+pt.x.toFixed(1), fy=+pt.y.toFixed(1);
-    // base line is masked out inside the circle; the scaled copy shows only inside it — no duplicate
-    for(const el of [jLensCircle,jLensHole,jLensRing]){ el.setAttribute('cx',fx); el.setAttribute('cy',fy); el.setAttribute('r',LENS_R); }
-    jNodes.forEach(n=>{ const s=1+(LENS_S-1)*falloff(Math.abs(focus-n.frac)); n.dot.setAttribute('r',(6*s).toFixed(2)); n.el.style.scale=String(s.toFixed(3)); });
+  const LENS_R=60, LENS_S=1.4;   // lens radius (SVG units), text/dot zoom
+  let jFocus=[];                 // one per hoverable block: {hit,scaleEl,dot,frac,cur}
+  let focusTarget=0, focusCur=0, lensOn=0, hoverIdx=-1, offTimer=null;
+  function focusOn(i){
+    clearTimeout(offTimer);
+    if(lensOn<0.05) focusCur=jFocus[i].frac;   // cold start: the lens grows in place, it doesn't fly in
+    hoverIdx=i; focusTarget=jFocus[i].frac;
+  }
+  // crossing from one block to the next leaves both for a frame or two — a short grace
+  // period keeps the lens up so it slides across instead of blinking out and back in
+  function focusOff(){ clearTimeout(offTimer); offTimer=setTimeout(()=>{ hoverIdx=-1; },90); }
+  function wireJourneyHover(){
+    hoverIdx=-1; lensOn=0;
+    jFocus=[
+      // entries scale as a block; phase headings scale their chip (see the .chip note in CSS)
+      ...jNodes.map(n=>({hit:n.el,scaleEl:n.el,dot:n.dot,frac:n.frac,cur:0})),
+      ...jHeads.map(h=>({hit:h.chip,scaleEl:h.chip,dot:null,frac:h.frac,cur:0})),
+    ];
+    jFocus.forEach(f=>{ f.scaleEl.style.scale=''; });
+    if(reduce) return;
+    jFocus.forEach((f,i)=>{
+      // no reveal check here — applyJourney() only gives a block pointer-events once it's there
+      f.hit.addEventListener('mouseenter',()=>focusOn(i));
+      f.hit.addEventListener('mouseleave',focusOff);
+    });
+  }
+  function magnify(){
+    if(reduce||!jLen||!jFocus.length) return;
+    lensOn+=((hoverIdx>=0?1:0)-lensOn)*0.18;
+    focusCur+=(focusTarget-focusCur)*0.30;
+    jFocus.forEach((f,i)=>{
+      f.cur+=((i===hoverIdx?1:0)-f.cur)*0.18;
+      const s=1+(LENS_S-1)*f.cur;
+      f.scaleEl.style.scale=f.cur<0.001?'':s.toFixed(3);
+      if(f.dot) f.dot.setAttribute('r',(6*s).toFixed(2));
+    });
+    if(lensOn<0.01){ for(const el of [jLensCircle,jLensHole]) el.setAttribute('r',0); return; }
+    const pt=jPath.getPointAtLength(Math.max(0,Math.min(1,focusCur))*jLen);
+    const fx=+pt.x.toFixed(1), fy=+pt.y.toFixed(1), r=(LENS_R*lensOn).toFixed(1);
+    for(const el of [jLensCircle,jLensHole]){ el.setAttribute('cx',fx); el.setAttribute('cy',fy); el.setAttribute('r',r); }
   }
   function applyJourney(){
     const r=jWrap.getBoundingClientRect();
     const vh=window.innerHeight;
     // draw progress: from when the wrap nears the fold to when its bottom clears mid-screen
     const dP=clamp((vh*0.72 - r.top)/(r.height - vh*0.28),0,1);
-    jPath.style.strokeDashoffset='0';   // line stays fully drawn; the magnifier is the scroll effect
+    jPath.style.strokeDashoffset='0';   // line stays fully drawn; scroll only reveals dots + text
+    // reveal runs off ry (down the wrap), not frac (along the line) — see buildJourney.
+    // A block is only live once it's mostly there: that one flag drives hover and click,
+    // so an invisible 200px card can't catch either.
     jNodes.forEach(n=>{
-      n.dot.style.opacity=String(reduce?1:clamp((dP-n.frac)/0.03,0,1));
-      setReveal(n.el,reduce?1:easeOut(clamp((dP-(n.frac+0.005))/0.08,0,1)));
+      n.dot.style.opacity=String(reduce?1:clamp((dP-n.ry)/0.03,0,1));
+      const e=reduce?1:easeOut(clamp((dP-(n.ry+0.005))/0.08,0,1));
+      setReveal(n.el,e);
+      n.el.style.pointerEvents=e>0.6?'auto':'none';
     });
     jHeads.forEach(h=>{
-      h.el.style.opacity=String(reduce?1:easeOut(clamp((dP-Math.max(0,h.frac-0.03))/0.06,0,1)));
+      const e=reduce?1:easeOut(clamp((dP-Math.max(0,h.ry-0.03))/0.06,0,1));
+      h.el.style.opacity=String(e);
+      h.chip.style.pointerEvents=e>0.6?'auto':'none';
     });
     const eLen=jEnd.getTotalLength();
     jEnd.style.strokeDashoffset=String(reduce?0:eLen*(1-clamp((dP-0.9)/0.1,0,1)));
     jTail.style.opacity=String(reduce?1:clamp((dP-0.96)/0.04,0,1));
-    // the lens rolls down the line, anchored to the viewport centre passing through the journey
-    magnify(clamp((vh*0.5 - r.top)/r.height,0,1));
+    // the lens itself is hover-driven — this just runs it on the same frame loop
+    magnify();
   }
 
   // ---- About CV lines: vertical ink line draws down, stops reveal as it passes ----
@@ -1206,10 +1256,10 @@
     }
   }
 
-  // journey entry titles open the same card as their dot (wired once)
+  // the whole journey entry opens the same card as its dot — the hover lifts the card and
+  // warms the title, so the whole card is what you can click, not just the title (wired once)
   jEntries.forEach(e=>{
-    const link=e.querySelector('h3 a');
-    if(link) link.addEventListener('click',ev=>{
+    e.addEventListener('click',ev=>{
       ev.preventDefault();
       const id=e.dataset.id;
       openEntryCard(id,jSvg.querySelector('.j-dot[data-id="'+id+'"]'));

@@ -454,9 +454,8 @@
   .j-path-wrap{position:relative;margin-top:clamp(0px,1vh,10px);max-width:760px;}
   .j-path-wrap svg{width:100%;height:auto;display:block;}
   .j-path{fill:none;stroke:var(--foreground);stroke-width:1.4;stroke-linecap:round;}
-  /* the hover "lift" overlay — a short thicker stretch that rises off the page */
+  /* the hover lens — the stretch of line under the block you're hovering, thickened */
   .j-lens{fill:none;stroke:var(--foreground);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;}
-  .j-lens-ring{fill:none;stroke:var(--foreground);stroke-width:1;opacity:.2;pointer-events:none;}
   .j-dot{fill:var(--foreground);opacity:0;}
   .j-end{fill:none;stroke:var(--foreground);stroke-width:1.4;stroke-linecap:round;opacity:0;}
   .j-entry{position:absolute;width:min(240px,34%);opacity:0;}
@@ -785,7 +784,6 @@
             </defs>
             <path class="j-path" id="jPath" d="" mask="url(#jLensMask)"/>
             <path class="j-lens" id="jLensPath" d="" clip-path="url(#jLensClip)"/>
-            <circle class="j-lens-ring" id="jLensRing" cx="0" cy="0" r="0"/>
             <circle class="j-dot" r="5.5"/>
             <circle class="j-dot" r="5.5"/>
             <circle class="j-dot" r="5.5"/>
@@ -958,7 +956,7 @@
   ];
   let jNodes=jNodesWide, VBW=700, VBH=404;
   const jFr=[0,0,0,0];               // each dot's fraction along the drawn line (reveal timing)
-  let pathLen=0, jSamp=[];           // jSamp: sampled points along the line (for cursor projection)
+  let pathLen=0;
   function layoutPath(){
     const phone=window.matchMedia('(max-width:700px)').matches;
     jNodes = phone ? jNodesPhone : jNodesWide;
@@ -986,7 +984,6 @@
     const N=400,samp=[];
     for(let k=0;k<=N;k++) samp.push(jPath.getPointAtLength(pathLen*k/N));
     const fracNear=(x,y)=>{let bi=0,bd=1e9;for(let k=0;k<=N;k++){const dx=samp[k].x-x,dy=samp[k].y-y,dd=dx*dx+dy*dy;if(dd<bd){bd=dd;bi=k;}}return bi/N;};
-    jSamp=samp;
     jNodes.forEach((n,i)=>{
       jFr[i]=fracNear(n.x,n.y);
       jDots[i].setAttribute('cx',n.x); jDots[i].setAttribute('cy',n.y);
@@ -1001,45 +998,45 @@
   layoutPath();
   window.addEventListener('resize',layoutPath);
 
-  // ---- scroll-driven magnifier: a circular lens rolls down the journey as you scroll,
-  //      magnifying the line (a clipped, scaled copy of the path) and zooming the dot +
-  //      entry text it's over. Off for reduced motion. ----
+  // ---- hover magnifier: hover a text block (an entry, or the CTA on the line's end) and it
+  //      lifts. The block scales in place, its dot swells, and the lens (a clipped copy of the
+  //      line at a bolder stroke, the base line masked out under it) slides to that block's
+  //      point on the path. The same interface runs on the internal /journey page. Only the
+  //      hovered block scales — no falloff onto its neighbours. Off for reduced motion. ----
   const jDotBaseR=jDots.map(d=>parseFloat(d.getAttribute('r'))||5.5);
   const jLensPath=document.getElementById('jLensPath');
   const jLensCircle=document.getElementById('jLensCircle');
   const jLensHole=document.getElementById('jLensHole');
-  const jLensRing=document.getElementById('jLensRing');
-  const jWrapEl=jPath.closest('.j-path-wrap');
-  const LENS_R=52, LENS_S=1.4, NEAR=0.15;        // lens radius (SVG units), zoom factor, dot/text reach (path fraction)
-  const falloff=d=>d<NEAR?0.5+0.5*Math.cos(Math.PI*d/NEAR):0;
-  // Home preview is short + static on screen, so the lens is HOVER-driven (scroll here would fight the
-  // section scrub). Cursor projects to the nearest point on the line; the lens eases in on enter / out on leave.
-  let focusTarget=0, focusCur=0, lensOn=0, hoverActive=false;
+  const LENS_R=52, LENS_S=1.4;       // lens radius (SVG units), text/dot zoom
+  const jScale=jLabelEls.map(()=>0); // per-block eased 0→1 (only the hovered one climbs)
+  let focusTarget=0, focusCur=0, lensOn=0, hoverIdx=-1, offTimer=null;
   if(!reduce){
-    jWrapEl.addEventListener('mousemove',ev=>{
-      if(!pathLen||!jSamp.length) return;
-      const svg=jPath.ownerSVGElement, rect=svg.getBoundingClientRect();
-      const x=(ev.clientX-rect.left)/rect.width*VBW, y=(ev.clientY-rect.top)/rect.height*VBH;
-      let bi=0,bd=1e9; for(let k=0;k<jSamp.length;k++){const dx=jSamp[k].x-x,dy=jSamp[k].y-y,dd=dx*dx+dy*dy; if(dd<bd){bd=dd;bi=k;}}
-      focusTarget=bi/(jSamp.length-1); hoverActive=true;
+    jLabelEls.forEach((el,i)=>{
+      el.addEventListener('mouseenter',()=>{
+        if(parseFloat(el.style.opacity||0)<=0.6) return;   // not revealed by the scrub yet
+        clearTimeout(offTimer);
+        if(lensOn<0.05) focusCur=jFr[i];                   // cold start: grow in place, don't fly in
+        hoverIdx=i; focusTarget=jFr[i];
+      });
+      // crossing from one block to the next leaves both for a frame or two — a short grace
+      // period keeps the lens up so it slides across instead of blinking out and back in
+      el.addEventListener('mouseleave',()=>{ clearTimeout(offTimer); offTimer=setTimeout(()=>{ hoverIdx=-1; },90); });
     });
-    jWrapEl.addEventListener('mouseleave',()=>{ hoverActive=false; });
   }
   function updateMagnifier(){
     if(reduce||!pathLen||!jLensPath) return;
-    lensOn+=((hoverActive?1:0)-lensOn)*0.18;
+    lensOn+=((hoverIdx>=0?1:0)-lensOn)*0.18;
     focusCur+=(focusTarget-focusCur)*0.30;
-    if(lensOn<0.01){
-      for(const el of [jLensCircle,jLensHole,jLensRing]) el.setAttribute('r',0);
-      jDots.forEach((c,i)=>c.setAttribute('r',jDotBaseR[i])); jLabelEls.forEach(e=>{ e.style.scale=''; });
-      return;
-    }
-    const focus=Math.max(0,Math.min(1,focusCur));
-    const pt=jPath.getPointAtLength(focus*pathLen), fx=+pt.x.toFixed(1), fy=+pt.y.toFixed(1), r=(LENS_R*lensOn).toFixed(1);
-    for(const el of [jLensCircle,jLensHole,jLensRing]){ el.setAttribute('cx',fx); el.setAttribute('cy',fy); el.setAttribute('r',r); }
-    jLensRing.style.opacity=(0.2*lensOn).toFixed(3);
-    jDots.forEach((c,i)=>{ const s=1+(LENS_S-1)*falloff(Math.abs(focus-jFr[i]))*lensOn; c.setAttribute('r',(jDotBaseR[i]*s).toFixed(2)); });
-    jLabelEls.forEach((e,i)=>{ e.style.scale=String((1+(LENS_S-1)*falloff(Math.abs(focus-jFr[i]))*lensOn).toFixed(3)); });
+    jLabelEls.forEach((e,i)=>{
+      jScale[i]+=((i===hoverIdx?1:0)-jScale[i])*0.18;
+      const s=1+(LENS_S-1)*jScale[i];
+      e.style.scale=jScale[i]<0.001?'':s.toFixed(3);
+      jDots[i].setAttribute('r',(jDotBaseR[i]*s).toFixed(2));
+    });
+    if(lensOn<0.01){ for(const el of [jLensCircle,jLensHole]) el.setAttribute('r',0); return; }
+    const pt=jPath.getPointAtLength(Math.max(0,Math.min(1,focusCur))*pathLen);
+    const fx=+pt.x.toFixed(1), fy=+pt.y.toFixed(1), r=(LENS_R*lensOn).toFixed(1);
+    for(const el of [jLensCircle,jLensHole]){ el.setAttribute('cx',fx); el.setAttribute('cy',fy); el.setAttribute('r',r); }
   }
 
   // ---- the loose global value, read from --dur (the dock retunes it) ----
@@ -1256,7 +1253,9 @@
   // scrub helpers: an element's reveal is a pure function of its slice of the scroll
   function setReveal(el,sp){
     el.style.opacity=String(sp);
-    el.style.transform=reduce?'none':'translate3d(0,'+((1-sp)*16)+'px,0)';
+    // settled → no transform at all: a leftover translate3d keeps the block on its own
+    // composited layer, where the hover zoom upscales a 1× bitmap instead of re-rastering
+    el.style.transform=reduce?'none':(sp>0.999?'':'translate3d(0,'+((1-sp)*16)+'px,0)');
   }
   function setRevealX(el,sp,max,fromRight){ // slides in from its own side
     el.style.opacity=String(sp*(max||1));

@@ -1101,6 +1101,65 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-08-14** — **One journey interface on both surfaces: hover a text block and it lifts**
+  (`transition-prototype.html` and `sections-prototype.html`). Supersedes the 2026-07-29 magnifier
+  below, which had split into two different interactions — the Home teaser was hover-driven and the
+  internal `/journey` page scroll-driven — so the same line behaved differently depending on which
+  page you were on. Both now run the **same hover model**, and the **faint ring is gone** (`.j-lens-ring`
+  deleted from both files): it read as a piece of interface laid over the drawing rather than part of it.
+  What survives is what Monish liked — the **text pop**: the block scales in place, its dot swells, and the
+  line thickens beneath it.
+  - **The trigger is the text block itself, not the cursor's position on the line.** The old model
+    projected the cursor onto the nearest point of the path and scaled everything within reach, so
+    neighbouring entries part-scaled too. Now hovering a block focuses *that* block and nothing else —
+    no falloff, so `NEAR` and the cosine `falloff()` are gone, along with the sampled-point array
+    (`jSamp`) the projection needed. Whichever block you're on, the lens slides to **its** point on the
+    line and thickens the stretch there.
+  - **Phase headings enlarge too** (internal page — "Phase 0 / Scaffold" and its two siblings). They had
+    never been in the scaled set at all, which made them read as page furniture while everything around
+    them responded. They now hover like any other block. Two details: the heading spans the full column
+    width, so the **chip** is the hover target and the chip is what scales (`.phase-head` keeps
+    `pointer-events:none`, `.chip` gets `auto`) — and scaling the heading itself would have scaled its own
+    `translateY(-50%)` and drifted the chip upward as it grew. The chip is wider than the lens but shorter,
+    so the thickened line reads as a swell above and below it.
+  - **Two things that keep it from feeling twitchy.** Crossing from one block to the next leaves both for a
+    frame or two, which would blink the lens out and back in — a **90ms grace period** on leave holds it up
+    so it slides across instead. And on a cold enter the focus **snaps** to the new block before the lens
+    grows, so it swells in place rather than flying in from wherever it was left. Blocks the scroll hasn't
+    revealed yet aren't hoverable (opacity guard), and everything is still skipped under
+    `prefers-reduced-motion`.
+  - **The card is one target: hover, colour and click all use it** (internal page). `.j-entry h3 a:hover`
+    → `.j-entry:hover h3 a`, so the title warms wherever you are on the card rather than only over the
+    title; and the click handler moves off `h3 a` onto the card, with `cursor:pointer` on the whole block.
+    The three used to disagree — the card lifted, the title stayed cold, and clicking the description did
+    nothing. A card the scroll hasn't revealed yet doesn't catch clicks (it is 200px wide and invisible).
+  - **Bug found while tuning this: the last Journey entry never appeared.** Reveal timing keyed each
+    entry to its **fraction along the line** (`frac`), but the scroll progress `dP` it is compared against
+    is measured over the **wrap's height** — and the line ends at the last dot (y=1310) while the wrap
+    runs on to 1500 for the tail. Two different spans. "Pandera at the door" therefore sat at
+    `frac = 1.0000` and needed `dP ≥ 1.085`, which `clamp(…,0,1)` can never produce: **invisible at every
+    scroll position**, with "The gate that says no" only completing at the very bottom. Entries now key to
+    `ry` (their y down the wrap), which is the span `dP` actually measures; `frac` stays for the lens,
+    where it is correct. All seven now complete — the last at `dP` 0.958, still ahead of the tail at 0.9–1.0.
+    This was also the reason the **hover felt unreliable** (a card below the reveal threshold was not
+    hoverable) and the reason the **blur survived** on the lower cards (a card that never settles never
+    drops its transform — see below). One bug, three symptoms.
+  - **Reveal state now drives `pointer-events`, and that alone gates hover and click.** Both used to read
+    `style.opacity` at event time, in two places, with their own thresholds. `applyJourney()` sets
+    `pointer-events` from the same reveal value that sets the opacity, so an invisible 200px card cannot
+    catch a hover or a click and there is one source of truth for "this block is live".
+  - **The pop is crisp now — settled blocks drop their transform.** The zoomed text looked soft and its
+    colour washed out. Cause: `setReveal()` left `translate3d(0,0,0)` on every settled element, and a 3D
+    transform — even a zero one — keeps the block on its own **composited layer**, where the text is
+    rasterized once at 1× and the hover zoom then **upscales that bitmap** instead of re-rendering the
+    glyphs. At `e>0.999` the transform is now cleared outright (both files), so a hovered block is plain
+    unlayered content and Chrome re-rasters it at its real size. The `scale` property alone doesn't
+    promote a layer, which is why nothing else was needed. Worth remembering for any future
+    transform-driven zoom: **animate the scale, but don't leave a 3D transform underneath it.**
+  - Unchanged: `LENS_R` (60 internal / 52 Home), `LENS_S` 1.4, the `.j-lens` bolden-in-place trick and its
+    mask, text scaling from its outer edge, and the dots staying clickable. The internal page's **scroll
+    still reveals** dots, text and headings — scroll lost the magnifier, not the reveal.
+
 - **2026-08-13** — **The scroll is tuned per input device: the mouse pages, the trackpad scrubs**
   (`transition-prototype.html`). With the wheel working again, it still didn't feel good on either
   device. Profiled it properly — recording scroll position *and* the whole visible scene (panel
@@ -1340,7 +1399,10 @@ Newest first. Each entry: what was decided and why.
   drop the `font-family`/`font-weight`/`line-height`.
 
 - **2026-07-29** — **Journey line: scroll-driven "magnifying glass"** (both `transition-prototype.html`
-  and `sections-prototype.html`). Replaced the earlier hover "lift" (and its dark travelling segment,
+  and `sections-prototype.html`). **Superseded 2026-08-14** — the ring is gone, both surfaces are
+  hover-driven, and the trigger is the text block rather than the cursor's position on the line; see the
+  entry at the top. The lens mechanics below (mask + bolder clipped copy, why not to scale the geometry)
+  still describe what is there. Replaced the earlier hover "lift" (and its dark travelling segment,
   which read badly) with a **circular lens that rolls down the journey as you scroll**. Implementation:
   a faint lens **ring** (`.j-lens-ring`), a **mask** that hides the base line inside the ring, and a
   clipped copy of the line (`.j-lens`, geometry mirrored from `#jPath`) shown only inside the ring at a
