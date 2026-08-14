@@ -1110,6 +1110,51 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-08-14** — **The Home grounds merge at their seams instead of butting**
+  (`transition-prototype.html`). Monish's ask. Moving Home into normal document flow (entry below)
+  left the six grounds meeting on five hard horizontal lines — the old layered scroll had hidden
+  the §1→§2 one behind a cross-fade, and the other four behind roll-overs, and with nothing
+  covering anything the edges were simply visible. Each boundary now spreads over ~100px above it
+  and ~100px below, centred on the line.
+  - **How.** Five `--seam-NN` tokens, one per boundary, each the **midpoint of the two grounds that
+    meet there** (`color-mix(in oklab, …)`, derived from the ground tokens so a repalette carries
+    the seams with it). Every section paints one full-height gradient: its seam-with-the-section-
+    above → its own ground at `--merge` → its own ground until `100% - --merge` → its
+    seam-with-the-section-below. Both sides of a boundary name the **same token**, so the two ramps
+    land on one value and there is nothing left to see. `--merge` is `clamp(72px,11vh,132px)`.
+  - **Why this shape and not an overlay.** It is the element's own background, so it can't land in
+    front of content, needs no stacking-context work, and — the point of the entry below — **reads
+    nothing about the scroll**. The merge is a property of the page, not of where you are on it: no
+    frame cost, no listener, identical on every input device, and untouched by reduced-motion
+    (there is no motion in it).
+  - **One full-height gradient, not two bands sized to `--merge`.** The banded version was built
+    first and painted **a pale 1px line at every seam** on any viewport where `11vh` lands
+    fractional — `background-size` rounds to whole pixels, `background-position:bottom` then leaves
+    a subpixel sliver the tile never covers, and the section's own flat ground showed through it.
+    Measured **6/255 at 430×932, 3/255 at 390×844, 0 at 900 and 568** — a hairline exactly where the
+    hairline was being removed, and invisible at the two sizes anyone would have checked first.
+    Four stops on one full-height gradient have no tile edge to round.
+  - **The ramp interpolates in sRGB on purpose.** `linear-gradient(in oklab,…)` was tried and
+    dropped: a value holding `var()` can't be validated until substitution, so the two-declaration
+    fallback **does not work** — a browser that can't parse it computes `background-image:none`
+    rather than falling back to the plain declaration. Wider support, and measurably no difference:
+    a ramp only travels from a ground to a midpoint (**9–31 levels** of pale pastel end to end), and
+    sRGB and oklab gave byte-identical columns. The midpoint itself is still mixed in oklab, where a
+    full ground-to-ground mix can sink through grey (sage→ochre passes through a dull tan).
+  - **What has to stay clear of a band is opaque plates, not text.** §3's `.dname`/`.bmrow` fake the
+    ground to mask the ring line behind them, so a ramp under one would draw a rectangle around it;
+    measured clearance **80–201px** at 320/360/390/430/1440/1920. Section headers **do** sit inside
+    the top band (48–80px down, against ~100px of band) and that is intended — a title on a ramp is
+    still just a title, and each ground finishes arriving as you read the section's name.
+  - **Measured, Chrome via the harness** (new `seamcheck.js`, which reads the real painted pixel
+    column across each boundary rather than eyeballing a screenshot). At **320×568, 360×640,
+    390×844, 430×932, 1440×900 and 1920×1080**: every seam steps **≤1/255**, and the worst
+    single-pixel jump anywhere in a ramp is **1/255**, so no banding contour. `homecheck`/`homenav`
+    unchanged — six sections at 1.00 screens, wheel native, reveals settled, the ↓ cue chain and
+    menu jumps all 0px off, reduced-motion path intact, no page errors. Where `color-mix` isn't
+    supported at all the tokens fail to substitute, the property computes to `none`, and the grounds
+    go back to butting — i.e. the page exactly as it was.
+
 - **2026-08-14** — **Home moves to normal document flow: the layered scroll is retired for the
   Data-mode grammar** (`transition-prototype.html`). **Supersedes the §1→§2 transition (Stage 3,
   LOCKED 2026-07-16) and Stage 4.5's motion model, roll-over and hard floors.** Monish's call, after
