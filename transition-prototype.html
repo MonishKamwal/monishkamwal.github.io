@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Prototype — Home scroll: Hero → Demo → Behind the Scenes → Journey → Skills</title>
+<title>[Original — Outfit caps] Prototype — Home scroll: Hero → Demo → Behind the Scenes → Journey → Skills</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..700&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
@@ -15,22 +15,30 @@
     --muted-foreground:#6b6b6b;
     --warm:#c98a3a;
     --warm-soft:#e8b87e;
-    --wash-blue:#e7f0ff;
+    --wash-blue:#e7f0ff;   /* dusty blue — now About's ground (IA rework 2026-07-26) */
+    --well:#f6f8fb;        /* Data-mode's recessed "well" — the Demo's ground foreshadows the machine room
+                              (reconciled 2026-07-28: Data went white/lifted-paper, so the crossing whisper
+                              is the well tint, not the retired #f2f4f7 instrument ground) */
     --wash-sage:#e0f7e7;
     --wash-ochre:#ffecdb;
     --wash-rose:#ffe8ee;
     --deep-ochre:#96600a;
+    --ground:#ffffff;      /* the slide-in menu's ground — the scroll script tints it
+                              to the section in view (sage/ochre/rose), white elsewhere */
     --ease-out-expo:cubic-bezier(.16,1,.3,1);
+    --ease-hover:cubic-bezier(.2,.7,.35,1);  /* hovers: short travel, no front-load */
     --dur:.48s; /* the loose global motion value — retuned by the dock */
   }
   *{box-sizing:border-box;}
-  /* hard floors: the scroll must rest on a section, and a momentum fling
-     cannot pass one — each floor demands its own gesture to leave */
-  html{scroll-snap-type:y mandatory;}
-  .floor{
-    position:absolute;left:0;width:100%;height:2px;
-    scroll-snap-align:start;scroll-snap-stop:always;
-  }
+  /* Floors: the scroll must come to rest on a section, never mid-transition.
+     CSS scroll-snap used to do this and it CANNOT — the floors sit ~2070px apart
+     and a mouse notch is ~120px, so Chrome snapped every tick straight back and
+     the page was completely immovable by wheel (measured 2026-08-13: 0px of
+     travel over twelve ticks, on `mandatory` AND `proximity`; keyboard still
+     worked, which is why it went unnoticed). Snap is off; the floors are enforced
+     in the script instead — free scrubbing while the wheel turns, then a settle
+     onto the nearest floor once the gesture stops. */
+  .floor{position:absolute;left:0;width:100%;height:2px;}
   body{
     margin:0;background:var(--background);color:var(--foreground);
     font-family:"Outfit",system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -62,9 +70,9 @@
     background:none;border:0;cursor:pointer;padding:6px;color:var(--foreground);
     display:inline-flex;line-height:0;pointer-events:auto;
     opacity:0;visibility:hidden; /* scrubbed: arrives with the demo, hidden on the Hero */
-    transition:color .3s var(--ease-out-expo);
+    transition:color .18s var(--ease-out-expo),scale .18s var(--ease-out-expo);
   }
-  .menu-btn:hover{color:var(--warm);}
+  .menu-btn:hover{color:var(--warm);scale:1.12;}
   .menu-btn:focus-visible{outline:2px solid var(--warm);outline-offset:2px;border-radius:3px;}
 
   /* ---------- slide-in menu (nav spec) ---------- */
@@ -75,48 +83,63 @@
   .m-scrim.open{opacity:1;pointer-events:auto;}
   .menu-panel{
     position:fixed;top:0;right:0;bottom:0;width:min(400px,88vw);z-index:51;
-    background:#fff;border-left:1px solid var(--border);
+    background:var(--ground);border-left:1px solid var(--border);
+    box-shadow:-20px 0 48px -28px rgba(10,10,10,.30);
     padding:24px 34px 34px;display:flex;flex-direction:column;
     transform:translateX(102%);visibility:hidden;
-    transition:transform var(--dur) var(--ease-out-expo),visibility 0s var(--dur);
+    transition:transform var(--dur) var(--ease-out-expo),background var(--dur) var(--ease-out-expo),visibility 0s var(--dur);
   }
   .menu-panel.open{
     transform:none;visibility:visible;
-    transition:transform var(--dur) var(--ease-out-expo),visibility 0s 0s;
+    transition:transform var(--dur) var(--ease-out-expo),background var(--dur) var(--ease-out-expo),visibility 0s 0s;
   }
   .menu-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:38px;}
   .m-close{
     background:none;border:0;cursor:pointer;padding:6px;color:var(--foreground);
-    display:inline-flex;line-height:0;transition:color .3s var(--ease-out-expo);
+    display:inline-flex;line-height:0;transition:color .18s var(--ease-out-expo),scale .18s var(--ease-out-expo);
   }
-  .m-close:hover{color:var(--warm);}
+  .m-close:hover{color:var(--warm);scale:1.12;}
   .m-close:focus-visible{outline:2px solid var(--warm);outline-offset:2px;border-radius:3px;}
-  .menu-panel nav{display:flex;flex-direction:column;gap:18px;}
+  .menu-panel nav{display:flex;flex-direction:column;gap:18px;flex:1;overflow-y:auto;overflow-x:hidden;}
   .menu-link{
     font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
     font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
     text-transform:uppercase;font-size:clamp(28px,4.5vw,38px);line-height:1.05;
     color:var(--foreground);text-decoration:none;width:fit-content;
+    transform-origin:left center;
     opacity:0;transform:translate(30px,10px);
-    transition:opacity var(--dur) var(--ease-out-expo),transform var(--dur) var(--ease-out-expo),color .3s var(--ease-out-expo);
+    /* the per-item stagger rides on --stagger and applies ONLY to the entrance
+       (opacity+transform); hover (scale+color) is undelayed, so it reacts at once.
+       Hover growth uses the independent `scale` property to avoid clashing with the
+       entrance `transform:translate`. */
+    transition:
+      opacity var(--dur) var(--ease-out-expo) var(--stagger,0s),
+      transform var(--dur) var(--ease-out-expo) var(--stagger,0s),
+      scale .18s var(--ease-out-expo),
+      color .18s var(--ease-out-expo);
   }
-  .menu-link:hover{color:var(--warm);}
+  .menu-link:hover,.menu-link:focus-visible{color:var(--warm);scale:1.09;}
   .menu-link:focus-visible{outline:2px solid var(--warm);outline-offset:4px;}
   .menu-panel.open .menu-link{opacity:1;transform:none;}
-  /* staircase stagger: ~10% of --dur per item, after the panel lands */
-  .menu-panel.open .menu-link:nth-of-type(1){transition-delay:calc(var(--dur)*.2)}
-  .menu-panel.open .menu-link:nth-of-type(2){transition-delay:calc(var(--dur)*.3)}
-  .menu-panel.open .menu-link:nth-of-type(3){transition-delay:calc(var(--dur)*.4)}
-  .menu-panel.open .menu-link:nth-of-type(4){transition-delay:calc(var(--dur)*.5)}
-  .menu-panel.open .menu-link:nth-of-type(5){transition-delay:calc(var(--dur)*.6)}
-  .menu-panel.open .menu-link:nth-of-type(6){transition-delay:calc(var(--dur)*.7)}
+  /* staircase stagger: ~10% of --dur per item, after the panel lands.
+     nth-child (not nth-of-type) so a future <button> in the nav can't scramble it. */
+  .menu-panel.open .menu-link:nth-child(1){--stagger:calc(var(--dur)*.2)}
+  .menu-panel.open .menu-link:nth-child(2){--stagger:calc(var(--dur)*.3)}
+  .menu-panel.open .menu-link:nth-child(3){--stagger:calc(var(--dur)*.4)}
+  .menu-panel.open .menu-link:nth-child(4){--stagger:calc(var(--dur)*.5)}
+  .menu-panel.open .menu-link:nth-child(5){--stagger:calc(var(--dur)*.6)}
+  .menu-panel.open .menu-link:nth-child(6){--stagger:calc(var(--dur)*.7)}
+  .menu-panel.open .menu-link:nth-child(7){--stagger:calc(var(--dur)*.8)}
+  .menu-panel.open .menu-link:nth-child(8){--stagger:calc(var(--dur)*.9)}
+  .menu-panel.open .menu-link:nth-child(9){--stagger:calc(var(--dur)*1)}
 
   /* ---------- the scroll runway: sticky viewport inside ---------- */
-  .runway{height:1000vh;position:relative;}
+  .runway{height:1250vh;position:relative;}
   .viewport{position:sticky;top:0;height:100vh;overflow:hidden;background:#fff;}
 
-  /* background cross-fade layer: white → pale blue, opacity-driven */
-  .bg-wash{position:absolute;inset:0;background:var(--wash-blue);opacity:0;}
+  /* background cross-fade layer: white → the Data well, opacity-driven
+     (the Demo grounds on Data mode's recessed well — the doorway's whisper) */
+  .bg-wash{position:absolute;inset:0;background:var(--well);opacity:0;}
 
   /* ---------- hero layer (§1) — fades in place, never moves ---------- */
   .hero-layer{
@@ -127,16 +150,47 @@
   .hero-name{
     font-size:clamp(52px,12vw,140px);text-transform:uppercase;
     text-align:center;padding:0 20px;
+    /* the original cut, untouched (weight 500 · opsz 96 via .display) — both
+       hairline fixes (heavier 680/64, then a 0.4px text-stroke) were tried and
+       rejected; the gossamer thins ARE the look. Prominence comes from depth
+       instead: a tight + ambient text-shadow, the same layering as the lifted
+       panels. margin:0 kills the h1 default so the subtitle clamp owns the gap. */
+    margin:0;
+    text-shadow:0 2px 6px rgba(10,10,10,.08),0 16px 40px rgba(10,10,10,.14);
+    /* §1 spec: a calm expo reveal on load (opacity + small translate) */
+    animation:heroReveal 1s var(--ease-out-expo) both;animation-delay:.1s;
   }
+  /* the subtitle: says what this site IS, so the name alone doesn't have to */
+  .hero-sub{
+    margin:clamp(18px,3vh,28px) 0 0;padding:0 20px;text-align:center;
+    font-size:clamp(12px,1.5vw,15px);letter-spacing:.34em;text-transform:uppercase;
+    font-weight:500;color:var(--muted-foreground);
+    animation:heroReveal 1s var(--ease-out-expo) both;animation-delay:.32s;
+  }
+  @keyframes heroReveal{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
   .arrow-btn{
     position:absolute;bottom:34px;left:50%;transform:translateX(-50%);
     background:none;border:0;cursor:pointer;color:var(--warm);
     padding:8px;line-height:0;pointer-events:auto;
     animation:float 2.6s var(--ease-out-expo) infinite;
+    transition:scale .18s var(--ease-out-expo);
   }
+  .arrow-btn:hover{scale:1.1;}
   .arrow-btn:focus-visible{outline:2px solid var(--warm);outline-offset:3px;border-radius:3px;}
   .arrow-btn svg{width:34px;height:54px;}
   @keyframes float{0%,100%{transform:translate(-50%,0);opacity:.75;}50%{transform:translate(-50%,7px);opacity:1;}}
+
+  /* §1 scroll cue — the arrow follows the headline in (subtle, delayed fade),
+     then holds its own float. Wrapper carries the entrance so the button keeps
+     the floatY bob (same split as .demo-arrow-wrap). */
+  .hero-arrow-wrap{
+    position:absolute;bottom:34px;left:50%;transform:translateX(-50%);
+    animation:heroArrowIn 1s var(--ease-out-expo) both;animation-delay:.45s;
+  }
+  .hero-arrow-wrap .arrow-btn{
+    position:static;animation:floatY 2.6s var(--ease-out-expo) infinite;
+  }
+  @keyframes heroArrowIn{from{opacity:0;}to{opacity:1;}}
 
   /* the demo's own ↓ cue: the wrapper carries the scrubbed fade (the float
      animation owns the button's opacity, so the fade must live on the parent) */
@@ -147,40 +201,101 @@
   .demo-arrow-wrap .arrow-btn{
     position:static;animation:floatY 2.6s var(--ease-out-expo) infinite;
   }
+  /* the same ↓ cue on §3/§4/§5 — bottom-centre of each layer, scrubbed in/out */
+  .next-cue{
+    position:absolute;bottom:34px;left:50%;transform:translateX(-50%);z-index:3;
+    opacity:0;visibility:hidden;
+  }
+  .next-cue .arrow-btn{position:static;animation:floatY 2.6s var(--ease-out-expo) infinite;}
   @keyframes floatY{0%,100%{transform:translateY(0);opacity:.75;}50%{transform:translateY(7px);opacity:1;}}
 
   /* ---------- demo panel (§2) — rises from below and overlaps ---------- */
   .panel-layer{
-    position:absolute;inset:0;background:var(--wash-blue);
+    position:absolute;inset:0;background:var(--well);
     z-index:1;transform:translate3d(0,100%,0);
     display:flex;align-items:center;justify-content:center;
     gap:clamp(24px,4vw,64px);padding:clamp(24px,5vw,72px);
   }
   .demo-title{
-    position:absolute;top:clamp(56px,9vh,84px);left:clamp(24px,5vw,72px);
+    position:absolute;top:clamp(44px,7vh,64px);left:clamp(24px,5vw,72px);
     font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
     font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
     font-size:clamp(30px,5vw,54px);
     opacity:0; /* scrubbed: opacity + translate driven per-frame by the scroll script */
   }
 
-  .canvas-card{
-    width:min(46vw,520px);aspect-ratio:4/3;background:#fff;
-    border:1px solid var(--border);border-radius:5px;
-    box-shadow:0 18px 40px -26px rgba(10,10,10,.35),0 2px 8px -4px rgba(10,10,10,.12);
-    display:flex;align-items:center;justify-content:center;
+  /* the ONE instrument (Monish's pick 2026-07-28, over the two-panel bench):
+     a single wide lifted Data panel — the span-12 grammar of the Data pages —
+     holding pad · predictions · verdict · doorway, split by hairlines */
+  .instrument{
+    display:flex;align-items:stretch;gap:clamp(20px,3vw,36px);
+    max-width:min(92vw,980px);width:100%;
+    margin-top:clamp(24px,4.5vh,48px); /* air between the title and the panel */
+    background:#fff;border:1px solid #e4e8ef;border-radius:13px;
+    box-shadow:0 22px 46px -28px rgba(15,23,42,.20),0 3px 9px -5px rgba(15,23,42,.07);
+    padding:clamp(20px,3vw,30px);
+  }
+  .instr-split{width:1px;background:#e7ebf1;align-self:stretch;}
+  /* ---- the A/B: "causal columns" — same DOM, the paper chrome moves from the
+     wrapper onto the two halves (two equal-height panels on the well; the right
+     one reads draw → guess → verdict → doorway). Flipped by the §2-layout dock. */
+  body.demo-cols .instrument{background:none;border:0;box-shadow:none;padding:0;gap:clamp(22px,3vw,40px);}
+  body.demo-cols .instr-split{display:none;}
+  body.demo-cols .canvas-col,
+  body.demo-cols .pred{
+    background:#fff;border:1px solid #e4e8ef;border-radius:13px;
+    box-shadow:0 22px 46px -28px rgba(15,23,42,.20),0 3px 9px -5px rgba(15,23,42,.07);
+    padding:clamp(18px,2.5vw,24px);
+  }
+
+  /* canvas column: the draw surface + its Clear/Undo controls, revealed as one group */
+  .canvas-col{
+    width:min(42vw,470px);display:flex;flex-direction:column;align-items:center;gap:13px;
     opacity:0; /* scrubbed */
   }
-  .canvas-card svg{width:64%;height:auto;}
+  .canvas-card{
+    /* the drawing surface — borderless: pad and Clear/Undo share one plane,
+       drawing happens directly on the instrument's paper */
+    width:100%;aspect-ratio:4/3;background:#fff;cursor:crosshair;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .canvas-card svg{width:100%;height:100%;touch-action:none;}
+  /* idle self-demo: the pad draws its own doodle until the visitor takes over
+     (draw → hold → fade → redraw), then resumes after 15s of quiet */
+  .mock{transition:opacity .3s var(--ease-out-expo);}
+  body:not(.pad-idle) .mock{opacity:0;}
+  body.pad-idle .mock path{
+    stroke-dasharray:var(--len);
+    animation:idleDraw 5.2s cubic-bezier(.4,0,.2,1) infinite;
+  }
+  @keyframes idleDraw{
+    0%{stroke-dashoffset:var(--len);opacity:1;}
+    55%{stroke-dashoffset:0;opacity:1;}
+    74%{stroke-dashoffset:0;opacity:1;}
+    86%{stroke-dashoffset:0;opacity:0;}
+    100%{stroke-dashoffset:var(--len);opacity:0;}
+  }
+  .ink{transition:opacity .6s var(--ease-out-expo);}
+  .ink polyline{fill:none;stroke:#0a0a0a;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;}
+  .canvas-tools{display:flex;gap:14px;}
+  .tool-btn{
+    /* proper pill controls, not whisper text */
+    background:none;border:1px solid var(--border);border-radius:20px;
+    padding:5px 18px;cursor:pointer;
+    font-family:"Outfit",sans-serif;font-size:13.5px;color:var(--foreground);
+    transition:border-color .18s var(--ease-out-expo),color .18s var(--ease-out-expo),scale .18s var(--ease-out-expo);
+  }
+  .tool-btn:hover{border-color:var(--warm);color:var(--deep-ochre);scale:1.07;}
+  .tool-btn:focus-visible{outline:2px solid var(--warm);outline-offset:2px;border-radius:20px;}
 
   .pred{
-    width:min(34vw,300px);display:flex;flex-direction:column;gap:16px;
+    flex:1;min-width:260px;display:flex;flex-direction:column;gap:14px;
     opacity:0; /* scrubbed */
   }
   .bar-row .bar-top{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:6px;}
-  .bar-row .bar-top span:first-child{color:var(--muted-foreground);}
+  .bar-row .bar-top span:first-child{color:var(--foreground);}
   .bar-row .pct{font-variant-numeric:tabular-nums;}
-  .bar-track{height:8px;background:#fff;border-radius:20px;overflow:hidden;}
+  .bar-track{height:8px;background:#e7ebf1;border-radius:20px;overflow:hidden;} /* Data-mode meter track */
   .bar-fill{
     height:100%;background:var(--warm);border-radius:20px;
     transform-origin:left;transform:scaleX(0);
@@ -193,6 +308,30 @@
   body.bars-live .bar-row:nth-child(2) .bar-fill{transition-delay:calc(var(--dur)*.12);}
   body.bars-live .bar-row:nth-child(3) .bar-fill{transition-delay:calc(var(--dur)*.24);}
   .prompt{font-size:13px;color:var(--muted-foreground);margin:0;}
+  /* §2 verdict — its own block above a hairline, sized to be seen (the 👍/👎
+     is what feeds Monitoring's proxy accuracy; it earns the weight) */
+  .feedback{
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+    border-top:1px solid #e7ebf1;padding-top:14px;
+    margin-top:auto; /* the elastic joint sits ABOVE the verdict: bars top,
+                        verdict → doorway → privacy cluster at the foot */
+  }
+  .fb-q{font-size:15px;color:var(--foreground);font-weight:420;}
+  .fb-btn{
+    background:none;border:1px solid var(--border);border-radius:20px;
+    padding:6px 24px;cursor:pointer;font-family:"Outfit",sans-serif;font-size:14px;
+    color:var(--foreground);transition:border-color .18s var(--ease-out-expo),color .18s var(--ease-out-expo),scale .18s var(--ease-out-expo);
+  }
+  .fb-btn:hover{border-color:var(--warm);color:var(--deep-ochre);scale:1.07;}
+  .fb-btn:focus-visible{outline:2px solid var(--warm);outline-offset:2px;}
+  /* the doorway into Data mode — rides right under the verdict, sized as
+     the panel's true call-to-action */
+  .doorway{
+    border-top:1px solid #e7ebf1;padding-top:14px;
+    display:flex;flex-direction:column;gap:6px;align-items:flex-start;
+  }
+  .doorway .link{font-size:clamp(18px,1.8vw,21px);font-weight:380;}
+  .privacy{margin:2px 0 0;font-size:11.5px;color:var(--muted-foreground);}
 
   /* ---------- §3 layer: Behind the Scenes — rises over the settled demo ---------- */
   .scene-layer{
@@ -204,26 +343,106 @@
   .scene-title{
     font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
     font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
-    text-transform:uppercase;font-size:clamp(34px,6vw,64px);margin:0;line-height:1;
+    text-transform:uppercase;font-size:clamp(30px,5vw,54px);margin:0;line-height:1;
   }
+  /* every section header anchors where the demo's does — one spot, one scale.
+     The demo title inherits the body's 1.6 line-height (≈.3em half-leading above
+     its glyphs); these titles are line-height:1, so pad the same .3em down to
+     land the caps on the identical visual line. */
+  .sec-head{position:absolute;top:clamp(44px,7vh,64px);left:clamp(24px,5vw,72px);right:clamp(24px,5vw,72px);}
+  .sec-head .scene-title{padding-top:.3em;}
   .scene-lead{margin:14px 0 0;font-size:clamp(16px,2vw,20px);color:var(--muted-foreground);}
-  .flow{display:flex;align-items:center;flex-wrap:wrap;margin-top:clamp(30px,5vh,54px);}
-  .flow .stop{display:flex;flex-direction:column;align-items:center;gap:9px;}
-  .flow .dot{width:11px;height:11px;border-radius:50%;background:var(--foreground);}
-  .flow .lbl{font-size:12px;color:var(--muted-foreground);}
-  .flow .conn{display:flex;align-items:center;color:var(--foreground);margin:0 6px 26px;}
   .scene-link{margin:clamp(26px,4vh,40px) 0 0;font-size:15px;}
   .link{
+    display:inline-block;transform-origin:left center;
     color:var(--deep-ochre);text-decoration:none;
     border-bottom:1px solid rgba(150,96,10,.32);
-    transition:color .3s var(--ease-out-expo),border-color .3s var(--ease-out-expo);
+    transition:color .18s var(--ease-out-expo),border-color .18s var(--ease-out-expo),scale .18s var(--ease-out-expo);
   }
-  .link:hover{color:var(--warm);border-bottom-color:var(--warm);}
+  .link:hover{color:var(--warm);border-bottom-color:var(--warm);scale:1.06;}
+  /* emphasised teaser CTA — the primary "go deeper" link of its section. Prominence
+     comes from a gentle size bump at a LIGHT weight (matching the demo's doorway
+     link), not bold/heavy underline — so it stays in the editorial register */
+  .link.cta-strong{font-size:clamp(17px,1.7vw,20px);font-weight:380;}
+  /* the Journey CTA sits on the line's end — keep the bigger label on one line */
+  #jLinkWrap{width:auto;white-space:nowrap;}
 
   /* §3 reveal — SCRUBBED like the demo: title + lead first, then the pipeline
      draws itself left-to-right under the scroll, then the link. Opacity and
      translate are driven per-frame by the scroll script. */
-  .scene-title,.scene-lead,.scene-link,.flow>*{opacity:0;}
+  .scene-title,.scene-lead,.scene-link{opacity:0;}
+
+  /* ---------- §3's ring: the four planes as a closed loop (see arch-sketches.html) ---------- */
+  .arch-wrap{display:flex;justify-content:center;width:100%;}
+  .arch-ring{position:relative;width:min(560px,58vh,86vw);aspect-ratio:1;}
+  .ring-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;color:var(--foreground);}
+  /* the line draws itself round under the scroll — dasharray is the full circumference */
+  #ringPath{stroke-dasharray:943;stroke-dashoffset:943;}
+  .chev,.ring-in{opacity:0;}
+  .you-note{
+    position:absolute;left:50%;top:calc(12.5% - 88px);transform:translateX(-50%);
+    text-align:center;display:flex;flex-direction:column;line-height:1.25;opacity:0;
+  }
+  .you-note .yn-a{font-size:14px;font-weight:500;}
+  .you-note .yn-b{font-size:11.5px;color:var(--muted-foreground);}
+  /* each stop sits on the ring; its plate is what breaks the line */
+  .arch-ring .lab{position:absolute;transform:translate(-50%,-50%);text-align:center;opacity:0;}
+  .arch-ring .lab.serve{left:50%;top:12.5%;}
+  .arch-ring .lab.mon{left:87.5%;top:50%;}
+  .arch-ring .lab.cicd{left:50%;top:87.5%;transform:translate(-50%,calc(-50% - 14px));}
+  .arch-ring .lab.deploy{left:12.5%;top:50%;}
+  .dname{
+    --fs:clamp(16px,2.1vw,23px);
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 88;font-weight:500;letter-spacing:-.012em;
+    font-size:var(--fs);line-height:1;text-transform:uppercase;white-space:nowrap;
+    height:30px;display:flex;align-items:center;justify-content:center;
+    background:var(--wash-sage);padding:2px 12px;
+    transition:font-size .17s var(--ease-hover),color .17s var(--ease-hover),
+               padding .17s var(--ease-hover);
+  }
+  /* the pop is a real font-size change — transform:scale() only stretches a raster of
+     the glyphs and goes soft. The plate gives back padding as the type gains width, so
+     its outer edge holds still and stops eating the ring line. */
+  .dname.two{height:56px;flex-direction:column;gap:2px;padding:2px 16px;}
+  .dname:hover{font-size:calc(var(--fs)*1.09);color:var(--warm);padding:2px 6px;}
+  .dname.two:hover{padding:2px 6px;}
+  .bmrow{display:flex;align-items:center;justify-content:center;gap:10px;
+    margin-top:0;padding:9px 8px 3px;background:var(--wash-sage);}
+  .bm{position:relative;color:var(--bc);line-height:0;cursor:default;}
+  .bm.drawn{color:var(--foreground);}
+  .bm svg{width:20px;height:20px;display:block;
+    transition:transform .17s var(--ease-hover),filter .17s var(--ease-hover);}
+  .bm:hover svg,.bm:focus-visible svg{transform:scale(1.24);filter:drop-shadow(0 5px 9px rgba(10,10,10,.22));}
+  .bm::after{
+    content:attr(data-name);position:absolute;left:50%;top:calc(100% + 9px);
+    transform:translateX(-50%) translateY(-3px);
+    background:var(--foreground);color:#fff;font-family:"Outfit",sans-serif;font-size:10.5px;
+    font-weight:350;letter-spacing:.02em;line-height:1;padding:6px 9px;border-radius:5px;
+    white-space:nowrap;opacity:0;pointer-events:none;z-index:5;
+    transition:opacity .17s var(--ease-hover),transform .17s var(--ease-hover);
+  }
+  .bm::before{
+    content:"";position:absolute;left:50%;top:calc(100% + 3px);transform:translateX(-50%);
+    border:5px solid transparent;border-bottom-color:var(--foreground);opacity:0;
+    pointer-events:none;z-index:5;transition:opacity .17s var(--ease-hover);
+  }
+  .bm:hover::after,.bm:focus-visible::after{opacity:1;transform:translateX(-50%);}
+  .bm:hover::before,.bm:focus-visible::before{opacity:1;}
+  .bm:focus-visible{outline:2px solid var(--warm);outline-offset:5px;border-radius:4px;}
+  /* the loop draws a hole; the invitation goes in it, up in the top half so the
+     two-line stop below has the lower half to grow into */
+  .ring-mid{position:absolute;left:0;right:0;top:31%;text-align:center;white-space:nowrap;}
+  .ring-mid .scene-link{margin:0;}
+  /* this link pops by size, not by scale — same reason as the stop names */
+  .ring-mid .link{
+    --fs:clamp(15px,1.6vw,19px);font-size:var(--fs);transform-origin:center;
+    transition:color .17s var(--ease-hover),border-color .17s var(--ease-hover),
+               font-size .17s var(--ease-hover);
+  }
+  .ring-mid .link .ar{display:inline-block;transition:transform .17s var(--ease-hover);}
+  .ring-mid .link:hover{scale:1;font-size:calc(var(--fs)*1.07);}
+  .ring-mid .link:hover .ar{transform:translateX(5px);}
 
   /* ---------- §4 layer: The Journey — rises over the diagram ---------- */
   .journey-layer{
@@ -232,12 +451,19 @@
     display:flex;align-items:center;padding:clamp(24px,5vw,72px);
   }
   .j-inner{max-width:820px;margin:0 auto;width:100%;}
-  .j-path-wrap{position:relative;margin-top:clamp(20px,3.5vh,36px);max-width:760px;}
+  .j-path-wrap{position:relative;margin-top:clamp(0px,1vh,10px);max-width:760px;}
   .j-path-wrap svg{width:100%;height:auto;display:block;}
   .j-path{fill:none;stroke:var(--foreground);stroke-width:1.4;stroke-linecap:round;}
+  /* the hover "lift" overlay — a short thicker stretch that rises off the page */
+  .j-lens{fill:none;stroke:var(--foreground);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;}
+  .j-lens-ring{fill:none;stroke:var(--foreground);stroke-width:1;opacity:.2;pointer-events:none;}
   .j-dot{fill:var(--foreground);opacity:0;}
-  .j-end{fill:var(--foreground);opacity:0;}
+  .j-end{fill:none;stroke:var(--foreground);stroke-width:1.4;stroke-linecap:round;opacity:0;}
   .j-entry{position:absolute;width:min(240px,34%);opacity:0;}
+  .j-entry.on-left,.j-cta.on-left{text-align:right;transform-origin:right center;}
+  .j-entry.on-right,.j-cta.on-right{text-align:left;transform-origin:left center;}
+  /* the "Read the journey" CTA now sits on the line's end, positioned like an entry */
+  .j-cta{position:absolute;width:min(240px,34%);margin:0;}
   .j-entry .d{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted-foreground);font-weight:500;}
   .j-entry h4{
     font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
@@ -261,12 +487,22 @@
   .s-line.l4{margin-left:38%;}
   /* §5 ends on the skills link — the closing button + footer live on the bookend */
 
-  /* ---------- the bookend: a stand-alone white page, like the Hero ---------- */
+  /* with headers pulled to the top-left, bias the centered content down so it
+     clears them on short viewports */
+  .skills-layer{padding-top:clamp(120px,17vh,170px);}
+  /* §3 and §4 sit higher: their diagrams want the vertical room more than the
+     header does (§3 carries a title only; §4 trims its path's own top slack) */
+  .journey-layer{padding-top:clamp(84px,10vh,120px);}
+  /* §3 carries a title only — no lead — so its content sits higher */
+  .scene-layer{padding-top:clamp(84px,10vh,120px);}
+
+  /* ---------- §6 layer: the Contact bookend — a white page like the Hero,
+       now a rising layer so Skills → Contact gets the same roll-over ---------- */
   .after{
-    background:#fff;padding:clamp(24px,5vw,72px);
-    min-height:100vh;display:flex;flex-direction:column;
+    position:absolute;inset:0;z-index:6;background:#fff;
+    transform:translate3d(0,100%,0);
+    padding:clamp(24px,5vw,72px);display:flex;flex-direction:column;
     align-items:center;justify-content:center;text-align:center;
-    scroll-snap-align:start;scroll-snap-stop:always;
   }
   .after h2{font-size:clamp(44px,10vw,110px);margin:0;}
   .after .copied{
@@ -279,14 +515,23 @@
   }
   .after .b-foot a,.after .b-foot button{
     background:none;border:0;padding:0;cursor:pointer;line-height:0;
-    color:var(--foreground);transition:color .3s var(--ease-out-expo);
+    color:var(--foreground);transition:color .18s var(--ease-out-expo),scale .18s var(--ease-out-expo);
   }
-  .after .b-foot a:hover,.after .b-foot button:hover{color:var(--warm);}
+  .after .b-foot a:hover,.after .b-foot button:hover{color:var(--warm);scale:1.12;}
   .after .b-foot a:focus-visible,.after .b-foot button:focus-visible{outline:2px solid var(--warm);outline-offset:3px;border-radius:3px;}
   .after .note{
     margin-top:clamp(40px,8vh,80px);font-size:12.5px;
     color:var(--muted-foreground);max-width:60ch;
   }
+
+  /* ---------- §2 layout dock: instrument ↔ causal columns ---------- */
+  .layout-dock{
+    position:fixed;left:18px;bottom:18px;z-index:40;
+    background:#fff;border:1px solid var(--border);border-radius:5px;
+    padding:10px 12px;display:flex;align-items:center;gap:8px;
+    box-shadow:0 8px 24px -16px rgba(10,10,10,.4);
+  }
+  .layout-dock .micro{margin-right:2px;}
 
   /* ---------- speed dock (the tester, from the user's POV) ---------- */
   .speed-dock{
@@ -306,10 +551,85 @@
   .chip-btn:focus-visible{outline:2px solid var(--warm);outline-offset:2px;}
 
   @media(max-width:700px){
-    .panel-layer{flex-direction:column;gap:20px;padding-top:clamp(90px,16vh,130px);}
-    .canvas-card{width:min(84vw,420px);}
-    .pred{width:min(84vw,420px);}
-    .demo-title{top:clamp(48px,7vh,64px);left:24px;font-size:clamp(26px,7vw,34px);}
+    /* the two side stops sit OUTSIDE the circle, so on a phone the ring has to
+       shrink to make room for them rather than the other way round */
+    .arch-ring{width:min(62vw,44vh);}
+    .dname{--fs:13px;height:22px;padding:2px 7px;}
+    .dname.two{height:40px;padding:2px 9px;}
+    .dname:hover,.dname.two:hover{padding:2px 4px;}
+    .bm svg{width:15px;height:15px;}
+    .bmrow{gap:7px;padding:6px 6px 3px;}
+    .ring-mid .link{--fs:12.5px;}
+    .you-note{top:calc(12.5% - 68px);}
+    /* §2 stacks. align-items:center was clipping BOTH ends once the column grew
+       past the viewport (measured 703px of instrument in 568px of screen: the pad
+       ran up over the title by 7253px² and the doorway fell into the hidden
+       overflow — .viewport is overflow:hidden, so that content was unreachable,
+       not merely below the fold). Start-aligned, the overflow can only ever go
+       one way, and the trims below take the column back under the fold. */
+    .panel-layer{
+      flex-direction:column;align-items:center;justify-content:flex-start;
+      gap:20px;padding-top:clamp(90px,16vh,130px);
+    }
+    .instrument{
+      flex-direction:column;gap:14px;max-width:min(92vw,440px);
+      margin-top:clamp(14px,2.5vh,28px);padding:16px;
+    }
+    .instr-split{width:auto;height:1px;align-self:auto;}
+    .canvas-col{width:100%;gap:10px;}
+    /* the pad's 4/3 ratio is the single biggest block on a phone — at 390 wide it
+       alone was 225px. Height-capped instead, so it scales with the SCREEN rather
+       than the width; a doodle still has room, the column stops growing. */
+    .canvas-card{aspect-ratio:auto;height:clamp(118px,21vh,190px);}
+    .pred{gap:10px;min-width:0;}
+    .bar-row .bar-top{margin-bottom:4px;}
+    /* the full 15-class enumeration is three lines of body text on a phone; the
+       count is the point, the roster is the detail */
+    .prompt .class-list{display:none;}
+    .privacy .privacy-tail{display:none;}
+    .doorway{padding-top:10px;gap:3px;}
+    .doorway .link{font-size:16px;}
+    .feedback{padding-top:10px;gap:10px;}
+    .demo-title,.sec-head{top:clamp(48px,7vh,64px);left:24px;}
+    .demo-title,.scene-title{font-size:clamp(26px,7vw,34px);}
+
+    /* §4: with the line pushed to the left edge and nothing hanging off its far
+       side, every entry gets the rest of the width instead of a ~120px column.
+       (min-width:0 so the CTA's nowrap can't blow the box out again.) */
+    .j-entry,.j-cta{width:calc(76% - 16px);min-width:0;}
+    .j-entry.on-right,.j-cta.on-right{text-align:left;}
+    /* §2's ↓ cue floats over the panel, and a full-width stacked instrument runs
+       straight under it — measured on the feedback row at 320/360/375 and on the
+       doorway at every width from 360 to 430. On a phone it stops floating and
+       becomes the last item in the column, so it can't collide by construction.
+       (§3–§5 keep the float; their layers are short enough to clear it.) */
+    .demo-arrow-wrap{position:static;transform:none;}
+    .next-cue{bottom:14px;}
+    .arrow-btn svg{width:24px;height:38px;}
+
+    /* Below 390 the instrument cannot fit one screen no matter how it is trimmed:
+       at 320×568 the fixed text alone — three bars, prompt, verdict, doorway,
+       privacy — outruns the 477px the viewport has left under the title, before
+       the pad gets a pixel. So the smallest phones get a short scroll INSIDE the
+       panel rather than content parked in unreachable overflow. Scroll chaining is
+       left on (no overscroll-behavior) so reaching the end carries straight on
+       into the Home scroll. 390+ never scrolls: it already fits. */
+    @media(max-width:389px){
+      .panel-layer{overflow-y:auto;}
+    }
+  }
+
+  /* Below ~430px the ring's waist is too narrow to hold the invitation. The two
+     side stops hang half inside the circle, and the link is a fixed one-liner, so
+     the three meet: measured at 320px the link overlapped Deploy by 366px² and
+     Monitoring by 481px² — it ran straight through both names. The loop itself
+     still reads at these widths (it's the stops that shrink, not the idea), so
+     the ring stays a ring and the LINK steps out of the hole to sit under it. */
+  @media(max-width:430px){
+    .ring-mid{top:calc(100% + 16px);}
+    /* out of the hole it no longer has to fit a chord, so it takes the section's
+       own link size back */
+    .ring-mid .link{--fs:clamp(14px,4vw,17px);}
   }
 
   @media (prefers-reduced-motion:reduce){
@@ -336,10 +656,13 @@
   </div>
   <nav>
     <a class="menu-link" href="#" id="mHome">Home</a>
-    <a class="menu-link" href="#" onclick="return false">Journey</a>
-    <a class="menu-link" href="#" onclick="return false">Architecture</a>
-    <a class="menu-link" href="#" onclick="return false">Skills</a>
-    <a class="menu-link" href="#" onclick="return false">About</a>
+    <a class="menu-link" href="data-prototype-white.html#quality" title="Data mode lives in the data prototype">Quality</a>
+    <a class="menu-link" href="data-prototype-white.html#monitoring" title="Data mode lives in the data prototype">Monitoring</a>
+    <a class="menu-link" href="data-prototype-white.html#performance" title="Data mode lives in the data prototype">Performance</a>
+    <a class="menu-link" href="sections-prototype.html#architecture" title="Story mode lives in the sections prototype">Architecture</a>
+    <a class="menu-link" href="sections-prototype.html#journey" title="Story mode lives in the sections prototype">Journey</a>
+    <a class="menu-link" href="sections-prototype.html#skills" title="Story mode lives in the sections prototype">Skills</a>
+    <a class="menu-link" href="sections-prototype.html#about" title="About lives in the sections prototype">About</a>
     <a class="menu-link" href="#" id="mContact">Contact</a>
   </nav>
 </aside>
@@ -347,34 +670,60 @@
 <div class="runway" id="runway">
   <!-- section floors: positioned by the script at each resting progress -->
   <div class="floor" data-p="0"></div>
-  <div class="floor" data-p=".24"></div>
-  <div class="floor" data-p=".55"></div>
-  <div class="floor" data-p=".81"></div>
+  <div class="floor" data-p=".2"></div>
+  <div class="floor" data-p=".4"></div>
+  <div class="floor" data-p=".6"></div>
+  <div class="floor" data-p=".8"></div>
   <div class="floor" data-p="1"></div>
   <div class="viewport">
     <div class="bg-wash" id="bgWash"></div>
 
     <div class="hero-layer" id="heroLayer">
       <h1 class="display hero-name">Monish Kamwal</h1>
-      <button class="arrow-btn" id="arrowBtn" aria-label="Scroll to the live demo">
-        <svg viewBox="0 0 34 54" fill="none" stroke="currentColor" stroke-width="1.4">
-          <path d="M17 2v46M6 37l11 11 11-11" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
+      <p class="hero-sub">MLOps Project &amp; Portfolio</p>
+      <div class="hero-arrow-wrap">
+        <button class="arrow-btn" id="arrowBtn" aria-label="Scroll to the live demo">
+          <svg viewBox="0 0 34 54" fill="none" stroke="currentColor" stroke-width="1.4">
+            <path d="M17 2v46M6 37l11 11 11-11" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
     </div>
 
     <div class="panel-layer" id="panelLayer">
-      <div class="demo-title" id="demoTitle">Draw something.</div>
-      <div class="canvas-card" id="canvasCard">
-        <svg viewBox="0 0 120 80" fill="none" stroke="#0a0a0a" stroke-width="1.6">
-          <path d="M22 56 C 26 26, 54 20, 60 40 C 64 53, 44 61, 38 50 M70 46 C 74 28, 96 27, 99 42 C 101 55, 81 59, 77 48" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <div class="pred" id="pred">
-        <div class="bar-row"><div class="bar-top"><span>cat</span><span class="pct">87%</span></div><div class="bar-track"><div class="bar-fill" style="--w:.87"></div></div></div>
-        <div class="bar-row"><div class="bar-top"><span>dog</span><span class="pct">9%</span></div><div class="bar-track"><div class="bar-fill soft" style="--w:.09"></div></div></div>
-        <div class="bar-row"><div class="bar-top"><span>rabbit</span><span class="pct">4%</span></div><div class="bar-track"><div class="bar-fill soft" style="--w:.04"></div></div></div>
-        <p class="prompt">try: cat, bicycle, umbrella…</p>
+      <div class="demo-title" id="demoTitle">Draw Something</div>
+      <div class="instrument">
+        <div class="canvas-col" id="canvasCol">
+          <div class="canvas-card">
+            <svg id="padSvg" viewBox="0 0 120 90" preserveAspectRatio="xMidYMid meet" fill="none" stroke="#0a0a0a" stroke-width="1.6">
+              <g class="mock" id="padMock" transform="translate(18 17) scale(.7)">
+                <path d="M40 30 L34 14 L48 24 C 55 21, 65 21, 72 24 L86 14 L80 30 C 88 37, 90 52, 80 62 C 70 71, 50 71, 40 62 C 30 52, 32 37, 40 30 Z M50 44 a1.8 1.8 0 1 0 0.1 0 M70 44 a1.8 1.8 0 1 0 0.1 0 M20 50 L34 52 M20 60 L34 57 M100 50 L86 52 M100 60 L86 57" stroke-linecap="round" stroke-linejoin="round"/>
+              </g>
+              <g class="ink" id="padInk"></g>
+            </svg>
+          </div>
+          <div class="canvas-tools">
+            <button class="tool-btn" type="button" id="padClear">Clear</button>
+            <button class="tool-btn" type="button" id="padUndo">Undo</button>
+          </div>
+        </div>
+        <div class="instr-split" aria-hidden="true"></div>
+        <div class="pred" id="pred">
+          <div class="bar-row"><div class="bar-top"><span>Cat</span><span class="pct">87%</span></div><div class="bar-track"><div class="bar-fill" style="--w:.87"></div></div></div>
+          <div class="bar-row"><div class="bar-top"><span>Dog</span><span class="pct">9%</span></div><div class="bar-track"><div class="bar-fill soft" style="--w:.09"></div></div></div>
+          <div class="bar-row"><div class="bar-top"><span>Bird</span><span class="pct">4%</span></div><div class="bar-track"><div class="bar-fill soft" style="--w:.04"></div></div></div>
+          <p class="prompt">It knows 15 doodles<span class="class-list"> — Airplane, Apple, Banana, Bicycle, Bird, Car, Cat, Clock, Dog, Face, Fish, House, Star, Tree, Umbrella</span>.</p>
+          <div class="feedback">
+            <span class="fb-q">Did I get it?</span>
+            <button class="fb-btn" type="button" onclick="return false">Yes</button>
+            <button class="fb-btn" type="button" onclick="return false">No</button>
+          </div>
+          <div class="doorway">
+            <span class="micro">every guess is scored</span>
+            <a class="link" href="data-prototype-white.html">See how the model performs →</a>
+          </div>
+          <p class="privacy">Anonymous — <span class="privacy-tail">your drawing + verdict </span>may help train the model.</p>
+        </div>
       </div>
       <div class="demo-arrow-wrap" id="demoArrowWrap">
         <button class="arrow-btn" id="demoArrow" aria-label="Continue to Behind the Scenes">
@@ -387,31 +736,57 @@
 
     <div class="scene-layer" id="sceneLayer">
       <div class="scene-inner">
-        <h2 class="scene-title display">Behind the Scenes</h2>
-        <p class="scene-lead">From strokes to prediction</p>
-        <div class="flow">
-          <div class="stop"><div class="dot"></div><div class="lbl">draw</div></div>
-          <div class="conn"><svg width="52" height="8" viewBox="0 0 52 8" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M0 4h46M42 1l5 3-5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-          <div class="stop"><div class="dot"></div><div class="lbl">preprocess</div></div>
-          <div class="conn"><svg width="52" height="8" viewBox="0 0 52 8" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M0 4h46M42 1l5 3-5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-          <div class="stop"><div class="dot"></div><div class="lbl">model</div></div>
-          <div class="conn"><svg width="52" height="8" viewBox="0 0 52 8" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M0 4h46M42 1l5 3-5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-          <div class="stop"><div class="dot"></div><div class="lbl">serve</div></div>
-          <div class="conn"><svg width="52" height="8" viewBox="0 0 52 8" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M0 4h46M42 1l5 3-5 3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-          <div class="stop"><div class="dot"></div><div class="lbl">monitor</div></div>
+        <div class="sec-head">
+          <h2 class="scene-title display">Behind the Scenes</h2>
+          <p class="scene-lead">From strokes to prediction</p>
         </div>
-        <p class="scene-link"><a class="link" href="#" onclick="return false">Explore the full architecture →</a></p>
+        <div class="arch-wrap">
+          <div class="arch-ring" id="archRing">
+            <div class="you-note"><span class="yn-a">You draw</span><span class="yn-b">canvas · yes / no</span></div>
+            <svg class="ring-svg" viewBox="0 0 400 400" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+              <path id="ringPath" d="M200 50 A150 150 0 0 1 200 350 A150 150 0 0 1 200 50"/>
+              <g stroke-linecap="round" stroke-linejoin="round">
+                <path class="chev" d="M-5-5 0 0-5 5"/>
+                <path class="chev" d="M-5-5 0 0-5 5"/>
+                <path class="chev" d="M-5-5 0 0-5 5"/>
+                <path class="chev" d="M-5-5 0 0-5 5"/>
+              </g>
+              <path class="ring-in" d="M200 10v30" stroke-linecap="round"/>
+              <path class="ring-in" d="M195 33 200 41 205 33" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div class="ring-mid">
+              <p class="scene-link"><a class="link cta-strong" href="sections-prototype.html#architecture">Explore the full architecture <span class="ar">→</span></a></p>
+            </div>
+            <div class="lab serve" id="labServe"><div class="dname">Serving</div><span class="bmrow"><span class="bm" style="--bc:#FF9900" data-name="AWS Lambda" tabindex="0" role="img" aria-label="AWS Lambda"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.9855 0c-.2941.0031-.5335.2466-.534.5482L4.446 5.456c0 .1451.06.2835.159.3891a.5322.5322 0 0 0 .3806.1562h3.4282l8.197 17.6805a.5365.5365 0 0 0 .4885.3181h5.811c.2969 0 .5426-.2448.5426-.5482V18.544c0-.3035-.2392-.5482-.5425-.5482h-2.0138L12.7394.3153C12.647.124 12.4564 0 12.2452 0h-7.254Zm.5397 1.0907h6.3678l8.16 17.6804a.5365.5365 0 0 0 .4885.3181h1.8178v3.8173H17.437L9.2402 5.226a.536.536 0 0 0-.4885-.318H5.5223Zm2.0137 8.2366c-.2098.0011-.3937.1193-.4857.3096L.6002 23.2133a.5506.5506 0 0 0 .0313.5282.5334.5334 0 0 0 .4544.25h6.169a.5468.5468 0 0 0 .497-.3096l3.38-7.166a.5405.5405 0 0 0-.0029-.4686L8.036 9.637a.5468.5468 0 0 0-.4942-.3096Zm.0057 1.8036 2.488 5.1522-3.1214 6.6206H1.9465Z"/></svg></span><span class="bm" style="--bc:#009688" data-name="FastAPI" tabindex="0" role="img" aria-label="FastAPI"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .0387C5.3729.0384.0003 5.3931 0 11.9988c-.001 6.6066 5.372 11.9628 12 11.9625 6.628.0003 12.001-5.3559 12-11.9625-.0003-6.6057-5.3729-11.9604-12-11.96m-.829 5.4153h7.55l-7.5805 5.3284h5.1828L5.279 18.5436q2.9466-6.5444 5.892-13.0896"/></svg></span><span class="bm" style="--bc:#005CED" data-name="ONNX" tabindex="0" role="img" aria-label="ONNX"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.0325 11.2963c-.0503 0-.1006 0-.1508.0126l-4.021-7.4387c.0754-.1383.1131-.289.1131-.4524 0-.5403-.4398-.9675-.9675-.9675-.2765 0-.5278.113-.7037.3015L9.286 1.156C9.2357.6785 8.821.3016 8.3184.3016c-.5277 0-.9675.4398-.9675.9675 0 .1634.0377.3141.113.4524l-6.245 8.9591c-.0753-.0251-.1633-.0377-.2513-.0377-.5403 0-.9675.4398-.9675.9676 0 .5403.4398.9675.9675.9675h.0377l3.3676 8.3309c-.0503.1257-.088.2639-.088.402 0 .5404.4398.9676.9676.9676.2764 0 .5277-.113.7036-.3015l10.1152.9926c.1005.4273.49.7288.9424.7288.5403 0 .9676-.4398.9676-.9675 0-.2388-.088-.465-.2262-.6283l5.1141-8.8712c.0503.0126.1005.0126.1634.0126.5403 0 .9675-.4398.9675-.9676 0-.5403-.4272-.98-.9675-.98zM17.2272 4.021c.1131.1508.2765.264.4524.3267l-1.533 11.5728c-.1005.0252-.1885.0503-.2764.1005L7.4513 8.708c.0251-.0754.0377-.1634.0377-.2514 0-.0628-.0126-.1256-.0126-.1884zm4.8754 8.5068l-5.177 3.556a1.105 1.105 0 0 0-.1256-.0753L18.3455 4.335h.0126l3.9456 7.288c-.1508.1759-.2388.3895-.2388.6408 0 .1005.0126.1885.0377.2638zM6.3832 7.5016c-.4649.0754-.8293.4775-.8293.955v.0628l-3.4555 2.0481 5.378-7.7026zm.3519 1.91c.1256-.0252.2513-.088.3518-.1634l8.356 7.2628c-.0377.113-.0628.2262-.0628.3518v.0503l-9.311 3.845c-.1382-.201-.3518-.3518-.6031-.402zm8.8963 8.1172c.1257.1382.3016.2513.5026.289l.465 4.046c-.201.1006-.3519.264-.4524.4524l-9.8136-.955zm1.1435.2136c.3267-.1633.5403-.49.5403-.867 0-.088-.0126-.1634-.0377-.2513l4.7372-3.2545-4.8 8.331zm.2513-14.3497l-9.889 4.31-.1131-.0755 1.2565-5.3906h.0377c.3393 0 .6409-.1759.8168-.4397l7.891 1.5706zM1.935 11.6105c0-.0629-.0126-.1257-.0126-.1885l3.9079-2.2995c.0754.0754.1633.1508.2638.201L4.8252 20.243l-3.2043-7.9036c.1885-.176.3142-.4398.3142-.7288Z"/></svg></span></span></div>
+            <div class="lab mon" id="labMon"><div class="dname">Monitoring</div><span class="bmrow"><span class="bm drawn" data-name="Evidently — no logo published" tabindex="0" role="img" aria-label="Evidently"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 20h18"/><path d="M6 20v-6M10 20v-10M14 20v-4M18 20v-8"/><path d="M4.5 6.5 8 3l3.5 3.5"/><path d="M8 3v6"/></svg></span><span class="bm" style="--bc:#E6522C" data-name="Prometheus" tabindex="0" role="img" aria-label="Prometheus"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.373 0 0 5.372 0 12c0 6.627 5.373 12 12 12s12-5.373 12-12c0-6.628-5.373-12-12-12zm0 22.46c-1.885 0-3.414-1.26-3.414-2.814h6.828c0 1.553-1.528 2.813-3.414 2.813zm5.64-3.745H6.36v-2.046h11.28v2.046zm-.04-3.098H6.391c-.037-.043-.075-.086-.111-.13-1.155-1.401-1.427-2.133-1.69-2.879-.005-.025 1.4.287 2.395.511 0 0 .513.119 1.262.255-.72-.843-1.147-1.915-1.147-3.01 0-2.406 1.845-4.508 1.18-6.207.648.053 1.34 1.367 1.387 3.422.689-.951.977-2.69.977-3.755 0-1.103.727-2.385 1.454-2.429-.648 1.069.168 1.984.894 4.256.272.854.237 2.29.447 3.201.07-1.892.395-4.652 1.595-5.605-.529 1.2.079 2.702.494 3.424.671 1.164 1.078 2.047 1.078 3.716a4.642 4.642 0 01-1.11 2.996c.792-.149 1.34-.283 1.34-.283l2.573-.502s-.374 1.538-1.81 3.019z"/></svg></span><span class="bm" style="--bc:#F46800" data-name="Grafana" tabindex="0" role="img" aria-label="Grafana"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.02 10.59a8.578 8.578 0 0 0-.862-3.034 8.911 8.911 0 0 0-1.789-2.445c.337-1.342-.413-2.505-.413-2.505-1.292-.08-2.113.4-2.416.62-.052-.02-.102-.044-.154-.064-.22-.089-.446-.172-.677-.247-.231-.073-.47-.14-.711-.197a9.867 9.867 0 0 0-.875-.161C14.557.753 12.94 0 12.94 0c-1.804 1.145-2.147 2.744-2.147 2.744l-.018.093c-.098.029-.2.057-.298.088-.138.042-.275.094-.413.143-.138.055-.275.107-.41.166a8.869 8.869 0 0 0-1.557.87l-.063-.029c-2.497-.955-4.716.195-4.716.195-.203 2.658.996 4.33 1.235 4.636a11.608 11.608 0 0 0-.607 2.635C1.636 12.677.953 15.014.953 15.014c1.926 2.214 4.171 2.351 4.171 2.351.003-.002.006-.002.006-.005.285.509.615.994.986 1.446.156.19.32.371.488.548-.704 2.009.099 3.68.099 3.68 2.144.08 3.553-.937 3.849-1.173a9.784 9.784 0 0 0 3.164.501h.08l.055-.003.107-.002.103-.005.003.002c1.01 1.44 2.788 1.646 2.788 1.646 1.264-1.332 1.337-2.653 1.337-2.94v-.058c0-.02-.003-.039-.003-.06.265-.187.52-.387.758-.6a7.875 7.875 0 0 0 1.415-1.7c1.43.083 2.437-.885 2.437-.885-.236-1.49-1.085-2.216-1.264-2.354l-.018-.013-.016-.013a.217.217 0 0 1-.031-.02c.008-.092.016-.18.02-.27.011-.162.016-.323.016-.48v-.253l-.005-.098-.008-.135a1.891 1.891 0 0 0-.01-.13c-.003-.042-.008-.083-.013-.125l-.016-.124-.018-.122a6.215 6.215 0 0 0-2.032-3.73 6.015 6.015 0 0 0-3.222-1.46 6.292 6.292 0 0 0-.85-.048l-.107.002h-.063l-.044.003-.104.008a4.777 4.777 0 0 0-3.335 1.695c-.332.4-.592.84-.768 1.297a4.594 4.594 0 0 0-.312 1.817l.003.091c.005.055.007.11.013.164a3.615 3.615 0 0 0 .698 1.82 3.53 3.53 0 0 0 1.827 1.282c.33.098.66.14.971.137.039 0 .078 0 .114-.002l.063-.003c.02 0 .041-.003.062-.003.034-.002.065-.007.099-.01.007 0 .018-.003.028-.003l.031-.005.06-.008a1.18 1.18 0 0 0 .112-.02c.036-.008.072-.013.109-.024a2.634 2.634 0 0 0 .914-.415c.028-.02.056-.041.085-.065a.248.248 0 0 0 .039-.35.244.244 0 0 0-.309-.06l-.078.042c-.09.044-.184.083-.283.116a2.476 2.476 0 0 1-.475.096c-.028.003-.054.006-.083.006l-.083.002c-.026 0-.054 0-.08-.002l-.102-.006h-.012l-.024.006c-.016-.003-.031-.003-.044-.006-.031-.002-.06-.007-.091-.01a2.59 2.59 0 0 1-.724-.213 2.557 2.557 0 0 1-.667-.438 2.52 2.52 0 0 1-.805-1.475 2.306 2.306 0 0 1-.029-.444l.006-.122v-.023l.002-.031c.003-.021.003-.04.005-.06a3.163 3.163 0 0 1 1.352-2.29 3.12 3.12 0 0 1 .937-.43 2.946 2.946 0 0 1 .776-.101h.06l.07.002.045.003h.026l.07.005a4.041 4.041 0 0 1 1.635.49 3.94 3.94 0 0 1 1.602 1.662 3.77 3.77 0 0 1 .397 1.414l.005.076.003.075c.002.026.002.05.002.075 0 .024.003.052 0 .07v.065l-.002.073-.008.174a6.195 6.195 0 0 1-.08.639 5.1 5.1 0 0 1-.267.927 5.31 5.31 0 0 1-.624 1.13 5.052 5.052 0 0 1-3.237 2.014 4.82 4.82 0 0 1-.649.066l-.039.003h-.287a6.607 6.607 0 0 1-1.716-.265 6.776 6.776 0 0 1-3.4-2.274 6.75 6.75 0 0 1-.746-1.15 6.616 6.616 0 0 1-.714-2.596l-.005-.083-.002-.02v-.056l-.003-.073v-.096l-.003-.104v-.07l.003-.163c.008-.22.026-.45.054-.678a8.707 8.707 0 0 1 .28-1.355c.128-.444.286-.872.473-1.277a7.04 7.04 0 0 1 1.456-2.1 5.925 5.925 0 0 1 .953-.763c.169-.111.343-.213.524-.306.089-.05.182-.091.273-.135.047-.02.093-.042.138-.062a7.177 7.177 0 0 1 .714-.267l.145-.045c.049-.015.098-.026.148-.041.098-.029.197-.052.296-.076.049-.013.1-.02.15-.033l.15-.032.151-.028.076-.013.075-.01.153-.024c.057-.01.114-.013.171-.023l.169-.021c.036-.003.073-.008.106-.01l.073-.008.036-.003.042-.002c.057-.003.114-.008.171-.01l.086-.006h.023l.037-.003.145-.007a7.999 7.999 0 0 1 1.708.125 7.917 7.917 0 0 1 2.048.68 8.253 8.253 0 0 1 1.672 1.09l.09.077.089.078c.06.052.114.107.171.159.057.052.112.106.166.16.052.055.107.107.159.164a8.671 8.671 0 0 1 1.41 1.978c.012.026.028.052.04.078l.04.078.075.156c.023.051.05.1.07.153l.065.15a8.848 8.848 0 0 1 .45 1.34.19.19 0 0 0 .201.142.186.186 0 0 0 .172-.184c.01-.246.002-.532-.024-.856z"/></svg></span><span class="bm" style="--bc:#569A31" data-name="Amazon S3" tabindex="0" role="img" aria-label="Amazon S3"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.913 13.147l.12-.895c.947.576 1.258.922 1.354 1.071-.16.031-.562.046-1.474-.176zm-2.174 7.988a.547.547 0 0 0-.005.073c0 .084-.207.405-1.124.768a10.28 10.28 0 0 1-1.438.432c-1.405.325-3.128.504-4.853.504-4.612 0-7.412-1.184-7.412-1.704a.547.547 0 0 0-.005-.073L1.81 5.602c.135.078.28.154.432.227.042.02.086.038.128.057.134.062.272.122.417.18l.179.069c.154.058.314.114.478.168.043.013.084.029.13.043.207.065.423.127.646.187l.176.044c.175.044.353.087.534.127a23.414 23.414 0 0 0 .843.17l.121.023c.252.045.508.085.768.122.071.011.144.02.216.03.2.027.4.053.604.077l.24.027c.245.026.49.05.74.07l.081.009c.275.022.552.04.83.056l.233.012c.21.01.422.018.633.025a33.088 33.088 0 0 0 2.795-.026l.232-.011c.278-.016.555-.034.83-.056l.08-.008c.25-.02.497-.045.742-.072l.238-.026c.205-.024.408-.05.609-.077.07-.01.141-.019.211-.03.261-.037.519-.078.772-.122l.111-.02c.215-.04.427-.082.634-.125l.212-.047c.186-.041.368-.085.546-.13l.166-.042c.225-.06.444-.122.654-.189.04-.012.077-.026.115-.038a10.6 10.6 0 0 0 .493-.173c.058-.021.114-.044.17-.066.15-.06.293-.12.43-.185.038-.017.079-.034.116-.052.153-.073.3-.15.436-.228l-.976 7.245c-2.488-.78-5.805-2.292-7.311-3a1.09 1.09 0 0 0-1.088-1.085c-.6 0-1.088.489-1.088 1.088 0 .6.488 1.089 1.088 1.089.196 0 .378-.056.537-.148 1.72.812 5.144 2.367 7.715 3.15zm-7.42-20.047c5.677 0 9.676 1.759 9.75 2.736l-.014.113c-.01.033-.031.067-.048.101-.015.028-.026.057-.047.087-.024.033-.058.068-.09.102-.028.03-.051.06-.084.09-.038.035-.087.07-.133.105-.04.03-.074.06-.119.091-.053.036-.116.071-.177.107-.05.03-.095.06-.15.09-.068.036-.147.073-.222.11-.059.028-.114.057-.177.085-.084.038-.177.074-.268.111-.068.027-.13.054-.203.082-.097.036-.205.072-.31.107-.075.026-.148.053-.228.079-.111.035-.233.069-.35.103-.085.024-.165.05-.253.073-.124.034-.258.065-.389.098-.093.022-.181.046-.278.068-.139.032-.287.061-.433.091-.098.02-.191.041-.293.06-.155.03-.32.057-.482.084-.1.018-.198.036-.302.052-.166.026-.342.048-.515.072-.11.014-.213.03-.325.044-.181.023-.372.041-.56.06-.11.012-.218.025-.332.036-.188.016-.386.029-.58.043-.122.009-.24.02-.364.028-.207.012-.422.02-.635.028-.12.005-.234.012-.354.016a35.605 35.605 0 0 1-2.069 0c-.12-.004-.234-.011-.352-.016-.214-.008-.43-.016-.637-.028-.122-.008-.238-.02-.36-.027-.195-.015-.394-.028-.584-.044-.11-.01-.215-.024-.324-.035-.19-.02-.384-.038-.568-.06l-.315-.044c-.176-.024-.355-.046-.525-.073-.1-.015-.192-.033-.29-.05-.167-.028-.335-.055-.494-.086-.096-.018-.183-.038-.276-.056-.151-.032-.305-.062-.45-.095-.09-.02-.173-.043-.26-.064-.138-.034-.277-.067-.407-.102-.082-.022-.157-.046-.235-.069a11.75 11.75 0 0 1-.368-.108c-.075-.024-.141-.049-.213-.073-.11-.037-.223-.075-.325-.113-.067-.025-.125-.051-.188-.077-.096-.038-.195-.076-.282-.115-.06-.027-.11-.054-.166-.08-.08-.039-.162-.077-.233-.116-.052-.028-.094-.055-.142-.084-.063-.038-.13-.075-.185-.113-.043-.029-.075-.058-.113-.086-.048-.037-.098-.073-.139-.11-.032-.029-.054-.057-.08-.087-.033-.035-.069-.07-.093-.104-.02-.03-.031-.058-.046-.086-.018-.035-.039-.068-.049-.102l-.015-.113c.076-.977 4.074-2.736 9.748-2.736zm12.182 12.124c-.118-.628-.84-1.291-2.31-2.128l.963-7.16a.531.531 0 0 0 .005-.073C22.16 1.581 16.447 0 11.32 0 6.194 0 .482 1.581.482 3.851a.58.58 0 0 0 .005.072L2.819 21.25c.071 2.002 5.236 2.75 8.5 2.75 1.805 0 3.615-.188 5.098-.531.598-.138 1.133-.3 1.592-.48 1.18-.467 1.789-1.053 1.813-1.739l.945-7.018c.557.131 1.016.197 1.389.197.54 0 .902-.137 1.134-.413a.956.956 0 0 0 .21-.804Z"/></svg></span></span></div>
+            <div class="lab cicd" id="labBuild"><div class="dname two"><span>Build &amp;</span><span>Ephemeral K8s</span></div><span class="bmrow"><span class="bm" style="--bc:#EE4C2C" data-name="PyTorch" tabindex="0" role="img" aria-label="PyTorch"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.005 0L4.952 7.053a9.865 9.865 0 000 14.022 9.866 9.866 0 0014.022 0c3.984-3.9 3.986-10.205.085-14.023l-1.744 1.743c2.904 2.905 2.904 7.634 0 10.538s-7.634 2.904-10.538 0-2.904-7.634 0-10.538l4.647-4.646.582-.665zm3.568 3.899a1.327 1.327 0 00-1.327 1.327 1.327 1.327 0 001.327 1.328A1.327 1.327 0 0016.9 5.226 1.327 1.327 0 0015.573 3.9z"/></svg></span><span class="bm" style="--bc:#0194E2" data-name="MLflow" tabindex="0" role="img" aria-label="MLflow"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M11.883.002a12.044 12.044 0 0 0-9.326 19.463l3.668-2.694A7.573 7.573 0 0 1 12.043 4.45v2.867l6.908-5.14A12.012 12.012 0 0 0 11.883.002zm9.562 4.533L17.777 7.23a7.573 7.573 0 0 1-5.818 12.322v-2.867l-6.908 5.14a12.046 12.046 0 0 0 16.394-17.29z"/></svg></span><span class="bm" style="--bc:#844FBA" data-name="Terraform" tabindex="0" role="img" aria-label="Terraform"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M1.44 0v7.575l6.561 3.79V3.787zm21.12 4.227l-6.561 3.791v7.574l6.56-3.787zM8.72 4.23v7.575l6.561 3.787V8.018zm0 8.405v7.575L15.28 24v-7.578z"/></svg></span><span class="bm" style="--bc:#FF9900" data-name="Amazon EKS" tabindex="0" role="img" aria-label="Amazon EKS"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m14.67 8.505-2.875 3.335 3.128 3.648h-1.168l-2.808-3.277v3.368h-.842V8.421h.842v2.947l2.603-2.863Zm7.225 6.751-3.369-2.021V8.421a.42.42 0 0 0-.209-.364l-4.843-2.825V1.159l8.42 4.976Zm.635-9.724L13.267.06a.422.422 0 0 0-.635.362v5.053c0 .15.08.288.208.363l4.844 2.826v4.81a.42.42 0 0 0 .205.362l4.21 2.526a.42.42 0 0 0 .638-.361V5.895a.42.42 0 0 0-.207-.363ZM11.977 23.1l-9.872-5.248V6.135l8.421-4.976v4.084L6.09 8.066a.422.422 0 0 0-.195.355v7.158a.42.42 0 0 0 .226.373l5.665 2.948a.42.42 0 0 0 .387 0l5.496-2.84 3.382 2.03Zm10.135-5.356-4.21-2.526a.42.42 0 0 0-.411-.013l-5.51 2.847-5.244-2.729v-6.67l4.436-2.824a.422.422 0 0 0 .195-.355V.42a.421.421 0 0 0-.635-.362L1.47 5.532a.421.421 0 0 0-.207.363v12.21c0 .156.086.299.223.372l10.297 5.474a.421.421 0 0 0 .401-.004l9.915-5.473a.422.422 0 0 0 .013-.73Z"/></svg></span></span></div>
+            <div class="lab deploy" id="labDeploy"><div class="dname">Deploy</div><span class="bmrow"><span class="bm" style="--bc:#2088FF" data-name="GitHub Actions" tabindex="0" role="img" aria-label="GitHub Actions"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M10.984 13.836a.5.5 0 0 1-.353-.146l-.745-.743a.5.5 0 1 1 .706-.708l.392.391 1.181-1.18a.5.5 0 0 1 .708.707l-1.535 1.533a.504.504 0 0 1-.354.146zm9.353-.147l1.534-1.532a.5.5 0 0 0-.707-.707l-1.181 1.18-.392-.391a.5.5 0 1 0-.706.708l.746.743a.497.497 0 0 0 .706-.001zM4.527 7.452l2.557-1.585A1 1 0 0 0 7.09 4.17L4.533 2.56A1 1 0 0 0 3 3.406v3.196a1.001 1.001 0 0 0 1.527.85zm2.03-2.436L4 6.602V3.406l2.557 1.61zM24 12.5c0 1.93-1.57 3.5-3.5 3.5a3.503 3.503 0 0 1-3.46-3h-2.08a3.503 3.503 0 0 1-3.46 3 3.502 3.502 0 0 1-3.46-3h-.558c-.972 0-1.85-.399-2.482-1.042V17c0 1.654 1.346 3 3 3h.04c.244-1.693 1.7-3 3.46-3 1.93 0 3.5 1.57 3.5 3.5S13.43 24 11.5 24a3.502 3.502 0 0 1-3.46-3H8c-2.206 0-4-1.794-4-4V9.899A5.008 5.008 0 0 1 0 5c0-2.757 2.243-5 5-5s5 2.243 5 5a5.005 5.005 0 0 1-4.952 4.998A2.482 2.482 0 0 0 7.482 12h.558c.244-1.693 1.7-3 3.46-3a3.502 3.502 0 0 1 3.46 3h2.08a3.503 3.503 0 0 1 3.46-3c1.93 0 3.5 1.57 3.5 3.5zm-15 8c0 1.378 1.122 2.5 2.5 2.5s2.5-1.122 2.5-2.5-1.122-2.5-2.5-2.5S9 19.122 9 20.5zM5 9c2.206 0 4-1.794 4-4S7.206 1 5 1 1 2.794 1 5s1.794 4 4 4zm9 3.5c0-1.378-1.122-2.5-2.5-2.5S9 11.122 9 12.5s1.122 2.5 2.5 2.5 2.5-1.122 2.5-2.5zm9 0c0-1.378-1.122-2.5-2.5-2.5S18 11.122 18 12.5s1.122 2.5 2.5 2.5 2.5-1.122 2.5-2.5zm-13 8a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0zm2 0a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0zm12 0c0 1.93-1.57 3.5-3.5 3.5a3.503 3.503 0 0 1-3.46-3.002c-.007.001-.013.005-.021.005l-.506.017h-.017a.5.5 0 0 1-.016-.999l.506-.017c.018-.002.035.006.052.007A3.503 3.503 0 0 1 20.5 17c1.93 0 3.5 1.57 3.5 3.5zm-1 0c0-1.378-1.122-2.5-2.5-2.5S18 19.122 18 20.5s1.122 2.5 2.5 2.5 2.5-1.122 2.5-2.5z"/></svg></span><span class="bm" style="--bc:#2496ED" data-name="Docker" tabindex="0" role="img" aria-label="Docker"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.983 11.078h2.119a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.119a.185.185 0 00-.185.185v1.888c0 .102.083.185.185.185m-2.954-5.43h2.118a.186.186 0 00.186-.186V3.574a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m0 2.716h2.118a.187.187 0 00.186-.186V6.29a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.887c0 .102.082.185.185.186m-2.93 0h2.12a.186.186 0 00.184-.186V6.29a.185.185 0 00-.185-.185H8.1a.185.185 0 00-.185.185v1.887c0 .102.083.185.185.186m-2.964 0h2.119a.186.186 0 00.185-.186V6.29a.185.185 0 00-.185-.185H5.136a.186.186 0 00-.186.185v1.887c0 .102.084.185.186.186m5.893 2.715h2.118a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m-2.93 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.083.185.185.185m-2.964 0h2.119a.185.185 0 00.185-.185V9.006a.185.185 0 00-.184-.186h-2.12a.186.186 0 00-.186.186v1.887c0 .102.084.185.186.185m-2.92 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.082.185.185.185M23.763 9.89c-.065-.051-.672-.51-1.954-.51-.338.001-.676.03-1.01.087-.248-1.7-1.653-2.53-1.716-2.566l-.344-.199-.226.327c-.284.438-.49.922-.612 1.43-.23.97-.09 1.882.403 2.661-.595.332-1.55.413-1.744.42H.751a.751.751 0 00-.75.748 11.376 11.376 0 00.692 4.062c.545 1.428 1.355 2.48 2.41 3.124 1.18.723 3.1 1.137 5.275 1.137.983.003 1.963-.086 2.93-.266a12.248 12.248 0 003.823-1.389c.98-.567 1.86-1.288 2.61-2.136 1.252-1.418 1.998-2.997 2.553-4.4h.221c1.372 0 2.215-.549 2.68-1.009.309-.293.55-.65.707-1.046l.098-.288Z"/></svg></span><span class="bm" style="--bc:#FF9900" data-name="AWS Lambda" tabindex="0" role="img" aria-label="AWS Lambda"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.9855 0c-.2941.0031-.5335.2466-.534.5482L4.446 5.456c0 .1451.06.2835.159.3891a.5322.5322 0 0 0 .3806.1562h3.4282l8.197 17.6805a.5365.5365 0 0 0 .4885.3181h5.811c.2969 0 .5426-.2448.5426-.5482V18.544c0-.3035-.2392-.5482-.5425-.5482h-2.0138L12.7394.3153C12.647.124 12.4564 0 12.2452 0h-7.254Zm.5397 1.0907h6.3678l8.16 17.6804a.5365.5365 0 0 0 .4885.3181h1.8178v3.8173H17.437L9.2402 5.226a.536.536 0 0 0-.4885-.318H5.5223Zm2.0137 8.2366c-.2098.0011-.3937.1193-.4857.3096L.6002 23.2133a.5506.5506 0 0 0 .0313.5282.5334.5334 0 0 0 .4544.25h6.169a.5468.5468 0 0 0 .497-.3096l3.38-7.166a.5405.5405 0 0 0-.0029-.4686L8.036 9.637a.5468.5468 0 0 0-.4942-.3096Zm.0057 1.8036 2.488 5.1522-3.1214 6.6206H1.9465Z"/></svg></span></span></div>
+          </div>
+        </div>
+      </div>
+      <div class="next-cue" id="sceneCue">
+        <button class="arrow-btn" aria-label="Continue to the Journey">
+          <svg viewBox="0 0 34 54" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M17 2v46M6 37l11 11 11-11" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
       </div>
     </div>
 
     <div class="journey-layer" id="journeyLayer">
       <div class="j-inner">
-        <h2 class="scene-title" id="jTitle">The Journey</h2>
-        <p class="scene-lead" id="jLead">Roads not taken</p>
+        <div class="sec-head">
+          <h2 class="scene-title" id="jTitle">The Journey</h2>
+          <p class="scene-lead" id="jLead">Roads not taken</p>
+        </div>
         <div class="j-path-wrap">
-          <svg viewBox="0 0 700 360" fill="none" aria-hidden="true">
-            <path class="j-path" id="jPath" d="M360 8 C 560 52, 150 92, 330 148 C 505 202, 170 224, 320 278 C 450 325, 365 330, 352 344"/>
-            <path class="j-end" id="jEnd" d="M345 346 l7 12 7 -12 z"/>
+          <svg viewBox="0 0 700 420" fill="none" aria-hidden="true">
+            <defs>
+              <clipPath id="jLensClip"><circle id="jLensCircle" cx="0" cy="0" r="0"/></clipPath>
+              <mask id="jLensMask" maskUnits="userSpaceOnUse"><rect x="-100" y="-100" width="900" height="640" fill="#fff"/><circle id="jLensHole" cx="0" cy="0" r="0" fill="#000"/></mask>
+            </defs>
+            <path class="j-path" id="jPath" d="" mask="url(#jLensMask)"/>
+            <path class="j-lens" id="jLensPath" d="" clip-path="url(#jLensClip)"/>
+            <circle class="j-lens-ring" id="jLensRing" cx="0" cy="0" r="0"/>
+            <circle class="j-dot" r="5.5"/>
             <circle class="j-dot" r="5.5"/>
             <circle class="j-dot" r="5.5"/>
             <circle class="j-dot" r="5.5"/>
@@ -419,28 +794,39 @@
           <div class="j-entry"><div class="d">10 Jun 2026 · Phase 2</div><h4>One bucket, three jobs</h4><p>DVC, MLflow and the case for a single S3 bucket.</p></div>
           <div class="j-entry"><div class="d">02 Jul 2026 · Phase 2</div><h4>The gate that says no</h4><p>Letting CI block a worse model felt wrong — until it didn't.</p></div>
           <div class="j-entry"><div class="d">18 Jul 2026 · Phase 2</div><h4>Pandera at the door</h4><p>Validating data before it ever reaches training.</p></div>
+          <p class="scene-link j-cta" id="jLinkWrap"><a class="link cta-strong" href="sections-prototype.html#journey">Read the journey →</a></p>
         </div>
-        <p class="scene-link" id="jLinkWrap"><a class="link" href="#" onclick="return false">Read the journey →</a></p>
+      </div>
+      <div class="next-cue" id="journeyCue">
+        <button class="arrow-btn" aria-label="Continue to Skills">
+          <svg viewBox="0 0 34 54" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M17 2v46M6 37l11 11 11-11" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
       </div>
     </div>
 
     <div class="skills-layer" id="skillsLayer">
       <div class="s-inner">
-        <h2 class="scene-title" id="sTitle">Skills</h2>
-        <p class="scene-lead" id="sLead">What I build with</p>
+        <div class="sec-head">
+          <h2 class="scene-title" id="sTitle">Skills</h2>
+          <p class="scene-lead" id="sLead">What I build with</p>
+        </div>
         <div class="s-lines">
           <div class="s-line l1">Python · PyTorch · scikit-learn</div>
           <div class="s-line l2 r">AWS · Kubernetes · Terraform</div>
           <div class="s-line l3">GitHub Actions · Docker · MLflow</div>
           <div class="s-line l4 r">Next.js · TypeScript</div>
         </div>
-        <p class="scene-link" id="sLink"><a class="link" href="#" onclick="return false">See all skills →</a></p>
+        <p class="scene-link" id="sLink"><a class="link" href="sections-prototype.html#skills">See all skills →</a></p>
+      </div>
+      <div class="next-cue" id="skillsCue">
+        <button class="arrow-btn" aria-label="Continue to Contact">
+          <svg viewBox="0 0 34 54" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M17 2v46M6 37l11 11 11-11" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
       </div>
     </div>
-  </div>
-</div>
 
-<div class="after">
+    <!-- ---------- §6 layer: Contact bookend — rises over the settled Skills ---------- -->
+    <div class="after" id="afterLayer">
   <h2 class="display">Say hello.</h2>
   <div class="b-foot">
     <a href="#" onclick="return false" aria-label="GitHub"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.2-1.5 6.2-6.7A5.2 5.2 0 0 0 20 4.8 4.9 4.9 0 0 0 19.9 1S18.7.6 16 2.5a13.4 13.4 0 0 0-7 0C6.3.6 5.1 1 5.1 1A4.9 4.9 0 0 0 5 4.8a5.2 5.2 0 0 0-1.4 3.7c0 5.2 3.2 6.4 6.2 6.7A3.4 3.4 0 0 0 9 17.8V22" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
@@ -448,11 +834,18 @@
     <button id="bMail" aria-label="Copy email address"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><path d="M3 6l9 7 9-7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
   </div>
   <div class="copied" id="emailCopied">Copied</div>
-  <a class="link or-link" href="#" onclick="return false">Or learn more about me →</a>
+  <a class="link or-link" href="sections-prototype.html#about">Or learn more about me →</a>
   <p class="note">End of the prototype — the Hero's white bookend closes the scroll.
-     Scroll back up to replay: all four transitions are scrubbed, so they play in either direction.</p>
+     Scroll back up to replay: all five transitions are scrubbed, so they play in either direction.</p>
+    </div>
+  </div>
 </div>
 
+<div class="layout-dock" role="group" aria-label="Demo section layout">
+  <span class="micro">§2 layout</span>
+  <button class="chip-btn active" data-layout="instrument">instrument</button>
+  <button class="chip-btn" data-layout="columns">columns</button>
+</div>
 <div class="speed-dock" role="group" aria-label="Motion speed">
   <span class="micro">motion</span>
   <button class="chip-btn active" data-dur=".48s">.48s</button>
@@ -474,47 +867,180 @@
   const arrowBtn=document.getElementById('arrowBtn');
   const indicator=document.getElementById('indicator');
   const demoTitle=document.getElementById('demoTitle');
-  const canvasCard=document.getElementById('canvasCard');
+  const canvasCol=document.getElementById('canvasCol');
   const pred=document.getElementById('pred');
   const demoArrowWrap=document.getElementById('demoArrowWrap');
   const demoArrow=document.getElementById('demoArrow');
   const sceneTitle=document.querySelector('.scene-title');
-  const sceneLead=document.querySelector('.scene-lead');
+  const sceneLead=document.querySelector('.sec-head .scene-lead');
   const sceneLink=document.querySelector('.scene-link');
-  const flowItems=[...document.querySelectorAll('.flow>*')];
+  // §3's ring — the loop, its stops, and the direction chevrons
+  const archRing=document.getElementById('archRing');
+  const ringPath=document.getElementById('ringPath');
+  const ringIn=[...document.querySelectorAll('.ring-in')];
+  const chevs=[...document.querySelectorAll('.chev')];
+  const youNote=document.querySelector('.you-note');
+  const ringLabs=['labServe','labMon','labBuild','labDeploy'].map(id=>document.getElementById(id));
+  const RING_LEN=943;                       // 2πr at r=150 in the viewBox
+  let chevF=[.125,.375,.625,.875];          // where each chevron sits, as a fraction round
   const journeyLayer=document.getElementById('journeyLayer');
   const jTitle=document.getElementById('jTitle');
   const jLead=document.getElementById('jLead');
   const jLinkWrap=document.getElementById('jLinkWrap');
   const jPath=document.getElementById('jPath');
-  const jEnd=document.getElementById('jEnd');
   const jDots=[...document.querySelectorAll('.j-dot')];
   const jEntries=[...document.querySelectorAll('.j-entry')];
   const skillsLayer=document.getElementById('skillsLayer');
+  const afterLayer=document.getElementById('afterLayer');
   const sTitle=document.getElementById('sTitle');
   const sLead=document.getElementById('sLead');
   const sLink=document.getElementById('sLink');
   const sLines=[...document.querySelectorAll('.s-line')];
+  // content wrappers that fade out as the NEXT section rises (the outgoing fade)
+  const sceneInner=sceneLayer.querySelector('.scene-inner');
+  const jInner=journeyLayer.querySelector('.j-inner');
+  const sInner=skillsLayer.querySelector('.s-inner');
+  const sceneCue=document.getElementById('sceneCue');
+  const journeyCue=document.getElementById('journeyCue');
+  const skillsCue=document.getElementById('skillsCue');
+  function setCue(el,o){ el.style.opacity=String(o); el.style.visibility=o<=0?'hidden':'visible'; }
 
-  // ---- Journey path layout: dots sit at fractions of the drawn line, and
-  //      each entry hangs beside its dot, alternating sides ----
-  const jFr=[.18,.52,.84];
-  let pathLen=0;
+  // Each stop's plate hides a different slice of the ring — a wide two-line name hides
+  // far more arc than a one-word one — so the chevrons can't sit at a flat 45°/135°/…
+  // Measure what each plate actually covers and put each chevron mid-way along the arc
+  // that remains visible. Re-runs on resize and once the display face has loaded, since
+  // both change the plates' widths.
+  function layoutChevrons(){
+    const R=archRing.getBoundingClientRect(); if(!R.width) return;
+    const r=(150/400)*R.width;
+    const gap=(el,vert)=>{
+      const b=el.getBoundingClientRect();
+      return Math.asin(Math.min(.99,((vert?b.height:b.width)/2)/r))*180/Math.PI;
+    };
+    const g=[gap(ringLabs[0]),gap(ringLabs[1],1),gap(ringLabs[2]),gap(ringLabs[3],1)];
+    for(let i=0;i<4;i++){
+      const th=((i*90+g[i])+((i+1)*90-g[(i+1)%4]))/2, rad=th*Math.PI/180;
+      chevs[i].setAttribute('transform','translate('+(200+150*Math.sin(rad)).toFixed(1)+' '+
+        (200-150*Math.cos(rad)).toFixed(1)+') rotate('+th.toFixed(1)+')');
+      chevF[i]=th/360;
+    }
+  }
+  layoutChevrons();
+  window.addEventListener('resize',layoutChevrons);
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(layoutChevrons);
+
+  // ---- Journey path layout — the gentle serpentine from the internal Journey
+  //      page (vertical control handles), but the line now STARTS on a dot: the
+  //      first entry sits at the origin, the rest step down the crests, and the
+  //      final crest is the "Read the journey" destination (the CTA on the line) ----
+  const LX=250, RX=450;
+  const jLabelEls=[...jEntries, jLinkWrap];   // 3 entries + the CTA, one per point
+  // {x, y, side} — side is where the label hangs (the crest's outer/open side)
+  const jNodesWide=[
+    {x:350, y:24,  side:'left'},     // start — One bucket, three jobs
+    {x:RX,  y:139, side:'right'},    // The gate that says no
+    {x:LX,  y:254, side:'left'},     // Pandera at the door
+    {x:RX,  y:369, side:'right'},    // Read the journey → (line end — on the right so the → points outward)
+  ];
+  // Phone (2026-08-13). The serpentine can't alternate at this width: the two
+  // columns come out ~120px each, so entries overlapped each other, the line ran
+  // through their text and the CTA fell off the right edge. The road stops
+  // alternating and runs down the LEFT as a gentle wave — it still winds, which is
+  // the whole reason the section is drawn instead of listed — with every entry
+  // hanging off its right, stacked. Same adaptation the internal /journey page
+  // takes, so Home and the page still read as one line.
+  const MXa=76, MXb=44;
+  const jNodesPhone=[
+    {x:MXa, y:40,  side:'right'},
+    {x:MXb, y:196, side:'right'},
+    {x:MXa, y:352, side:'right'},
+    {x:MXb, y:468, side:'right'},   // pulled up off the ↓ cue (it clipped at 320×568)
+  ];
+  let jNodes=jNodesWide, VBW=700, VBH=404;
+  const jFr=[0,0,0,0];               // each dot's fraction along the drawn line (reveal timing)
+  let pathLen=0, jSamp=[];           // jSamp: sampled points along the line (for cursor projection)
   function layoutPath(){
+    const phone=window.matchMedia('(max-width:700px)').matches;
+    jNodes = phone ? jNodesPhone : jNodesWide;
+    VBW = phone ? 360 : 700;
+    // the box the svg draws in vs. the height the entry %s are measured against:
+    // desktop keeps its authored 420/404 pair (the entries' hand-tuned ~15-unit
+    // drop below their dots), the phone set uses one height so they sit level.
+    VBH = phone ? 540 : 404;
+    const vbBox = phone ? 540 : 420;
+    const lblOff = phone ? 14 : 22;  // gap from the line to the label
+    jPath.ownerSVGElement.setAttribute('viewBox','0 0 '+VBW+' '+vbBox);
+    // wind through the points with vertical handles (m = half the y-gap) so the
+    // tangent is vertical at every point — identical to the internal buildJourney()
+    let d='M '+jNodes[0].x+' '+jNodes[0].y;
+    for(let i=1;i<jNodes.length;i++){
+      const a=jNodes[i-1],b=jNodes[i],m=(b.y-a.y)*0.5;
+      d+=' C '+a.x+' '+(a.y+m)+', '+b.x+' '+(b.y-m)+', '+b.x+' '+b.y;
+    }
+    jPath.setAttribute('d',d);
+    document.getElementById('jLensPath').setAttribute('d',d);   // lens mirrors the line's geometry
     pathLen=jPath.getTotalLength();
     jPath.style.strokeDasharray=String(pathLen);
     jPath.style.strokeDashoffset=String(pathLen);
-    jFr.forEach((f,i)=>{
-      const pt=jPath.getPointAtLength(pathLen*f);
-      jDots[i].setAttribute('cx',pt.x); jDots[i].setAttribute('cy',pt.y);
-      const e=jEntries[i], xPct=pt.x/700*100, yPct=pt.y/360*100;
+    // sample the drawn line so each point maps to a length-fraction (reveal timing)
+    const N=400,samp=[];
+    for(let k=0;k<=N;k++) samp.push(jPath.getPointAtLength(pathLen*k/N));
+    const fracNear=(x,y)=>{let bi=0,bd=1e9;for(let k=0;k<=N;k++){const dx=samp[k].x-x,dy=samp[k].y-y,dd=dx*dx+dy*dy;if(dd<bd){bd=dd;bi=k;}}return bi/N;};
+    jSamp=samp;
+    jNodes.forEach((n,i)=>{
+      jFr[i]=fracNear(n.x,n.y);
+      jDots[i].setAttribute('cx',n.x); jDots[i].setAttribute('cy',n.y);
+      const e=jLabelEls[i], xPct=n.x/VBW*100, yPct=n.y/VBH*100, onLeft=n.side==='left';
+      e.classList.toggle('on-left',onLeft);
+      e.classList.toggle('on-right',!onLeft);
       e.style.top='calc('+yPct+'% - 12px)';
-      if(i%2===0){ e.style.left='calc('+xPct+'% + 26px)'; e.style.right='auto'; }
-      else{ e.style.right='calc('+(100-xPct)+'% + 26px)'; e.style.left='auto'; }
+      if(onLeft){ e.style.right='calc('+(100-xPct)+'% + '+lblOff+'px)'; e.style.left='auto'; }
+      else{ e.style.left='calc('+xPct+'% + '+lblOff+'px)'; e.style.right='auto'; }
     });
   }
   layoutPath();
   window.addEventListener('resize',layoutPath);
+
+  // ---- scroll-driven magnifier: a circular lens rolls down the journey as you scroll,
+  //      magnifying the line (a clipped, scaled copy of the path) and zooming the dot +
+  //      entry text it's over. Off for reduced motion. ----
+  const jDotBaseR=jDots.map(d=>parseFloat(d.getAttribute('r'))||5.5);
+  const jLensPath=document.getElementById('jLensPath');
+  const jLensCircle=document.getElementById('jLensCircle');
+  const jLensHole=document.getElementById('jLensHole');
+  const jLensRing=document.getElementById('jLensRing');
+  const jWrapEl=jPath.closest('.j-path-wrap');
+  const LENS_R=52, LENS_S=1.4, NEAR=0.15;        // lens radius (SVG units), zoom factor, dot/text reach (path fraction)
+  const falloff=d=>d<NEAR?0.5+0.5*Math.cos(Math.PI*d/NEAR):0;
+  // Home preview is short + static on screen, so the lens is HOVER-driven (scroll here would fight the
+  // section scrub). Cursor projects to the nearest point on the line; the lens eases in on enter / out on leave.
+  let focusTarget=0, focusCur=0, lensOn=0, hoverActive=false;
+  if(!reduce){
+    jWrapEl.addEventListener('mousemove',ev=>{
+      if(!pathLen||!jSamp.length) return;
+      const svg=jPath.ownerSVGElement, rect=svg.getBoundingClientRect();
+      const x=(ev.clientX-rect.left)/rect.width*VBW, y=(ev.clientY-rect.top)/rect.height*VBH;
+      let bi=0,bd=1e9; for(let k=0;k<jSamp.length;k++){const dx=jSamp[k].x-x,dy=jSamp[k].y-y,dd=dx*dx+dy*dy; if(dd<bd){bd=dd;bi=k;}}
+      focusTarget=bi/(jSamp.length-1); hoverActive=true;
+    });
+    jWrapEl.addEventListener('mouseleave',()=>{ hoverActive=false; });
+  }
+  function updateMagnifier(){
+    if(reduce||!pathLen||!jLensPath) return;
+    lensOn+=((hoverActive?1:0)-lensOn)*0.18;
+    focusCur+=(focusTarget-focusCur)*0.30;
+    if(lensOn<0.01){
+      for(const el of [jLensCircle,jLensHole,jLensRing]) el.setAttribute('r',0);
+      jDots.forEach((c,i)=>c.setAttribute('r',jDotBaseR[i])); jLabelEls.forEach(e=>{ e.style.scale=''; });
+      return;
+    }
+    const focus=Math.max(0,Math.min(1,focusCur));
+    const pt=jPath.getPointAtLength(focus*pathLen), fx=+pt.x.toFixed(1), fy=+pt.y.toFixed(1), r=(LENS_R*lensOn).toFixed(1);
+    for(const el of [jLensCircle,jLensHole,jLensRing]){ el.setAttribute('cx',fx); el.setAttribute('cy',fy); el.setAttribute('r',r); }
+    jLensRing.style.opacity=(0.2*lensOn).toFixed(3);
+    jDots.forEach((c,i)=>{ const s=1+(LENS_S-1)*falloff(Math.abs(focus-jFr[i]))*lensOn; c.setAttribute('r',(jDotBaseR[i]*s).toFixed(2)); });
+    jLabelEls.forEach((e,i)=>{ e.style.scale=String((1+(LENS_S-1)*falloff(Math.abs(focus-jFr[i]))*lensOn).toFixed(3)); });
+  }
 
   // ---- the loose global value, read from --dur (the dock retunes it) ----
   function durMs(){
@@ -523,7 +1049,32 @@
 
   // ---- scroll segments over the runway: four transitions with a dwell
   //      (and a hard floor) between each ----
-  const T1=[0,.15], T2=[.26,.40], T3=[.58,.70], T4=[.83,.93];
+  // T1 starts a touch after 0 so the Hero gets the same brief hold every other
+  // section has before its transition begins (it used to start dissolving on the
+  // very first pixel of scroll, which made its span half again as long as the rest).
+  const T1=[.024,.15], T2=[.26,.40], T3=[.58,.70], T4=[.83,.93];
+  // §5→§6 (Skills → Contact) rides the runway's tail, keyed to RAW progress.
+  // Proportioned like steps 2–4: a tenth of the step as lead-in, half as the
+  // transition, the rest as settle before the last floor.
+  const T5=[.82,.92];
+
+  // ---- even section spacing (2026-08-13) ----
+  // The five steps used to be .192/.248/.208/.152/.200 of the runway — Journey→
+  // Skills was 39% shorter than Demo→Behind, because floors were placed by hand as
+  // the choreography grew. Rather than re-time dozens of hand-tuned sub-reveals,
+  // the scroll→progress mapping is now piecewise linear: each section still RESTS
+  // at exactly the authored progress (PF), but those rest points are spread over an
+  // even raw grid (RAWF). Every reveal inside a step keeps its relative timing and
+  // simply plays over an equal share of scroll.
+  const RAWF=[0,.2,.4,.6,.8];              // even: five equal steps to the last story floor
+  const PF  =[0,.24,.55,.81,1];            // authored: where each section sits settled
+  function storyP(praw){
+    if(praw<=RAWF[0]) return PF[0];
+    if(praw>=RAWF[RAWF.length-1]) return PF[PF.length-1];
+    let i=0; while(i<RAWF.length-2 && praw>RAWF[i+1]) i++;
+    const t=(praw-RAWF[i])/(RAWF[i+1]-RAWF[i]);
+    return PF[i]+t*(PF[i+1]-PF[i]);
+  }
   let runwayEnd=0;
   function measure(){
     runwayEnd=runway.offsetHeight-window.innerHeight;
@@ -534,9 +1085,166 @@
   }
   measure();
   window.addEventListener('resize',measure);
+  // deep-link: arriving with #contact lands on the Contact bookend (bottom of the
+  // scroll) instead of the Hero — set before `current` inits so it doesn't fast-forward
+  if(location.hash==='#contact') window.scrollTo(0,runwayEnd);
   function targetProgress(){
     return Math.min(1,Math.max(0,window.scrollY/runwayEnd));
   }
+
+  // ---- floors, enforced here rather than by CSS scroll-snap (see the .floor
+  //      rule for why snap had to go).
+  //
+  //      A mouse and a trackpad want OPPOSITE things and one rule cannot serve
+  //      both. A step is ~2070px; a mouse notch is ~120px, so scrubbing a section
+  //      by wheel would take seventeen notches — the mouse wants to PAGE. A
+  //      trackpad streams dozens of small deltas and wants to SCRUB, with the
+  //      choreography tracking the fingers. So the wheel is classified and each
+  //      device gets its own path.
+  //
+  //      (An earlier single-rule version debounced every input the same way. At a
+  //      150ms debounce the mouse sat visibly dead after each notch; dropped to
+  //      60ms, steady wheeling fired a settle BETWEEN notches and the next notch
+  //      cancelled it mid-flight — settle-cancel churn that landed you back where
+  //      you started. Paging the mouse removes the race entirely.) ----
+  const FLOOR_P=[...document.querySelectorAll('.floor')].map(f=>parseFloat(f.dataset.p));
+  const SETTLE_MS=110;   // quiet time that ends a trackpad gesture (momentum ticks ~16ms)
+  const COMMIT_PX=60;    // travel that commits a partial trackpad gesture to the next floor
+  let settling=false, settleTimer=0, gestureFrom=null, settleRAF=0, pageTo=null;
+
+  function nearestFloor(p){
+    let bi=0,bd=Infinity;
+    for(let i=0;i<FLOOR_P.length;i++){
+      const d=Math.abs(FLOOR_P[i]-p);
+      if(d<bd){ bd=d; bi=i; }
+    }
+    return bi;
+  }
+
+  // One settle animation, driven here rather than by `behavior:'smooth'`. Chrome's
+  // curve is its own — distance-dependent, ease-in-out-ish, ~950ms for a full step
+  // — which made the site's most-seen motion the one motion NOT on the site's
+  // easing, and the scrubbed layers were still chasing it exponentially on top, so
+  // two easings composed into a lurch.
+  //
+  // Smoothstep rather than an expo out: velocity is near-constant through the
+  // middle and zero at both ends, so the transition plays at an even tempo instead
+  // of blasting through it and then crawling the dwell. Duration scales with
+  // distance off --dur, so a short correction is quick and a full step is calm.
+  const smoothstep=k=>k*k*(3-2*k);
+  function scrollHold(top,ms){
+    if(settleRAF){ cancelAnimationFrame(settleRAF); settleRAF=0; }
+    const from=window.scrollY, dist=top-from;
+    if(reduce||Math.abs(dist)<2){ window.scrollTo(0,top); settling=false; pageTo=null; return; }
+    const stepPx=runwayEnd*0.2;                       // one section of travel
+    const dur=ms||Math.max(380,Math.min(900,1.9*durMs()*Math.abs(dist)/stepPx));
+    const t0=performance.now();
+    settling=true;
+    settleRAF=requestAnimationFrame(function step(now){
+      const k=Math.min(1,(now-t0)/dur);
+      window.scrollTo(0,from+dist*smoothstep(k));
+      if(k<1) settleRAF=requestAnimationFrame(step);
+      else{ settleRAF=0; settling=false; pageTo=null; }
+    });
+  }
+
+  // Move to a floor, skipping the step's lead-in dwell on the way forward. Nothing
+  // is animated in that dwell — it exists so a RESTING section holds for a beat
+  // before its transition starts, not to pad a move already committed to; left in,
+  // it was ~a third of the settle spent visibly doing nothing. The jump is
+  // invisible (no layer has moved yet), only the scrollbar notices. Steps begin
+  // their transition between .065 and .115 of their length; .09 clears most of the
+  // dwell and at worst enters a transition ~5% in, below the threshold of sight.
+  function goToFloor(idx){
+    const from=nearestFloor(targetProgress());
+    if(idx===from+1){
+      const dwellEnd=(FLOOR_P[from]+(FLOOR_P[idx]-FLOOR_P[from])*0.09)*runwayEnd;
+      if(window.scrollY<dwellEnd) window.scrollTo(0,dwellEnd);
+    }
+    const top=Math.round(runwayEnd*FLOOR_P[idx]);
+    if(Math.abs(window.scrollY-top)<2){ pageTo=null; return; }
+    scrollHold(top);
+  }
+
+  // --- trackpad / touch: scrub freely, then settle when the gesture stops ---
+  function settleToFloor(){
+    settleTimer=0;
+    if(settling||reduce||pageTo!==null) return;
+    const cur=targetProgress();
+    const from=(gestureFrom===null)?nearestFloor(cur):gestureFrom;
+    gestureFrom=null;
+    let idx=nearestFloor(cur);
+    // travelled far enough that another floor is nearer → go there (a long flick
+    // may cross several). Otherwise commit forward if the gesture was deliberate,
+    // and fall back to where it started if it was only a nudge.
+    if(idx===from){
+      const deltaPx=(cur-FLOOR_P[from])*runwayEnd;
+      if(Math.abs(deltaPx)>=COMMIT_PX){
+        const dir=deltaPx>0?1:-1;
+        idx=Math.max(0,Math.min(FLOOR_P.length-1,from+dir));
+      }
+    }
+    goToFloor(idx);
+  }
+  window.addEventListener('scroll',()=>{
+    if(settling) return;                       // ignore the settle's own scrolling
+    if(gestureFrom===null) gestureFrom=nearestFloor(targetProgress());
+    if(settleTimer) clearTimeout(settleTimer);
+    settleTimer=setTimeout(settleToFloor,SETTLE_MS);
+  },{passive:true});
+
+  // --- telling the two apart ---
+  // A trackpad emits a stream of small deltas; a mouse emits sparse coarse ones.
+  // Line-mode deltas are always a mouse. Otherwise: three or more sub-40px deltas
+  // inside a 250ms window means fingers, and that verdict is held briefly so the
+  // tail of a flick (whose deltas grow as momentum builds) is not misread.
+  let fineHits=0, lastFine=0, lastPage=0;
+  function fingersOnGlass(e){
+    const now=performance.now();
+    if(e.deltaMode===0 && Math.abs(e.deltaY)<40){
+      fineHits=(now-lastFine<250)?fineHits+1:1;
+      lastFine=now;
+    }
+    return fineHits>=3 && (now-lastFine)<400;
+  }
+  window.addEventListener('wheel',e=>{
+    if(reduce||!e.deltaY) return;
+    if(fingersOnGlass(e)){
+      // trackpad: hand it back to native scrolling, and drop any settle in flight
+      // so the fingers always win
+      if(settleRAF){ cancelAnimationFrame(settleRAF); settleRAF=0; }
+      settling=false; pageTo=null;
+      return;
+    }
+    // below 390px §2's instrument scrolls inside itself — let it have the wheel
+    // until it reaches its own end, then take over
+    const inner=e.target.closest&&e.target.closest('.panel-layer');
+    if(inner&&inner.scrollHeight>inner.clientHeight+1){
+      const atTop=inner.scrollTop<=0;
+      const atEnd=inner.scrollTop+inner.clientHeight>=inner.scrollHeight-1;
+      if((e.deltaY>0&&!atEnd)||(e.deltaY<0&&!atTop)) return;
+    }
+    // mouse: take the wheel over and page. A further notch mid-flight QUEUES the
+    // next floor rather than aborting — spin the wheel and sections advance one
+    // after another instead of fighting each other. Throttled so that leaning on
+    // the wheel walks the story instead of teleporting to the end of it.
+    e.preventDefault();
+    const now2=performance.now();
+    if(now2-lastPage<220) return;
+    lastPage=now2;
+    const dir=e.deltaY>0?1:-1;
+    const base=(pageTo!==null)?pageTo:nearestFloor(targetProgress());
+    const next=Math.max(0,Math.min(FLOOR_P.length-1,base+dir));
+    if(next===base) return;
+    pageTo=next;
+    goToFloor(next);
+  },{passive:false});
+  // touch and keys still cancel an in-flight settle outright
+  ['touchstart','keydown'].forEach(ev=>
+    window.addEventListener(ev,()=>{
+      if(settleRAF){ cancelAnimationFrame(settleRAF); settleRAF=0; }
+      settling=false; pageTo=null;
+    },{passive:true}));
   function segP(p,seg){
     return Math.min(1,Math.max(0,(p-seg[0])/(seg[1]-seg[0])));
   }
@@ -554,22 +1262,29 @@
     el.style.opacity=String(sp*(max||1));
     el.style.transform=reduce?'none':'translate3d('+((1-sp)*(fromRight?24:-24))+'px,0,0)';
   }
-  function apply(p){
+  function apply(praw){
+    // remap scroll → authored progress so the sub-timings below stay exactly as
+    // written while each section owns an equal share of the runway; the tail
+    // past the last story floor belongs to Contact alone
+    const p=storyP(praw);
+    const p5=segP(praw,T5);
     const p1=segP(p,T1), p2=segP(p,T2), p3=segP(p,T3), p4=segP(p,T4);
     // §1→§2 — name fades in place above the rising panel (gone by ~75%), no drift
     const nameO=Math.max(0,1-p1*1.35);
     heroLayer.style.opacity=String(nameO);
     heroLayer.style.visibility=nameO<=0?'hidden':'visible';
-    // ground cross-fades white → pale blue under the motion
+    // ground cross-fades white → the Data well under the motion
     bgWash.style.opacity=String(p1);
     // the demo panel rises beneath the fading name
     panelLayer.style.transform=reduce?'none':'translate3d(0,'+((1-p1)*100)+'%,0)';
-    if(reduce){ panelLayer.style.opacity=String(p1); }
+    // …then the demo itself dissolves as §3 rises (its bg = the well below, so
+    // only the instrument fades — the same "previous fades away" as the Hero)
+    panelLayer.style.opacity=String((reduce?p1:1)*Math.max(0,1-p2*1.35));
     // §2 contents — scrubbed (hybrid): each element assembles over its own
     // slice of the scroll, overlapping slices making the stagger. Can't be
     // skipped — a hard flick just plays it fast.
     setReveal(demoTitle,segP(p,[.135,.17]));
-    setReveal(canvasCard,segP(p,[.155,.195]));
+    setReveal(canvasCol,segP(p,[.155,.195]));
     const bT=segP(p,[.175,.21]);
     setReveal(pred,bT);
     // …except the bar fills, which play on the clock once the bars are visible
@@ -586,72 +1301,112 @@
     // §2→§3 — the sage section rises over the settled demo (the sticky roll-over)
     sceneLayer.style.transform=reduce?'none':'translate3d(0,'+((1-p2)*100)+'%,0)';
     if(reduce){ sceneLayer.style.opacity=String(p2); }
+    sceneInner.style.opacity=String(Math.max(0,1-p3*1.35)); // fades as §4 rises
     // §3 contents — scrubbed like the demo: title + lead first, then the
     // pipeline draws itself left-to-right under the scroll, then the link
     setReveal(sceneTitle,segP(p,[.385,.42]));
     setReveal(sceneLead,segP(p,[.40,.435]));
-    for(let i=0;i<flowItems.length;i++){
-      const s=.415+i*.009;
-      setRevealX(flowItems[i],segP(p,[s,s+.025]),flowItems[i].classList.contains('conn')?.85:1);
+    // the entry mark, then the ring drawing itself clockwise from the top, each stop
+    // and each chevron appearing as the line reaches it. Labels are centred with a
+    // transform, so their reveal rides the separate `translate` property instead of
+    // overwriting it.
+    const yn=segP(p,[.415,.44]);
+    youNote.style.opacity=String(yn);
+    youNote.style.translate=reduce?'none':'0 '+((1-yn)*10)+'px';
+    for(const el of ringIn) el.style.opacity=String(yn);
+    const dp=segP(p,[.425,.50]);
+    const draw=reduce?(dp>0?1:0):dp;
+    ringPath.style.strokeDashoffset=String(RING_LEN*(1-draw));
+    const reached=f=>Math.max(0,Math.min(1,(draw-f)/.10));
+    for(let i=0;i<4;i++){
+      const sp=reached(i*.25);
+      ringLabs[i].style.opacity=String(sp);
+      ringLabs[i].style.translate=reduce?'none':'0 '+((1-sp)*10)+'px';
+      chevs[i].style.opacity=String(reached(chevF[i]));
     }
     setReveal(sceneLink,segP(p,[.50,.53]));
+    // §3 ↓ cue: in once Behind has settled, out as §4 rises
+    setCue(sceneCue,Math.min(segP(p,[.52,.55]),1-segP(p,[.58,.62])));
     // §3→§4 — the Journey rises over the diagram
     journeyLayer.style.transform=reduce?'none':'translate3d(0,'+((1-p3)*100)+'%,0)';
     if(reduce){ journeyLayer.style.opacity=String(p3); }
+    jInner.style.opacity=String(Math.max(0,1-p4*1.35)); // fades as §5 rises
     // §4 contents — title + lead, then the path draws downward under the
     // scroll, each dot + entry appearing as the line reaches it
     setReveal(jTitle,segP(p,[.69,.72]));
     setReveal(jLead,segP(p,[.70,.73]));
-    const dP=segP(p,[.71,.78]);
-    jPath.style.strokeDashoffset=String(reduce?(dP>0?0:pathLen):pathLen*(1-dP));
+    // the line stays fully drawn (no draw-in — that mid-draw state was the "gap");
+    // dots + entries just fade in, staggered, as §4 arrives
+    jPath.style.strokeDashoffset='0';
+    const rP=segP(p,[.71,.82]);
     jFr.forEach((f,i)=>{
-      jDots[i].style.opacity=String(segP(dP,[f,f+.08]));
-      setReveal(jEntries[i],segP(dP,[f+.02,f+.16]));
+      const s=i*0.12;
+      jDots[i].style.opacity=String(segP(rP,[s,s+.15]));
+      setReveal(jLabelEls[i],segP(rP,[s+.03,s+.25]));
     });
-    jEnd.style.opacity=String(segP(dP,[.95,1]));
-    setReveal(jLinkWrap,segP(p,[.775,.80]));
+    // (the magnifier here is hover-driven — see updateMagnifier(), run from the frame loop)
+    // §4 ↓ cue: in once the Journey has settled, out as §5 rises
+    setCue(journeyCue,Math.min(segP(p,[.78,.80]),1-segP(p,[.83,.87])));
     // §4→§5 — Skills rises over the Journey
     skillsLayer.style.transform=reduce?'none':'translate3d(0,'+((1-p4)*100)+'%,0)';
     if(reduce){ skillsLayer.style.opacity=String(p4); }
+    sInner.style.opacity=String(Math.max(0,1-p5*1.35)); // fades as Contact rises
+    // §5→§6 — the Contact bookend rises over the settled Skills (the final roll-over)
+    afterLayer.style.transform=reduce?'none':'translate3d(0,'+((1-p5)*100)+'%,0)';
+    if(reduce){ afterLayer.style.opacity=String(p5); }
     // §5 contents — title + lead, then the lines drift in from their own
     // sides, then the skills link (the closing button + footer live on the bookend)
     setReveal(sTitle,segP(p,[.92,.945]));
     setReveal(sLead,segP(p,[.93,.955]));
     for(let i=0;i<sLines.length;i++){
-      const s=.94+i*.012;
+      const s=.932+i*.012;
       setRevealX(sLines[i],segP(p,[s,s+.03]),1,sLines[i].classList.contains('r'));
     }
-    setReveal(sLink,segP(p,[.975,1]));
+    setReveal(sLink,segP(p,[.972,.995]));
+    // §5 ↓ cue: in once Skills has settled, out as Contact rises (praw)
+    setCue(skillsCue,Math.min(segP(p,[.965,1]),1-segP(praw,[.82,.87])));
     // current-section indicator: blank on Hero, then follows the section in view
     let label='';
-    if(p4>.6) label='Skills';
+    if(p5>.5) label='Contact';
+    else if(p4>.6) label='Skills';
     else if(p3>.6 && p4<.4) label='Journey';
-    else if(p2>.6 && p3<.4) label='Behind the demo';
+    else if(p2>.6 && p3<.4) label='Behind the scenes';
     else if(p1>.97 && p2<.4) label='Live demo';
+    // menu drawer ground: tints to the section in view (matching the inner pages'
+    // per-page grounds), white on Hero/Demo/Contact. Left unchanged mid-transition
+    // so an open drawer holds its tint instead of flashing white through the gaps.
+    let ground='';
+    if(p5>.5) ground='#ffffff';                             // Contact — white bookend
+    else if(p4>.6) ground='var(--wash-rose)';               // Skills
+    else if(p3>.6 && p4<.4) ground='var(--wash-ochre)';     // Journey
+    else if(p2>.6 && p3<.4) ground='var(--wash-sage)';      // Behind the Scenes → Architecture
+    else if(p1>.97 && p2<.4) ground='#ffffff';              // Live demo
+    if(ground) document.documentElement.style.setProperty('--ground',ground);
     if(label) indicator.textContent=label;
     indicator.style.opacity=label?'1':'0';
   }
   function frame(now){
     const dt=now-lastT; lastT=now;
     const t=targetProgress();
-    if(reduce){ current=t; }
+    if(reduce||settling){ current=t; }   // the settle IS the curve — don't ease it twice
     else{
-      const tau=durMs()/3; // smaller --dur = snappier chase, larger = calmer float
+      const tau=durMs()/4; // smaller --dur = snappier chase, larger = calmer float
       current+=(t-current)*(1-Math.exp(-dt/tau));
       if(Math.abs(t-current)<.0005) current=t;
     }
     apply(current);
+    updateMagnifier();
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
 
-  // ---- the ↓ arrows: hero → demo (past its assembly), demo → §3 (fully built) ----
-  arrowBtn.addEventListener('click',()=>{
-    window.scrollTo({top:runwayEnd*.24,behavior:reduce?'auto':'smooth'});
-  });
-  demoArrow.addEventListener('click',()=>{
-    window.scrollTo({top:runwayEnd*.55,behavior:reduce?'auto':'smooth'});
-  });
+  // ---- the ↓ cues scroll to the next section's floor ----
+  const scrollToP=p=>scrollHold(runwayEnd*p);
+  arrowBtn.addEventListener('click',()=>scrollToP(.2));                            // hero → demo
+  demoArrow.addEventListener('click',()=>scrollToP(.4));                          // demo → Behind
+  sceneCue.querySelector('.arrow-btn').addEventListener('click',()=>scrollToP(.6));   // → Journey
+  journeyCue.querySelector('.arrow-btn').addEventListener('click',()=>scrollToP(.8));  // → Skills
+  skillsCue.querySelector('.arrow-btn').addEventListener('click',()=>scrollToP(1));     // → Contact
 
   // ---- slide-in menu: panel from the right, staircase stagger ----
   const menuBtn=document.getElementById('menuBtn');
@@ -672,11 +1427,11 @@
   // destinations that exist in this prototype: Home → top, Contact → the bookend
   document.getElementById('mHome').addEventListener('click',e=>{
     e.preventDefault(); setMenu(false);
-    window.scrollTo({top:0,behavior:reduce?'auto':'smooth'});
+    scrollHold(0);
   });
   document.getElementById('mContact').addEventListener('click',e=>{
     e.preventDefault(); setMenu(false);
-    window.scrollTo({top:document.querySelector('.after').offsetTop,behavior:reduce?'auto':'smooth'});
+    scrollHold(runwayEnd);
   });
 
   // ---- the bookend's click-to-copy email (the footer's mail icon) ----
@@ -685,6 +1440,77 @@
     try{ await navigator.clipboard.writeText('kallukalia01@outlook.com'); }catch(e){}
     emailCopied.style.opacity='1';
     setTimeout(()=>{ emailCopied.style.opacity='0'; },1600);
+  });
+
+  // ---- §2 pad: real ink + the idle self-drawing demo ----
+  // store-window behaviour: the pad demonstrates itself until the visitor takes
+  // over; 15s of quiet fades their sketch and the demo resumes.
+  const padSvg=document.getElementById('padSvg');
+  const padInk=document.getElementById('padInk');
+  const mockPath=document.querySelector('#padMock path');
+  // the demo rotates through doodles from the model's real 15 classes,
+  // one per loop, so the idle animation doesn't wear thin
+  const MOCKS=[
+    /* cat */      'M40 30 L34 14 L48 24 C 55 21, 65 21, 72 24 L86 14 L80 30 C 88 37, 90 52, 80 62 C 70 71, 50 71, 40 62 C 30 52, 32 37, 40 30 Z M50 44 a1.8 1.8 0 1 0 0.1 0 M70 44 a1.8 1.8 0 1 0 0.1 0 M20 50 L34 52 M20 60 L34 57 M100 50 L86 52 M100 60 L86 57',
+    /* house */    'M30 62 L30 34 L60 16 L90 34 L90 62 Z M52 62 L52 46 L68 46 L68 62',
+    /* star */     'M60 14 L67 36 L90 36 L72 50 L79 72 L60 58 L41 72 L48 50 L30 36 L53 36 Z',
+    /* fish */     'M28 40 C 42 22, 74 22, 88 40 C 74 58, 42 58, 28 40 Z M88 40 L102 32 L102 48 Z M40 36 a2.2 2.2 0 1 0 0.1 0',
+    /* umbrella */ 'M28 44 C 32 20, 88 20, 92 44 M28 44 C 33 38, 39 38, 44 44 C 49 38, 55 38, 60 44 C 65 38, 71 38, 76 44 C 81 38, 87 38, 92 44 M60 26 L60 64 C 60 72, 48 72, 48 65',
+    /* clock */    'M60 16 a24 24 0 1 1 -0.1 0 M60 40 L60 27 M60 40 L71 45',
+  ];
+  let mockIx=0;
+  function setMock(i){
+    mockPath.setAttribute('d',MOCKS[i]);
+    mockPath.style.setProperty('--len',String(Math.ceil(mockPath.getTotalLength())));
+  }
+  setMock(0);
+  // advance at each loop boundary (the mock sits at opacity 0 there — seamless)
+  mockPath.addEventListener('animationiteration',()=>{ mockIx=(mockIx+1)%MOCKS.length; setMock(mockIx); });
+  let strokes=[],drawing=null,padIdleTimer=null;
+  const IDLE_AFTER=15000;
+  function padPoint(e){
+    const pt=new DOMPoint(e.clientX,e.clientY).matrixTransform(padSvg.getScreenCTM().inverse());
+    return pt.x.toFixed(1)+','+pt.y.toFixed(1);
+  }
+  function padWake(){ // any pad activity: demo off, restart the quiet clock
+    document.body.classList.remove('pad-idle');
+    clearTimeout(padIdleTimer);
+    padIdleTimer=setTimeout(padIdle,IDLE_AFTER);
+  }
+  function padIdle(){
+    if(drawing){ padIdleTimer=setTimeout(padIdle,IDLE_AFTER); return; } // never wipe mid-stroke
+    padInk.style.opacity='0';
+    setTimeout(()=>{
+      padInk.textContent=''; strokes=[];
+      padInk.style.opacity='1';
+      mockIx=(mockIx+1)%MOCKS.length; setMock(mockIx); // resume on a fresh doodle
+      document.body.classList.add('pad-idle');
+    },reduce?0:650);
+  }
+  padSvg.addEventListener('pointerdown',e=>{
+    e.preventDefault();
+    padSvg.setPointerCapture(e.pointerId);
+    padWake();
+    drawing=document.createElementNS('http://www.w3.org/2000/svg','polyline');
+    const p=padPoint(e);
+    drawing.setAttribute('points',p+' '+p); // a tap still leaves a round dot
+    padInk.appendChild(drawing); strokes.push(drawing);
+  });
+  padSvg.addEventListener('pointermove',e=>{
+    if(!drawing) return;
+    drawing.setAttribute('points',drawing.getAttribute('points')+' '+padPoint(e));
+  });
+  ['pointerup','pointercancel'].forEach(ev=>padSvg.addEventListener(ev,()=>{ drawing=null; padWake(); }));
+  document.getElementById('padClear').addEventListener('click',()=>{ padInk.textContent=''; strokes=[]; padWake(); });
+  document.getElementById('padUndo').addEventListener('click',()=>{ const s=strokes.pop(); if(s) s.remove(); padWake(); });
+  document.body.classList.add('pad-idle'); // the demo plays from the start
+
+  // ---- §2 layout dock: instrument ↔ causal columns ----
+  document.querySelectorAll('.layout-dock .chip-btn').forEach(b=>{
+    b.addEventListener('click',()=>{
+      document.body.classList.toggle('demo-cols',b.dataset.layout==='columns');
+      document.querySelectorAll('.layout-dock .chip-btn').forEach(x=>x.classList.toggle('active',x===b));
+    });
   });
 
   // ---- speed dock ----

@@ -214,6 +214,11 @@ One section at a time, each to a locked spec (content, layout, type, motion).
 > **Amended in Stage 4.5 (2026-07-19):** the menu is **absent on the Hero** and arrives
 > with §2; the **Contact entry points to Home's closing bookend**; there is deliberately
 > **no demo entry**.
+>
+> **Amended in Stage 4.6 (2026-07-20):** on **inner pages** the top-bar left slot is
+> **"← Home"** (not the section indicator), and a **persistent bottom navigation tray**
+> (the four inner destinations) carries peer-jumping and the current-location indicator.
+> The menu is kept whole; Home is unaffected. See Stage 4.6.
 
 - **Trigger:** a **hamburger icon** at top-right (not a "Menu" wordmark). Minimal top bar,
   current-section indicator left / icon right.
@@ -240,9 +245,10 @@ it; no clever claim, no tagline. White ground.
 - **Scroll cue:** a single ochre **down arrow (↓) only — no text**, at the bottom.
 - **Top bar — current-section indicator (upper-left):** the upper-left shows the **section the
   visitor is currently in**, and is **blank on the Hero**. It updates as the scroll moves into later
-  Home sections (and shows the page name on inner pages). ~~Hamburger icon top-right as
+  Home sections ~~(and shows the page name on inner pages)~~. ~~Hamburger icon top-right as
   specced.~~ **Amended in Stage 4.5:** the Hero carries **no hamburger** — the menu
-  arrives with §2 (see Stage 4.5).
+  arrives with §2 (see Stage 4.5). **Amended in Stage 4.6:** the indicator is **Home-only** —
+  on inner pages the left slot is **"← Home"** and the bottom tray declares location.
 - **Motion:** headline does a calm expo reveal on load (opacity + small translate on
   `--ease-out-expo`); arrow follows subtly. Respects `prefers-reduced-motion`.
 - **Scroll:** proceeds down into §2 the live demo — see the **Home §1 → §2 transition** spec below.
@@ -297,7 +303,11 @@ the hero fades in place — three things happening on the same scroll:
 - **Reduced motion:** no rise or overlap — the background still settles to the tinted blue, the name
   fades, and the demo simply fades in.
 
-### Home §3 — Behind the demo  _(LOCKED 2026-07-16)_
+### Home §3 — Behind the demo  _(LOCKED 2026-07-16 · DIAGRAM SUPERSEDED 2026-07-31)_
+
+> **Amended 2026-07-31:** the five-stop flow line is replaced by **the ring** — the four planes
+> drawn as a closed loop, with real tool logos in brand colour on each stop, and the action link
+> moved inside the ring. See the decision log entry for 2026-07-31.
 
 The reveal: recast the playful doodle as proof of real systems engineering, and hand off to the
 `/architecture` page. Sage ground; section indicator reads **"Behind the demo"**.
@@ -306,7 +316,7 @@ The reveal: recast the playful doodle as proof of real systems engineering, and 
   pass).
 - **Title:** **"Behind the Scenes"** in Bodoni Moda.
 - **Lead:** one Outfit line — **"From strokes to prediction"**.
-- **Teaser — simplified flow line:** a light horizontal line-diagram of the pipeline,
+- ~~**Teaser — simplified flow line:**~~ **Replaced 2026-07-31 by the ring** (below). Was: a light horizontal line-diagram of the pipeline,
   **draw ▸ preprocess ▸ model ▸ serve ▸ monitor**. Thin ink connectors (`#0a0a0a`, per the
   ink-line rule) with small arrows, Outfit stage labels; **non-interactive** (the clickable version lives on `/architecture`). Wraps to
   a vertical stack on mobile.
@@ -453,7 +463,14 @@ read, and keep walking.
 - **Mobile:** the card fills most of the screen with small margins — a reading sheet — and
   closes the same three ways.
 
-### Architecture page (`/architecture`)  _(LOCKED 2026-07-17)_
+### Architecture page (`/architecture`)  _(LOCKED 2026-07-17 · AMENDED 2026-07-20)_
+
+> **Amended in Stage 4.7 (2026-07-20):** the page now opens with a **consolidated
+> system-overview diagram** (the whole machine in one view) under an **"Overview"**
+> heading, then the three chapters as the breakdown; the **five-stop summary line is
+> removed** and chapter diagrams may use **icon tiles / a vertical flow**. Structure only —
+> every node, tool name, and stop is illustrative and changes once the platform is built.
+> See Stage 4.7.
 
 The mlops deep-dive as a **three-chapter story**, told in the site's line-and-dot grammar.
 Sage wash (inner-page tint precedent, from Home §3); section indicator reads
@@ -462,15 +479,20 @@ against the built system at implementation.
 
 - **Title:** **"Architecture"** in Bodoni Moda; Outfit lead: **"The machine behind the
   doodle"**.
-- **Summary line:** the familiar five-stop line (draw ▸ preprocess ▸ model ▸ serve ▸
-  monitor) sits under the title — the anchor to Home §3. Non-interactive here too; the
-  chapters below do the work.
+- ~~**Summary line:** the familiar five-stop line (draw ▸ preprocess ▸ model ▸ serve ▸
+  monitor) sits under the title — the anchor to Home §3.~~ **Removed in Stage 4.7** — the
+  consolidated **Overview diagram** supersedes it as the page's opening (see Stage 4.7).
 - **Arrival transition — "the line carries you," reused.** From Home §3's "Explore the full
   architecture →": the section fades and the five-stop line persists, redrawing at the top
   of the page (view-transition morph if the modified Next.js allows; fade + draw fallback;
   plain fade under reduced motion). From the menu, the page arrives with the line drawing in.
+  **Amended in Stage 4.7:** with the five-stop line gone, the Home §3 hand-off now morphs
+  into the **Overview diagram's top** instead (exact morph target TBD at implementation);
+  fallback + reduced-motion unchanged.
 - **Three chapters,** each a Bodoni Moda heading + one plain Outfit sentence + a thin-ink
-  diagram (`#0a0a0a` — dots as stops, thin connectors, Outfit labels with few-word sub-labels):
+  diagram (`#0a0a0a` — dots as stops, thin connectors, Outfit labels with few-word
+  sub-labels; **amended in Stage 4.7:** stops may instead be **icon tiles** and a chapter
+  may run **vertically** as a loose flow chart — see Stage 4.7):
   1. **The road your doodle took** — browser → Lambda wakes from zero (FastAPI + ONNX) →
      the guess comes back → the doodle is logged to S3. A replay of what the visitor just
      did on Home.
@@ -679,6 +701,12 @@ where noted inline; the prototypes are the working reference.
 
 ### Motion model — scrubbed, with clocked money moments
 
+> **Note (2026-07-28):** an event-driven **paged** variant (one gesture = one always-completing
+> transition, native scroll off) was tried to fix the "stranded between sections on a jittery
+> mouse" problem, then **reverted** — it read as frustrating on repeat visits. Scrubbed
+> position-drive (below) stands. Two things from that round were **kept** because they're
+> independent of the driver: the per-section outgoing fade, and the ↓ next-section cues on §3–§5.
+
 - **Scrub-driven reveals.** Section transitions and content reveals are driven by scroll
   position, not timers: each element owns a **slice of the scroll** and its
   opacity/transform is a pure function of progress through that slice; overlapping
@@ -695,7 +723,9 @@ where noted inline; the prototypes are the working reference.
   stagger delay is a multiple of a single `--dur` token (default **.48s**; final value
   tuned via the preview's speed tester at implementation). Hover/feedback transitions
   stay fast and off the token.
-- **Hard floors.** The Home scroll snaps: `scroll-snap-type: y mandatory` with
+- **Hard floors.** _(Amended 2026-08-13 — CSS scroll-snap is gone: it made the page
+  immovable by mouse wheel. The floors are enforced in the script instead; see the
+  decision log.)_ The Home scroll snapped: `scroll-snap-type: y mandatory` with
   `scroll-snap-stop: always` at each section's resting point. A fling stops at the next
   section (each section demands its own gesture to leave); released scroll always
   resolves onto a section, so transitions self-complete and parking mid-transition is
@@ -738,6 +768,96 @@ where noted inline; the prototypes are the working reference.
   unintentionally skip the flagship, and tighter control over the experience than
   offering two competing doors. Accepted costs, on record: a visitor who never scrolls
   sees no navigation; returning visitors pay one flick before the menu exists.
+
+---
+
+## Stage 4.6 — Inner-page navigation & wayfinding (from section prototyping)  _(LOCKED 2026-07-20)_
+
+Building the four inner pages as a working artifact — `sections-prototype.html` (Journey,
+Architecture, Skills, About from their locked Stage 3 specs, sharing the shell, the "line
+carries you" arrival, the slide-in menu, and the paper-card grammar) — surfaced a
+navigation gap: the four inner destinations are **peers** a visitor will want to hop
+between, and routing every hop through the slide-in menu is friction. Two additions,
+**inner-pages only**; supersedes the affected nav text where noted.
+
+- **Bottom navigation tray (new).** A small, persistent pill centered at the **bottom** of
+  every inner page listing the four inner destinations — **Journey · Architecture · Skills ·
+  About** — as peer links, the current one filled (ink) as its active state. It **doubles as
+  the current-location indicator**: on inner pages *the tray declares where you are*, so the
+  top-bar section indicator is retired (below). `aria-current="page"` on the active item.
+  Rationale: fast sibling-to-sibling jumping without opening the menu, in a light centered
+  element that doesn't span or clutter the editorial layout the way a top nav bar would.
+- **Top-left "← Home" (new).** With the tray owning location, the top-bar's left slot is
+  free; inner pages put a **"← Home"** back affordance there — a thin-line left arrow +
+  "Home", ink warming to ochre, the arrow **nudging left on hover** (the site's motion
+  character). A direct escape back to the Hero, clearer than routing through the menu.
+- **Inner-page top bar, settled: "← Home" left · hamburger right.** The **current-section
+  indicator is dropped on inner pages** (superseded by the tray). It still lives inside the
+  **Home scroll** per Home §1 — blank on the Hero, updating through §2–§5.
+- **The menu is kept as-is** — the full six-item map on every page. On inner pages its
+  unique remaining value is **Contact** (the tray covers the four inner pages; "← Home"
+  covers Home), so it stays as the Contact path and the consistent full map. **Considered
+  and deferred:** trimming or dropping the menu on inner pages — not worth the cross-page
+  inconsistency now; revisit only if it reads as pure redundancy.
+- **Home is unaffected.** No tray, no "← Home" on the Home scroll — the funnel-through-the-
+  demo flow (menu arrives with §2, bare Hero) stands. The tray + "← Home" are strictly an
+  **inner-page convention**.
+- **Supersedes:** the Stage 3 nav intent of **"no persistent nav bar"** — the bottom tray
+  *is* persistent nav, accepted on inner pages because peer-jumping earns it and the pill
+  stays visually quiet — and the **"top-bar left = current-section indicator"** slot **on
+  inner pages** (now "← Home").
+- **Mobile:** the tray sits centered at the bottom edge; the four short labels stay on one
+  row, compacting to a tighter pill on the narrowest widths.
+
+---
+
+## Stage 4.7 — Architecture page: overview, then breakdown (from prototyping)  _(LOCKED 2026-07-20)_
+
+Prototyping the Architecture page (`sections-prototype.html`) showed the three-chapter
+story never lets a visitor see the **whole system at once** — they meet the parts before
+the shape. Fix: **an overview first, the chapters as the breakdown.** This revisits the
+Stage 3 rejection of a "one-big-map" — the difference is *overview **plus** breakdown* (not
+instead of), and the map stays high-level, so the mobile-density worry that killed the
+original one-map idea doesn't return.
+
+> **Content is illustrative.** Every node, tool name, sub-label, chapter stop, and the
+> exact diagram topology below is **placeholder** — the real system is still being built
+> and the finished content will differ significantly. Stage 4.7 fixes **structure,
+> grammar, and interaction**, not inventory.
+
+- **Overview diagram (new — replaces the summary line).** An **"Overview"** heading
+  (Bodoni, a peer to the chapter titles) over a **consolidated system diagram** — the whole
+  machine in one view. Shape = **a unified lifecycle with a fork**: a top-to-bottom flow of
+  node tiles (white, hairline + soft shadow — the paper-card family) joined by thin-ink
+  connectors, where a shared artifact **forks to two subsystems and merges back**
+  (prototype's illustrative topology: data → build → container image → forks to live-serve
+  + weekly-rehearse → merges to monitoring). The five-stop `draw ▸ preprocess ▸ …` line is
+  **removed** — the real diagram is the overview now.
+- **Zones vs. connective tissue.** The diagram's **subsystem tiles are interactive
+  "zones"** — hovering shows a **"see chapter ↓"** cue and clicking **scroll-jumps to that
+  subsystem's chapter** below (keyboard-operable). The **shared artifacts** between zones
+  are **non-interactive** — their detail lives in the chapters. So the overview both
+  explains the system *and* is the table of contents into the breakdown.
+- **Fork/merge drawing.** The branch/merge lines are **CSS-drawn** at the two branch
+  columns' centres (uniform ink weight, no distortion) and **collapse to a vertical stack
+  on mobile**, keeping the map readable small — the property the original one-map lacked.
+- **Chapter diagrams — icon tiles + optional vertical flow.** A chapter's stops may render
+  as **icon tiles** (one **monochrome thin-ink glyph per tool** + name + role, warming to
+  ochre on hover — still no colour, still no emoji) and the chapter may run **vertically as
+  a loose flow chart** when it has too many stops for one row; the quality gate's
+  **dead-end stub branches to the side**. Applied to chapter 2 ("the factory") in the
+  prototype; chapters 1 and 3 stay horizontal for now.
+- **Supersedes / affects:** the Stage 3 **"Summary line"** bullet (removed) and the
+  **"one-big-map rejected"** rationale (an overview map returns, kept high-level); the
+  **Home §3 → Architecture "line carries you" arrival** loses its five-stop anchor and now
+  hands off into the **Overview diagram's top** (exact morph target TBD at implementation).
+- **Open (deferred, not locked):**
+  - **Tool icons — glyphs vs. brand logos.** The prototype uses on-brand **monochrome
+    conceptual glyphs**; whether to switch to **actual brand logos** (which would introduce
+    colour — a real departure from the locked ink + one-ochre palette — or be rendered as
+    monochrome marks) is unresolved.
+  - **Chapter consistency.** Whether **all three** chapters adopt the vertical icon-flow, or
+    short chapters keep the horizontal dotted row as a deliberate contrast.
 
 ---
 
@@ -785,8 +905,9 @@ proof a first-class home and reorganizes the internals into two tray-navigated *
 ### The two trays
 
 - Bottom-center pill (`.switch-dock` grammar from `sections-prototype.html`): Outfit labels, active =
-  filled ink, tray declares the current location (`aria-current`). The prototype's tray currently
-  includes About; **About is pulled out** of both trays here.
+  filled ink, tray declares the current location (`aria-current`). ~~The prototype's tray currently
+  includes About;~~ **About is pulled out** of both trays here _(done in `sections-prototype.html`
+  2026-07-28: Story tray = Architecture · Journey · Skills; About active → no tray item highlights)_.
 - **Isolated by mode** (decided 2026-07-26): the Story tray only cycles Architecture/Journey/Skills;
   the Data tray only cycles the Data pages. **No cross-mode tray link — the menu is the only bridge
   between modes.** Rationale: each mode stays focused, and the menu earns its keep as the one global
@@ -819,7 +940,10 @@ they'd leave the two-mode structure invisible. Instead:
   **Wayfinding inside the mode is the tray, not color** — so the three pages deliberately share a
   ground; crossing from a warm story wash to the cool instrument ground *is* the "you've entered the
   machine room" signal. Provisional ground: a light cool neutral (placeholder `#f2f4f7`, slate-tinted
-  — exact value set in the visual pass, contrast-checked like the token pass).
+  — exact value set in the visual pass, contrast-checked like the token pass). _(2026-07-28: the
+  visual pass A/B'd this — the shared ground became **white with lifted-paper cards + a cool well**;
+  the crossing signal now rides the chrome (slate shadows, cool hairlines), not a ground tint. See
+  "Data-mode visual pass".)_
 - **Ochre stays the sole *interactive* accent** everywhere (bright `#c98a3a` for large marks / fills /
   hovers, deep `#96600a` for small links + labels — unchanged from the token pass).
 - **Data mode adds a semantic *status* palette** — positive / watch / negative (pass·stable /
@@ -838,15 +962,22 @@ doorway *into* Data mode — takes the **Data instrument ground** as foreshadowi
 orphaned blue. So Home reads: Hero (white) → Demo (instrument) → Architecture teaser (sage) → Journey
 teaser (ochre) → Skills teaser (rose) → Bookend (white) — every section now the colour of where it
 leads. (Revises the Stage 2 "spend all four warm washes in order" note; provisional with the rest.)
+_(2026-07-28: Data mode's ground went **white** in the visual pass — and the Demo foreshadow was
+**reconciled the same day**: §2 now grounds on Data mode's **well `#f6f8fb`** (a real machine-room
+surface, so the "colour of where it leads" rule stays truthful and the Hero→Demo cross-fade beat
+survives), and **both demo columns are lifted Data panels** — canvas and predictions, two floating
+papers on the well, the Data-mode composition before the visitor knows it. Bar tracks take the
+Data grid tint.)_
 
 ### Open (to decide — nothing locked)
 
 - ~~**Data-mode split:** one combined page vs several.~~ **Resolved 2026-07-26 — three pages:
   Quality · Monitoring · Performance** (see Data mode above).
 - ~~**Ground/color for Data mode / does wash-per-page survive?**~~ **Resolved 2026-07-26 — color
-  encodes the mode** (see "Color & wayfinding" above). Left for the visual pass: the exact
+  encodes the mode** (see "Color & wayfinding" above). ~~Left for the visual pass: the exact
   instrument-ground value, the status-palette hues (incl. the "watch"-vs-ochre nuance), and whether
-  Data pages take quiet per-page accents.
+  Data pages take quiet per-page accents.~~ **Visual pass done 2026-07-28** — see "Data-mode visual
+  pass" below; all three settled (watch = ochre, by measurement; no per-page accents).
 - ~~**Home teaser order** and the closing bookend's About link.~~ **Resolved 2026-07-26 — order:
   Hero → Demo → Architecture → Journey → Skills → Closing** (matches the colour foreshadowing and the
   original Stage 2 comp); the **closing bookend carries the About link** ("or learn more about me →"),
@@ -861,9 +992,584 @@ leads. (Revises the Stage 2 "spend all four warm washes in order" note; provisio
 
 ---
 
+## Data-mode visual pass (2026-07-28) — palette settled, three pages prototyped  _(A/B: `data-prototype.html` tinted vs `data-prototype-white.html` white/lifted paper — **white picked 2026-07-28**)_
+
+The IA rework left three things "for the visual pass"; all three are now settled — by validator
+runs (the data-viz six checks + WCAG contrast), not taste — and proven on working prototypes of
+all three Data pages, rendering the **real hub contracts** (evidence/drift/feedback are live
+snapshots; api-metrics is mock-to-contract until the hub's first EKS capture lands). Two surface
+schemes were built and compared; **`data-prototype-white.html` is the settled reference**.
+
+### The instrument instance (validated)
+
+- **Surfaces — white ground + lifted paper** _(picked over the tinted ground in the same-day A/B)_.
+  The provisional tinted ground (`#f2f4f7`, near-white cards) was built first, then flipped:
+  the page grounds on **white**, and the cards do the work — **data panels are lifted paper**
+  (white cards, cool hairline `#e4e8ef`, deeper **slate-tinted shadows** `rgba(15,23,42,…)` so the
+  lift reads without a ground tint), while **narrative panels sink into a faint cool well
+  `#f6f8fb`** (the verdict banner, the rehearsal explainer) instead of lifting. That yields three
+  surface levels — **well < ground < paper** — so callouts, ground, and data read as different
+  *kinds* of content; the tinted scheme only ever had one level. The "machine room" coolness now
+  lives in the **chrome** (slate shadows, cool hairlines, gridlines `#e7ebf1`, axis `#c9cfd9`),
+  not the ground — the warm site keeps its warm `--border`; Data mode's chrome cools by a step.
+- **Chart ink is one blue family** — primary `#2a78d6` (4.3:1 on the card, revalidated on
+  `#ffffff` after the white pick), a 13-step sequential ramp
+  for the confusion heatmap, and a 4-step **ordinal ramp** for latency percentiles
+  (`#86b6ef → #3987e5 → #256abf → #104281`, p50→p99 — passes the ordinal checks: monotone
+  lightness, ≥.06 step gaps, light end ≥2:1). Reference/context series are a deliberate cool gray
+  `#8a93a1` (emphasis form: the current window is the point, the reference is context) — the pair
+  separates at ΔE 16.3 normal / 14.1 CVD.
+- **Status trio:** positive `#0ca30c` (small text `#006300`, 7.4:1) · negative `#d03b3b` (4.7:1,
+  doubles as its own text step) · **watch = brand ochre `#c98a3a`** (small text = deep ochre
+  `#96600a`, 5.2:1). **The watch-vs-ochre nuance is resolved by measurement:** the best distinct
+  amber (`#fab219`) sits **ΔE 13.7** from brand ochre — under the 15 normal-vision floor, i.e. an
+  almost-collision readers can't reliably resolve. Either clearly distinct or deliberately
+  identical; so ochre *is* the attention colour, status and interactive both. Status never rides
+  on colour alone — every status mark ships **icon + label** (which also covers the red/green CVD
+  collapse every pass/fail scale has).
+- **No per-page accents inside Data mode.** Built shared-first; the pages differentiate by
+  content shape (report card / drift histograms / load-test series), and the tray carries
+  wayfinding. A per-page accent would fight the one-blue instrument identity for no informational
+  gain. Revisit only if a real build feels flat.
+
+### Grammar the prototype adds (Data-mode specific)
+
+- **The arrival line is back on Data pages** (removed, then restored 2026-07-28 — Monish's call
+  both times): the plain fade was tried for a day and the pages arrived flat; every internal
+  page — Story and Data — now shares the site-wide "the line carries you" ink stroke again.
+  **Per-page placement** (2026-07-28): on **every internal page — Data and Story** — the line is
+  positioned just right of that page's own title (measured live via a Range on the `.page-title`,
+  +52px, clamped clear of the menu button) so it never crosses the headline. A fixed centre line
+  collided with the long titles (Monitoring, Performance; Architecture, The Journey). Lines
+  deliberately don't align across pages; each sits in its own header's clear zone, and it
+  re-measures per navigation so it survives any viewport width. `positionArrival()` is identical
+  in all three prototype files.
+- **Progressive edge dissolve** (added 2026-07-28, Monish's call): scrolling content blurs + fades
+  out at the viewport's top and bottom edges — three stacked backdrop-blur layers per edge
+  (2 → 6 → 14px, each mask-banded so the blur genuinely ramps) plus a soft wash toward the ground
+  colour. Sized subliminal: 130px bottom / 110px top, heavy blur only in the last ~40px — felt,
+  not noticed. Scroll-driven: the top edge only appears once scrolled (~140px ramp), the bottom
+  edge fades out at the document end so the footer reads crisp. Chrome (topbar, trays, tooltip)
+  sits above it, always sharp.
+- **Provenance row** under every page lead: contract name · generated-at · cadence, with an
+  honesty chip — `● live data` vs a dashed `mock — first capture pending` / `illustrative`. The
+  dashed chip reuses the site's "dead end" dashed grammar for not-yet-real things.
+- **Panel** = the mode's card: cool surface, 13px radius, soft shadow; Bodoni stays for page/section
+  titles, but **data figures are Outfit** (hero number, tiles, axes — a display serif on numbers
+  reads as decoration; the report-card voice is the sans).
+- **Every chart has a hover layer and a `data` table twin** (chip toggle) — tooltips enhance,
+  tables guarantee; axis/labels never wear series colour.
+- **The gate is drawn as an instrument reading**: a number line with the blocked zone, the ε band
+  (ochre wash = attention), champion (ink, upper lane) vs challenger (blue, lower lane). The runs
+  table derives a `below floor` chip from the contract itself (any run under `gate.min_test_accuracy`)
+  — v3's 0.5049 wears it, tying the registry to the blocked-run story without asserting anything
+  the data doesn't say.
+- **Monitoring leads with the verdict banner** (drifted 3/3, framed as the instrument catching the
+  world moving — the flywheel's food, not a failure), then ref-vs-current histograms (gray behind
+  blue), the class-share dumbbell sorted by shift, sparse-but-real trend dots, and feedback framed
+  as "a signal, not a score" (n=21).
+- **Performance is framed as the dress-rehearsal snapshot** ("captured 〈date〉 · monthly load
+  test"), latency percentiles on the ordinal ramp, k6 phase bands on throughput, a status ledger
+  (counts + meters — honest at 147k/1.8k/40 ratios), and the signature tile: **left running
+  after: 0**.
+
+### Follow-ups this pass surfaced
+
+- ~~**The Demo §2 foreshadow needs re-deciding** (from the white pick).~~ **Resolved 2026-07-28 —
+  the well + lifted paper**: the Demo grounds on Data mode's well `#f6f8fb` (not the retired
+  `#f2f4f7`, not pure white — the well is a real Data surface, so the foreshadow stays truthful
+  while the Hero→Demo cross-fade beat survives), and the canvas card wears the Data panel chrome
+  (cool hairline `#e4e8ef`, slate shadow, 13px radius); bar tracks take the Data grid `#e7ebf1`.
+  Reconciled in `transition-prototype.html`.
+- ~~Fold the white scheme into `data-prototype.html` (or retire the tinted file) once the Home-side
+  foreshadow question is settled — until then both variants stay for reference.~~ **Done 2026-07-30 —
+  retired the tinted `data-prototype.html`; `data-prototype-white.html` is the single Data-mode page.**
+- ~~`sections-prototype.html` is stale vs the IA rework: its tray still lists About, and its menu
+  is the old 6-item list — reconcile next.~~ **Done 2026-07-28** — Story tray is now Architecture ·
+  Journey · Skills (About off-tray, reachable from the menu); menu is the 9-item global bridge
+  cross-linking into the Data + Home prototypes. (Default landing stays Journey — a prototype
+  detail; on the real site each Story page is entered from its own Home teaser.)
+- Producer-side (mlops): the confusion matrix exists only as a PNG (explicitly not
+  styling-agnostic) — the Quality page wants **cell-level matrix data in `evidence.json`**; until
+  then the prototype's matrix is IPF-derived from the real per-class marginals and labeled
+  `illustrative`. And `api-metrics.json` still 404s on the hub — the Performance page swaps to real
+  the moment the first capture publishes.
+
+---
+
 ## Decision log
 
 Newest first. Each entry: what was decided and why.
+
+- **2026-08-13** — **The scroll is tuned per input device: the mouse pages, the trackpad scrubs**
+  (`transition-prototype.html`). With the wheel working again, it still didn't feel good on either
+  device. Profiled it properly — recording scroll position *and* the whole visible scene (panel
+  position + hero fade + background wash) every frame — and fixed four things.
+  - **One rule cannot serve both devices.** A step is ~2070px and a mouse notch is ~120px, so
+    scrubbing one section by wheel is **seventeen notches**: the mouse wants to *page*. A trackpad
+    streams dozens of small deltas and wants to *scrub*, with the choreography tracking the
+    fingers. The wheel is now classified — line-mode deltas, or coarse ones with no recent fine
+    stream, are a mouse; three sub-40px deltas inside 250ms are fingers — and each gets its own
+    path. **One notch = one section**, further notches queue rather than abort (throttled to
+    220ms so leaning on the wheel walks the story instead of teleporting through it). Touch and
+    trackpad keep free scrubbing plus the settle. _Consequence on record: with a mouse you can no
+    longer free-scrub a transition; you page and watch it play. That is the trade for it working
+    at all._
+  - **The settle now runs on the site's own curve.** It was using `behavior:'smooth'` — Chrome's
+    curve, distance-dependent and ~950ms for a full step — which made the single most-seen motion
+    on the site the one motion *not* on the site's easing. It is now an rAF **smoothstep** whose
+    duration scales with distance off `--dur`: velocity is near-constant through the middle and
+    zero at both ends, so a transition plays at an even tempo rather than blasting through and
+    then crawling.
+  - **Two easings were composing.** The scrubbed layers chase the scroll exponentially, and the
+    browser was easing the scroll underneath them — a curve on a curve, which is what produced
+    the soft lurch. During a settle the layers now follow the scroll exactly (`current = t`); the
+    settle *is* the curve. Chase constant also tightened from `--dur`/3 to /4 for a more connected
+    trackpad feel.
+  - **A committed move skips the step's lead-in dwell.** Nothing is animated in the first ~9% of a
+    step — it exists so a *resting* section holds for a beat before its transition starts, not to
+    pad a move already committed to. Left in, it was about a third of the settle spent visibly
+    doing nothing.
+  - **Measured, same harness before and after.** Mouse: time to first visible change **403ms →
+    143ms**, with the transition then playing over 383ms instead of being crammed into 216ms.
+    Trackpad: the terminal snap — **47% of the travel in the last 20%** — is now **11%**. Evenness
+    (peak share of any tenth of the motion; 10% is perfectly even) 16%/24% → **15%/19%**.
+  - **Also fixed:** a settle-cancel race found on the way. At a 60ms debounce, steady wheeling
+    fired a settle *between* notches and the next notch cancelled it mid-flight, landing the
+    visitor back where they started; paging the mouse removes the race. And the wheel now yields
+    to §2's internal scroll below 390px instead of hijacking it.
+  - Verified after: every section still fully settled at its floor, the ↓-cue chain walks all six,
+    menu jumps land, real touch swipes (short and long) settle exactly one section on, phone
+    layouts unchanged, no console errors.
+
+- **2026-08-13** — **The floors move out of CSS scroll-snap and into the script — the mouse wheel
+  never worked** (`transition-prototype.html`). Reported as "mouse scroll isn't working properly",
+  and measurement was blunt: **twelve wheel notches moved the page 0px.** Not a regression — the
+  same test against `b0f70d7`, before any of this session's work, is also 0px. The wheel has been
+  dead for as long as the floors have existed.
+  - **Cause.** `scroll-snap-type: y mandatory` with floors ~**2070px** apart, against a mouse notch
+    of ~**120px**. Every tick is ~6% of a step, so Chrome snapped it straight back. Confirmed by
+    isolation: with snap `none` the wheel scrolls normally (120px/tick), with `mandatory` **or**
+    `proximity` it is completely immovable. It went unnoticed because **the keyboard still works**
+    (PageDown lands exactly one step) and a trackpad's momentum can clear the halfway mark.
+  - **Fix — floors enforced in JS.** Snap is off. The scroll now scrubs freely while the wheel is
+    turning — which is what scrub-driven motion was always for, you *watch* the choreography — and
+    eases onto a floor once the gesture stops, so it still can never rest mid-transition. Any fresh
+    wheel/touch/key input cancels an in-flight settle, so this never gates a gesture the way the
+    rejected 2026-07-28 paged experiment did.
+  - **The commit threshold has to be in pixels, not a fraction of the step.** Settling on the
+    *nearest* floor reproduces the original bug exactly (a notch is 6% of a step, so it is always
+    dragged back), and a fraction-based threshold still fails for slow scrolling because each notch
+    settles back before the next one arrives — they never accumulate. At **`COMMIT_PX = 60`**,
+    under one notch, a single deliberate turn commits and the settle scrubs the rest of the
+    transition for you.
+  - **Measured after:** one notch → Demo; three slow notches → Demo; six slow → Behind; a normal
+    15-notch scroll → Demo; a 40-notch fling → Behind; trackpad drift → Demo; and scrolling back up
+    returns to the Hero. The ↓-cue chain still walks Hero→Demo→Behind→Journey→Skills→Contact, the
+    menu's Home/Contact jumps land exactly, touch is unaffected, no page errors.
+  - **Departure on record:** Stage 4.5's "a fling cannot pass a section" is **no longer strictly
+    enforced** — a long fling can cross two. That guarantee was only ever delivered by the snap
+    that made the page unusable with a mouse, and the more important half — *released scroll always
+    resolves onto a section* — is kept. A fling now scrubs both transitions on the way past, so
+    nothing is skipped unseen.
+
+- **2026-08-13** — **Every section now owns an equal share of the Home scroll**
+  (`transition-prototype.html`). The scroll felt uneven, and measurement said it was: the five
+  steps between resting floors ran **.192 / .248 / .208 / .152 / .200** of the runway — Journey→
+  Skills was **39% shorter** than Demo→Behind. The floors had been placed by hand as the
+  choreography grew, so each section had quietly ended up with a different slice.
+  - **Fix — a piecewise scroll→progress remap, not a re-timing.** Dozens of sub-reveals are
+    authored against `p`, so rather than move them all, `apply()` now runs `p = storyP(praw)`,
+    which maps an **even raw grid** (`RAWF = [0,.2,.4,.6,.8]`) onto the **authored rest points**
+    (`PF = [0,.24,.55,.81,1]`). Each section still settles at exactly the progress it was tuned
+    at; the scroll between them is now equal. Floors and the ↓-cue jump targets moved to the same
+    grid, and `STORY_END` is retired (the remap subsumes it). Measured: **all five steps 230vh**,
+    and every section verified fully settled at its own floor.
+  - **Two reveals never actually finished, which read as unevenness.** §4's ↓ cue faded in over
+    `[.80,.82]` while §4 rests at `p=.81` — so it sat at **50% opacity** at its own resting point,
+    the only cue on the page that wasn't fully in. And §5's skills lines ran `s=.94+i*.012` over
+    `s+.03`, putting the **fourth line's window at `1.006`** — past the end of the runway, so
+    "Next.js · TypeScript" was frozen at 80% forever. Windows corrected to `[.78,.80]` and
+    `s=.932+i*.012`; the link settles at `[.972,.995]` instead of exactly on the floor.
+  - **The Hero was the last outlier.** It was the only section whose transition began on the very
+    first pixel of scroll, with no hold — which made its span 144vh against ~105vh for the others.
+    `T1` now starts at `.024`, giving it the same brief lead-in every other section has.
+    Transition spans measured after: **92–104vh across all five** (was 92–150vh).
+
+- **2026-08-13** — **§2 and §4 fixed on phones — the Home scroll's mobile sweep is complete**
+  (`transition-prototype.html`). The 2026-08-06 pass found both sections broken and left them
+  open pending a content call. Both are now decided, and all six sections measure clean at
+  320/360/375/390/414/430.
+  - **§2 Demo — trimmed to one screen** (Monish's pick over an internal scroll or moving the
+    doorway). Measuring first corrected the earlier diagnosis: the title was not being covered by
+    the panel's `padding-top` but by `align-items:center` — with **703px of instrument in a 568px
+    viewport** the column overflowed *both* ends, running the pad up over the title by 7253px².
+    And because `.viewport` is `overflow:hidden`, the doorway and privacy note were not merely
+    "below the fold" — they were **unreachable**. Fixes: the panel is start-aligned; the pad drops
+    its 4/3 ratio for a height cap that scales with the **screen** (`clamp(118px,21vh,190px)`)
+    rather than the width, which alone made it 225px at 390; the 15-class roster collapses to
+    "It knows 15 doodles" and the privacy note to its short form; gaps, padding, feedback and the
+    doorway all tighten. The **↓ cue stops floating and becomes the last item in the column** — it
+    had been landing on the feedback row at 320–375 *and on the doorway at every width from 360 to
+    430*, which the earlier note missed entirely.
+  - **§2's honest residual: one screen holds from 390 up, not below.** At 320×568 the fixed text
+    alone — three bars, prompt, verdict, doorway, privacy — outruns the 477px the viewport has
+    left under the title *before the pad gets a single pixel*; no trim short of dropping content
+    closes the gap. So **≤389px gets a short scroll inside the panel** (scroll chaining left on,
+    so reaching the end carries straight into the Home scroll) instead of content sitting in
+    hidden overflow. 390+ never scrolls — it already fits.
+  - **§4 Journey — the road stops alternating below 700px** (Monish's pick over keeping the curve
+    with fewer entries, or dropping to a plain stacked list). The serpentine's two columns measured
+    ~120px each. On a phone the line runs down the **left** as a gentle wave — it still winds,
+    which is the whole reason the section is drawn rather than listed — with all four points
+    `side:'right'` and each entry stacked down its right at `calc(76% - 16px)`. Implemented as a
+    second `jNodes` set + viewBox (360×540) selected inside `layoutPath()`, so it re-picks on
+    resize; the last point was pulled to y=468 to clear the ↓ cue at 320×568. **Desktop is
+    untouched** — verified identical path `d` and dot positions. The scroll-driven lens needed no
+    change: it is hover-driven on Home, so it simply never arms on touch.
+  - **Swept clean:** §1 Hero, §3 Behind, §5 Skills and §6 Contact re-measured at all six widths —
+    no overlaps, nothing off-screen. §3's constant `ring ∩ serve` overlap is the by-design
+    half-inside stop (identical 3266px² at every width), not a breakpoint break.
+
+- **2026-08-06** — **The ring stays a ring on phones; the invitation steps out of the hole**
+  (`transition-prototype.html` §3). The 2026-07-31 entry left it open whether the ring "may want
+  to stop being a ring" below ~400px. Measured rather than judged by eye — the Home scroll parked
+  at §3 in iframes of a true phone width, and every box in the section read back — and the answer
+  is **no, the loop survives; it's the link that doesn't.** The two side stops hang half inside
+  the circle and "Explore the full architecture →" is a fixed one-liner, so at phone widths the
+  three collide: the link overlapped **Deploy by 366px² and Monitoring by 481px² at 320px**
+  (175/125 at 360, 81/56 at 375, 4/3 at 390, clean from 414 up). On screen it ran straight
+  through both names.
+  - **Nothing else in §3 breaks.** No stop leaves the viewport at any width down to 320, and
+    every logo tooltip stays inside it — the widest, Evidently's 161px "no logo published", still
+    clears. The stops shrink but the four names, sixteen marks and the clockwise arrows all still
+    read at a 198px ring. So the ring was never the problem, and the "unroll it into a column
+    below 400px" option is **not needed** — it would have cost the loop, which is the whole point
+    of the 2026-07-31 rework.
+  - **Fix:** a `@media(max-width:430px)` block moves `.ring-mid` from `top:31%` to
+    `top:calc(100% + 16px)` — the link leaves the hole and sits under the ring — and, no longer
+    having to fit inside a chord, it takes its size back (`clamp(14px,4vw,17px)`). The hole is
+    left empty; the loop reads cleaner for it. Worst-case clearance to the ↓ cue (320×568) is
+    10px of box, ~35px of visible ink. Breakpoint is 430 rather than 400 so 390- and 414-wide
+    phones get margin instead of a touching fit.
+  - **The same pass swept all six Home sections at 320/360/390, and two more are broken.** The
+    whole scroll has only ever had one phone breakpoint (700px), so this was never checked.
+    **§1 Hero, §5 Skills and §6 Contact are fine.** **§2 Demo** is not: the rising panel's
+    `padding-top` is `16vh`, which on a short phone lands *above* the "Draw Something" title and
+    covers it (clean at 390×844, occluded at 320 and 360); the instrument column is also taller
+    than the viewport, so the doorway link and privacy note fall below the fold, and the ↓ cue
+    draws on top of the feedback buttons. **§4 Journey teaser** is worse: the serpentine puts
+    entry text on alternating sides of the line, and at phone widths the two columns are ~120px
+    each — entries overlap each other, the line crosses their text, and "Read the journey →" runs
+    off the right edge. ~~**Open:** §2's overflow needs a content call (shorter canvas? drop the
+    class list?), and §4 needs a decision on what the journey line *becomes* on a phone — a
+    one-sided line with the entries stacked down it is the obvious candidate, but it changes the
+    section's character and the scroll-driven lens with it.~~ **Both resolved 2026-08-13** — §2
+    trims to one screen (with a scroll net below 390px) and §4's line goes one-sided; see the
+    2026-08-13 entry above. The lens turned out to be a non-issue: it is hover-driven on Home.
+
+- **2026-07-31** — **The Architecture teaser becomes a ring, and it wears real tool logos**
+  (`arch-sketches.html` → ported into `transition-prototype.html` §3). The five-stop
+  `draw ▸ preprocess ▸ model ▸ serve ▸ monitor` line is retired. Four ways of drawing the system
+  were sketched on the sage ground and compared — **A the ring** (the loop as one ink circle,
+  stops breaking the line), **B the column** (cards top-to-bottom, return rail up the left),
+  **C the strata** (a band per plane), **D the stanza** (planes set as Bodoni display type, no
+  boxes) — plus **E**, three logo treatments side by side. Monish picked a **hybrid: A's ring +
+  D's display type + real logos in their own colours**, then reworked it. What the ring says now:
+  four stops — **Serving · Monitoring · Build & Ephemeral K8s · Deploy** — each a Bodoni name over
+  at most four tool marks, arrows carrying you clockwise, and **"Explore the full architecture →"
+  in the middle**, in the top half so the two-line stop below has the lower half to grow into.
+  Content comes from the platform's own `architecture.json`, which now publishes.
+  - **Brand logos, in colour — a deliberate departure.** The locked palette was ink plus one
+    ochre; the palette is **reopened** (Monish, 2026-07-31: "the palette isn't locked, we are
+    redesigning things"). Marks are CC0 from Simple Icons. Colour works here because the marks
+    are small and sit *under* a display name — as tiles (option E3) the same colour read as a
+    sponsor wall. **Two tools have no usable mark:** Evidently publishes only a wide wordmark
+    lockup, and the quality gate is an idea, not a product — both wear a drawn mark at the same
+    size and say so in their tooltip. Every mark names itself on hover **and keyboard focus**.
+  - **Text pops by font-size, never by `transform:scale()`.** Scaling doesn't re-typeset — the
+    browser stretches a raster of the glyphs and the type goes soft. Names and links animate
+    `font-size` instead, so they grow crisp and in place. Hovers also moved off
+    `--ease-out-expo` (too front-loaded over 6% of travel: it read as "big, then settling
+    smaller") onto a new **`--ease-hover: cubic-bezier(.2,.7,.35,1)` at .17s**. Marks are SVG, so
+    they still scale.
+  - **The plate gives back what the type takes.** Each stop's name sits on a plate of the ground
+    colour — that plate is what breaks the ring line. Growing the type grew the plate and ate the
+    circle, so the plate now **sheds horizontal padding at the rate the type gains width** and its
+    outer edge holds still. The gap between the name's plate and the marks' plate is padding, not
+    margin, or the arc shows through between them.
+  - **Chevrons are measured, not assumed.** Each stop hides a different slice of arc (21° for
+    Serving, 10° for the side stops, 40° for the two-line one), so a flat 45°/135°/… put every
+    chevron off-centre. `layoutChevrons()` measures each plate and places each chevron mid-way
+    along the arc that remains visible; it re-runs on resize and once Bodoni has loaded.
+  - **Reveal:** the ring **draws itself clockwise from the top** under the scroll (dash-offset on
+    the circle), each stop and each chevron appearing as the line reaches it, then the link, then
+    the ↓ cue — the same scroll windows the flow line used, so nothing downstream re-times.
+  - **Accepted losses, on record:** merging the cluster into "Build & Ephemeral K8s" (Monish's
+    call — four stops, four marks, the full page carries the rest) drops the **dashed "mostly this
+    isn't running" line and "~30 minutes a month"**, the cheapest fact in the system and the one
+    people remember; the quality gate's mark went with it. **Prometheus and Grafana sit under
+    Monitoring** though they only exist during that monthly cluster — implying more always-on
+    watching than there is. ~~**Open:** the phone layout works but the ring has to shrink to make
+    room for the two side stops, and below ~400px it may want to stop being a ring.~~
+    **Resolved 2026-08-06 — it stays a ring** (see the 2026-08-06 entry above): measurement
+    showed the ring itself holds down to 320px, and only the centre link had to move.
+
+- **2026-07-31** — **§3 and §4 teasers lifted ~50px.** Both diagrams sat low. §3's top padding
+  went 17vh → 10vh and the ring lost its top margin; §4 got its own 10vh padding (Skills keeps the
+  original 17vh), its path wrapper lost its top margin, and **the Journey path's own slack was
+  trimmed** — its first crest sat 40 units below the top of its drawing area, so all four crests
+  moved up 16 units with the viewBox shrunk to match (uniform shift: same curve, same reveal
+  fractions). §3's lead **"From strokes to prediction" was removed and then restored** — it never
+  affected the diagram's position (`.sec-head` is absolutely positioned; the padding was doing the
+  work). Its reveal now looks the line up as `.sec-head .scene-lead` rather than the first
+  `.scene-lead` in the document, which would otherwise grab the Journey's lead if §3's is ever
+  dropped again.
+
+- **2026-07-30** — **Home subtitles set in Allura (script) — PROVISIONAL (undecided).** (`transition-prototype.html`).
+  The hero subtitle (`.hero-sub`, "MLOps Project & Portfolio") and the section leads (`.scene-lead` — "From
+  strokes to prediction", "Roads not taken", "What I build with") now use **Google Allura** (regular,
+  400) for a flowing script accent against the Bodoni display titles. Added Allura to the font `<link>`.
+  `.hero-sub` dropped its uppercase + `.34em` tracking (a connected script needs mixed case and ~0
+  tracking) and both bumped in size (script reads small) — hero ~clamp(28–42px), leads ~clamp(26–36px),
+  `line-height:1`. Colour kept muted. Only the Home scroll; internal page leads unchanged.
+  **↩ To revert (this is a standalone commit):** `git revert <this commit>`. Manual undo instead:
+  (1) remove `family=Allura&` from the Google Fonts `<link>`; (2) `.hero-sub` → restore
+  `font-size:clamp(12px,1.5vw,15px);letter-spacing:.34em;text-transform:uppercase;font-weight:500;` and
+  drop the `font-family`/`line-height`; (3) `.scene-lead` → restore `font-size:clamp(16px,2vw,20px)` and
+  drop the `font-family`/`font-weight`/`line-height`.
+
+- **2026-07-29** — **Journey line: scroll-driven "magnifying glass"** (both `transition-prototype.html`
+  and `sections-prototype.html`). Replaced the earlier hover "lift" (and its dark travelling segment,
+  which read badly) with a **circular lens that rolls down the journey as you scroll**. Implementation:
+  a faint lens **ring** (`.j-lens-ring`), a **mask** that hides the base line inside the ring, and a
+  clipped copy of the line (`.j-lens`, geometry mirrored from `#jPath`) shown only inside the ring at a
+  **bolder stroke (1.4→3px)** — so within the lens the line reads **magnified**, with no dark highlight.
+  *Note:* an earlier version scaled the line's geometry `1.4×` inside the lens, but scaling a vector line
+  offsets it from the base → a visible **duplicate/parallel "weird line"** at the rim; switched to
+  bolden-in-place (same geometry, thicker) which is perfectly aligned = no duplicate. The **dot and entry
+  text at the focus zoom in place** (dot `r` ×1.4, text via the `scale` property so it composes with the
+  reveal `transform`); text scales from its **outer edge** (`transform-origin` right/left per side) so it
+  grows *away* from the line instead of overlapping it. **Trigger differs per surface:** the internal
+  `/journey` page is a long scroll, so its lens is **scroll-driven** (tracks the viewport centre passing
+  through the journey). The Home teaser is short + static on screen and its scroll is a sticky section
+  **scrub** — driving the lens from that scrub fought the section-transition animation, so the Home lens
+  is **hover-driven** instead (cursor projects to the nearest point on the line; the lens eases in on
+  enter, out on leave). The **line is always fully drawn** now (removed the draw-in) — fixes the gap where it
+  appeared to vanish between the first entries mid scroll-in. Tunable via constants — `LENS_R` (lens
+  radius), `LENS_S` (dot/text zoom, 1.4), `NEAR` (reach) — plus `.j-lens` stroke-width for the line
+  boldness. Hooked into each rAF loop; skipped under `prefers-reduced-motion`; dots stay clickable.
+
+- **2026-07-29** — **Primary teaser CTAs emphasised — via scale, not weight** (`transition-prototype.html`).
+  Made the two deepest internal destinations' CTAs stand out from a plain text link: "Explore the
+  full architecture →" (Behind the Scenes) and "Read the journey →" (Journey preview), both via a
+  shared `.link.cta-strong` class. First attempt (~27px, weight 460, 2px underline) read as **out of
+  place** against the editorial look, so it was dialled back to a **gentle size bump at a light
+  weight** — `font-size:clamp(17px,1.7vw,20px); font-weight:380` — matching the demo's existing
+  doorway link ("See how the model performs →"). No bold, no thick underline. The Journey CTA (which
+  sits on the line's end) also gets `white-space:nowrap; width:auto` so the bigger label stays one
+  line. Principle recorded: on this site prominence comes from **scale / serif / colour / whitespace
+  at a light weight**, not bold or boxed treatments.
+
+- **2026-07-29** — **Journey teaser reflowed: the line starts on a point and ends on the CTA**
+  (`transition-prototype.html`). Was: a blank line origin, three entry dots on the crests, and a
+  "Read the journey" link sitting *below* the SVG, with a fading tail past the last dot. Now the
+  serpentine carries **four points** — the first entry ("One bucket, three jobs") sits on a dot at
+  the line's **origin**, the other two step down one crest each ("The gate", "Pandera"), and the
+  **final crest is the "Read the journey →" CTA itself** (moved onto the path terminus; the separate
+  link and the tail are gone). The serpentine is oriented so it **ends on the right crest**, with the
+  CTA and its → hanging to the right so the arrow points outward.
+  `layoutPath` now takes an explicit `jNodes` list (each with its
+  `side`) and lays out `[...jEntries, jLinkWrap]` one per point; reveal windows end at each point's
+  fraction so the origin dot is present from the first stroke and the CTA (fraction ≈1) still
+  completes by the end of the draw. Dates stay chronological top-to-bottom (10 Jun → 2 Jul → 18 Jul).
+
+- **2026-07-29** — **Journey teaser path matched to the internal Journey page** (`transition-prototype.html`).
+  The Home teaser drew a different curve from the `/journey` page — a wide, laterally-swooping weave
+  (x from 150→560, horizontal control handles) vs the internal page's gentle vertical serpentine.
+  Rebuilt the teaser's `layoutPath` to use the **same construction as `buildJourney`**: crests at
+  LX=250 / RX=450 joined with vertical control handles (`m = half the y-gap`, so the tangent is
+  vertical at every crest), starting centre-top and veering left first. Dots now sit **on** the
+  crests (not at arbitrary path fractions) and each entry hangs on the crest's **outer** side
+  (`on-left`/`on-right`, matching the internal page). viewBox 360→420 to fit the taller curve; the
+  end marker changed from a filled triangle to a stroked fading tail like the internal one. Reveal
+  windows flipped to complete **as the line reaches** each crest (`[f-.10,f-.02]` dot, `[f-.07,f]`
+  entry) since the last crest is now the path's own endpoint (f≈1) and the old `[f,f+.08]` windows
+  would have run past the draw. Verified the shapes side-by-side and the teaser in context.
+
+- **2026-07-29** — **Home teasers now link into the Story pages; About dropped from the tray on its
+  own page.** Two wayfinding fixes:
+  - *Home-scroll section CTAs wired to the internal pages* (`transition-prototype.html`). The teaser
+    links were prototype dead-ends (`href="#" onclick="return false"`). Now: "Explore the full
+    architecture" → `sections-prototype.html#architecture`, "Read the journey" → `#journey`, "See
+    all skills" → `#skills`, "Or learn more about me" → `#about` (the Demo's "See how the model
+    performs" already pointed at the data prototype). Targets deep-link via each prototype's
+    `bootFromHash`. GitHub/LinkedIn/email left as social links, not internal pages.
+  - *The Story tray is hidden on the About page* (`sections-prototype.html`). The tray was always
+    `position:fixed` and showed on every page, contradicting the standing intent (tray =
+    Architecture · Journey · Skills only; About is off it, reached from the menu / Home bookend).
+    `switchPage` now hides `.switch-dock` when the page is About and restores it otherwise. Verified:
+    pill gone on About, back when leaving via the menu.
+
+- **2026-07-29** — **Typography casing normalized — one rule per element role.** The site was already
+  cased by role; this formalizes the rule and fixes the one deviation. The rule (source casing in
+  parentheses where CSS re-cases it):
+  - *Display titles* (page / scene / phase headers): **ALL-CAPS** via `text-transform:uppercase`
+    (source kept Title Case, e.g. `The Journey`).
+  - *Eyebrows / kickers / dates / the Home scroll indicator*: **ALL-CAPS tracked** via CSS.
+  - *Section subheads (`<h2>`) and entry/panel titles*: **sentence case** ("The road your doodle
+    took", "One bucket, three jobs", "Where it gets confused").
+  - *Pipeline stop labels*: **lowercase**, proper nouns kept as-branded (`browser`, `the guess`,
+    `Lambda`, `S3`, `Terraform`).
+  - *Product / proper nouns*: **as-branded** (Draw Something, Next.js, k6 + Grafana, MLflow, DVC).
+  - *Conversational lines*: **sentence case** ("Say hello.").
+  Fixed the flagged mismatch: the Home indicator read "Behind the demo" for a section titled "Behind
+  the Scenes" — both render uppercase, so a visitor saw **BEHIND THE DEMO** on the wayfinding chip vs
+  **BEHIND THE SCENES** as the header, for the same section. Indicator is now `Behind the scenes`
+  (sentence-case source, matching the other multi-word indicator `Live demo`; renders BEHIND THE
+  SCENES to match the header). Left `Live demo` / `Contact` as intentional functional wayfinding
+  labels (they never mirrored their section titles "Draw Something" / "Say hello.").
+
+- **2026-07-29** — **Story/Data prototype punch-list cleared** (`sections-prototype.html`,
+  `data-prototype.html`, `data-prototype-white.html`).
+  - *Skills-page arrival line restored.* It carried `data-arrival="drift"`, but `runArrival()` only
+    draws the stroke for `="line"` (the "drift" arrival was never implemented), so Skills silently
+    had no line. Set to `"line"` like the other Story pages; verified the line now shows.
+  - *Edge blur-fade ported to Story internal pages.* The scroll-driven top/bottom dissolve (three
+    stacked backdrop-blur bands 2→6→14px + a wash toward the ground, top in once scrolled, bottom
+    until the document end) previously existed only on the Data prototypes. The wash now tints
+    **per page** via `color-mix(in srgb, var(--ground) 72%, transparent)` (ochre/sage/rose/blue)
+    instead of the Data prototypes' fixed grey. Verified in-browser on Journey (ochre) and Skills
+    (rose).
+  - *Monitoring emoji removed.* Dropped the 👍/👎 from the feedback / proxy-accuracy copy; reworded
+    to **"yes / no votes"** to match the demo's "Did I get it right? Yes / No" prompt.
+
+- **2026-07-28** — **Menu: uniform links + panel matches the page ground** (all three internal-page
+  prototypes). Dropped the mode-based muting — cross-file links (`.elsewhere`) were greyed as
+  prototype scaffolding, which read as "these options are for a different mode." **Every menu item
+  now looks identical**; the tray already declares where you are, the menu is just the full map.
+  And the slide-in panel's background now tracks a `--ground` custom property set per page, so the
+  drawer takes the current page's colour (Story: sage/ochre/rose/blue per page; Data: white /
+  instrument) instead of a generic white — it reads as part of the page, un-dimmed, against the
+  scrim. Added a soft left-edge shadow so the panel still reads when its colour equals the ground.
+
+- **2026-07-28** — **Reverted the paged scroll back to scrubbed** (`transition-prototype.html`).
+  The event-driven paging (previous entry) read as *frustrating* on repeat visits — the
+  gesture-lock made moving feel gated even when you knew where you were going. Restored the
+  scrubbed position-drive (native scroll, snap floors, 1250vh runway, `targetProgress` +
+  smoothing); the dangling-mid-transition risk it re-introduces is accepted as the lesser evil.
+  **Kept** from the paged round (both are driver-independent, pure functions of progress): the
+  per-section **outgoing fade** and the **↓ next-section cues** on §3–§5 (re-wired from `goTo` to
+  `scrollTo` the next floor).
+
+- **2026-07-28** — **Home motion: paged (event-driven), and the outgoing section fades**
+  (`transition-prototype.html`). Two fixes, one change:
+  1. **Every section now fades as the next rises** — not just the Hero. Each outgoing layer's
+     *content* dissolves (`inner.opacity = max(0, 1 - nextRise*1.35)`, the Hero's own curve) while
+     the incoming sheet rolls up; the section bg stays until covered (so no flash of older colours
+     underneath). The demo is the exception — its bg *is* the well below, so the whole layer fades
+     and only the instrument dissolves. All of it is a pure function of progress, so **scrolling up
+     reverses it exactly** (sheet rolls back down, previous content fades back in).
+  2. **Scroll is now paged, not scrubbed.** Native scroll is disabled (`overflow:hidden`); a
+     wheel/touch/key gesture past a threshold fires **one** transition that animates to completion
+     (`REST[]` rest points, eased `current`, ~1.9×`--dur`), and further input is **locked out until
+     it finishes** (+220 ms settle). This kills the "stranded between two sections on a jittery
+     mouse" problem — you can never be left mid-transition. The scrub *math* (`apply(progress)`) is
+     untouched; only the driver changed (progress is animated, not read from `scrollY`). The engine
+     runs on `performance.now()` (the rAF timestamp and `scrollY` are both gone). Arrows/menu
+     Home·Contact now call `goTo()`; six rest points; runway collapsed 1250vh → 100vh (one sticky
+     viewport). Revises the Stage 4.5 scrub-drive (annotated there).
+
+- **2026-07-28** — **Skills → Contact gets the roll-over too** (`transition-prototype.html`). The
+  Contact bookend used to sit *outside* the sticky runway and arrive by a hard scroll-snap; it's
+  now a **6th rising layer** (z-index 6, white) that rolls up over the settled Skills exactly like
+  §2–§5 do — so the Home scroll is five scrubbed transitions, not four, and reverses cleanly. To
+  avoid re-timing the dozens of hand-tuned sub-reveals, the whole story is **squeezed into raw
+  progress `[0, STORY_END=.80]`** _(superseded 2026-08-13 — the linear squeeze became the
+  piecewise `storyP()` remap that evens the section spacing; `STORY_END` is gone)_
+  (a single `p = min(1, praw/STORY_END)` at the top of `apply()`,
+  so every existing `segP` fraction is unchanged) and Contact rides the tail `[.80, 1]` on
+  `T5=[.83,.96]`. Runway grew 1000vh → 1250vh (story keeps ~its old scroll length; Contact adds
+  ~230vh); floors re-spaced to six; the ↓ arrows and the menu's Contact link retargeted to the new
+  progress points. Verified the story is visually untouched (Journey et al. render identically at
+  their remapped positions).
+
+- **2026-07-28** — **Story prototype reconciled to the IA rework** (`sections-prototype.html`).
+  The last stale file catches up: the `.switch-dock` drops About and now cycles only
+  **Architecture · Journey · Skills** (About is off both trays — reached from the menu, and on the
+  real site from the Home closing bookend; when About is active no tray item highlights). The menu
+  becomes the **9-item global bridge** — Home · Quality · Monitoring · Performance · Architecture ·
+  Journey · Skills · About · Contact — with the Story pages navigating in-page and everything else
+  linking to its own prototype (Data → `data-prototype-white.html`, Home/Contact →
+  `transition-prototype.html`), cross-file links muted like the Data prototype's. Fixed along the
+  way: the staircase stagger uses `:nth-child` (the nav mixes `<a>`/`<button>`, so `:nth-of-type`
+  scrambled it) and extends to 9; `.elsewhere` links now warm on hover. All three prototypes now
+  agree on the two-mode IA.
+
+- **2026-07-28** — **Hero: name stays the pure original cut + a subtitle.** Two hairline fixes
+  were tried against "the thins vanish on non-retina screens" — a heavier cut (weight 680 +
+  opsz 64) and a 0.4px uniform text-stroke — and **both were rejected**: each dulled the didone
+  character that makes the hero. Verdict: the gossamer hairlines *are* the look; keep
+  weight 500 · opsz 96 untouched. (Don't re-propose either fix.) **Prominence comes from depth
+  instead**: a tight + ambient text-shadow (`0 2px 6px ·08 + 0 16px 40px ·14`) — the same
+  layering as the lifted panels — lifts the name off the white and gives the thins a faint
+  reinforcing halo without altering the letterforms. The hero
+  does gain a subtitle: **"MLOps Project & Portfolio"** — letterspaced micro-caps under the name,
+  entering between the name and the arrow (delay .32s). Rationale: a bare name reads as vanity;
+  the subtitle declares what the site *is* before the demo does.
+
+- **2026-07-28** — **The pad demonstrates itself (idle self-drawing demo)** — store-window
+  behaviour: the mock doodle draws itself on a loop (draw → hold → fade → redraw, ~5s) whenever
+  nobody is drawing; the visitor's first touch stops the demo and inks for real (the prototype's
+  pad now captures strokes, and Clear/Undo actually work); after **15s of quiet** the sketch fades
+  and the demo resumes (never mid-stroke). **The demo rotates through six of the model's real
+  classes** — cat, house, star, fish, umbrella, clock — one per loop (swapped while the mock is
+  invisible), and resumes on a fresh doodle after an interruption, so the idle animation doesn't
+  wear thin. This also answers the borderless pad's affordance
+  question — the self-drawing loop *is* the "draw here" hint. Reduced motion: static doodle, no
+  loop.
+
+- **2026-07-28** — **Demo §2 becomes ONE instrument** (Monish's pick over a two-panel "causal
+  column"). A single wide lifted Data panel — the span-12 grammar of the Data pages — holds the
+  whole demo, split by hairlines: drawpad (an inner input field: hairline, no lift) + Clear/Undo
+  as proper pill buttons · predictions (ink labels — muted gray was blending) · **verdict block**
+  ("Did I get it?" 15px ink + larger Yes/No pills, its own hairline section — it feeds Monitoring's
+  proxy accuracy, it earns the weight) · **the doorway, finally added**: "every guess is scored —
+  See how the model performs →" pinned to the instrument's foot, linking into Data mode
+  (`data-prototype-white.html`). The Demo's menu Quality/Monitoring/Performance links now point
+  there too. Supersedes the same-day two-papers cut. _(Later that day: a live **§2-layout dock**
+  was added to the prototype chrome — instrument ↔ "causal columns" (two equal panels, the right
+  one ending on the doorway) — so the pick can be felt in place before it's final.)_
+
+- **2026-07-28** — **Demo §2 foreshadow reconciled to the white pick** (`transition-prototype.html`).
+  The Demo's ground becomes Data mode's **well `#f6f8fb`** — chosen over pure white (which would
+  erase the Hero→Demo cross-fade beat) and over a made-up half-step tint (the well is a *real*
+  Data-mode surface, so "every section the colour of where it leads" stays literally true). The
+  **demo's two columns both become lifted Data panels** — the canvas card *and* the prediction
+  column (bars · feedback · privacy note) wear the panel chrome (cool hairline `#e4e8ef`, slate
+  shadow, 13px radius), so §2 is **two floating papers on the well: the Data-mode composition
+  itself**. (The first cut left the predictions bare on the ground and read as no change — the
+  well tint is imperceptible with nothing white beside it; the second panel is what makes the
+  cool ground *read*.) Bar tracks take the Data grid `#e7ebf1`; ochre fills stay, the demo's
+  money moment is brand attention. Closes the open item from the white pick.
+
+- **2026-07-28** — **White / lifted paper wins the Data-mode surface A/B**
+  (`data-prototype-white.html`). The ground goes white; data cards lift as paper (slate-tinted
+  shadows + cool hairline `#e4e8ef`), and narrative panels recess into a cool well `#f6f8fb` —
+  three surface levels (well < ground < paper) instead of the tinted scheme's one. Chart ink and
+  status colours unchanged, revalidated on `#ffffff` — mode identity rides the chrome, not the
+  data hues. Supersedes the same-day tinted ground `#f2f4f7`. One consequence left open: how
+  Home's Demo §2 foreshadows a white-grounded Data mode (well chrome vs a half-step tint
+  `#f7f9fb`) — decide on the Home pass.
+
+- **2026-07-28** — **Data-mode palette settled by measurement + all three pages prototyped**
+  (`data-prototype.html` — tinted variant, retired 2026-07-30). Ground `#f2f4f7` confirmed; chart ink = one validated blue family
+  (primary `#2a78d6`, sequential ramp, ordinal p50→p99 ramp) with reference-gray for context;
+  status = green/red **+ watch = brand ochre** — the distinct-amber option measured ΔE 13.7 from
+  ochre, under the 15 normal-vision floor, so "almost the same amber, different meaning" lost to
+  deliberate reuse (status always carries icon + label anyway). **No per-page accents** inside the
+  mode. Quality/Monitoring/Performance render the real hub snapshots (api-metrics mocked to
+  contract until the hub's first capture); every chart has a hover layer + table twin.
 
 - **2026-07-26** — **Home scroll order confirmed + About's doorway.** Order: **Hero → Demo →
   Architecture → Journey → Skills → Closing** — the demo's "behind the scenes" hands straight to
@@ -899,7 +1605,31 @@ Newest first. Each entry: what was decided and why.
   the prototype tray. Data-mode page split, its ground/color, and the fate of the wash-wayfinding
   system are left open — the visual design is being reworked alongside. Supersedes the Stage 2 IA and
   Stage 3's link-out-only treatment of monitoring data. Full spec: "IA rework (2026-07-26)" above.
-
+- **2026-07-20** — **Stage 4.7 locked — Architecture page opens with an overview, then the
+  breakdown.** Prototyping showed the three chapters never let a visitor see the whole
+  system at once. Added a **consolidated system-overview diagram** (a unified lifecycle
+  with a fork — build → image → forks to live-serve + weekly-rehearse → merges to
+  monitoring) under an **"Overview"** heading, with the three chapters as the detailed
+  breakdown; the **five-stop `draw ▸ preprocess ▸ …` summary line is removed**. The
+  overview's **subsystem tiles are "zones"** that scroll-jump to their chapter (a
+  "see chapter ↓" hover cue); shared artifacts are non-interactive. Chapter diagrams may use
+  **icon tiles** (monochrome tool glyphs) and run **vertically** when a row would wrap
+  (chapter 2 does). Revisits the Stage 3 "one-big-map rejected" call — the map returns but
+  stays high-level and collapses cleanly on mobile. **All node/tool/topology content is
+  illustrative** and changes once the platform is built. Open: glyphs vs. brand logos, and
+  whether all chapters go vertical.
+- **2026-07-20** — **Stage 4.6 locked — inner-page navigation from section prototyping.**
+  Prototyping the four inner pages (`sections-prototype.html`) surfaced that the inner
+  destinations are peers worth hopping between directly. Added, **inner-pages only**: a
+  **persistent bottom navigation tray** (Journey · Architecture · Skills · About, active
+  item filled) that also **declares current location**, and a top-left **"← Home"**
+  back-to-Hero affordance (thin arrow, nudges on hover). The inner-page top bar is now
+  **"← Home" left / hamburger right**, and the **current-section indicator is dropped on
+  inner pages** (the tray replaces it; it survives inside the Home scroll). The **menu is
+  kept whole** — its unique inner-page value is now Contact; trimming it was considered and
+  deferred. **Home is unaffected** (no tray; the funnel-through-demo flow stands).
+  Supersedes the earlier "no persistent nav bar" intent (the quiet centered pill earns it
+  on inner pages) and the "top-bar left = section indicator" slot on inner pages.
 - **2026-07-19** — **Stage 4.5 locked — motion & flow amendments from prototyping.** Built
   two working artifacts (`design-system-preview.html` motion demos and
   `transition-prototype.html`, the full Home scroll hero→bookend) and revised from the
