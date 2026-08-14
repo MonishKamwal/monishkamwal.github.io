@@ -1101,6 +1101,29 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-08-14** — **A hovered Journey block lifts above the edge blur** (`sections-prototype.html`).
+  Follow-up to the hover entry below, and the first thing settled with a **real browser** rather than by
+  reading code — see the note at the end. The `.edge-blur` bands (fixed, 110px at the viewport top and
+  130px at the bottom, `backdrop-filter` plus a gradient washing toward `--ground` at 72%) were blurring
+  and washing whichever card you were **actively pointing at** whenever it sat in one, and the 1.4× zoom
+  grew it further in. Screenshots of the same card hovered at two scroll positions settled it: clear of
+  the band it is sharp with the ochre at full strength; inside it the description is visibly soft and
+  drained. That reads as a rendering fault, not an edge treatment. A hovered block now takes
+  **`z-index:26`** — clear of `.edge-blur`'s 25, still under the topbar (30), dock (40), menu (50/51) and
+  entry card (60/61), so it covers no chrome. The band still does its job on everything you are not
+  touching. Driven from the magnifier loop rather than `:hover` so the lift lasts exactly as long as the
+  zoom, instead of dropping back mid-ease. For a **phase heading the lift goes on `.phase-head`, not the
+  chip**: the head carries a `transform`, which opens a stacking context a z-index on the chip could
+  never escape. Verified in Chrome at both bands — entry `auto → 26 → auto`, heading `2 → 26 → 2`.
+  - **Tooling note:** this was the first change checked in a real browser. `playwright-core` + Windows
+    Chrome via `channel:'chrome'`, in `C:\Project\.browser-tools\` — deliberately outside the repo. Two
+    traps it caught: headless Chrome can force `prefers-reduced-motion:reduce`, which silently disables
+    every effect under test and makes a broken page look fine (the harness sets `no-preference` and
+    asserts `matchMedia` before trusting anything); and a before/after against `origin/main` showed no
+    difference because main had already moved — the real baseline was `544d9ea^`. Against that, both
+    fixes below reproduce and clear: `pandera` `opacity 0 → 1`, and every entry
+    `matrix(1,0,0,1,0,0) → none`.
+
 - **2026-08-14** — **One journey interface on both surfaces: hover a text block and it lifts**
   (`transition-prototype.html` and `sections-prototype.html`). Supersedes the 2026-07-29 magnifier
   below, which had split into two different interactions — the Home teaser was hover-driven and the

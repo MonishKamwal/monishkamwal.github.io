@@ -927,6 +927,12 @@
   const jLensCircle=document.getElementById('jLensCircle');
   const jLensHole=document.getElementById('jLensHole');
   const LENS_R=60, LENS_S=1.4;   // lens radius (SVG units), text/dot zoom
+  // A hovered block lifts above .edge-blur (z-index 25) so the thing you are pointing at
+  // stays crisp — inside those bands it was being blurred and washed toward --ground while
+  // scaled up, which read as a rendering fault rather than an edge treatment. Still below
+  // the topbar (30), dock (40), menu (50/51) and entry card (60/61), so it covers no chrome.
+  // Driven from here rather than :hover so it lasts exactly as long as the zoom does.
+  const LIFT_Z='26';
   let jFocus=[];                 // one per hoverable block: {hit,scaleEl,dot,frac,cur}
   let focusTarget=0, focusCur=0, lensOn=0, hoverIdx=-1, offTimer=null;
   function focusOn(i){
@@ -940,11 +946,14 @@
   function wireJourneyHover(){
     hoverIdx=-1; lensOn=0;
     jFocus=[
-      // entries scale as a block; phase headings scale their chip (see the .chip note in CSS)
-      ...jNodes.map(n=>({hit:n.el,scaleEl:n.el,dot:n.dot,frac:n.frac,cur:0})),
-      ...jHeads.map(h=>({hit:h.chip,scaleEl:h.chip,dot:null,frac:h.frac,cur:0})),
+      // entries scale as a block; phase headings scale their chip (see the .chip note in CSS).
+      // liftEl is what rises above the edge blur — for a heading that has to be the head
+      // itself, not the chip: .phase-head carries a transform, so it opens a stacking
+      // context and a z-index on the chip could never escape it.
+      ...jNodes.map(n=>({hit:n.el,scaleEl:n.el,liftEl:n.el,dot:n.dot,frac:n.frac,cur:0})),
+      ...jHeads.map(h=>({hit:h.chip,scaleEl:h.chip,liftEl:h.el,dot:null,frac:h.frac,cur:0})),
     ];
-    jFocus.forEach(f=>{ f.scaleEl.style.scale=''; });
+    jFocus.forEach(f=>{ f.scaleEl.style.scale=''; f.liftEl.style.zIndex=''; });
     if(reduce) return;
     jFocus.forEach((f,i)=>{
       // no reveal check here — applyJourney() only gives a block pointer-events once it's there
@@ -960,6 +969,7 @@
       f.cur+=((i===hoverIdx?1:0)-f.cur)*0.18;
       const s=1+(LENS_S-1)*f.cur;
       f.scaleEl.style.scale=f.cur<0.001?'':s.toFixed(3);
+      f.liftEl.style.zIndex=f.cur<0.001?'':LIFT_Z;   // clears the edge blur while lifted
       if(f.dot) f.dot.setAttribute('r',(6*s).toFixed(2));
     });
     if(lensOn<0.01){ for(const el of [jLensCircle,jLensHole]) el.setAttribute('r',0); return; }
