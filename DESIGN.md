@@ -1110,6 +1110,21 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-08-14** — **Both prototyping docks come off Home; §2's layout A/B is settled and deleted**
+  (`transition-prototype.html`). Monish's call. The **§2 layout dock** existed to flip the single
+  lifted instrument against the "causal columns" variant (paper chrome moved off the wrapper onto
+  two equal-height panels). **Instrument is the layout** — picked 2026-07-28 and never revisited —
+  so the switcher, its handler and the whole `body.demo-cols` rule set are gone rather than left
+  sitting behind a control nobody will click. The **motion dock** retuned `--dur` live while the
+  layered scroll was being timed; that scroll was retired earlier today, and with sections simply
+  abutting there is no section transition left to tune. `--dur` keeps **.48s**, the value the dock
+  was left on, and it still drives what it always drove — the menu panel and its staircase stagger,
+  the ↓ cue fades, the indicator, the bar fills. Nothing floats over the page now, which also means
+  §2 and §6 are finally seen the way a visitor sees them, with nothing parked in the corners.
+  Checked after: `homecheck`/`homenav`/`seamcheck` all unchanged, no page errors. **Note the two
+  inner-page prototypes still carry their own motion docks** (`sections-prototype.html`,
+  `data-prototype-white.html`) — untouched here, and a separate call.
+
 - **2026-08-14** — **The Home grounds merge at their seams instead of butting**
   (`transition-prototype.html`). Monish's ask. Moving Home into normal document flow (entry below)
   left the six grounds meeting on five hard horizontal lines — the old layered scroll had hidden
