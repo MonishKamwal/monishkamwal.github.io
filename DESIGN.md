@@ -281,7 +281,11 @@ buttons use text or thin line icons.
 - **Motion:** card + bars reveal on scroll-in (expo); bar fills animate per prediction. Respects
   `prefers-reduced-motion`.
 
-### Home §1 → §2 transition (Hero → Demo)  _(LOCKED 2026-07-16)_
+### Home §1 → §2 transition (Hero → Demo)  _(LOCKED 2026-07-16 · SUPERSEDED 2026-08-14)_
+
+> **Superseded 2026-08-14** — Home is normal document flow now, so nothing rises over anything:
+> the Hero scrolls away and the Demo scrolls in. The overlap, the name fading in place above the
+> panel and the white → well cross-fade are all retired. See the decision log.
 
 > **Amended in Stage 4.5 (2026-07-19):** the name **floats above the rising panel**,
 > fading in place in full view; the transition (and all reveals) are **scrubbed** by the
@@ -690,7 +694,12 @@ done, per the process rules.
 
 ---
 
-## Stage 4.5 — Motion & flow amendments from prototyping  _(LOCKED 2026-07-19)_
+## Stage 4.5 — Motion & flow amendments from prototyping  _(LOCKED 2026-07-19 · MOTION MODEL SUPERSEDED 2026-08-14)_
+
+> **Superseded 2026-08-14** — the scrubbed global-progress model, the hard floors and the sticky
+> roll-over are gone; Home's sections are plain blocks and reveals key off their own section's
+> position. The *content* decisions below still stand (the ↓ cues, §5 slimming, the §6 bookend,
+> Contact folding into it, the bare Hero). See the decision log.
 
 The finalized design, pressure-tested in two working artifacts before Stage 5:
 `design-system-preview.html` (motion demos: ease speed tester, slide-in menu, transition
@@ -1100,6 +1109,223 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 ## Decision log
 
 Newest first. Each entry: what was decided and why.
+
+- **2026-08-14** — **Home's top and bottom edges dissolve — the Data-mode blur, keyed to
+  crossings instead of scroll depth** (`transition-prototype.html`). Monish's ask, and the last
+  change of the day. The Data-mode edge treatment (Quality · Monitoring · Performance) ported onto
+  Home, where it had to be rebuilt around two things Data mode never had to solve.
+  - **The band.** Three stacked `backdrop-filter` layers per edge, each masked into a band of its
+    own, so the blur genuinely **ramps 2 → 6 → 14px** instead of switching on at one radius, plus an
+    `::after` gradient washing toward the ground at 72% so content **fades out as well as smearing**.
+    110px at the top, 130px at the bottom. Sized to be felt, not noticed.
+  - **Why the strength rule could not be borrowed.** Data mode keys strength to scroll **depth** —
+    the top band on once you have scrolled, the bottom on until the document ends — because it is
+    one long document, where the only thing at the top of the screen is content on its way out.
+    Home's sections are a screen each, so at rest the top band lands on the section's **own head**:
+    measured at 1440×900, every one of the five heads sits at **y=63–133 inside a 110px band**, and
+    the title you are reading would be permanently soft. That reads as a rendering fault, not an
+    edge treatment. Strength keys to the **crossing** instead — full while a section is passing
+    through the edges, nothing once one has come to rest flush with the top. Same bands, same ramp,
+    same wash; only the *when* changes. The Hero opening crisp and the bookend closing crisp both
+    fall out of that one rule rather than being two more special cases, and a section taller than
+    the screen (§2 on a phone) still blurs all the way down it, because then you are never near a
+    boundary. The ramp is 140px of scroll each side; a second clamp holds the last screen crisp
+    even if §6 ever grows past one screen and its boundary is nowhere near the top.
+  - **The wash is per edge, not per page.** Data mode had one ground; Home has six. `edgeGround()`
+    asks what is actually painted behind **that** band — and inside a merge band (entry below) that
+    is not the section's flat ground but the ramp toward the seam, which is the same thing said
+    twice: 50/50 at the boundary, all of one ground `--merge` away. So one `color-mix` reproduces it
+    from either side and the wash **crosses a seam continuously** instead of snapping when the
+    section-in-view changes, which happens a whole half-screen off from the boundary. One shared
+    value would be wrong for half a screen either side of every boundary — §4's ochre washed across
+    §3's sage reads as a stain.
+  - **The ↓ cues lift to `z-index:26`.** They live at `bottom:34px`, dead centre of the bottom band,
+    and a blurred affordance reads as a rendering fault — the same call as the hovered Journey block
+    below. Clear of `.edge-blur`'s 25, still under the topbar (30) and the menu (50/51), so they
+    cover no chrome; the Hero and demo cue wrappers lift with them.
+  - **Off entirely under reduced motion.** On the Data pages the bands are a static frame. Here they
+    come and go with the scroll, and a scroll-linked effect is exactly what that preference asks us
+    to drop.
+  - **Written only on change, and out of the way at rest.** Each write is a style recalc on an
+    element the compositor is already re-blurring, and at rest — where this page spends most of its
+    time — nothing changes at all. At strength 0 the bands go `visibility:hidden`, not merely
+    invisible: six `backdrop-filter` layers can still be sampled and blurred at opacity 0.
+  - **Measured, Chrome via the harness** (two new scripts: **`edgecheck.js`**, which lists what sits
+    inside each band at every stop *with its z-index*, so "lifted above the blur" is a fact rather
+    than a claim; and **`edgesweep.js`**, which sweeps strength across a whole crossing and scrolls
+    with a real wheel). Across §4→§5 at 1440×900 the ramp moves **≤0.072 per 10px** of scroll with
+    **top and bottom never disagreeing**; under `--reduce` it stays 0/hidden the whole way; a real
+    wheel moves the full 720px and the pointer over the hero cue still hits the button, so the fixed
+    overlay intercepts nothing. `homecheck`/`homenav` unchanged and `seamcheck` still steps ≤1/255
+    at every boundary at 390×844. **One reading note for `seamcheck`:** its own scroll position is
+    mid-crossing, so the top ~110px of its strip is read *through* the top band and "worst 1px jump"
+    reads 2–3 there. That is the blur, not a seam artefact — trust the step at the boundary.
+
+- **2026-08-14** — **Both prototyping docks come off Home; §2's layout A/B is settled and deleted**
+  (`transition-prototype.html`). Monish's call. The **§2 layout dock** existed to flip the single
+  lifted instrument against the "causal columns" variant (paper chrome moved off the wrapper onto
+  two equal-height panels). **Instrument is the layout** — picked 2026-07-28 and never revisited —
+  so the switcher, its handler and the whole `body.demo-cols` rule set are gone rather than left
+  sitting behind a control nobody will click. The **motion dock** retuned `--dur` live while the
+  layered scroll was being timed; that scroll was retired earlier today, and with sections simply
+  abutting there is no section transition left to tune. `--dur` keeps **.48s**, the value the dock
+  was left on, and it still drives what it always drove — the menu panel and its staircase stagger,
+  the ↓ cue fades, the indicator, the bar fills. Nothing floats over the page now, which also means
+  §2 and §6 are finally seen the way a visitor sees them, with nothing parked in the corners.
+  Checked after: `homecheck`/`homenav`/`seamcheck` all unchanged, no page errors. **Note the two
+  inner-page prototypes still carry their own motion docks** (`sections-prototype.html`,
+  `data-prototype-white.html`) — untouched here, and a separate call.
+
+- **2026-08-14** — **The Home grounds merge at their seams instead of butting**
+  (`transition-prototype.html`). Monish's ask. Moving Home into normal document flow (entry below)
+  left the six grounds meeting on five hard horizontal lines — the old layered scroll had hidden
+  the §1→§2 one behind a cross-fade, and the other four behind roll-overs, and with nothing
+  covering anything the edges were simply visible. Each boundary now spreads over ~100px above it
+  and ~100px below, centred on the line.
+  - **How.** Five `--seam-NN` tokens, one per boundary, each the **midpoint of the two grounds that
+    meet there** (`color-mix(in oklab, …)`, derived from the ground tokens so a repalette carries
+    the seams with it). Every section paints one full-height gradient: its seam-with-the-section-
+    above → its own ground at `--merge` → its own ground until `100% - --merge` → its
+    seam-with-the-section-below. Both sides of a boundary name the **same token**, so the two ramps
+    land on one value and there is nothing left to see. `--merge` is `clamp(72px,11vh,132px)`.
+  - **Why this shape and not an overlay.** It is the element's own background, so it can't land in
+    front of content, needs no stacking-context work, and — the point of the entry below — **reads
+    nothing about the scroll**. The merge is a property of the page, not of where you are on it: no
+    frame cost, no listener, identical on every input device, and untouched by reduced-motion
+    (there is no motion in it).
+  - **One full-height gradient, not two bands sized to `--merge`.** The banded version was built
+    first and painted **a pale 1px line at every seam** on any viewport where `11vh` lands
+    fractional — `background-size` rounds to whole pixels, `background-position:bottom` then leaves
+    a subpixel sliver the tile never covers, and the section's own flat ground showed through it.
+    Measured **6/255 at 430×932, 3/255 at 390×844, 0 at 900 and 568** — a hairline exactly where the
+    hairline was being removed, and invisible at the two sizes anyone would have checked first.
+    Four stops on one full-height gradient have no tile edge to round.
+  - **The ramp interpolates in sRGB on purpose.** `linear-gradient(in oklab,…)` was tried and
+    dropped: a value holding `var()` can't be validated until substitution, so the two-declaration
+    fallback **does not work** — a browser that can't parse it computes `background-image:none`
+    rather than falling back to the plain declaration. Wider support, and measurably no difference:
+    a ramp only travels from a ground to a midpoint (**9–31 levels** of pale pastel end to end), and
+    sRGB and oklab gave byte-identical columns. The midpoint itself is still mixed in oklab, where a
+    full ground-to-ground mix can sink through grey (sage→ochre passes through a dull tan).
+  - **What has to stay clear of a band is opaque plates, not text.** §3's `.dname`/`.bmrow` fake the
+    ground to mask the ring line behind them, so a ramp under one would draw a rectangle around it;
+    measured clearance **80–201px** at 320/360/390/430/1440/1920. Section headers **do** sit inside
+    the top band (48–80px down, against ~100px of band) and that is intended — a title on a ramp is
+    still just a title, and each ground finishes arriving as you read the section's name.
+  - **Measured, Chrome via the harness** (new `seamcheck.js`, which reads the real painted pixel
+    column across each boundary rather than eyeballing a screenshot). At **320×568, 360×640,
+    390×844, 430×932, 1440×900 and 1920×1080**: every seam steps **≤1/255**, and the worst
+    single-pixel jump anywhere in a ramp is **1/255**, so no banding contour. `homecheck`/`homenav`
+    unchanged — six sections at 1.00 screens, wheel native, reveals settled, the ↓ cue chain and
+    menu jumps all 0px off, reduced-motion path intact, no page errors. Where `color-mix` isn't
+    supported at all the tokens fail to substitute, the property computes to `none`, and the grounds
+    go back to butting — i.e. the page exactly as it was.
+
+- **2026-08-14** — **Home moves to normal document flow: the layered scroll is retired for the
+  Data-mode grammar** (`transition-prototype.html`). **Supersedes the §1→§2 transition (Stage 3,
+  LOCKED 2026-07-16) and Stage 4.5's motion model, roll-over and hard floors.** Monish's call, after
+  the entry below: shorten the runway, then stop guessing the device, and the honest next question is
+  what the runway was still for. It was a global clock — scroll position remapped into one progress
+  value that ~27 hand-authored windows were sliced out of — and **every hard problem this prototype
+  has had came from having one**: the wheel that could not move the page, the device detection that
+  could not work, the mobile URL bar moving the denominator, §2's content stranded in hidden overflow.
+  The internal Data pages never had any of it. Home now works the way they do.
+  - **What went.** The 500vh runway, the sticky viewport, the six floors, `storyP()`'s scroll→progress
+    remap, the settle (`scrollHold`, `restingFloor`, `COMMIT_FRAC`), the exponential chase, the
+    `svh`/width-only resize guard, the `#contact` fast-forward, and every input listener. **390 lines
+    of scroll machinery → 143**; the file is 483 deletions against 231 insertions. There is no wheel
+    handling left at all, because there is nothing left to handle: the browser scrolls the page.
+  - **What it is now.** Six `<section>`s, `min-height:100svh`, one after another. A reveal is a pure
+    function of a rect, read every frame — fade up 16px, `data-stagger` ordering what follows what.
+  - **The one departure from Data mode, and it was measured.** Those pages are long documents where
+    content flows past, so an element can key off **its own** rect crossing a band of the viewport.
+    Home's sections are exactly one screen, so anything in a section's lower half never finishes while
+    that section is the one you're looking at: with the Data-mode band, §5's fourth skills line rested
+    at **0.94** and "See all skills →" at **0**. So a reveal keys off its **section's** rect, and
+    stagger slices the section's arrival. Everything in a section is fully in before it fills the
+    screen. (Same class of bug as the two unfinished reveals found on 2026-08-13 — a reveal window
+    that never reaches 1 at rest is the recurring failure here, and is now what gets tested.)
+  - **Kept, and it's most of the character:** every reveal and stagger, §3's ring drawing itself
+    clockwise with each stop and chevron arriving as the line reaches it, §4's dots and entries in
+    order, §5's lines drifting in from their own sides, the clocked bar fills (structure reveals,
+    payoffs play), the hover magnifier, the ↓ cue chain, the menu arriving as the Hero leaves, and the
+    drawer's per-section ground tint. The cues no longer own scroll windows: **a cue belongs to its
+    section** and is up for exactly as long as that section is the one you're in.
+  - **Retired, deliberately, on record:** the name fading in place **above** the rising panel; the
+    white → well background cross-fade under it; all five roll-overs (`translate3d(0,(1-p)*100%,0)`);
+    each section's outgoing fade as the next rose; and Stage 4.5's "released scroll always resolves
+    onto a section". Nothing covers anything now — sections simply abut and scroll. Note the §6
+    bookend was **already** a rising layer rather than the promised release into normal flow, so
+    Stage 4.5's "the break in the roll-over pattern *is* the ending gesture" was never being
+    delivered; with no pattern to break, Home ends on a white page because it opens on one.
+  - **Two long-standing problems fell out rather than being fixed.** §2's `≤389px` inner-scroll
+    special case is **deleted** — in normal flow the section grows (measured 1.28 screens at 320×568,
+    1.00 at 390 and up, exactly as the 2026-08-13 trim predicted) and the doorway and privacy note are
+    reachable by scrolling instead of parked in `overflow:hidden`. And the `svh` denominator guard is
+    moot: there is no denominator.
+  - **Measured after, Chrome via the harness.** Wheel: **1 notch → 100px, 3 → 300px, 12 → 1200px** —
+    native, exact, no interception (it was **0px** before 2026-08-13 and profile-dependent after). Six
+    sections at **1.00 screens** each at 1440×900. No page errors, no horizontal overflow. The ↓ cue
+    chain walks all six landing **0px** off, menu Home/Contact land 0px off, `#contact` lands the
+    bookend at 0px, the menu button reads **0 on the Hero → 1 past it**. Every reveal settled at
+    **320×568, 360×640, 390×844, 430×932 and 1440×900**, and under `prefers-reduced-motion: reduce`
+    everything is simply present with the ring drawn. _(Touch was not tested — the harness cannot
+    synthesize it; see the tooling note on 2026-08-13.)_
+
+- **2026-08-14** — **The runway shortens to 500vh and device detection is abandoned — one rule for
+  every input** (`transition-prototype.html`). The 2026-08-13 pass got the wheel working by splitting
+  the scroll two ways, mouse paging and trackpad scrubbing. It worked on the machine it was tuned on
+  and nowhere else, because **the premise was wrong: wheel-delta size cannot identify a device.** A
+  Magic Mouse and a hi-res wheel both stream like fingers, and Windows lets a notch be ~33px. Measured
+  in Chrome across wheel profiles: identical input advanced **0, 1, 4 or 5 sections** depending on the
+  profile, one common configuration **could not move the page at all**, and the same profile varied
+  run to run (5,5,5,5,3,5) because the verdict flipped mid-gesture and cancelled the settle in flight.
+  None of that is reachable by tuning thresholds — the signal isn't there to threshold.
+  - **The fix is upstream: the runway was too long.** At 1250vh a section step was ~2070px, so
+    scrubbing one section by mouse was ~21 notches. *That* is what forced a paging path, which forced
+    the guessing. At **500vh** a step is ~0.8 of a screen: about six notches by mouse, one comfortable
+    trackpad swipe, roughly one thumb flick on a phone. Every input is proportionate on its own terms,
+    so one rule serves all three and nothing needs to be detected or intercepted. The wheel listener
+    is passive again — the page no longer takes the wheel from the browser, which is also what lets
+    §2's inner panel scroll itself without a special case.
+  - **A real bug fell out of it: the gesture reference must be where you *arrived*, not where you
+    are.** "Where did this gesture start" was read off the live position, but any input cancels a
+    settle in flight, so the page is already partway to the next floor — and the next gesture read
+    that as having started there and travelled *backwards*, committing back the way it came. Steady
+    wheeling walked forward and then home again. `restingFloor` is now written **only when a settle
+    completes**, and the ↓ cues route through `goToFloor` so a cue click records its arrival too.
+  - **The commit threshold goes relative.** A flat `COMMIT_PX = 60` meant a proportionally lighter
+    nudge the taller the screen; it is now **0.1 of a section**, the same effort on a phone as on a
+    tall monitor.
+  - **`svh`, and resize only on a width change.** Progress is `scrollY/runwayEnd`, so a moving
+    denominator makes the choreography jump under a thumb that never left the glass — and a
+    collapsing mobile URL bar fires `resize` at the *same width*. The runway is sized in `svh` and
+    re-measures only when the width actually changes; rotation and real window resizes still do.
+  - **Snap stays out.** At 0.8-screen steps CSS scroll-snap would probably work now, but the script
+    settle stays: one device-agnostic rule we control, and it already carries the dwell-skip.
+
+- **2026-08-14** — **A hovered Journey block lifts above the edge blur** (`sections-prototype.html`).
+  Follow-up to the hover entry below, and the first thing settled with a **real browser** rather than by
+  reading code — see the note at the end. The `.edge-blur` bands (fixed, 110px at the viewport top and
+  130px at the bottom, `backdrop-filter` plus a gradient washing toward `--ground` at 72%) were blurring
+  and washing whichever card you were **actively pointing at** whenever it sat in one, and the 1.4× zoom
+  grew it further in. Screenshots of the same card hovered at two scroll positions settled it: clear of
+  the band it is sharp with the ochre at full strength; inside it the description is visibly soft and
+  drained. That reads as a rendering fault, not an edge treatment. A hovered block now takes
+  **`z-index:26`** — clear of `.edge-blur`'s 25, still under the topbar (30), dock (40), menu (50/51) and
+  entry card (60/61), so it covers no chrome. The band still does its job on everything you are not
+  touching. Driven from the magnifier loop rather than `:hover` so the lift lasts exactly as long as the
+  zoom, instead of dropping back mid-ease. For a **phase heading the lift goes on `.phase-head`, not the
+  chip**: the head carries a `transform`, which opens a stacking context a z-index on the chip could
+  never escape. Verified in Chrome at both bands — entry `auto → 26 → auto`, heading `2 → 26 → 2`.
+  - **Tooling note:** this was the first change checked in a real browser. `playwright-core` + Windows
+    Chrome via `channel:'chrome'`, in `C:\Project\.browser-tools\` — deliberately outside the repo. Two
+    traps it caught: headless Chrome can force `prefers-reduced-motion:reduce`, which silently disables
+    every effect under test and makes a broken page look fine (the harness sets `no-preference` and
+    asserts `matchMedia` before trusting anything); and a before/after against `origin/main` showed no
+    difference because main had already moved — the real baseline was `544d9ea^`. Against that, both
+    fixes below reproduce and clear: `pandera` `opacity 0 → 1`, and every entry
+    `matrix(1,0,0,1,0,0) → none`.
 
 - **2026-08-14** — **One journey interface on both surfaces: hover a text block and it lifts**
   (`transition-prototype.html` and `sections-prototype.html`). Supersedes the 2026-07-29 magnifier
