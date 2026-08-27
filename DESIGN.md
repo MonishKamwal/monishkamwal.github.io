@@ -1110,6 +1110,57 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-08-14** — **Home's top and bottom edges dissolve — the Data-mode blur, keyed to
+  crossings instead of scroll depth** (`transition-prototype.html`). Monish's ask, and the last
+  change of the day. The Data-mode edge treatment (Quality · Monitoring · Performance) ported onto
+  Home, where it had to be rebuilt around two things Data mode never had to solve.
+  - **The band.** Three stacked `backdrop-filter` layers per edge, each masked into a band of its
+    own, so the blur genuinely **ramps 2 → 6 → 14px** instead of switching on at one radius, plus an
+    `::after` gradient washing toward the ground at 72% so content **fades out as well as smearing**.
+    110px at the top, 130px at the bottom. Sized to be felt, not noticed.
+  - **Why the strength rule could not be borrowed.** Data mode keys strength to scroll **depth** —
+    the top band on once you have scrolled, the bottom on until the document ends — because it is
+    one long document, where the only thing at the top of the screen is content on its way out.
+    Home's sections are a screen each, so at rest the top band lands on the section's **own head**:
+    measured at 1440×900, every one of the five heads sits at **y=63–133 inside a 110px band**, and
+    the title you are reading would be permanently soft. That reads as a rendering fault, not an
+    edge treatment. Strength keys to the **crossing** instead — full while a section is passing
+    through the edges, nothing once one has come to rest flush with the top. Same bands, same ramp,
+    same wash; only the *when* changes. The Hero opening crisp and the bookend closing crisp both
+    fall out of that one rule rather than being two more special cases, and a section taller than
+    the screen (§2 on a phone) still blurs all the way down it, because then you are never near a
+    boundary. The ramp is 140px of scroll each side; a second clamp holds the last screen crisp
+    even if §6 ever grows past one screen and its boundary is nowhere near the top.
+  - **The wash is per edge, not per page.** Data mode had one ground; Home has six. `edgeGround()`
+    asks what is actually painted behind **that** band — and inside a merge band (entry below) that
+    is not the section's flat ground but the ramp toward the seam, which is the same thing said
+    twice: 50/50 at the boundary, all of one ground `--merge` away. So one `color-mix` reproduces it
+    from either side and the wash **crosses a seam continuously** instead of snapping when the
+    section-in-view changes, which happens a whole half-screen off from the boundary. One shared
+    value would be wrong for half a screen either side of every boundary — §4's ochre washed across
+    §3's sage reads as a stain.
+  - **The ↓ cues lift to `z-index:26`.** They live at `bottom:34px`, dead centre of the bottom band,
+    and a blurred affordance reads as a rendering fault — the same call as the hovered Journey block
+    below. Clear of `.edge-blur`'s 25, still under the topbar (30) and the menu (50/51), so they
+    cover no chrome; the Hero and demo cue wrappers lift with them.
+  - **Off entirely under reduced motion.** On the Data pages the bands are a static frame. Here they
+    come and go with the scroll, and a scroll-linked effect is exactly what that preference asks us
+    to drop.
+  - **Written only on change, and out of the way at rest.** Each write is a style recalc on an
+    element the compositor is already re-blurring, and at rest — where this page spends most of its
+    time — nothing changes at all. At strength 0 the bands go `visibility:hidden`, not merely
+    invisible: six `backdrop-filter` layers can still be sampled and blurred at opacity 0.
+  - **Measured, Chrome via the harness** (two new scripts: **`edgecheck.js`**, which lists what sits
+    inside each band at every stop *with its z-index*, so "lifted above the blur" is a fact rather
+    than a claim; and **`edgesweep.js`**, which sweeps strength across a whole crossing and scrolls
+    with a real wheel). Across §4→§5 at 1440×900 the ramp moves **≤0.072 per 10px** of scroll with
+    **top and bottom never disagreeing**; under `--reduce` it stays 0/hidden the whole way; a real
+    wheel moves the full 720px and the pointer over the hero cue still hits the button, so the fixed
+    overlay intercepts nothing. `homecheck`/`homenav` unchanged and `seamcheck` still steps ≤1/255
+    at every boundary at 390×844. **One reading note for `seamcheck`:** its own scroll position is
+    mid-crossing, so the top ~110px of its strip is read *through* the top band and "worst 1px jump"
+    reads 2–3 there. That is the blur, not a seam artefact — trust the step at the boundary.
+
 - **2026-08-14** — **Both prototyping docks come off Home; §2's layout A/B is settled and deleted**
   (`transition-prototype.html`). Monish's call. The **§2 layout dock** existed to flip the single
   lifted instrument against the "causal columns" variant (paper chrome moved off the wrapper onto
