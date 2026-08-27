@@ -1110,6 +1110,31 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-08-27** — **The motion docks come off the two inner-page prototypes**
+  (`sections-prototype.html`, `data-prototype-white.html`). Finishes the call left open on
+  2026-08-14, when both docks came off Home and these two were flagged as a separate decision.
+  Same reasoning: the dock retuned `--dur` live while the motion was being timed, that timing is
+  settled, and a control nobody will click is worse than no control at all. `--dur` keeps **.48s**
+  — the value both docks were left on — and still drives what it always drove: the menu panel and
+  its staircase stagger, the reveals, and the arrival line.
+  - **What did _not_ come off: the bottom tray.** Both files filed `.switch-dock` and `.speed-dock`
+    under one CSS header — *"prototype chrome: page switcher + speed dock"* — and the two are not
+    the same kind of thing. **`.switch-dock` is the bottom navigation tray**, locked in Stage 4.6
+    and carried into the IA rework as the two isolated mode trays; it *is* the design, and on these
+    pages it is the wayfinding — deleting it would have taken Story/Data navigation with it. Only
+    `.speed-dock` was scaffolding. Both headers are reworded to say which is which, because the old
+    one is exactly how the tray gets deleted by accident on some later pass.
+  - **`.chip-btn` stays in the Data prototype.** In `sections-prototype.html` the speed dock was its
+    only user, so the rules went with it. In `data-prototype-white.html` **ten panel "data" toggles**
+    use it, so the base rules stay and only `.speed-dock .chip-btn:hover` went with the dock.
+  - **Measured, Chrome via the harness** (new **`dockcheck.js`**, plus **`chipcheck.js`** for the
+    toggles). Both files boot with **no page errors**; nothing matching `.speed-dock` or `[data-dur]`
+    survives in the DOM; `--dur` resolves to `.48s`; the tray still moves between all three pages on
+    each file with `active` and `aria-current` following the move; the menu still opens. The Data
+    toggles still style (20px radius, mono, hairline border → ochre when pressed) and still reveal
+    their table. Nothing floats over either prototype now, so both are finally seen the way a
+    visitor sees them — the same thing the 2026-08-14 pass bought for Home.
+
 - **2026-08-14** — **Home's top and bottom edges dissolve — the Data-mode blur, keyed to
   crossings instead of scroll depth** (`transition-prototype.html`). Monish's ask, and the last
   change of the day. The Data-mode edge treatment (Quality · Monitoring · Performance) ported onto

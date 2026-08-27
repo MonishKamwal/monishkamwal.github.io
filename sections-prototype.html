@@ -21,7 +21,7 @@
     --wash-rose:#ffe8ee;
     --deep-ochre:#96600a;
     --ease-out-expo:cubic-bezier(.16,1,.3,1);
-    --dur:.48s; /* the loose global motion value — retuned by the dock */
+    --dur:.48s; /* the loose global motion value */
   }
   *{box-sizing:border-box;}
   body{
@@ -420,7 +420,7 @@
   .card-body p{margin:0 0 12px;font-size:15px;max-width:60ch;}
   .card-ev{margin-top:24px;padding-top:16px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:9px;font-size:14px;}
 
-  /* ---------- prototype chrome: page switcher + speed dock ---------- */
+  /* ---------- the Story tray: bottom navigation (Stage 4.6, locked) ---------- */
   .switch-dock{
     position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:40;
     background:#fff;border:1px solid var(--border);border-radius:30px;
@@ -435,20 +435,6 @@
   .switch-dock .sw:hover{color:var(--foreground);}
   .switch-dock .sw.active{color:#fff;background:var(--foreground);}
   .switch-dock .sw:focus-visible{outline:2px solid var(--warm);outline-offset:2px;}
-  .speed-dock{
-    position:fixed;right:18px;bottom:18px;z-index:40;
-    background:#fff;border:1px solid var(--border);border-radius:5px;
-    padding:8px 10px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;
-    box-shadow:0 8px 24px -16px rgba(10,10,10,.4);max-width:min(300px,calc(100vw - 36px));
-  }
-  .chip-btn{
-    font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--muted-foreground);
-    background:none;border:1px solid var(--border);border-radius:20px;padding:3px 9px;cursor:pointer;
-    transition:border-color .3s var(--ease-out-expo),color .3s var(--ease-out-expo);
-  }
-  .chip-btn:hover{border-color:var(--warm);color:var(--deep-ochre);}
-  .chip-btn.active{border-color:var(--warm);color:var(--deep-ochre);background:#f4cc9e38;}
-  .chip-btn:focus-visible{outline:2px solid var(--warm);outline-offset:2px;}
 
   @media(max-width:640px){
     .switch-dock{bottom:70px;}
@@ -783,13 +769,6 @@
   <button class="sw" data-goto="architecture" role="tab">Architecture</button>
   <button class="sw active" data-goto="journey" role="tab" aria-current="page">Journey</button>
   <button class="sw" data-goto="skills" role="tab">Skills</button>
-</div>
-<div class="speed-dock" role="group" aria-label="Motion speed">
-  <span class="micro">motion</span>
-  <button class="chip-btn active" data-dur=".48s">.48s</button>
-  <button class="chip-btn" data-dur=".7s">.7s</button>
-  <button class="chip-btn" data-dur=".9s">.9s</button>
-  <button class="chip-btn" data-dur="1.2s">1.2s</button>
 </div>
 
 <script>
@@ -1245,14 +1224,6 @@
     try{ await navigator.clipboard.writeText('kallukalia01@outlook.com'); }catch(e){}
     aboutCopied.style.opacity='1';
     setTimeout(()=>{ aboutCopied.style.opacity='0'; },1600);
-  });
-
-  // ---- speed dock ----
-  document.querySelectorAll('.speed-dock .chip-btn').forEach(b=>{
-    b.addEventListener('click',()=>{
-      document.documentElement.style.setProperty('--dur',b.dataset.dur);
-      document.querySelectorAll('.speed-dock .chip-btn').forEach(x=>x.classList.toggle('active',x===b));
-    });
   });
 
   // ---- deep-link on load: #page or #page/cardId ----
