@@ -1110,6 +1110,25 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-10-01** — **"See all skills →" moves to the bottom right, off "Building the front"**
+  (`transition-prototype.html`, wide layout only). Monish asked for the way out to move from
+  the top right to the bottom right, and to cross the right side of "Building the front".
+  - **Position.** The way out is now at `translate(1135,525)`. Its label is at (1275, 652).
+    `lens.js` shows a lens area of 1051 with Front, and no accidental crossings. The first try
+    at `translate(1155,525)` gave a lens area of 437, which was the thinnest crossing on the
+    page. The shape moved 20 units in to make the crossing clear.
+  - **The portrait layout does not change.** There, the way out is already at the bottom right,
+    off "Watching it run". Front is in the middle of the right edge, so there is no space to
+    its right.
+  - **`lens.js` takes `--host=`** for the shape that the way out hangs off. The default is
+    "Building the front". Use `--host="Watching it run"` for the portrait layout.
+  - **Checks.** `washfit.js`: §5 is one screen at all sizes, with no clipped text and no label
+    collisions. `seamcheck.js`: step 1.0 or less at all five boundaries. `washcheck.js` reported
+    1–2px into the bottom merge band at 1280×720, 1366×768 and 1920×1080. This is a false alarm
+    from the bounding box of the rotated "Building the front" blob, which did not move. The new
+    `bandgap.js` samples the painted shape and measures 22–59px of clearance. Use `bandgap.js`
+    for this question.
+
 - **2026-10-01** — **Home §5's shapes rest faded and pop on hover or tap**
   (`transition-prototype.html`). Monish said that the shapes arrived "in their bright form".
   He wanted them faded at all times, and the hovered shape to pop like "See all skills".
