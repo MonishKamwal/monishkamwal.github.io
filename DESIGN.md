@@ -1110,6 +1110,32 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-10-01** — **Home §5's shapes rest faded and pop on hover or tap**
+  (`transition-prototype.html`). Monish said that the shapes arrived "in their bright form".
+  He wanted them faded at all times, and the hovered shape to pop like "See all skills".
+  - **At rest.** All six blobs are at opacity .42, including the way out. Before this change,
+    the shapes went to .42 only when the pointer was on a different shape.
+  - **The pop.** The hovered shape goes to full opacity and to `scale:1.03`. Its name goes to
+    `--deep-ochre` and its tools go to ink. The way out uses the same rule. Its old hover
+    transform on the `<a>` is removed.
+  - **Why `scale` and not `transform`.** `applyWashes()` writes the group's `transform` for the
+    entrance. The CSS `scale` property composes with it, so the two do not overwrite each other.
+  - **Touch.** A touch screen has no hover. Without a second path, a phone shows the shapes only
+    faded. A tap on a shape adds `.lit`, which is the same state as hover. A tap on another
+    shape or on the page removes it. A tap on the way out follows the link. The handler ignores
+    mouse input, so a click does not leave a shape lit. Hover stays behind
+    `(hover:hover) and (pointer:fine)`.
+  - **The shared tools lift too.** S3, ONNX, k6 and GitHub Actions sit in the crossings, outside
+    both groups, so the group rules do not reach them. Each shape has a `data-skill` key, and
+    each shared label has a `data-pair` with the keys of its two shapes. A `.wash:has()` rule
+    lifts the label when either of its shapes is hovered or `.lit`: `scale:1.12` around its
+    own centre, and `--deep-ochre` to match the name. The labels have `pointer-events:none`, so
+    the pointer on a label stays on the shape below it. `labelhit.js` confirms this for all four
+    labels. Add the two keys to `data-pair` for each new crossing.
+  - **What was tested.** Screenshots of rest, hover, and the way out hover at 1440×900, and a tap
+    at 390×844. `taptest.js` (in `.browser-tools`) sends synthetic touch `pointerup` events.
+    These test the handler only. The harness cannot send real touch input.
+
 - **2026-10-01** — **Home §5 becomes quieter: smaller shapes, sentence-case names**
   (`transition-prototype.html`). Monish said that the shapes and the names were too large, and
   that the type was disturbing. The aim was a less aggressive section with the same idea.
