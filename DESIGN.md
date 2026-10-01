@@ -1110,6 +1110,158 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-10-01** — **"See all skills →" moves to the bottom right, off "Building the front"**
+  (`transition-prototype.html`, wide layout only). Monish asked for the way out to move from
+  the top right to the bottom right, and to cross the right side of "Building the front".
+  - **Position.** The way out is now at `translate(1135,525)`. Its label is at (1275, 652).
+    `lens.js` shows a lens area of 1051 with Front, and no accidental crossings. The first try
+    at `translate(1155,525)` gave a lens area of 437, which was the thinnest crossing on the
+    page. The shape moved 20 units in to make the crossing clear.
+  - **The portrait layout does not change.** There, the way out is already at the bottom right,
+    off "Watching it run". Front is in the middle of the right edge, so there is no space to
+    its right.
+  - **`lens.js` takes `--host=`** for the shape that the way out hangs off. The default is
+    "Building the front". Use `--host="Watching it run"` for the portrait layout.
+  - **Checks.** `washfit.js`: §5 is one screen at all sizes, with no clipped text and no label
+    collisions. `seamcheck.js`: step 1.0 or less at all five boundaries. `washcheck.js` reported
+    1–2px into the bottom merge band at 1280×720, 1366×768 and 1920×1080. This is a false alarm
+    from the bounding box of the rotated "Building the front" blob, which did not move. The new
+    `bandgap.js` samples the painted shape and measures 22–59px of clearance. Use `bandgap.js`
+    for this question.
+
+- **2026-10-01** — **Home §5's shapes rest faded and pop on hover or tap**
+  (`transition-prototype.html`). Monish said that the shapes arrived "in their bright form".
+  He wanted them faded at all times, and the hovered shape to pop like "See all skills".
+  - **At rest.** All six blobs are at opacity .42, including the way out. Before this change,
+    the shapes went to .42 only when the pointer was on a different shape.
+  - **The pop.** The hovered shape goes to full opacity and to `scale:1.03`. Its name goes to
+    `--deep-ochre` and its tools go to ink. The way out uses the same rule. Its old hover
+    transform on the `<a>` is removed.
+  - **Why `scale` and not `transform`.** `applyWashes()` writes the group's `transform` for the
+    entrance. The CSS `scale` property composes with it, so the two do not overwrite each other.
+  - **Touch.** A touch screen has no hover. Without a second path, a phone shows the shapes only
+    faded. A tap on a shape adds `.lit`, which is the same state as hover. A tap on another
+    shape or on the page removes it. A tap on the way out follows the link. The handler ignores
+    mouse input, so a click does not leave a shape lit. Hover stays behind
+    `(hover:hover) and (pointer:fine)`.
+  - **The shared tools lift too.** S3, ONNX, k6 and GitHub Actions sit in the crossings, outside
+    both groups, so the group rules do not reach them. Each shape has a `data-skill` key, and
+    each shared label has a `data-pair` with the keys of its two shapes. A `.wash:has()` rule
+    lifts the label when either of its shapes is hovered or `.lit`: `scale:1.12` around its
+    own centre, and `--deep-ochre` to match the name. The labels have `pointer-events:none`, so
+    the pointer on a label stays on the shape below it. `labelhit.js` confirms this for all four
+    labels. Add the two keys to `data-pair` for each new crossing.
+  - **What was tested.** Screenshots of rest, hover, and the way out hover at 1440×900, and a tap
+    at 390×844. `taptest.js` (in `.browser-tools`) sends synthetic touch `pointerup` events.
+    These test the handler only. The harness cannot send real touch input.
+
+- **2026-10-01** — **Home §5 becomes quieter: smaller shapes, sentence-case names**
+  (`transition-prototype.html`). Monish said that the shapes and the names were too large, and
+  that the type was disturbing. The aim was a less aggressive section with the same idea.
+  - **The names.** Each competency name was in uppercase Bodoni at the display optical size
+    (`opsz` 88), with four different sizes from 24 to 38 units. The display cut has very thin
+    hairlines, and at that size in capitals it was the loudest thing on Home. The names are
+    now in sentence case at `opsz` 28. This is near the style of the Journey entry titles.
+    All five names use one size: 28 units on the wide layout (about 22px at 1440×900). On the
+    portrait layout, the names use 19 units. "Building the front" uses 15 units because its
+    shape is the smallest.
+  - **The shapes.** The two viewBoxes zoom out around their centres, by 0.8 on the wide layout
+    and by 0.92 on the portrait layout. No shape moved in relation to another shape, so all
+    four crossings stay correct. `lens.js` confirms the same lens centroids and no accidental
+    crossings. Tool lines and shared tools went down to 19/18 units (wide) and 13 units
+    (portrait).
+  - **Results.** On phones, the gap between the head text and the first shape grew from −2–4px
+    to 22–30px. At 390×844, the shape touched the lead before the change. `washfit.js` shows no clipped text and no label collisions at any size.
+  - **A false alarm in `washfit.js`.** At 1280×720, it reported that a shape went 10px into the
+    head. The check uses the bounding box of each blob. A rotated blob's box includes corners
+    that the shape does not paint. The new `headgap.js` (in `.browser-tools`) samples the shape
+    with `isPointInFill` against the head's text lines. It measures a gap of 182px. Use
+    `headgap.js` for this question.
+
+- **2026-09-15** — **Home §5 becomes overlapping washes; the drifting tool lines are retired**
+  (`transition-prototype.html`, explored in the new `skills-sketches.html`). §5 was the only
+  section on the page with nothing to look at — four lines of tool names — and it **re-listed
+  what §3 had just shown as brand logos** (Lambda, Docker, Terraform, MLflow, GitHub Actions),
+  so the teaser read as a list you had already seen. Four stylized replacements were built as a
+  sketch sheet on the real rose ground, one screen each, the way `arch-sketches.html` worked out
+  the ring: **A** the model's training-set drawings as a faint ink field that draws itself,
+  **B** overlapping washes, **C** a letterpress type case, **D** oversized words cropped by the
+  screen edges, plus the current version as a control. **B was chosen.**
+  - **What B is.** Five large irregular shapes in the warm family, rotated and overlapping,
+    `mix-blend-mode:multiply` so every crossing deepens on its own and no overlap colour is
+    picked by hand. One competency named across each shape in Bodoni, its tools inside, and
+    **the tool two competencies share written once, out in the crossing, in neither list** —
+    Training∩Data = S3, Training∩Shipping = ONNX, Shipping∩Watching = k6, Shipping∩Front =
+    GitHub Actions. The crossings are the argument; the colour is how you see them.
+  - **The content shift underneath it, which is the bigger change:** §5 now leads with **what he
+    can do** and puts the tools second. That is what stops it repeating §3 — the ring shows the
+    tools, §5 shows the competence they add up to.
+  - **Departs from the locked §5 spec** (Stage 3, "Skills — drifting lines … No group labels"):
+    the shapes are group labels, and the lines are gone. Recorded per the standing position that
+    the locks are not binding during the redesign.
+  - **Departs from the ink-plus-one-ochre palette** more than anything else on Home: this is the
+    one screen that is not thin black line on warm paper. New tokens `--w-rose/-ochre/-sage/
+    -blue/-sand`, each desaturated far enough that five multiplied together still read as warm
+    paper rather than poster paint. Named at the time of choosing as B's main cost.
+  - **Portrait is a rebuild, not a reflow.** The five shapes must keep exactly four crossings and
+    gain no fifth — a crossing that appears by accident claims two competencies share a tool that
+    they do not — and that cannot survive a reflow, so there are two arrangements
+    (`.wash-wide` 768×507, `.wash-tall` 480×820) swapped at `max-aspect-ratio:9/10`. Every pair
+    was checked by centre distance against the sum of the radii; the clear pairs are listed in the
+    markup for whoever edits it next. **This hand-placement is a permanent cost of B**, not a
+    first-draft artefact: adding one tool is a geometry job.
+  - **Three things the checks caught** (`washcheck.js`, `washfit.js` in `.browser-tools`):
+    §5 grew to **899px inside an 844px viewport** once the portrait wash was uncapped, breaking
+    the one-section-per-screen grid; the wash slid **under the absolutely-positioned section head**
+    (16px at 1440×900, 42px at 1280×720) because `.skills-layer`'s padding-top was still the value
+    tuned for the text lines — now `clamp(168px,22vh,205px)`, with a lower portrait override; and
+    "Building the front" was cropped 4px in portrait. Both washes now cap at
+    `min(66vh, calc(100vh - 340px))`.
+  - **Composition is kept clear of the top and bottom merge bands** — the shapes multiply against
+    `.sec`'s seam ramp as readily as against its flat ground, and one sitting on a ramp would
+    darken a band of it and redraw the seam the 2026-08-14 pass removed. Verified: 0px into either
+    band at every size, and `seamcheck` still reads a step of 1.0 at all five boundaries.
+  - **Reveal.** The shapes grow from their own centres (`scale(.965 → 1)`) instead of sliding:
+    a translate on an SVG `<g>` is read in **user units, not pixels**, so the shared
+    `setReveal()`/`setRevealX()` cannot drive them. Reduced motion rests them in place.
+  - **Touch.** The hover payoff (hovered shape holds, the rest drop to .42) is fenced behind
+    `(hover:hover) and (pointer:fine)`; with no pointer every shape simply rests at full strength.
+
+- **2026-09-15** — **"See all skills →" becomes the sixth wash, and the crossings get measured
+  rather than reasoned** (`transition-prototype.html`). Two changes from the same afternoon.
+  - **The way out joins the composition.** The link moved out of its paragraph under the wash and
+    became a sixth shape at the right end, hung off "Watching it run". It carries no competency
+    name and its type is ochre, so the crossing reads as *there is more of this* rather than as a
+    shared tool. It lives inside the SVG, not overlaid on it: the wash letterboxes inside its own
+    element box whenever the max-height cap binds, so the drawn box is not the element box and an
+    HTML overlay would drift. **The whole shape is the link**, not just the words — as text alone
+    the tap target measured 70×14 at 1280×720; it is now 110×113 at the smallest size tested.
+    The entrance transform sits on the wrapping `<g>` and the hover transform on the `<a>`, so
+    `applyWashes()` and `:hover` never write the same property.
+  - **The crossing check was wrong, and it was hiding real breakage.** It compared bounding
+    boxes. A blob's box includes corners the shape never reaches, so shapes that merely sat
+    beside each other were reported as crossing. Tested properly — `isPointInFill`, with viewBox
+    points pushed through `getScreenCTM()` — **three of the four shared tools on the portrait
+    layout were floating in open paper**, and ONNX was floating on the wide one too. Note for
+    anyone re-deriving this: `getCTM()` on a child returns local → SVG **pixel** space (it carries
+    the viewBox scale), not local → viewBox space; using it as if it were the latter silently
+    reports "these shapes do not cross" for shapes that plainly do.
+  - **So the geometry is now measured, not reasoned.** Radius arithmetic does not work here — the
+    blob paths are not circles centred in their local box, and rotation moves them again.
+    `lens.js` (in `.browser-tools`) samples each intended pair, reports the centroid of the region
+    genuinely inside both, reports each shape's true centre, **and flags accidental crossings**;
+    every name and every shared label now sits on a measured coordinate. Hand-nudging the portrait
+    chain kept trading one crossing for another, so `tune.js` searched a small grid of positions
+    and took the arrangement with the healthiest worst-case lens and no accidental crossings.
+  - **`washfit.js` also checks label collisions now** — three had been found by eye, which is not
+    a method. Current state: all four crossings real in both layouts, no accidental crossings, no
+    label collisions, §5 exactly one screen at 360×800 through 1920×1080.
+  - **The reveal step is now derived, not typed.** `REV_STEP` was a fixed `.10`, which caps the
+    deepest usable stagger at 6 — §5's seventh step rested at **.984 forever**. This is the third
+    time this page has shipped a reveal window that never reaches 1 at its own resting point, so
+    the step is now computed from the deepest `data-stagger` in the document and the ladder simply
+    tightens when a row is added.
+
 - **2026-08-27** — **The motion docks come off the two inner-page prototypes**
   (`sections-prototype.html`, `data-prototype-white.html`). Finishes the call left open on
   2026-08-14, when both docks came off Home and these two were flagged as a separate decision.

@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sketches — how Home §5 shows the skills</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..700&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ground:#ffe8ee;          /* §5's dusty-rose wash — the sheet stands on the real ground */
+    --ink:#0a0a0a;
+    --muted:#6b6b6b;
+    --hair:#e8e8e8;
+    --warm:#c98a3a;
+    --deep-ochre:#96600a;
+    /* the warm family the washes draw from */
+    --w-rose:#fbd3dc;
+    --w-ochre:#f8dfc4;
+    --w-sage:#d8ecde;
+    --w-blue:#dee5f4;
+    --w-sand:#f1e7d0;
+    --ease-out-expo:cubic-bezier(.16,1,.3,1);
+    --ease-hover:cubic-bezier(.2,.7,.35,1);  /* hovers: short travel, no front-load */
+    --dur:.48s;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;background:var(--ground);color:var(--ink);
+    font-family:"Outfit",system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-weight:330;line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .display{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 96;font-weight:500;
+    line-height:.92;letter-spacing:-.02em;
+  }
+  .micro{text-transform:uppercase;letter-spacing:.22em;font-size:11.5px;font-weight:500;color:var(--muted);}
+  .wrap{max-width:1060px;margin:0 auto;padding:clamp(56px,10vh,110px) clamp(24px,5vw,44px) clamp(60px,10vh,120px);}
+
+  /* ---------- sheet chrome — same as arch-sketches.html, so the two read as a pair ---------- */
+  .sheet-head{margin-bottom:clamp(40px,7vh,72px);}
+  .sheet-head h1{font-size:clamp(38px,7vw,68px);text-transform:uppercase;margin:10px 0 0;}
+  .sheet-head p{margin:16px 0 0;max-width:62ch;font-size:15.5px;color:var(--muted);}
+  .sheet-head .facts{margin-top:22px;padding-top:16px;border-top:1px solid var(--ink);max-width:62ch;font-size:14px;color:var(--muted);}
+  .sheet-head .facts b{color:var(--ink);font-weight:500;}
+  .sheet-head .facts + .facts{border-top:0;padding-top:0;margin-top:14px;}
+
+  .sk{padding:clamp(40px,7vh,76px) 0;border-top:1px solid var(--ink);}
+  .sk-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;}
+  .sk-head h2{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
+    font-size:clamp(24px,4vw,38px);line-height:1.02;margin:0;
+  }
+  .sk-key{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--deep-ochre);letter-spacing:.1em;}
+  .sk-note{margin:12px 0 0;max-width:60ch;font-size:15px;color:var(--muted);}
+  .sk-cost{margin:10px 0 0;max-width:60ch;font-size:13.5px;color:var(--muted);}
+  .sk-cost b{color:var(--ink);font-weight:500;}
+  .stage{margin-top:clamp(26px,4.5vh,46px);}
+
+  /* ---------- the frame: one screen, so nothing is judged at the wrong size ----------
+     §5 is exactly one screen tall on the real page. Rendered inline at sheet width a
+     variant would read bigger and airier than it ever will be, so every panel sits in a
+     screen-shaped box and sizes its type in cqw — 100cqw is the frame's own width, so the
+     type scales with the "screen" rather than with the browser. */
+  .frame{
+    container-type:inline-size;
+    position:relative;width:100%;aspect-ratio:16/9.6;
+    background:var(--ground);overflow:hidden;
+    border:1px solid var(--ink);
+  }
+  .f-head{position:absolute;top:5.2cqw;left:5cqw;right:5cqw;z-index:3;}
+  .f-title{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
+    text-transform:uppercase;font-size:5cqw;margin:0;line-height:1;
+  }
+  .f-lead{margin:1.2cqw 0 0;font-size:1.95cqw;color:var(--muted);line-height:1.4;}
+  .f-body{
+    position:absolute;inset:0;z-index:2;
+    padding:17cqw 5cqw 4cqw;
+    display:flex;flex-direction:column;justify-content:safe center;
+  }
+  .f-link{margin:3.4cqw 0 0;font-size:1.55cqw;}
+  .link{
+    display:inline-block;transform-origin:left center;
+    color:var(--deep-ochre);text-decoration:none;
+    border-bottom:1px solid rgba(150,96,10,.32);
+    transition:color .18s var(--ease-out-expo),border-color .18s var(--ease-out-expo),scale .18s var(--ease-out-expo);
+  }
+  @media(hover:hover) and (pointer:fine){
+    .link:hover{color:var(--warm);border-bottom-color:var(--warm);scale:1.06;}
+  }
+  /* everything that reveals starts invisible; the rAF loop below drives it from the
+     frame's own rect, exactly as the prototypes drive a section's */
+  .rv{opacity:0;}
+
+  /* ================= 0 — as it stands today ================= */
+  .s-lines{display:flex;flex-direction:column;gap:1.7cqw;}
+  .s-line{font-size:3.4cqw;font-weight:350;letter-spacing:-.005em;}
+  .s-line.l2{margin-left:26%;}
+  .s-line.l3{margin-left:6%;}
+  .s-line.l4{margin-left:38%;}
+
+  /* ================= A — the model's world ================= */
+  .a-field{
+    position:absolute;inset:0;width:100%;height:100%;z-index:1;
+    color:var(--ink);pointer-events:none;
+  }
+  .a-field .mk{opacity:.17;transition:opacity .3s var(--ease-hover);}
+  .a-field .mk.lit{opacity:.62;}
+  #fA .f-body{padding:16.4cqw 5cqw 3cqw;}
+  .a-rows{display:flex;flex-direction:column;gap:1.5cqw;}
+  .a-row{width:fit-content;max-width:74%;}
+  .a-row.r2{margin-left:24%;}
+  .a-row.r3{margin-left:7%;}
+  .a-row.r4{margin-left:31%;}
+  .a-row.r5{margin-left:14%;}
+  .a-name{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 88;font-weight:500;letter-spacing:-.012em;
+    font-size:2.9cqw;line-height:1;text-transform:uppercase;
+    transition:color .17s var(--ease-hover);
+  }
+  .a-tools{margin-top:.5cqw;font-size:1.35cqw;color:var(--muted);letter-spacing:.01em;}
+  #fA .f-link{margin-top:2.2cqw;}
+  @media(hover:hover) and (pointer:fine){
+    .a-row:hover .a-name{color:var(--warm);}
+  }
+
+  /* ================= B — overlapping washes ================= */
+  .b-svg{position:absolute;inset:0;width:100%;height:100%;z-index:1;}
+  .b-g .blob{mix-blend-mode:multiply;transition:opacity .22s var(--ease-hover);}
+  .b-g .b-name{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 88;font-weight:500;letter-spacing:-.012em;
+    text-transform:uppercase;fill:var(--ink);
+    transition:fill .17s var(--ease-hover);
+  }
+  .b-g .b-tool{font-family:"Outfit",sans-serif;font-weight:350;fill:var(--muted);}
+  .b-shared{font-family:"Outfit",sans-serif;font-weight:500;fill:var(--ink);}
+  @media(hover:hover) and (pointer:fine){
+    .b-svg:hover .b-g .blob{opacity:.45;}
+    .b-svg .b-g:hover .blob{opacity:1;}
+    .b-g:hover .b-name{fill:var(--deep-ochre);}
+  }
+
+  /* ================= C — the type case ================= */
+  .case{
+    display:grid;grid-template-columns:repeat(6,1fr);
+    border-top:1px solid var(--ink);border-left:1px solid var(--ink);
+  }
+  .cell{
+    border-right:1px solid var(--ink);border-bottom:1px solid var(--ink);
+    padding:1.1cqw 1.2cqw;min-height:5.05cqw;
+    display:flex;align-items:center;
+    position:relative;z-index:1;background:var(--ground);
+    transition:transform .19s var(--ease-hover),box-shadow .19s var(--ease-hover),background .19s var(--ease-hover);
+  }
+  #fC .f-body{padding:16.4cqw 5cqw 3cqw;}
+  #fC .f-link{margin-top:2.4cqw;}
+  .cell.comp{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.012em;
+    font-size:2.35cqw;line-height:1;text-transform:uppercase;
+  }
+  /* the tool cells carry mixed sizes and weights — that mix is the texture */
+  .cell.t{color:var(--muted);}
+  .cell.t.big{font-size:1.9cqw;font-weight:400;color:var(--ink);}
+  .cell.t.mid{font-size:1.5cqw;font-weight:350;}
+  .cell.t.sm{font-size:1.2cqw;font-weight:350;letter-spacing:.06em;text-transform:uppercase;}
+  @media(hover:hover) and (pointer:fine){
+    .cell:hover{
+      transform:translate(-.35cqw,-.35cqw);z-index:4;background:#fff;
+      box-shadow:.35cqw .35cqw 0 -.02cqw rgba(10,10,10,.14),0 1.4cqw 2.6cqw -1.4cqw rgba(10,10,10,.5);
+    }
+  }
+
+  /* ================= D — oversized, cropped ================= */
+  #fD .f-body{padding:15cqw 5cqw 3cqw;}
+  .d-rows{display:flex;flex-direction:column;gap:0;}
+  .d-row{transition:transform .22s var(--ease-hover);}
+  .d-word{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 96;font-weight:500;letter-spacing:-.022em;
+    font-size:7.4cqw;line-height:.9;text-transform:uppercase;white-space:nowrap;
+  }
+  /* the tools ride the word's own baseline — it is what makes five of these fit one
+     screen at a size where the long names still run off both edges */
+  .d-tools{
+    font-family:"Outfit",sans-serif;font-size:1.32cqw;font-weight:350;
+    color:var(--muted);letter-spacing:.04em;text-transform:none;
+    vertical-align:.85cqw;padding-left:1.4cqw;
+  }
+  #fD .f-link{margin-top:1.4cqw;}
+  /* the words run off both edges — the frame's overflow does the cropping */
+  .d-row[data-side="l"] .d-word{margin-left:-13%;}
+  .d-row[data-side="r"] .d-word{margin-left:-4%;}
+  .d-row[data-side="c"] .d-word{margin-left:-20%;}
+  @media(hover:hover) and (pointer:fine){
+    .d-row[data-side="l"]:hover{transform:translateX(1.6cqw);}
+    .d-row[data-side="r"]:hover{transform:translateX(-1.6cqw);}
+    .d-row[data-side="c"]:hover{transform:translateX(1.6cqw);}
+  }
+
+  /* ---------- touch: no hover exists, so every payoff rests ON ----------
+     Nothing on a one-screen teaser should need to be discovered. */
+  @media(hover:none),(pointer:coarse){
+    .a-field .mk{opacity:.3;}
+    .cell{box-shadow:.2cqw .2cqw 0 -.02cqw rgba(10,10,10,.09);}
+  }
+
+  @media(prefers-reduced-motion:reduce){
+    .rv{opacity:1;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="sheet-head">
+    <span class="micro">Skills — sketch sheet</span>
+    <h1 class="display">Four ways to show it</h1>
+    <p>Home §5 as it stands is four lines of tool names and nothing else — the only section on the
+      page without something to look at, and the tools it lists were already on the Architecture
+      ring one section earlier. These are four stylized replacements, each on §5's own rose ground,
+      each boxed at one screen so nothing is judged at the wrong size. Panel 0 is today's version,
+      kept as the control. Pick one and I'll build it into the prototype.</p>
+    <div class="facts">
+      <b>What every version says</b> — the same five things, in the same order, so the comparison
+      is about form only. The content shift underneath all four: <b>what you can do comes first,
+      the tools come second</b>. That is what stops §5 repeating §3 — the ring shows the tools, this
+      section shows the competence they add up to. Wording is placeholder; the structure is what's
+      under review.
+    </div>
+    <div class="facts">
+      <b>Mouse, trackpad, touch.</b> Each panel has a hover payoff, so each needs an answer for a
+      screen with no pointer. On touch every payoff <b>rests on</b> — the marks sit darker, the
+      compartments sit lifted — rather than hiding behind a gesture nobody will make on a teaser.
+      Hover rules are fenced behind <span style="font-family:ui-monospace,monospace;font-size:12.5px">(hover:hover) and (pointer:fine)</span>
+      so a touch screen never inherits a state it cannot leave.
+    </div>
+  </div>
+
+<!-- ============================================================ 0 -->
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">0</span><h2>As it stands today</h2></div>
+    <p class="sk-note">The control, lifted verbatim out of the prototype. Four clusters of tool names
+      in large Outfit, each line starting at a different left edge so no two share one.</p>
+    <div class="stage">
+      <div class="frame">
+        <div class="f-head">
+          <h3 class="f-title rv">Skills</h3>
+          <p class="f-lead rv" data-stagger="1">What I build with</p>
+        </div>
+        <div class="f-body">
+          <div class="s-lines">
+            <div class="s-line rv" data-stagger="1" data-x="l">Python · PyTorch · scikit-learn</div>
+            <div class="s-line l2 rv" data-stagger="2" data-x="r">AWS · Kubernetes · Terraform</div>
+            <div class="s-line l3 rv" data-stagger="3" data-x="l">GitHub Actions · Docker · MLflow</div>
+            <div class="s-line l4 rv" data-stagger="4" data-x="r">Next.js · TypeScript</div>
+          </div>
+          <p class="f-link rv" data-stagger="5"><a class="link" href="#" onclick="return false">See all skills →</a></p>
+        </div>
+      </div>
+    </div>
+    <p class="sk-cost"><b>Costs:</b> everything. There is nothing to look at, the page's one warm
+      screen is mostly empty, and a visitor who read §3 has already met most of these names as
+      logos. It is a list, and it reads as one.</p>
+  </section>
+
+<!-- ============================================================ A -->
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">A</span><h2>The model's world</h2></div>
+    <p class="sk-note">The ground carries the drawings the model reads — ten thin ink marks, large,
+      faint, rotated, several running off the edges. They draw themselves as the section arrives, on
+      the same stroke-dash trick the Architecture ring uses, so §5 finally has motion of its own. The
+      competencies sit over the top in the serif with their tools quiet underneath. Hover one and the
+      marks nearest it come up out of the paper.</p>
+    <div class="stage">
+      <div class="frame" id="fA">
+        <svg class="a-field" viewBox="0 0 1000 600" fill="none" stroke="currentColor"
+             stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <!-- cloud, cropped left -->
+          <g class="mk" transform="translate(-52,44) rotate(-8) scale(2.25)"><path d="M18 60 Q4 60 6 48 Q8 36 22 38 Q24 20 42 20 Q60 20 62 36 Q80 32 82 46 Q84 60 70 60 Z"/></g>
+          <!-- ladder, cropped top right -->
+          <g class="mk" transform="translate(752,-66) rotate(12) scale(2.0)"><path d="M28 6 L18 94 M72 6 L82 94 M25 28 L75 28 M22 50 L78 50 M19 72 L81 72"/></g>
+          <!-- key -->
+          <g class="mk" transform="translate(322,52) rotate(-14) scale(1.55)"><path d="M22 34 A16 16 0 1 0 22 66 A16 16 0 1 0 22 34 M38 50 L92 50 M78 50 L78 64 M88 50 L88 62"/></g>
+          <!-- umbrella -->
+          <g class="mk" transform="translate(138,150) rotate(-5) scale(1.5)"><path d="M6 46 Q10 10 50 10 Q90 10 94 46 Q78 34 70 46 Q60 34 50 46 Q40 34 30 46 Q22 34 6 46 Z M50 46 L50 84 Q50 94 38 94 Q30 94 30 86"/></g>
+          <!-- sailboat -->
+          <g class="mk" transform="translate(408,318) rotate(4) scale(1.8)"><path d="M12 70 L88 70 L74 92 L26 92 Z M50 68 L50 8 M50 14 L84 62 L50 62 M46 20 L16 62 L46 62"/></g>
+          <!-- fish -->
+          <g class="mk" transform="translate(596,418) rotate(-6) scale(1.85)"><path d="M8 50 Q30 22 62 50 Q30 78 8 50 Z M62 50 L88 30 L88 70 Z"/></g>
+          <!-- house -->
+          <g class="mk" transform="translate(46,384) rotate(5) scale(1.7)"><path d="M10 90 L10 46 L50 14 L90 46 L90 90 Z M38 90 L38 62 L62 62 L62 90"/></g>
+          <!-- cup, cropped right -->
+          <g class="mk" transform="translate(876,232) rotate(9) scale(1.8)"><path d="M20 24 L26 86 Q26 92 34 92 L62 92 Q70 92 70 86 L76 24 Z M74 36 Q92 36 92 52 Q92 66 72 66"/></g>
+          <!-- star, cropped bottom right -->
+          <g class="mk" transform="translate(806,462) rotate(-10) scale(1.6)"><path d="M50 6 L62 38 L96 40 L69 61 L79 94 L50 74 L21 94 L31 61 L4 40 L38 38 Z"/></g>
+          <!-- clock, cropped bottom -->
+          <g class="mk" transform="translate(238,470) rotate(8) scale(1.5)"><path d="M50 6 A44 44 0 1 0 50 94 A44 44 0 1 0 50 6 M50 22 L50 52 L72 64"/></g>
+        </svg>
+        <div class="f-head">
+          <h3 class="f-title rv">Skills</h3>
+          <p class="f-lead rv" data-stagger="1">What I build with</p>
+        </div>
+        <div class="f-body">
+          <div class="a-rows">
+            <div class="a-row r1 rv" data-stagger="1" data-x="l" data-marks="0 3">
+              <div class="a-name">Training models</div>
+              <div class="a-tools">Python · PyTorch · scikit-learn · ONNX</div>
+            </div>
+            <div class="a-row r2 rv" data-stagger="2" data-x="r" data-marks="2 7">
+              <div class="a-name">Keeping data honest</div>
+              <div class="a-tools">DVC · Pandera · S3</div>
+            </div>
+            <div class="a-row r3 rv" data-stagger="3" data-x="l" data-marks="1 4">
+              <div class="a-name">Shipping it</div>
+              <div class="a-tools">Docker · GitHub Actions · Terraform · AWS Lambda</div>
+            </div>
+            <div class="a-row r4 rv" data-stagger="4" data-x="r" data-marks="9 8">
+              <div class="a-name">Watching it run</div>
+              <div class="a-tools">MLflow · Grafana · Evidently · k6</div>
+            </div>
+            <div class="a-row r5 rv" data-stagger="5" data-x="l" data-marks="6 5">
+              <div class="a-name">Building the front</div>
+              <div class="a-tools">Next.js · TypeScript</div>
+            </div>
+          </div>
+          <p class="f-link rv" data-stagger="6"><a class="link" href="#" onclick="return false">See all skills →</a></p>
+        </div>
+      </div>
+    </div>
+    <p class="sk-cost"><b>Costs:</b> the marks are <b>decoration, not information</b> — a key and a
+      sailboat say "this site is about drawing", not "he can ship a model", and a reader looking for
+      the second may resent the first. Text sits directly over strokes, so the faint resting opacity
+      is load-bearing: any darker and the names get harder to read. Ten hand-authored paths is ten
+      more things to keep tidy.</p>
+  </section>
+
+<!-- ============================================================ B -->
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">B</span><h2>Overlapping washes</h2></div>
+    <p class="sk-note">Five soft irregular shapes in the warm family, rotated and overlapping, the
+      colour deepening wherever two cross because they multiply rather than stack. One competency
+      named across each shape, its tools inside, and the tools two competencies share sitting out in
+      the crossing — ONNX between training and shipping, S3 between training and data, k6 between
+      shipping and watching. A tool named in an overlap is named nowhere else, which is the only
+      thing that makes the crossings mean something rather than just look nice. Hover a shape and
+      the others step back.</p>
+    <div class="stage">
+      <div class="frame" id="fB">
+        <svg class="b-svg" viewBox="0 0 1000 600" aria-hidden="true">
+          <!-- the shapes are placed so the overlaps are REAL and every shared tool sits in
+               one: Training∩Shipping = ONNX, Training∩Data = S3, Shipping∩Watching = k6,
+               Shipping∩Front = GitHub Actions. A tool named in an overlap is named nowhere
+               else, which is the only thing that makes the crossings carry meaning. -->
+          <g class="b-g rv" data-stagger="1">
+            <path class="blob" fill="var(--w-sage)" transform="translate(145,95) scale(1.55) rotate(-9 100 100)"
+                  d="M104 10 C158 2 196 46 188 96 C182 138 200 160 172 180 C140 202 88 196 56 178 C22 158 2 122 10 84 C18 44 58 18 104 10 Z"/>
+            <text class="b-name" x="300" y="250" font-size="26" text-anchor="middle">Training models</text>
+            <text class="b-tool" x="300" y="280" font-size="14.5" text-anchor="middle">Python · PyTorch</text>
+            <text class="b-tool" x="300" y="301" font-size="14.5" text-anchor="middle">scikit-learn</text>
+          </g>
+          <g class="b-g rv" data-stagger="2">
+            <path class="blob" fill="var(--w-ochre)" transform="translate(128,293) scale(1.22) rotate(15 100 100)"
+                  d="M92 6 C146 0 178 34 186 80 C194 128 164 178 112 190 C66 200 20 174 10 128 C0 82 22 38 66 16 C74 12 84 8 92 6 Z"/>
+            <text class="b-name" x="250" y="415" font-size="20" text-anchor="middle">Keeping data honest</text>
+            <text class="b-tool" x="250" y="442" font-size="14.5" text-anchor="middle">DVC · Pandera</text>
+          </g>
+          <g class="b-g rv" data-stagger="3">
+            <path class="blob" fill="var(--w-rose)" transform="translate(413,103) scale(1.52) rotate(-4 100 100)"
+                  d="M60 14 C110 -4 176 16 190 64 C204 114 176 164 130 186 C86 206 32 190 14 148 C-2 110 10 56 44 26 C50 20 54 16 60 14 Z"/>
+            <text class="b-name" x="565" y="245" font-size="26" text-anchor="middle">Shipping it</text>
+            <text class="b-tool" x="565" y="275" font-size="14.5" text-anchor="middle">Docker · Terraform</text>
+            <text class="b-tool" x="565" y="296" font-size="14.5" text-anchor="middle">AWS Lambda</text>
+          </g>
+          <g class="b-g rv" data-stagger="4">
+            <path class="blob" fill="var(--w-blue)" transform="translate(493,318) scale(1.32) rotate(8 100 100)"
+                  d="M104 10 C158 2 196 46 188 96 C182 138 200 160 172 180 C140 202 88 196 56 178 C22 158 2 122 10 84 C18 44 58 18 104 10 Z"/>
+            <text class="b-name" x="625" y="440" font-size="23" text-anchor="middle">Watching it run</text>
+            <text class="b-tool" x="625" y="468" font-size="14.5" text-anchor="middle">MLflow · Grafana · Evidently</text>
+          </g>
+          <g class="b-g rv" data-stagger="5">
+            <path class="blob" fill="var(--w-sand)" transform="translate(652,108) scale(1.12) rotate(-16 100 100)"
+                  d="M92 6 C146 0 178 34 186 80 C194 128 164 178 112 190 C66 200 20 174 10 128 C0 82 22 38 66 16 C74 12 84 8 92 6 Z"/>
+            <text class="b-name" x="765" y="196" font-size="18" text-anchor="middle">Building the front</text>
+            <text class="b-tool" x="765" y="221" font-size="14" text-anchor="middle">Next.js · TypeScript</text>
+          </g>
+          <text class="b-shared rv" data-stagger="6" x="437" y="352" font-size="14" text-anchor="middle">ONNX</text>
+          <text class="b-shared rv" data-stagger="6" x="272" y="342" font-size="14" text-anchor="middle">S3</text>
+          <text class="b-shared rv" data-stagger="6" x="592" y="356" font-size="14" text-anchor="middle">k6</text>
+          <text class="b-shared rv" data-stagger="6" x="676" y="292" font-size="13" text-anchor="middle">GitHub Actions</text>
+        </svg>
+        <div class="f-head">
+          <h3 class="f-title rv">Skills</h3>
+          <p class="f-lead rv" data-stagger="1">What I build with</p>
+        </div>
+        <div class="f-body" style="justify-content:flex-end;pointer-events:none;">
+          <p class="f-link rv" data-stagger="7" style="pointer-events:auto;"><a class="link" href="#" onclick="return false">See all skills →</a></p>
+        </div>
+      </div>
+    </div>
+    <p class="sk-cost"><b>Costs:</b> it is the <b>furthest of the four from the ink-line language</b>
+      the rest of the page speaks — §2, §3 and §4 are all thin black line on warm paper, and this is
+      the one screen that isn't, and the colour has to stay this pale to avoid the one thing your
+      taste rules out. Worst of all, <b>the overlaps only mean anything because every shape is
+      placed by hand</b> — the first pass had the shared names floating on open paper — so adding
+      one tool is a geometry job, not an edit.</p>
+  </section>
+
+<!-- ============================================================ C -->
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">C</span><h2>The type case</h2></div>
+    <p class="sk-note">A letterpress drawer. Irregular compartments divided by hairline ink;
+      competencies fill the wide ones in the serif, single tool names sit in the small ones at mixed
+      sizes and weights, and that mix is the texture. Hover lifts a compartment off the page — §4's
+      gesture, borrowed.</p>
+    <div class="stage">
+      <div class="frame" id="fC">
+        <div class="f-head">
+          <h3 class="f-title rv">Skills</h3>
+          <p class="f-lead rv" data-stagger="1">What I build with</p>
+        </div>
+        <div class="f-body">
+          <div class="case">
+            <div class="cell comp rv" data-stagger="1" style="grid-column:span 3">Training models</div>
+            <div class="cell t big rv" data-stagger="1" style="grid-column:span 2">PyTorch</div>
+            <div class="cell t sm rv" data-stagger="2" style="grid-column:span 1">ONNX</div>
+
+            <div class="cell t mid rv" data-stagger="2" style="grid-column:span 1">Python</div>
+            <div class="cell t sm rv" data-stagger="2" style="grid-column:span 2">scikit-learn</div>
+            <div class="cell comp rv" data-stagger="3" style="grid-column:span 3">Keeping data honest</div>
+
+            <div class="cell t big rv" data-stagger="3" style="grid-column:span 2">DVC</div>
+            <div class="cell t mid rv" data-stagger="3" style="grid-column:span 1">Pandera</div>
+            <div class="cell t sm rv" data-stagger="4" style="grid-column:span 1">S3</div>
+            <div class="cell comp rv" data-stagger="4" style="grid-column:span 2">Shipping it</div>
+
+            <div class="cell t mid rv" data-stagger="4" style="grid-column:span 2">Docker</div>
+            <div class="cell t big rv" data-stagger="5" style="grid-column:span 2">GitHub Actions</div>
+            <div class="cell t sm rv" data-stagger="5" style="grid-column:span 2">Terraform</div>
+
+            <div class="cell t mid rv" data-stagger="5" style="grid-column:span 2">AWS Lambda</div>
+            <div class="cell comp rv" data-stagger="6" style="grid-column:span 4">Watching it run</div>
+
+            <div class="cell t big rv" data-stagger="6" style="grid-column:span 1">MLflow</div>
+            <div class="cell t mid rv" data-stagger="6" style="grid-column:span 2">Grafana</div>
+            <div class="cell t sm rv" data-stagger="7" style="grid-column:span 2">Evidently</div>
+            <div class="cell t mid rv" data-stagger="7" style="grid-column:span 1">k6</div>
+
+            <div class="cell comp rv" data-stagger="7" style="grid-column:span 3">Building the front</div>
+            <div class="cell t big rv" data-stagger="8" style="grid-column:span 2">Next.js</div>
+            <div class="cell t sm rv" data-stagger="8" style="grid-column:span 1">TypeScript</div>
+          </div>
+          <p class="f-link rv" data-stagger="9"><a class="link" href="#" onclick="return false">See all skills →</a></p>
+        </div>
+      </div>
+    </div>
+    <p class="sk-cost"><b>Costs:</b> the densest and the <b>most static</b> — a grid is a grid, and
+      after §4's winding line it will read as the page tightening up rather than opening out. The
+      compartment sizes are placed by hand, so adding a tool means relaying the drawer. And it is the
+      one variant that fills the screen edge to edge, which on a teaser can feel like the full skills
+      page arrived early.</p>
+  </section>
+
+<!-- ============================================================ D -->
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">D</span><h2>Oversized, cropped</h2></div>
+    <p class="sk-note">One enormous serif line per competency, each running off both edges of the
+      screen, offset so no two start together. The tools ride small in the gaps. You read it as
+      texture first and words second — the most gestural of the four, and the closest to a magazine
+      spread. Hover a line and it slides a little further into view.</p>
+    <div class="stage">
+      <div class="frame" id="fD">
+        <div class="f-head">
+          <h3 class="f-title rv">Skills</h3>
+          <p class="f-lead rv" data-stagger="1">What I build with</p>
+        </div>
+        <div class="f-body">
+          <div class="d-rows">
+            <div class="d-row rv" data-side="l" data-stagger="1" data-x="l">
+              <div class="d-word">Training models<span class="d-tools">Python · PyTorch · scikit-learn · ONNX</span></div>
+            </div>
+            <div class="d-row rv" data-side="r" data-stagger="2" data-x="r">
+              <div class="d-word">Keeping data honest<span class="d-tools">DVC · Pandera · S3</span></div>
+            </div>
+            <div class="d-row rv" data-side="c" data-stagger="3" data-x="l">
+              <div class="d-word">Shipping it<span class="d-tools">Docker · GitHub Actions · Terraform · AWS Lambda</span></div>
+            </div>
+            <div class="d-row rv" data-side="r" data-stagger="4" data-x="r">
+              <div class="d-word">Watching it run<span class="d-tools">MLflow · Grafana · Evidently · k6</span></div>
+            </div>
+            <div class="d-row rv" data-side="l" data-stagger="5" data-x="l">
+              <div class="d-word">Building the front<span class="d-tools">Next.js · TypeScript</span></div>
+            </div>
+          </div>
+          <p class="f-link rv" data-stagger="6"><a class="link" href="#" onclick="return false">See all skills →</a></p>
+        </div>
+      </div>
+    </div>
+    <p class="sk-cost"><b>Costs:</b> the <b>least readable at a glance</b> — a cropped word is a word
+      you have to finish yourself, five times in a row, and a recruiter skimming for "does he know
+      Terraform" is the reader least willing to do that. Five lines this size barely fit one screen,
+      so it is the variant a short laptop window will break first, and the tools are pushed to the
+      smallest type on the sheet at exactly the moment they matter most.</p>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">?</span><h2>What I'd pick, and why</h2></div>
+    <p class="sk-note">Having built them: <b>A and D are the two worth arguing about.</b> A is the
+      only one that earns its decoration from something already true about the site — the model in §2
+      reads hand-drawn strokes, so strokes belong on this page and nowhere else — and it is the only
+      one that gives §5 motion of its own without borrowing §3's ring or §4's line. D is the one that
+      actually looks like the magazine you're after; it is also the one that makes a reader work
+      hardest, and it pushed the tool names down to the smallest type on the sheet. <b>C is the best
+      information and the worst moment</b> — it would be a fine <em>skills page</em> and is too much
+      furniture for a teaser. <b>B is the odd one out</b>: it is the only panel that stops speaking the
+      page's ink-on-paper language, and it needs its geometry hand-held forever.</p>
+    <p class="sk-note">If you want one sentence: <b>A if §5 should feel like part of this site, D if
+      §5 should be the moment someone remembers.</b></p>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+  // The prototypes' reveal grammar, unchanged: an element's reveal is a function of its
+  // FRAME's rect, read every frame, with data-stagger slicing that frame's arrival. Nothing
+  // here hijacks the scroll — the browser scrolls the page, on every device, by itself.
+  var reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var clamp = function(v,a,b){ return Math.min(b,Math.max(a,v)); };
+  var easeOut = function(s){ return s<=0?0:s>=1?1:1-Math.pow(1-s,3); };
+  // The recurring bug in this repo is a reveal window that never reaches 1 at its own
+  // resting point. It shipped when a stagger ladder grew past what the arrival could
+  // cover: the deepest element here is C's link at 9, and 9*.085 + .40 = 1.165 > 1, so it
+  // rested at .87 forever. Derive the step from the deepest stagger actually on the page,
+  // and the ladder always lands inside the arrival with room to spare.
+  var REV_SPAN=0.38, REV_HEADROOM=0.06;
+  var MAX_STAGGER=[].slice.call(document.querySelectorAll('[data-stagger]'))
+    .reduce(function(m,el){ return Math.max(m, parseFloat(el.dataset.stagger)||0); },0);
+  var REV_STEP=Math.min(0.085, MAX_STAGGER ? (1-REV_SPAN-REV_HEADROOM)/MAX_STAGGER : 0.085);
+
+  function frameProgress(f){
+    var r=f.getBoundingClientRect(), vh=window.innerHeight;
+    return clamp((vh*0.85-r.top)/(vh*0.70),0,1);
+  }
+  function revealProgress(el,fp){
+    var st=parseFloat(el.dataset.stagger||0);
+    return clamp((fp-st*REV_STEP)/REV_SPAN,0,1);
+  }
+  function setReveal(el,sp){
+    el.style.opacity=String(sp);
+    if(reduce){ el.style.transform='none'; return; }
+    var x=el.dataset.x;
+    if(x) el.style.transform = sp>0.999?'':'translate3d('+((1-sp)*(x==='r'?24:-24))+'px,0,0)';
+    else  el.style.transform = sp>0.999?'':'translate3d(0,'+((1-sp)*16)+'px,0)';
+  }
+
+  var frames=[].slice.call(document.querySelectorAll('.frame')).map(function(f){
+    return { el:f, rv:[].slice.call(f.querySelectorAll('.rv')) };
+  });
+
+  // A's marks draw themselves, the way the Architecture ring does
+  var marks=[].slice.call(document.querySelectorAll('#fA .mk')).map(function(g){
+    var p=g.querySelector('path'), len=0;
+    try{ len=p.getTotalLength(); }catch(e){ len=900; }
+    p.style.strokeDasharray=String(len);
+    p.style.strokeDashoffset=String(len);
+    return { g:g, p:p, len:len };
+  });
+  var fA=document.getElementById('fA');
+
+  function tick(){
+    for(var i=0;i<frames.length;i++){
+      var fp=frameProgress(frames[i].el);
+      var list=frames[i].rv;
+      for(var j=0;j<list.length;j++){
+        setReveal(list[j], reduce?1:easeOut(revealProgress(list[j],fp)));
+      }
+    }
+    if(fA && marks.length){
+      // fully drawn by ~.72 of A's arrival, so the field is closed before the panel settles
+      var draw = reduce?1:clamp((frameProgress(fA)-0.05)/0.62,0,1);
+      for(var k=0;k<marks.length;k++){
+        // each mark starts a little after the one before it, so the field fills in rather
+        // than all ten racing together
+        var s = clamp((draw - k*0.055)/0.42,0,1);
+        marks[k].p.style.strokeDashoffset = String(marks[k].len*(1-easeOut(s)));
+      }
+    }
+  }
+
+  // hovering a competency lights the marks that sit nearest it
+  [].slice.call(document.querySelectorAll('#fA .a-row')).forEach(function(row){
+    var idx=(row.dataset.marks||'').split(/\s+/).filter(Boolean).map(Number);
+    function set(on){ idx.forEach(function(i){ if(marks[i]) marks[i].g.classList.toggle('lit',on); }); }
+    row.addEventListener('mouseenter',function(){ set(true); });
+    row.addEventListener('mouseleave',function(){ set(false); });
+  });
+
+  var queued=false;
+  function onScroll(){
+    if(queued) return;
+    queued=true;
+    requestAnimationFrame(function(){ queued=false; tick(); });
+  }
+  addEventListener('scroll',onScroll,{passive:true});
+  addEventListener('resize',onScroll);
+  addEventListener('load',tick);
+  tick();
+})();
+</script>
+</body>
+</html>
