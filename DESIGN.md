@@ -1110,6 +1110,29 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-10-01** — **Home §5 becomes quieter: smaller shapes, sentence-case names**
+  (`transition-prototype.html`). Monish said that the shapes and the names were too large, and
+  that the type was disturbing. The aim was a less aggressive section with the same idea.
+  - **The names.** Each competency name was in uppercase Bodoni at the display optical size
+    (`opsz` 88), with four different sizes from 24 to 38 units. The display cut has very thin
+    hairlines, and at that size in capitals it was the loudest thing on Home. The names are
+    now in sentence case at `opsz` 28. This is near the style of the Journey entry titles.
+    All five names use one size: 28 units on the wide layout (about 22px at 1440×900). On the
+    portrait layout, the names use 19 units. "Building the front" uses 15 units because its
+    shape is the smallest.
+  - **The shapes.** The two viewBoxes zoom out around their centres, by 0.8 on the wide layout
+    and by 0.92 on the portrait layout. No shape moved in relation to another shape, so all
+    four crossings stay correct. `lens.js` confirms the same lens centroids and no accidental
+    crossings. Tool lines and shared tools went down to 19/18 units (wide) and 13 units
+    (portrait).
+  - **Results.** On phones, the gap between the head text and the first shape grew from −2–4px
+    to 22–30px. At 390×844, the shape touched the lead before the change. `washfit.js` shows no clipped text and no label collisions at any size.
+  - **A false alarm in `washfit.js`.** At 1280×720, it reported that a shape went 10px into the
+    head. The check uses the bounding box of each blob. A rotated blob's box includes corners
+    that the shape does not paint. The new `headgap.js` (in `.browser-tools`) samples the shape
+    with `isPointInFill` against the head's text lines. It measures a gap of 182px. Use
+    `headgap.js` for this question.
+
 - **2026-09-15** — **Home §5 becomes overlapping washes; the drifting tool lines are retired**
   (`transition-prototype.html`, explored in the new `skills-sketches.html`). §5 was the only
   section on the page with nothing to look at — four lines of tool names — and it **re-listed
