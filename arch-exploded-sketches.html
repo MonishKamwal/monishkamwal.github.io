@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sketches — the exploded drawing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..700&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ground:#e0f7e7;          /* the Architecture page's sage wash */
+    --ink:#0a0a0a;
+    --muted:#6b6b6b;
+    --hair:#e8e8e8;
+    --warm:#c98a3a;
+    --deep-ochre:#96600a;
+    --w-rose:#fbd3dc;
+    --w-ochre:#f8dfc4;
+    --w-sage:#d8ecde;
+    --w-blue:#dee5f4;
+    --w-sand:#f1e7d0;
+    --ease-out-expo:cubic-bezier(.16,1,.3,1);
+    --ease-hover:cubic-bezier(.2,.7,.35,1);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;background:var(--ground);color:var(--ink);
+    font-family:"Outfit",system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-weight:330;line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .display{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 96;font-weight:500;line-height:.92;letter-spacing:-.02em;
+  }
+  .micro{text-transform:uppercase;letter-spacing:.22em;font-size:11.5px;font-weight:500;color:var(--muted);}
+  .wrap{max-width:1060px;margin:0 auto;padding:clamp(56px,10vh,110px) clamp(16px,5vw,44px) clamp(60px,10vh,120px);}
+
+  /* ---------- sheet chrome — the same as the earlier sketch sheets ---------- */
+  .sheet-head{margin-bottom:clamp(40px,7vh,72px);}
+  .sheet-head h1{font-size:clamp(38px,7vw,68px);text-transform:uppercase;margin:10px 0 0;}
+  .sheet-head p{margin:16px 0 0;max-width:62ch;font-size:15.5px;color:var(--muted);}
+  .sheet-head .facts{margin-top:22px;padding-top:16px;border-top:1px solid var(--ink);max-width:62ch;font-size:14px;color:var(--muted);}
+  .sheet-head .facts b{color:var(--ink);font-weight:500;}
+  .sheet-head .facts + .facts{border-top:0;padding-top:0;margin-top:14px;}
+  .sk{padding:clamp(40px,7vh,76px) 0;border-top:1px solid var(--ink);}
+  .sk-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;}
+  .sk-head h2{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
+    font-size:clamp(24px,4vw,38px);line-height:1.02;margin:0;
+  }
+  .sk-key{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--deep-ochre);letter-spacing:.1em;}
+  .sk-note{margin:12px 0 0;max-width:60ch;font-size:15px;color:var(--muted);}
+  .sk-note b{color:var(--ink);font-weight:500;}
+  .sk-cost{margin:10px 0 0;max-width:60ch;font-size:13.5px;color:var(--muted);}
+  .sk-cost b{color:var(--ink);font-weight:500;}
+  .stage{margin-top:clamp(26px,4.5vh,46px);}
+  .hint{margin:10px 0 0;font-size:12.5px;color:var(--muted);text-align:center;}
+  code{font-family:ui-monospace,Menlo,monospace;font-size:.88em;}
+  .sizer{position:sticky;top:12px;z-index:50;display:flex;justify-content:flex-end;margin:-8px 0 0;pointer-events:none;}
+  .sizer-in{pointer-events:auto;display:flex;gap:4px;padding:5px 6px;background:#fff;border:1px solid var(--hair);border-radius:30px;box-shadow:0 8px 24px -16px rgba(10,10,10,.4);}
+  .sizer button{font:inherit;font-size:12.5px;color:var(--muted);background:none;border:0;border-radius:20px;padding:5px 13px;cursor:pointer;}
+  .sizer button[aria-pressed="true"]{color:#fff;background:var(--ink);}
+  .sizer button:focus-visible{outline:2px solid var(--warm);outline-offset:2px;}
+
+  /* ---------- the frame: one real screen, scrollable ----------
+     --u is one real pixel of the screen the box stands for: 1/1440 of the box on the
+     laptop size, 1/390 on the phone size. */
+  .frame{
+    position:relative;container-type:size;width:100%;aspect-ratio:1440/900;margin:0 auto;
+    background:var(--ground);overflow:hidden;border:1px solid var(--ink);--u:calc(100cqw / 1440);
+  }
+  body.phone .frame{width:min(390px,100%);aspect-ratio:390/844;--u:calc(100cqw / 390);}
+  .screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;}
+  .f-top{
+    position:absolute;top:0;left:0;right:0;z-index:30;pointer-events:none;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:calc(18*var(--u)) calc(26*var(--u)) calc(30*var(--u));
+    background:linear-gradient(180deg,var(--ground) 55%,rgba(224,247,231,0));
+  }
+  .f-home{display:inline-flex;align-items:center;gap:calc(7*var(--u));font-size:calc(12*var(--u));letter-spacing:.14em;text-transform:uppercase;color:var(--ink);}
+  .f-home svg{width:calc(17*var(--u));height:auto;}
+  .f-menu svg{width:calc(26*var(--u));height:auto;display:block;}
+  .f-tray{
+    position:absolute;left:50%;bottom:calc(18*var(--u));transform:translateX(-50%);z-index:30;
+    background:#fff;border:1px solid var(--hair);border-radius:calc(30*var(--u));
+    padding:calc(6*var(--u)) calc(8*var(--u));display:flex;gap:calc(4*var(--u));
+    box-shadow:0 calc(8*var(--u)) calc(24*var(--u)) calc(-16*var(--u)) rgba(10,10,10,.4);
+  }
+  .f-tray span{font-size:calc(12.5*var(--u));color:var(--muted);border-radius:calc(20*var(--u));padding:calc(6*var(--u)) calc(14*var(--u));line-height:1.6;}
+  .f-tray span.on{color:#fff;background:var(--ink);}
+
+  .pg-title{font-size:calc(96*var(--u));text-transform:uppercase;margin:0;}
+  .pg-lead{margin:calc(12*var(--u)) 0 0;font-size:calc(21*var(--u));color:var(--muted);}
+  body.phone .pg-title{font-size:calc(44*var(--u));}
+  body.phone .pg-lead{font-size:calc(16*var(--u));}
+  .link{color:var(--deep-ochre);text-decoration:none;border-bottom:1px solid rgba(150,96,10,.32);}
+  .rv{opacity:0;}
+
+  /* the reading voice every version shares: a Bodoni section name, a micro label, body */
+  .t-k{font-size:calc(11*var(--u));margin:0 0 calc(12*var(--u));}
+  .t-k.o{color:var(--deep-ochre);}
+  .t-h{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 48;font-weight:500;letter-spacing:-.01em;line-height:1.04;
+    font-size:calc(40*var(--u));margin:0 0 calc(14*var(--u));
+  }
+  .t-p{margin:0 0 calc(12*var(--u));font-size:calc(15.5*var(--u));line-height:1.6;color:#3a3a3a;max-width:46ch;}
+  .t-p b{font-weight:500;color:var(--ink);}
+  .t-links{display:flex;gap:calc(22*var(--u));flex-wrap:wrap;font-size:calc(14*var(--u));margin-top:calc(8*var(--u));}
+  body.phone .t-h{font-size:calc(28*var(--u));}
+  body.phone .t-p{font-size:calc(14.5*var(--u));}
+
+  /* a tool mark: the Home ring's logos, in their own colours */
+  .bm{display:inline-flex;width:calc(18*var(--u));height:calc(18*var(--u));color:var(--bc,var(--ink));}
+  .bm svg{width:100%;height:100%;}
+  .bmrow{display:inline-flex;gap:calc(9*var(--u));align-items:center;justify-content:center;}
+
+  /* ================= C — the exploded drawing ================= */
+  .c-head{padding:calc(135*var(--u)) calc(86*var(--u)) 0;position:relative;min-height:calc(560*var(--u));}
+  .c-mini{position:absolute;right:calc(110*var(--u));top:calc(150*var(--u));width:calc(420*var(--u));}
+  .c-mini svg{width:100%;height:auto;display:block;overflow:visible;}
+  .c-head .t-p{max-width:calc(560*var(--u));margin-top:calc(34*var(--u));}
+  .c-draw{position:relative;width:100%;}
+  .c-draw > svg{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;}
+  .c-cap{position:absolute;width:calc(420*var(--u));}
+  .c-svg text{font-family:"Outfit",sans-serif;}
+  .c-svg text.c-nm{font-family:"Bodoni Moda",Georgia,serif;font-variation-settings:"opsz" 48;font-weight:500;}
+  .c-pl{will-change:transform,opacity;}
+  .c-wire{fill:none;stroke:var(--ink);stroke-width:1.2;}
+  .c-wire.up{stroke:var(--deep-ochre);stroke-width:1.4;}
+  .c-tail{padding:calc(40*var(--u)) calc(86*var(--u)) calc(160*var(--u));}
+  body.phone .c-head{padding:calc(110*var(--u)) calc(24*var(--u)) 0;min-height:0;}
+  body.phone .c-mini{position:relative;right:auto;top:auto;width:calc(260*var(--u));margin:calc(30*var(--u)) auto 0;}
+  body.phone .c-tail{padding:calc(30*var(--u)) calc(24*var(--u)) calc(140*var(--u));}
+  body.phone .c-cap{width:calc(342*var(--u));}
+
+
+  /* ================= shared: one exploded sheet ================= */
+  .xs text{font-family:"Outfit",sans-serif;}
+  .xs text.nm{font-family:"Bodoni Moda",Georgia,serif;font-variation-settings:"opsz" 48;font-weight:500;}
+  .xs .wire{fill:none;stroke:var(--ink);stroke-width:1.2;}
+  .xs .wire.up{stroke:var(--deep-ochre);stroke-width:1.6;}
+
+  /* ================= A — pulled apart, live ================= */
+  .xa-stage{position:sticky;top:0;height:100cqh;z-index:0;pointer-events:none;}
+  .xa-stage > svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;}
+  .xa-flow{position:relative;margin-top:-100cqh;}
+  .xa-block{
+    min-height:100cqh;display:flex;flex-direction:column;justify-content:center;
+    padding:calc(110*var(--u)) calc(90*var(--u)) calc(110*var(--u)) 62%;
+  }
+  .xa-block.head{justify-content:flex-start;padding:calc(135*var(--u)) 0 0 calc(86*var(--u));}
+  .xa-plate{display:none;}
+  body.phone .xa-stage{z-index:2;}
+  body.phone .xa-plate{display:block;position:absolute;left:0;right:0;top:0;height:53cqh;background:linear-gradient(180deg,var(--ground) 0,var(--ground) 90%,rgba(224,247,231,0));}
+  body.phone .xa-block{min-height:0;justify-content:flex-start;padding:0 calc(24*var(--u)) 34cqh;}
+  body.phone .xa-block.head{min-height:86cqh;padding:calc(110*var(--u)) calc(24*var(--u)) 0;position:relative;z-index:3;}
+  body.phone .xa-block.end{padding-bottom:40cqh;}
+
+  /* ================= B — the assembly drawing ================= */
+  .xb-head{padding:calc(135*var(--u)) calc(86*var(--u)) 0;}
+  .xb-paper{
+    position:relative;margin:calc(44*var(--u)) calc(40*var(--u)) 0;background:#fff;
+    border:1px solid var(--hair);border-radius:calc(4*var(--u));
+    box-shadow:0 calc(30*var(--u)) calc(60*var(--u)) calc(-34*var(--u)) rgba(10,10,10,.35);
+    padding:calc(22*var(--u));
+  }
+  .xb-frame{border:1.4px solid var(--ink);outline:1px solid var(--ink);outline-offset:calc(5*var(--u));position:relative;}
+  .xb-frame > svg{display:block;width:100%;height:auto;overflow:visible;}
+  .xb-zone{position:absolute;font-family:ui-monospace,Menlo,monospace;font-size:calc(10*var(--u));color:var(--muted);}
+  .xb-g .ln{stroke-dasharray:1;stroke-dashoffset:var(--d,0);}
+  .xb-g text,.xb-g .fade{opacity:var(--o,1);}
+  .xb-g polygon{fill-opacity:var(--o,1);}
+  .xb-sub{padding:calc(36*var(--u)) calc(22*var(--u)) calc(10*var(--u));}
+  .xb-notes{columns:2;column-gap:calc(56*var(--u));}
+  .xb-note{break-inside:avoid;display:grid;grid-template-columns:calc(34*var(--u)) 1fr;margin:0 0 calc(10*var(--u));}
+  .xb-note .n{font-family:ui-monospace,Menlo,monospace;font-size:calc(12*var(--u));color:var(--deep-ochre);padding-top:calc(3*var(--u));}
+  .xb-note .t-p{font-size:calc(14*var(--u));margin-bottom:calc(6*var(--u));}
+  .xb-note .t-h{font-size:calc(22*var(--u));margin:0 0 calc(6*var(--u));}
+  .xb-tables{display:grid;grid-template-columns:1.7fr 1fr;gap:calc(34*var(--u));align-items:end;margin-top:calc(26*var(--u));}
+  .xb-table{width:100%;border-collapse:collapse;font-size:calc(12*var(--u));line-height:1.35;}
+  .xb-table th,.xb-table td{border:1px solid var(--ink);padding:calc(5*var(--u)) calc(8*var(--u));text-align:left;vertical-align:top;}
+  .xb-table th{font-size:calc(9.5*var(--u));letter-spacing:.18em;text-transform:uppercase;font-weight:500;}
+  .xb-table td.n{font-family:ui-monospace,Menlo,monospace;color:var(--deep-ochre);width:calc(34*var(--u));}
+  .xb-table td.m{color:var(--muted);}
+  .xb-title td{font-size:calc(11*var(--u));}
+  .xb-title td.big{font-family:"Bodoni Moda",Georgia,serif;font-size:calc(19*var(--u));font-weight:500;}
+  .xb-title td span{display:block;font-size:calc(8.5*var(--u));letter-spacing:.2em;text-transform:uppercase;color:var(--muted);}
+  .xb-tail{padding:calc(40*var(--u)) calc(86*var(--u)) calc(160*var(--u));}
+  body.phone .xb-head{padding:calc(110*var(--u)) calc(24*var(--u)) 0;}
+  body.phone .xb-paper{margin:calc(30*var(--u)) calc(12*var(--u)) 0;padding:calc(10*var(--u));}
+  body.phone .xb-notes{columns:1;}
+  body.phone .xb-tables{grid-template-columns:1fr;}
+  body.phone .xb-table .opt{display:none;}
+  body.phone .xb-tail{padding:calc(30*var(--u)) calc(24*var(--u)) calc(150*var(--u));}
+
+  /* ================= C — the section ================= */
+  .xc-defs{position:absolute;width:0;height:0;overflow:hidden;}
+  .xc-head{padding:calc(135*var(--u)) calc(86*var(--u)) 0;}
+  .xc-main{margin:calc(30*var(--u)) calc(40*var(--u)) 0;}
+  .xc-main svg{display:block;width:100%;height:auto;max-height:76cqh;margin:0 auto;}
+  .xc-cap{display:flex;justify-content:space-between;margin:calc(10*var(--u)) calc(40*var(--u)) 0;font-size:calc(11*var(--u));letter-spacing:.2em;text-transform:uppercase;color:var(--muted);}
+  .xc-rows{padding:calc(70*var(--u)) calc(86*var(--u)) 0;display:flex;flex-direction:column;gap:calc(80*var(--u));}
+  .xc-row{display:grid;grid-template-columns:1fr 1fr;gap:calc(56*var(--u));align-items:center;}
+  .xc-row.flip .xc-txt{order:2;}
+  .xc-det{position:relative;width:100%;max-width:calc(470*var(--u));justify-self:center;}
+  .xc-det svg{display:block;width:100%;height:auto;border:1px solid var(--ink);background:var(--ground);border-radius:50%;}
+  .xc-det .tag{position:absolute;left:50%;bottom:calc(-30*var(--u));transform:translateX(-50%);white-space:nowrap;font-size:calc(11*var(--u));letter-spacing:.2em;text-transform:uppercase;color:var(--muted);}
+  .xc-det .tag b{font-family:"Bodoni Moda",Georgia,serif;font-size:calc(18*var(--u));letter-spacing:0;color:var(--deep-ochre);font-weight:500;margin-right:calc(6*var(--u));}
+  .xc-tail{padding:calc(80*var(--u)) calc(86*var(--u)) calc(160*var(--u));}
+  body.phone .xc-head{padding:calc(110*var(--u)) calc(24*var(--u)) 0;}
+  body.phone .xc-main,body.phone .xc-cap{margin-left:calc(8*var(--u));margin-right:calc(8*var(--u));}
+  body.phone .xc-cap{font-size:calc(8*var(--u));}
+  body.phone .xc-rows{padding:calc(50*var(--u)) calc(24*var(--u)) 0;gap:calc(70*var(--u));}
+  body.phone .xc-row{grid-template-columns:1fr;gap:calc(44*var(--u));}
+  body.phone .xc-row .xc-det{order:-1;width:78%;margin:0 auto;}
+  body.phone .xc-row.flip .xc-txt{order:2;}
+  body.phone .xc-tail{padding:calc(60*var(--u)) calc(24*var(--u)) calc(150*var(--u));}
+
+  /* ================= D — the ring, exploded ================= */
+  .xd-stage{position:sticky;top:0;height:100cqh;z-index:0;pointer-events:none;}
+  .xd-stage > svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;}
+  .xd-stage text{font-family:"Outfit",sans-serif;}
+  .xd-stage text.nm{font-family:"Bodoni Moda",Georgia,serif;font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;}
+  .xd-flow{position:relative;margin-top:-100cqh;}
+  .xd-block{
+    min-height:100cqh;display:flex;flex-direction:column;justify-content:center;
+    padding:calc(110*var(--u)) calc(90*var(--u)) calc(110*var(--u)) 61%;
+  }
+  .xd-block.head{justify-content:flex-start;padding:calc(135*var(--u)) 0 0 calc(86*var(--u));}
+  .xd-plate{display:none;}
+  body.phone .xd-stage{z-index:2;}
+  body.phone .xd-plate{display:block;position:absolute;left:0;right:0;top:0;height:53cqh;background:linear-gradient(180deg,var(--ground) 0,var(--ground) 90%,rgba(224,247,231,0));}
+  body.phone .xd-block{min-height:0;justify-content:flex-start;padding:0 calc(24*var(--u)) 34cqh;}
+  body.phone .xd-block.head{min-height:86cqh;padding:calc(110*var(--u)) calc(24*var(--u)) 0;position:relative;z-index:3;}
+  body.phone .xd-block.end{padding-bottom:40cqh;}
+
+  .xa-pl.mat polygon{stroke-dasharray:none!important;fill-opacity:1!important;}
+
+  /* ================= E — sheets on the desk ================= */
+  .xe-stage{position:sticky;top:0;height:100cqh;z-index:0;pointer-events:none;}
+  .xe-card{
+    position:absolute;left:0;top:0;transform-origin:center;background:#fff;
+    border:1px solid var(--hair);border-radius:calc(5*var(--u));will-change:transform;
+  }
+  .xe-card.ghost{background:rgba(255,255,255,.45);border:1px dashed var(--ink);}
+  .xe-threads{position:absolute;inset:0;width:100%;height:100%;z-index:20;overflow:visible;}
+  .xe-flow{position:relative;margin-top:-100cqh;}
+  .xe-block{
+    min-height:100cqh;display:flex;flex-direction:column;justify-content:center;
+    padding:calc(110*var(--u)) calc(90*var(--u)) calc(110*var(--u)) 62%;
+  }
+  .xe-block.head{justify-content:flex-start;padding:calc(135*var(--u)) 0 0 calc(86*var(--u));}
+  .xe-plate{display:none;}
+  body.phone .xe-stage{z-index:2;}
+  body.phone .xe-plate{display:block;position:absolute;left:0;right:0;top:0;height:53cqh;background:linear-gradient(180deg,var(--ground) 0,var(--ground) 90%,rgba(224,247,231,0));}
+  body.phone .xe-block{min-height:0;justify-content:flex-start;padding:0 calc(24*var(--u)) 34cqh;}
+  body.phone .xe-block.head{min-height:86cqh;padding:calc(110*var(--u)) calc(24*var(--u)) 0;position:relative;z-index:3;}
+  body.phone .xe-block.end{padding-bottom:40cqh;}
+
+  @media (prefers-reduced-motion:reduce){
+    .rv{opacity:1!important;transform:none!important;}
+    *{transition:none!important;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="sheet-head">
+    <span class="micro">Sketches · the exploded drawing</span>
+    <h1 class="display">Five ways to pull it apart</h1>
+    <p>You chose the exploded drawing (C in <code>arch-page-sketches.html</code>). These are five
+      versions of that one idea. Each one is a working page in a screen-shaped box. Scroll inside
+      the box. Panel 0 is C as it stands, kept as the control.</p>
+    <div class="facts">
+      <b>What does not change.</b> The four planes, the parts on each plane, the four wires between
+      them, and the text from <code>architecture.json</code>. Every version keeps the ochre flywheel
+      wire, the blocked 0.50 model, and the Kubernetes plane that is mostly not there.
+    </div>
+    <div class="facts">
+      <b>What changes.</b> How the drawing moves, how it is drawn, and what it is a drawing of. Two
+      versions move with the scroll (A and D). Two versions are still drawings that you read (B and
+      C). Version E puts the sheets back on a desk.
+    </div>
+    <div class="facts">
+      <b>Mouse, trackpad, touch.</b> All five versions move only with the normal scroll. Use the
+      switch to see each version at phone size. The harness cannot send real touch input, so the
+      phone size shows the layout only.
+    </div>
+  </div>
+
+  <div class="sizer"><div class="sizer-in" role="group" aria-label="Screen size">
+    <button type="button" data-size="laptop" aria-pressed="true">Laptop 1440 × 900</button>
+    <button type="button" data-size="phone" aria-pressed="false">Phone 390 × 844</button>
+  </div></div>
+
+<!-- ============================================================ 0 -->
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">0</span><h2>The control</h2></div>
+    <p class="sk-note">C from the last sheet, unchanged. The sheets come apart down the page, one
+      under the next, each with its text on the left.</p>
+    <div class="stage"><div class="frame" id="f0"><div class="screen" id="s0"></div></div></div>
+    <p class="hint">Scroll inside the box.</p>
+    <p class="sk-cost"><b>Costs:</b> the stack is only "exploded" in the head. Below it, the sheets
+      are simply far apart, so the page reads as four separate drawings more than one machine.</p>
+  </section>
+
+<!-- ============================================================ A -->
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">A</span><h2>Pulled apart, live</h2></div>
+    <p class="sk-note">One drawing that stays on the screen. The scroll is the hand that takes it
+      apart. The page opens on the stack, closed. The first scroll step <b>opens the stack</b> and the
+      wires appear between the sheets. Each step after that <b>slides one sheet out</b> toward its
+      text, and the others go quiet. On the Kubernetes step, the dashed sheet becomes solid for a
+      moment. On the flywheel step, an ochre dot runs the loop. At the end, the stack closes again.</p>
+    <div class="stage"><div class="frame" id="fA"><div class="screen" id="sA"></div></div></div>
+    <p class="hint">Scroll inside the box.</p>
+    <p class="sk-cost"><b>Costs:</b> it is the same fixed-picture pattern as the Skills page. That is
+      good for the family and bad for surprise. The drawing is small on the laptop, because it must
+      share the screen with the text, so the part labels are the smallest type on the sheet.</p>
+  </section>
+
+<!-- ============================================================ B -->
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">B</span><h2>The assembly drawing</h2></div>
+    <p class="sk-note">The exploded view <b>as an engineer draws it</b>: ink only, on a white drawing
+      sheet with a frame and zone marks. The parts carry numbered balloons instead of labels, and a
+      <b>parts list</b> names them, the way an assembly drawing does. Each plane gets a dimension
+      line, but the dimension is <b>time</b>: "always on", "every Monday", "every merge", "≈ 30 min /
+      month". The five sections become the drawing's numbered notes. Each sheet plots itself as it
+      scrolls into view.</p>
+    <div class="stage"><div class="frame" id="fB"><div class="screen" id="sB"></div></div></div>
+    <p class="hint">Scroll inside the box.</p>
+    <p class="sk-cost"><b>Costs:</b> a reader must look from a balloon to the parts list to learn
+      what a part is. That is how real drawings work, and it is slower than a label. The parts list
+      also repeats part of the Skills page. The look is the most technical on the site, so it must
+      stay warm through the paper and the type.</p>
+  </section>
+
+<!-- ============================================================ C -->
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">C</span><h2>The section</h2></div>
+    <p class="sk-note">The page is called Architecture, so this version draws a <b>building</b>. It is a
+      cross-section, the way an architect draws one. Serving is the ground floor, where visitors walk
+      in. Monitoring is the floor above, and CI/CD is the workshop in the basement. The flywheel is a
+      <b>lift</b> that brings each new model up to the shop. Kubernetes is a <b>temporary pavilion in
+      the yard</b>, drawn dashed, put up about 30 minutes a month. Each section of text has a
+      <b>detail</b>, an enlarged circle of the drawing, as on a real drawing set.</p>
+    <div class="stage"><div class="frame" id="fC"><div class="screen" id="sC"></div></div></div>
+    <p class="hint">Scroll inside the box.</p>
+    <p class="sk-cost"><b>Costs:</b> it is a metaphor, so every part must earn its place in the building,
+      and a metaphor that goes too far becomes a joke. On a phone the full section is too small to
+      read. It works only as a small overview there, and the details do the reading.</p>
+  </section>
+
+<!-- ============================================================ D -->
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">D</span><h2>The ring, exploded</h2></div>
+    <p class="sk-note">The page opens on <b>the Home ring</b>: the same four stops, the same logos, flat.
+      The first scroll step tips it back and <b>splits it into four solid segments</b> that move apart.
+      Each step after that lifts one segment toward its text. The Build segment is cut in two: Build
+      is solid, and Ephemeral K8s is dashed until its own step. At the gate, a dead end leaves the
+      ring. At the end, the segments come back together into the flat ring.</p>
+    <div class="stage"><div class="frame" id="fD"><div class="screen" id="sD"></div></div></div>
+    <p class="hint">Scroll inside the box.</p>
+    <p class="sk-cost"><b>Costs:</b> it has the best hand-off from Home, and the least room for parts:
+      a segment holds a name and its logos, not the parts on a plane. The planes are the Home ring's
+      four stops, not the platform's four planes (Deploy is a stop, Monitoring and Ephemeral K8s
+      share less room).</p>
+  </section>
+
+<!-- ============================================================ E -->
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">E</span><h2>Sheets on the desk</h2></div>
+    <p class="sk-note">The exploded view <b>without the angle</b>. The four planes are four real sheets of
+      paper, seen from above, in the site's paper-card style. They start squared in one pile. As you
+      scroll they <b>fan out across the desk</b>, each at its own small angle, with a soft shadow, and
+      the wires become ink threads pinned from sheet to sheet. Each sheet holds its parts as a flat
+      plan, and its text sits beside it.</p>
+    <div class="stage"><div class="frame" id="fE"><div class="screen" id="sE"></div></div></div>
+    <p class="hint">Scroll inside the box.</p>
+    <p class="sk-cost"><b>Costs:</b> without depth, "planes above and below each other" is gone; the
+      sheets are side by side. It is the softest and warmest version, and the least like a technical
+      drawing. The angles are near the "playful" line, so they must stay small.</p>
+  </section>
+
+  <section class="sk" id="pick">
+    <div class="sk-head"><span class="sk-key">?</span><h2>What I'd pick, and why</h2></div>
+    <p class="sk-note">Having built them, they fall into two pairs and one outlier. <b>A and D</b> are
+      the motion versions: the drawing stays and the scroll takes it apart. D has the best hand-off
+      from Home, and A holds more detail. <b>B and C</b> are drawings you read. B is an engineer's
+      drawing, and C is an architect's. <b>E</b> is the warm one: paper on a desk, and the least
+      technical.</p>
+    <p class="sk-note"><b>My pick is B, with A's motion.</b> B is the only version where the drawing
+      looks like the thing it claims to be: a real drawing of a real assembly. It also says the most
+      with the least text. The time dimensions put "always on" next to "≈ 30 min / month" in the
+      drawing itself, and the parts list is an honest inventory with a number for every part. On
+      its own, B is still. A's mechanics fix that: the same ink drawing, fixed on the screen,
+      opening as you scroll and sliding each sheet out to its note. The parts list and the title
+      block close the page. I can build that combination next.</p>
+    <p class="sk-note">If the metaphor appeals more than the drawing, <b>C</b> is the most original of the
+      five. The lift and the pavilion in the yard are the two images people will remember.</p>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var clamp=function(v,a,b){ return Math.min(b,Math.max(a,v)); };
+  var lerp=function(a,b,t){ return a+(b-a)*t; };
+  var easeOut=function(s){ return s<=0?0:s>=1?1:1-Math.pow(1-s,3); };
+  var smooth=function(s){ s=clamp(s,0,1); return s*s*(3-2*s); };
+  var phone=function(){ return document.body.classList.contains('phone'); };
+  var NS='http://www.w3.org/2000/svg';
+
+  /* ------------------------------------------------------------------ marks
+     The Home §3 ring's logos, copied out of transition-prototype.html. */
+  var MARKS={"labServe": [{"drawn": false, "color": "#FF9900", "name": "AWS Lambda", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M4.9855 0c-.2941.0031-.5335.2466-.534.5482L4.446 5.456c0 .1451.06.2835.159.3891a.5322.5322 0 0 0 .3806.1562h3.4282l8.197 17.6805a.5365.5365 0 0 0 .4885.3181h5.811c.2969 0 .5426-.2448.5426-.5482V18.544c0-.3035-.2392-.5482-.5425-.5482h-2.0138L12.7394.3153C12.647.124 12.4564 0 12.2452 0h-7.254Zm.5397 1.0907h6.3678l8.16 17.6804a.5365.5365 0 0 0 .4885.3181h1.8178v3.8173H17.437L9.2402 5.226a.536.536 0 0 0-.4885-.318H5.5223Zm2.0137 8.2366c-.2098.0011-.3937.1193-.4857.3096L.6002 23.2133a.5506.5506 0 0 0 .0313.5282.5334.5334 0 0 0 .4544.25h6.169a.5468.5468 0 0 0 .497-.3096l3.38-7.166a.5405.5405 0 0 0-.0029-.4686L8.036 9.637a.5468.5468 0 0 0-.4942-.3096Zm.0057 1.8036 2.488 5.1522-3.1214 6.6206H1.9465Z\"/></svg>"}, {"drawn": false, "color": "#009688", "name": "FastAPI", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 .0387C5.3729.0384.0003 5.3931 0 11.9988c-.001 6.6066 5.372 11.9628 12 11.9625 6.628.0003 12.001-5.3559 12-11.9625-.0003-6.6057-5.3729-11.9604-12-11.96m-.829 5.4153h7.55l-7.5805 5.3284h5.1828L5.279 18.5436q2.9466-6.5444 5.892-13.0896\"/></svg>"}, {"drawn": false, "color": "#005CED", "name": "ONNX", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M23.0325 11.2963c-.0503 0-.1006 0-.1508.0126l-4.021-7.4387c.0754-.1383.1131-.289.1131-.4524 0-.5403-.4398-.9675-.9675-.9675-.2765 0-.5278.113-.7037.3015L9.286 1.156C9.2357.6785 8.821.3016 8.3184.3016c-.5277 0-.9675.4398-.9675.9675 0 .1634.0377.3141.113.4524l-6.245 8.9591c-.0753-.0251-.1633-.0377-.2513-.0377-.5403 0-.9675.4398-.9675.9676 0 .5403.4398.9675.9675.9675h.0377l3.3676 8.3309c-.0503.1257-.088.2639-.088.402 0 .5404.4398.9676.9676.9676.2764 0 .5277-.113.7036-.3015l10.1152.9926c.1005.4273.49.7288.9424.7288.5403 0 .9676-.4398.9676-.9675 0-.2388-.088-.465-.2262-.6283l5.1141-8.8712c.0503.0126.1005.0126.1634.0126.5403 0 .9675-.4398.9675-.9676 0-.5403-.4272-.98-.9675-.98zM17.2272 4.021c.1131.1508.2765.264.4524.3267l-1.533 11.5728c-.1005.0252-.1885.0503-.2764.1005L7.4513 8.708c.0251-.0754.0377-.1634.0377-.2514 0-.0628-.0126-.1256-.0126-.1884zm4.8754 8.5068l-5.177 3.556a1.105 1.105 0 0 0-.1256-.0753L18.3455 4.335h.0126l3.9456 7.288c-.1508.1759-.2388.3895-.2388.6408 0 .1005.0126.1885.0377.2638zM6.3832 7.5016c-.4649.0754-.8293.4775-.8293.955v.0628l-3.4555 2.0481 5.378-7.7026zm.3519 1.91c.1256-.0252.2513-.088.3518-.1634l8.356 7.2628c-.0377.113-.0628.2262-.0628.3518v.0503l-9.311 3.845c-.1382-.201-.3518-.3518-.6031-.402zm8.8963 8.1172c.1257.1382.3016.2513.5026.289l.465 4.046c-.201.1006-.3519.264-.4524.4524l-9.8136-.955zm1.1435.2136c.3267-.1633.5403-.49.5403-.867 0-.088-.0126-.1634-.0377-.2513l4.7372-3.2545-4.8 8.331zm.2513-14.3497l-9.889 4.31-.1131-.0755 1.2565-5.3906h.0377c.3393 0 .6409-.1759.8168-.4397l7.891 1.5706zM1.935 11.6105c0-.0629-.0126-.1257-.0126-.1885l3.9079-2.2995c.0754.0754.1633.1508.2638.201L4.8252 20.243l-3.2043-7.9036c.1885-.176.3142-.4398.3142-.7288Z\"/></svg>"}], "labMon": [{"drawn": true, "color": null, "name": "Evidently — no logo published", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 20h18\"/><path d=\"M6 20v-6M10 20v-10M14 20v-4M18 20v-8\"/><path d=\"M4.5 6.5 8 3l3.5 3.5\"/><path d=\"M8 3v6\"/></svg>"}, {"drawn": false, "color": "#E6522C", "name": "Prometheus", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 0C5.373 0 0 5.372 0 12c0 6.627 5.373 12 12 12s12-5.373 12-12c0-6.628-5.373-12-12-12zm0 22.46c-1.885 0-3.414-1.26-3.414-2.814h6.828c0 1.553-1.528 2.813-3.414 2.813zm5.64-3.745H6.36v-2.046h11.28v2.046zm-.04-3.098H6.391c-.037-.043-.075-.086-.111-.13-1.155-1.401-1.427-2.133-1.69-2.879-.005-.025 1.4.287 2.395.511 0 0 .513.119 1.262.255-.72-.843-1.147-1.915-1.147-3.01 0-2.406 1.845-4.508 1.18-6.207.648.053 1.34 1.367 1.387 3.422.689-.951.977-2.69.977-3.755 0-1.103.727-2.385 1.454-2.429-.648 1.069.168 1.984.894 4.256.272.854.237 2.29.447 3.201.07-1.892.395-4.652 1.595-5.605-.529 1.2.079 2.702.494 3.424.671 1.164 1.078 2.047 1.078 3.716a4.642 4.642 0 01-1.11 2.996c.792-.149 1.34-.283 1.34-.283l2.573-.502s-.374 1.538-1.81 3.019z\"/></svg>"}, {"drawn": false, "color": "#F46800", "name": "Grafana", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M23.02 10.59a8.578 8.578 0 0 0-.862-3.034 8.911 8.911 0 0 0-1.789-2.445c.337-1.342-.413-2.505-.413-2.505-1.292-.08-2.113.4-2.416.62-.052-.02-.102-.044-.154-.064-.22-.089-.446-.172-.677-.247-.231-.073-.47-.14-.711-.197a9.867 9.867 0 0 0-.875-.161C14.557.753 12.94 0 12.94 0c-1.804 1.145-2.147 2.744-2.147 2.744l-.018.093c-.098.029-.2.057-.298.088-.138.042-.275.094-.413.143-.138.055-.275.107-.41.166a8.869 8.869 0 0 0-1.557.87l-.063-.029c-2.497-.955-4.716.195-4.716.195-.203 2.658.996 4.33 1.235 4.636a11.608 11.608 0 0 0-.607 2.635C1.636 12.677.953 15.014.953 15.014c1.926 2.214 4.171 2.351 4.171 2.351.003-.002.006-.002.006-.005.285.509.615.994.986 1.446.156.19.32.371.488.548-.704 2.009.099 3.68.099 3.68 2.144.08 3.553-.937 3.849-1.173a9.784 9.784 0 0 0 3.164.501h.08l.055-.003.107-.002.103-.005.003.002c1.01 1.44 2.788 1.646 2.788 1.646 1.264-1.332 1.337-2.653 1.337-2.94v-.058c0-.02-.003-.039-.003-.06.265-.187.52-.387.758-.6a7.875 7.875 0 0 0 1.415-1.7c1.43.083 2.437-.885 2.437-.885-.236-1.49-1.085-2.216-1.264-2.354l-.018-.013-.016-.013a.217.217 0 0 1-.031-.02c.008-.092.016-.18.02-.27.011-.162.016-.323.016-.48v-.253l-.005-.098-.008-.135a1.891 1.891 0 0 0-.01-.13c-.003-.042-.008-.083-.013-.125l-.016-.124-.018-.122a6.215 6.215 0 0 0-2.032-3.73 6.015 6.015 0 0 0-3.222-1.46 6.292 6.292 0 0 0-.85-.048l-.107.002h-.063l-.044.003-.104.008a4.777 4.777 0 0 0-3.335 1.695c-.332.4-.592.84-.768 1.297a4.594 4.594 0 0 0-.312 1.817l.003.091c.005.055.007.11.013.164a3.615 3.615 0 0 0 .698 1.82 3.53 3.53 0 0 0 1.827 1.282c.33.098.66.14.971.137.039 0 .078 0 .114-.002l.063-.003c.02 0 .041-.003.062-.003.034-.002.065-.007.099-.01.007 0 .018-.003.028-.003l.031-.005.06-.008a1.18 1.18 0 0 0 .112-.02c.036-.008.072-.013.109-.024a2.634 2.634 0 0 0 .914-.415c.028-.02.056-.041.085-.065a.248.248 0 0 0 .039-.35.244.244 0 0 0-.309-.06l-.078.042c-.09.044-.184.083-.283.116a2.476 2.476 0 0 1-.475.096c-.028.003-.054.006-.083.006l-.083.002c-.026 0-.054 0-.08-.002l-.102-.006h-.012l-.024.006c-.016-.003-.031-.003-.044-.006-.031-.002-.06-.007-.091-.01a2.59 2.59 0 0 1-.724-.213 2.557 2.557 0 0 1-.667-.438 2.52 2.52 0 0 1-.805-1.475 2.306 2.306 0 0 1-.029-.444l.006-.122v-.023l.002-.031c.003-.021.003-.04.005-.06a3.163 3.163 0 0 1 1.352-2.29 3.12 3.12 0 0 1 .937-.43 2.946 2.946 0 0 1 .776-.101h.06l.07.002.045.003h.026l.07.005a4.041 4.041 0 0 1 1.635.49 3.94 3.94 0 0 1 1.602 1.662 3.77 3.77 0 0 1 .397 1.414l.005.076.003.075c.002.026.002.05.002.075 0 .024.003.052 0 .07v.065l-.002.073-.008.174a6.195 6.195 0 0 1-.08.639 5.1 5.1 0 0 1-.267.927 5.31 5.31 0 0 1-.624 1.13 5.052 5.052 0 0 1-3.237 2.014 4.82 4.82 0 0 1-.649.066l-.039.003h-.287a6.607 6.607 0 0 1-1.716-.265 6.776 6.776 0 0 1-3.4-2.274 6.75 6.75 0 0 1-.746-1.15 6.616 6.616 0 0 1-.714-2.596l-.005-.083-.002-.02v-.056l-.003-.073v-.096l-.003-.104v-.07l.003-.163c.008-.22.026-.45.054-.678a8.707 8.707 0 0 1 .28-1.355c.128-.444.286-.872.473-1.277a7.04 7.04 0 0 1 1.456-2.1 5.925 5.925 0 0 1 .953-.763c.169-.111.343-.213.524-.306.089-.05.182-.091.273-.135.047-.02.093-.042.138-.062a7.177 7.177 0 0 1 .714-.267l.145-.045c.049-.015.098-.026.148-.041.098-.029.197-.052.296-.076.049-.013.1-.02.15-.033l.15-.032.151-.028.076-.013.075-.01.153-.024c.057-.01.114-.013.171-.023l.169-.021c.036-.003.073-.008.106-.01l.073-.008.036-.003.042-.002c.057-.003.114-.008.171-.01l.086-.006h.023l.037-.003.145-.007a7.999 7.999 0 0 1 1.708.125 7.917 7.917 0 0 1 2.048.68 8.253 8.253 0 0 1 1.672 1.09l.09.077.089.078c.06.052.114.107.171.159.057.052.112.106.166.16.052.055.107.107.159.164a8.671 8.671 0 0 1 1.41 1.978c.012.026.028.052.04.078l.04.078.075.156c.023.051.05.1.07.153l.065.15a8.848 8.848 0 0 1 .45 1.34.19.19 0 0 0 .201.142.186.186 0 0 0 .172-.184c.01-.246.002-.532-.024-.856z\"/></svg>"}, {"drawn": false, "color": "#569A31", "name": "Amazon S3", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M20.913 13.147l.12-.895c.947.576 1.258.922 1.354 1.071-.16.031-.562.046-1.474-.176zm-2.174 7.988a.547.547 0 0 0-.005.073c0 .084-.207.405-1.124.768a10.28 10.28 0 0 1-1.438.432c-1.405.325-3.128.504-4.853.504-4.612 0-7.412-1.184-7.412-1.704a.547.547 0 0 0-.005-.073L1.81 5.602c.135.078.28.154.432.227.042.02.086.038.128.057.134.062.272.122.417.18l.179.069c.154.058.314.114.478.168.043.013.084.029.13.043.207.065.423.127.646.187l.176.044c.175.044.353.087.534.127a23.414 23.414 0 0 0 .843.17l.121.023c.252.045.508.085.768.122.071.011.144.02.216.03.2.027.4.053.604.077l.24.027c.245.026.49.05.74.07l.081.009c.275.022.552.04.83.056l.233.012c.21.01.422.018.633.025a33.088 33.088 0 0 0 2.795-.026l.232-.011c.278-.016.555-.034.83-.056l.08-.008c.25-.02.497-.045.742-.072l.238-.026c.205-.024.408-.05.609-.077.07-.01.141-.019.211-.03.261-.037.519-.078.772-.122l.111-.02c.215-.04.427-.082.634-.125l.212-.047c.186-.041.368-.085.546-.13l.166-.042c.225-.06.444-.122.654-.189.04-.012.077-.026.115-.038a10.6 10.6 0 0 0 .493-.173c.058-.021.114-.044.17-.066.15-.06.293-.12.43-.185.038-.017.079-.034.116-.052.153-.073.3-.15.436-.228l-.976 7.245c-2.488-.78-5.805-2.292-7.311-3a1.09 1.09 0 0 0-1.088-1.085c-.6 0-1.088.489-1.088 1.088 0 .6.488 1.089 1.088 1.089.196 0 .378-.056.537-.148 1.72.812 5.144 2.367 7.715 3.15zm-7.42-20.047c5.677 0 9.676 1.759 9.75 2.736l-.014.113c-.01.033-.031.067-.048.101-.015.028-.026.057-.047.087-.024.033-.058.068-.09.102-.028.03-.051.06-.084.09-.038.035-.087.07-.133.105-.04.03-.074.06-.119.091-.053.036-.116.071-.177.107-.05.03-.095.06-.15.09-.068.036-.147.073-.222.11-.059.028-.114.057-.177.085-.084.038-.177.074-.268.111-.068.027-.13.054-.203.082-.097.036-.205.072-.31.107-.075.026-.148.053-.228.079-.111.035-.233.069-.35.103-.085.024-.165.05-.253.073-.124.034-.258.065-.389.098-.093.022-.181.046-.278.068-.139.032-.287.061-.433.091-.098.02-.191.041-.293.06-.155.03-.32.057-.482.084-.1.018-.198.036-.302.052-.166.026-.342.048-.515.072-.11.014-.213.03-.325.044-.181.023-.372.041-.56.06-.11.012-.218.025-.332.036-.188.016-.386.029-.58.043-.122.009-.24.02-.364.028-.207.012-.422.02-.635.028-.12.005-.234.012-.354.016a35.605 35.605 0 0 1-2.069 0c-.12-.004-.234-.011-.352-.016-.214-.008-.43-.016-.637-.028-.122-.008-.238-.02-.36-.027-.195-.015-.394-.028-.584-.044-.11-.01-.215-.024-.324-.035-.19-.02-.384-.038-.568-.06l-.315-.044c-.176-.024-.355-.046-.525-.073-.1-.015-.192-.033-.29-.05-.167-.028-.335-.055-.494-.086-.096-.018-.183-.038-.276-.056-.151-.032-.305-.062-.45-.095-.09-.02-.173-.043-.26-.064-.138-.034-.277-.067-.407-.102-.082-.022-.157-.046-.235-.069a11.75 11.75 0 0 1-.368-.108c-.075-.024-.141-.049-.213-.073-.11-.037-.223-.075-.325-.113-.067-.025-.125-.051-.188-.077-.096-.038-.195-.076-.282-.115-.06-.027-.11-.054-.166-.08-.08-.039-.162-.077-.233-.116-.052-.028-.094-.055-.142-.084-.063-.038-.13-.075-.185-.113-.043-.029-.075-.058-.113-.086-.048-.037-.098-.073-.139-.11-.032-.029-.054-.057-.08-.087-.033-.035-.069-.07-.093-.104-.02-.03-.031-.058-.046-.086-.018-.035-.039-.068-.049-.102l-.015-.113c.076-.977 4.074-2.736 9.748-2.736zm12.182 12.124c-.118-.628-.84-1.291-2.31-2.128l.963-7.16a.531.531 0 0 0 .005-.073C22.16 1.581 16.447 0 11.32 0 6.194 0 .482 1.581.482 3.851a.58.58 0 0 0 .005.072L2.819 21.25c.071 2.002 5.236 2.75 8.5 2.75 1.805 0 3.615-.188 5.098-.531.598-.138 1.133-.3 1.592-.48 1.18-.467 1.789-1.053 1.813-1.739l.945-7.018c.557.131 1.016.197 1.389.197.54 0 .902-.137 1.134-.413a.956.956 0 0 0 .21-.804Z\"/></svg>"}], "labBuild": [{"drawn": false, "color": "#EE4C2C", "name": "PyTorch", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12.005 0L4.952 7.053a9.865 9.865 0 000 14.022 9.866 9.866 0 0014.022 0c3.984-3.9 3.986-10.205.085-14.023l-1.744 1.743c2.904 2.905 2.904 7.634 0 10.538s-7.634 2.904-10.538 0-2.904-7.634 0-10.538l4.647-4.646.582-.665zm3.568 3.899a1.327 1.327 0 00-1.327 1.327 1.327 1.327 0 001.327 1.328A1.327 1.327 0 0016.9 5.226 1.327 1.327 0 0015.573 3.9z\"/></svg>"}, {"drawn": false, "color": "#0194E2", "name": "MLflow", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M11.883.002a12.044 12.044 0 0 0-9.326 19.463l3.668-2.694A7.573 7.573 0 0 1 12.043 4.45v2.867l6.908-5.14A12.012 12.012 0 0 0 11.883.002zm9.562 4.533L17.777 7.23a7.573 7.573 0 0 1-5.818 12.322v-2.867l-6.908 5.14a12.046 12.046 0 0 0 16.394-17.29z\"/></svg>"}, {"drawn": false, "color": "#844FBA", "name": "Terraform", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M1.44 0v7.575l6.561 3.79V3.787zm21.12 4.227l-6.561 3.791v7.574l6.56-3.787zM8.72 4.23v7.575l6.561 3.787V8.018zm0 8.405v7.575L15.28 24v-7.578z\"/></svg>"}, {"drawn": false, "color": "#FF9900", "name": "Amazon EKS", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"m14.67 8.505-2.875 3.335 3.128 3.648h-1.168l-2.808-3.277v3.368h-.842V8.421h.842v2.947l2.603-2.863Zm7.225 6.751-3.369-2.021V8.421a.42.42 0 0 0-.209-.364l-4.843-2.825V1.159l8.42 4.976Zm.635-9.724L13.267.06a.422.422 0 0 0-.635.362v5.053c0 .15.08.288.208.363l4.844 2.826v4.81a.42.42 0 0 0 .205.362l4.21 2.526a.42.42 0 0 0 .638-.361V5.895a.42.42 0 0 0-.207-.363ZM11.977 23.1l-9.872-5.248V6.135l8.421-4.976v4.084L6.09 8.066a.422.422 0 0 0-.195.355v7.158a.42.42 0 0 0 .226.373l5.665 2.948a.42.42 0 0 0 .387 0l5.496-2.84 3.382 2.03Zm10.135-5.356-4.21-2.526a.42.42 0 0 0-.411-.013l-5.51 2.847-5.244-2.729v-6.67l4.436-2.824a.422.422 0 0 0 .195-.355V.42a.421.421 0 0 0-.635-.362L1.47 5.532a.421.421 0 0 0-.207.363v12.21c0 .156.086.299.223.372l10.297 5.474a.421.421 0 0 0 .401-.004l9.915-5.473a.422.422 0 0 0 .013-.73Z\"/></svg>"}], "labDeploy": [{"drawn": false, "color": "#2088FF", "name": "GitHub Actions", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M10.984 13.836a.5.5 0 0 1-.353-.146l-.745-.743a.5.5 0 1 1 .706-.708l.392.391 1.181-1.18a.5.5 0 0 1 .708.707l-1.535 1.533a.504.504 0 0 1-.354.146zm9.353-.147l1.534-1.532a.5.5 0 0 0-.707-.707l-1.181 1.18-.392-.391a.5.5 0 1 0-.706.708l.746.743a.497.497 0 0 0 .706-.001zM4.527 7.452l2.557-1.585A1 1 0 0 0 7.09 4.17L4.533 2.56A1 1 0 0 0 3 3.406v3.196a1.001 1.001 0 0 0 1.527.85zm2.03-2.436L4 6.602V3.406l2.557 1.61zM24 12.5c0 1.93-1.57 3.5-3.5 3.5a3.503 3.503 0 0 1-3.46-3h-2.08a3.503 3.503 0 0 1-3.46 3 3.502 3.502 0 0 1-3.46-3h-.558c-.972 0-1.85-.399-2.482-1.042V17c0 1.654 1.346 3 3 3h.04c.244-1.693 1.7-3 3.46-3 1.93 0 3.5 1.57 3.5 3.5S13.43 24 11.5 24a3.502 3.502 0 0 1-3.46-3H8c-2.206 0-4-1.794-4-4V9.899A5.008 5.008 0 0 1 0 5c0-2.757 2.243-5 5-5s5 2.243 5 5a5.005 5.005 0 0 1-4.952 4.998A2.482 2.482 0 0 0 7.482 12h.558c.244-1.693 1.7-3 3.46-3a3.502 3.502 0 0 1 3.46 3h2.08a3.503 3.503 0 0 1 3.46-3c1.93 0 3.5 1.57 3.5 3.5zm-15 8c0 1.378 1.122 2.5 2.5 2.5s2.5-1.122 2.5-2.5-1.122-2.5-2.5-2.5S9 19.122 9 20.5zM5 9c2.206 0 4-1.794 4-4S7.206 1 5 1 1 2.794 1 5s1.794 4 4 4zm9 3.5c0-1.378-1.122-2.5-2.5-2.5S9 11.122 9 12.5s1.122 2.5 2.5 2.5 2.5-1.122 2.5-2.5zm9 0c0-1.378-1.122-2.5-2.5-2.5S18 11.122 18 12.5s1.122 2.5 2.5 2.5 2.5-1.122 2.5-2.5zm-13 8a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0zm2 0a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0zm12 0c0 1.93-1.57 3.5-3.5 3.5a3.503 3.503 0 0 1-3.46-3.002c-.007.001-.013.005-.021.005l-.506.017h-.017a.5.5 0 0 1-.016-.999l.506-.017c.018-.002.035.006.052.007A3.503 3.503 0 0 1 20.5 17c1.93 0 3.5 1.57 3.5 3.5zm-1 0c0-1.378-1.122-2.5-2.5-2.5S18 19.122 18 20.5s1.122 2.5 2.5 2.5 2.5-1.122 2.5-2.5z\"/></svg>"}, {"drawn": false, "color": "#2496ED", "name": "Docker", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M13.983 11.078h2.119a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.119a.185.185 0 00-.185.185v1.888c0 .102.083.185.185.185m-2.954-5.43h2.118a.186.186 0 00.186-.186V3.574a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m0 2.716h2.118a.187.187 0 00.186-.186V6.29a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.887c0 .102.082.185.185.186m-2.93 0h2.12a.186.186 0 00.184-.186V6.29a.185.185 0 00-.185-.185H8.1a.185.185 0 00-.185.185v1.887c0 .102.083.185.185.186m-2.964 0h2.119a.186.186 0 00.185-.186V6.29a.185.185 0 00-.185-.185H5.136a.186.186 0 00-.186.185v1.887c0 .102.084.185.186.186m5.893 2.715h2.118a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m-2.93 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.083.185.185.185m-2.964 0h2.119a.185.185 0 00.185-.185V9.006a.185.185 0 00-.184-.186h-2.12a.186.186 0 00-.186.186v1.887c0 .102.084.185.186.185m-2.92 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.082.185.185.185M23.763 9.89c-.065-.051-.672-.51-1.954-.51-.338.001-.676.03-1.01.087-.248-1.7-1.653-2.53-1.716-2.566l-.344-.199-.226.327c-.284.438-.49.922-.612 1.43-.23.97-.09 1.882.403 2.661-.595.332-1.55.413-1.744.42H.751a.751.751 0 00-.75.748 11.376 11.376 0 00.692 4.062c.545 1.428 1.355 2.48 2.41 3.124 1.18.723 3.1 1.137 5.275 1.137.983.003 1.963-.086 2.93-.266a12.248 12.248 0 003.823-1.389c.98-.567 1.86-1.288 2.61-2.136 1.252-1.418 1.998-2.997 2.553-4.4h.221c1.372 0 2.215-.549 2.68-1.009.309-.293.55-.65.707-1.046l.098-.288Z\"/></svg>"}, {"drawn": false, "color": "#FF9900", "name": "AWS Lambda", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M4.9855 0c-.2941.0031-.5335.2466-.534.5482L4.446 5.456c0 .1451.06.2835.159.3891a.5322.5322 0 0 0 .3806.1562h3.4282l8.197 17.6805a.5365.5365 0 0 0 .4885.3181h5.811c.2969 0 .5426-.2448.5426-.5482V18.544c0-.3035-.2392-.5482-.5425-.5482h-2.0138L12.7394.3153C12.647.124 12.4564 0 12.2452 0h-7.254Zm.5397 1.0907h6.3678l8.16 17.6804a.5365.5365 0 0 0 .4885.3181h1.8178v3.8173H17.437L9.2402 5.226a.536.536 0 0 0-.4885-.318H5.5223Zm2.0137 8.2366c-.2098.0011-.3937.1193-.4857.3096L.6002 23.2133a.5506.5506 0 0 0 .0313.5282.5334.5334 0 0 0 .4544.25h6.169a.5468.5468 0 0 0 .497-.3096l3.38-7.166a.5405.5405 0 0 0-.0029-.4686L8.036 9.637a.5468.5468 0 0 0-.4942-.3096Zm.0057 1.8036 2.488 5.1522-3.1214 6.6206H1.9465Z\"/></svg>"}]};
+  function mark(lab,name){
+    var m=MARKS[lab].filter(function(x){ return x.name.indexOf(name)===0; })[0];
+    if(!m) return '';
+    return '<span class="bm" style="'+(m.color?'--bc:'+m.color:'')+'" title="'+m.name+'">'+m.svg+'</span>';
+  }
+  function row(lab){ return '<span class="bmrow">'+MARKS[lab].map(function(m){ return mark(lab,m.name); }).join('')+'</span>'; }
+
+  /* ------------------------------------------------------------------ content
+     From architecture.json (fetched 2026-10-02), with light cuts. The emoji become
+     "a yes" / "a no" — the site has no emoji. */
+  var T={
+    ov:'Four planes: an always-on <b>serving plane</b> at ~$0, a <b>CI/CD plane</b> on GitHub Actions, an <b>ephemeral Kubernetes plane</b> that exists ~30 minutes a month, and a <b>monitoring plane</b> that closes the loop back into training.',
+    one:'A visitor’s drawing becomes a prediction, a log line, and — if they grade it — labeled training data. Every merge retrains, gates, and redeploys the model without a human. Every week the logs are scored for drift.',
+    fly:'A visitor draws, the model guesses, and the visitor grades the guess — a yes, or a no with the correct class. Those labeled drawings accumulate in S3. On demand, a training run folds them into the <b>training split only</b>, so evaluation stays honest, registers a challenger, and the quality gate decides whether it ships.',
+    fly2:'The canvas → CI → deploy → drift → feedback → retrain loop closes without a human in it.',
+    gate:'<b>Ship and re-crown are decoupled.</b> Every training run produces a challenger; the gate compares it to the reigning champion on held-out test accuracy, with two rules — an absolute floor (0.85) and no regression beyond a small epsilon. Pass, and the challenger ships.',
+    gate2:'The champion alias only moves on a strict improvement, so “champion” always means the best-ever bar. A crippled 0.50 model is blocked in CI, deploy steps skip, and the live model is untouched.',
+    k8s:'The same serving image that runs on Lambda also runs on Kubernetes — but only for ~30 minutes a month. A workflow does <b>apply → exercise → destroy</b>: Terraform brings up EKS and a VPC, Helm deploys the API by image digest, Prometheus scrapes it, k6 drives load, and everything is torn down.',
+    k8s2:'A monthly failsafe sweeps any survivor tagged <code>tier=ephemeral</code>, so a botched teardown can’t quietly bill. No always-on cluster cost, anywhere.',
+    evi:'Every claim on the site is backed by a published artifact. The evidence hub renders from the MLflow registry. The weekly drift report scores real predictions against a reference distribution; feedback becomes a proxy-accuracy signal; a drift breach opens a GitHub issue.',
+    evi2:'The site styles all of it — including this very page — from JSON contracts, never from the platform’s own HTML.',
+    serve:'An always-on serving plane at ~$0. AWS Lambda wakes from zero, runs FastAPI with an ONNX model, and sends the guess back to the canvas.'
+  };
+  var LINKS='<div class="t-links"><a class="link" href="#" onclick="return false">Browse the raw evidence&nbsp;→</a><a class="link" href="#" onclick="return false">The repo&nbsp;→</a></div>';
+  function txt(k,h,ps,cls){ return '<p class="micro t-k '+(cls||'')+'">'+k+'</p><h2 class="t-h">'+h+'</h2>'+ps.map(function(p){ return '<p class="t-p">'+p+'</p>'; }).join(''); }
+
+  var CHROME_TOP='<div class="f-top"><span class="f-home"><svg viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M16 6H1M6 1 1 6l5 5" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Home</span></span>'+
+    '<span class="f-menu"><svg viewBox="0 0 26 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 1h24M1 7h24M1 13h24" stroke-linecap="round"/></svg></span></div>';
+  var CHROME_TRAY='<div class="f-tray"><span class="on">Architecture</span><span>Journey</span><span>Skills</span></div>';
+  function chrome(id){ document.getElementById(id).insertAdjacentHTML('beforeend',CHROME_TOP+CHROME_TRAY); }
+
+  /* ================================================================== C
+     Isometric sheets. iso(x,y,z) → screen: x runs down-right, y runs down-left, z up.
+     Coordinates are in u (laptop) — the whole drawing is one SVG in u units. */
+  var C_PLANES=[
+    {k:'serve', name:'Serving', sub:'always on · ~$0', fill:'#dee5f4',
+     parts:[{n:'Browser',s:'canvas · yes / no',x:110,y:250},{n:'Lambda',s:'FastAPI + ONNX',x:300,y:100},{n:'S3',s:'logs + labeled drawings',x:470,y:250}],
+     cap:txt('Plane 1 · always on','Serving',[T.serve,T.one])},
+    {k:'mon', name:'Monitoring', sub:'every Monday', fill:'#d8ecde',
+     parts:[{n:'Drift report',s:'Evidently',x:470,y:250},{n:'Evidence hub',s:'JSON contracts',x:470,y:80},{n:'GitHub issue',s:'on a drift breach',x:130,y:250}],
+     cap:txt('Plane 2 · weekly','Evidence &amp; drift',[T.evi,T.evi2])},
+    {k:'ci', name:'CI/CD', sub:'every merge', fill:'#f8dfc4',
+     parts:[{n:'Train',s:'PyTorch · DVC',x:130,y:250},{n:'Registry',s:'MLflow',x:130,y:80},{n:'Quality gate',s:'floor 0.85 · ε',x:460,y:200,gate:true},{n:'Deploy',s:'Docker → Lambda',x:300,y:100}],
+     cap:txt('Plane 3 · on every merge','The quality gate',[T.gate,T.gate2])},
+    {k:'k8s', name:'Ephemeral K8s', sub:'~30 minutes a month', fill:'#fbd3dc', ghost:true,
+     parts:[{n:'EKS + VPC',s:'Terraform',x:120,y:240},{n:'API by digest',s:'Helm',x:300,y:100},{n:'Load',s:'k6 · Prometheus',x:470,y:250}],
+     cap:txt('Plane 4 · ~30 minutes a month','Ephemeral Kubernetes',[T.k8s,T.k8s2],'o')}
+  ];
+  var C={
+    scr:document.getElementById('s0'),
+    build:function(){
+      var ph=phone(), W=this.scr.clientWidth, u=W/(ph?390:1440);
+      var PW=520, PD=300, c30=Math.cos(Math.PI/6), s30=0.5;
+      // laptop: sheets centred right of the captions; phone: sheets full width, caption below
+      var k=ph?0.42:1;                                   // drawing scale for the phone
+      var OX=ph?195:870, GAP=ph?0:640, TOP=ph?70:300;
+      var iso=function(x,y,z,oy){ return [ (OX+((x-y)*c30)*k)*u, (oy+((x+y)*s30-z)*k)*u ]; };
+      var P=function(pt){ return pt[0].toFixed(1)+','+pt[1].toFixed(1); };
+      var html='', svg='', totalH, partsPos={};
+      // centre the sheet's diamond on OX: shift x/y so the sheet's middle is at (0,0)
+      var cx=PW/2, cy=PD/2;
+      var plane=function(pl,oy,idx){
+        var g='<g class="c-pl" data-i="'+idx+'">';
+        var corners=[[0,0],[PW,0],[PW,PD],[0,PD]].map(function(c){ return iso(c[0]-cx,c[1]-cy,0,oy); });
+        // a thin slab: the sheet and its two visible edges
+        var drop=function(pt){ return [pt[0],pt[1]+10*k*u]; };
+        g+='<polygon points="'+[corners[1],corners[2],drop(corners[2]),drop(corners[1])].map(P).join(' ')+'" fill="'+pl.fill+'" stroke="#0a0a0a" stroke-width="1" '+(pl.ghost?'stroke-dasharray="5 5" fill-opacity=".35"':'')+' style="filter:brightness(.92)"/>';
+        g+='<polygon points="'+[corners[2],corners[3],drop(corners[3]),drop(corners[2])].map(P).join(' ')+'" fill="'+pl.fill+'" stroke="#0a0a0a" stroke-width="1" '+(pl.ghost?'stroke-dasharray="5 5" fill-opacity=".35"':'')+' style="filter:brightness(.85)"/>';
+        g+='<polygon points="'+corners.map(P).join(' ')+'" fill="'+pl.fill+'" stroke="#0a0a0a" stroke-width="1" '+(pl.ghost?'stroke-dasharray="5 5" fill-opacity=".45"':'')+'/>';
+        // the plane's name, laid along the sheet's front-left edge
+        // the sheet's name, upright, just outside its right corner — clear of the text
+        // column on the left and of the wires, which all drop through the middle
+        var nl=corners[1], ph2=phone();
+        var nx=ph2?nl[0]-4*u:nl[0]+14*u, ny=ph2?nl[1]-34*u:nl[1]+4*u, anc=ph2?'end':'start';
+        g+='<text class="c-nm" x="'+nx+'" y="'+ny+'" font-size="'+(ph2?17:22)*u+'" text-anchor="'+anc+'" fill="#0a0a0a">'+pl.name+'</text>';
+        g+='<text x="'+nx+'" y="'+(ny+(ph2?14:18)*u)+'" font-size="'+(ph2?8.5:10)*u+'" text-anchor="'+anc+'" fill="'+(pl.ghost?'#96600a':'#6b6b6b')+'" letter-spacing="1.4">'+pl.sub.toUpperCase()+'</text>';
+        // parts: small blocks standing on the sheet, label upright above
+        pl.parts.forEach(function(pt){
+          var bx=pt.x*PW/560-cx, by=pt.y*PD/320-cy, bw=64, bh=pt.gate?18:34;
+          var top=[[0,0],[bw,0],[bw,bw],[0,bw]].map(function(c){ return iso(bx+c[0]-bw/2,by+c[1]-bw/2,bh,oy); });
+          var base=[[0,0],[bw,0],[bw,bw],[0,bw]].map(function(c){ return iso(bx+c[0]-bw/2,by+c[1]-bw/2,0,oy); });
+          var fc=pl.ghost?'rgba(255,255,255,.55)':'#fff';
+          g+='<polygon points="'+[top[1],top[2],base[2],base[1]].map(P).join(' ')+'" fill="'+fc+'" stroke="#0a0a0a" stroke-width=".9" '+(pl.ghost?'stroke-dasharray="3 3"':'')+' style="filter:brightness(.94)"/>';
+          g+='<polygon points="'+[top[2],top[3],base[3],base[2]].map(P).join(' ')+'" fill="'+fc+'" stroke="#0a0a0a" stroke-width=".9" '+(pl.ghost?'stroke-dasharray="3 3"':'')+' style="filter:brightness(.86)"/>';
+          g+='<polygon points="'+top.map(P).join(' ')+'" fill="'+fc+'" stroke="#0a0a0a" stroke-width=".9" '+(pl.ghost?'stroke-dasharray="3 3"':'')+'/>';
+          var lp=iso(bx,by,bh+bw/2+30,oy);
+          g+='<text x="'+lp[0]+'" y="'+lp[1]+'" font-size="'+(13*k*u)+'" font-weight="500" text-anchor="middle" fill="#0a0a0a">'+pt.n+'</text>';
+          g+='<text x="'+lp[0]+'" y="'+(lp[1]+14*k*u)+'" font-size="'+(10.5*k*u)+'" text-anchor="middle" fill="#6b6b6b">'+pt.s+'</text>';
+          if(pt.gate){
+            // the dead end: a 0.50 block, knocked over, off the sheet's edge
+            var dz=iso(bx+70,by+60,0,oy);
+            g+='<text x="'+dz[0]+'" y="'+(dz[1]+30*k*u)+'" font-size="'+(11.5*k*u)+'" font-weight="500" text-anchor="middle" fill="#96600a">v7 · 0.50 — blocked</text>';
+            g+='<line x1="'+iso(bx+20,by+20,0,oy)[0]+'" y1="'+iso(bx+20,by+20,0,oy)[1]+'" x2="'+dz[0]+'" y2="'+(dz[1]+12*k*u)+'" stroke="#0a0a0a" stroke-dasharray="4 4"/>';
+            g+='<line x1="'+(dz[0]-10*u*k)+'" y1="'+(dz[1]+16*k*u)+'" x2="'+(dz[0]+10*u*k)+'" y2="'+(dz[1]+16*k*u)+'" stroke="#0a0a0a" stroke-width="1.8"/>';
+          }
+          partsPos[pl.k+':'+pt.n]={top:iso(bx,by,bh,oy),base:iso(bx,by,0,oy)};
+        });
+        return g+'</g>';
+      };
+      if(!ph){
+        C_PLANES.forEach(function(pl,i){ svg+=plane(pl,TOP+i*GAP,i); });
+        // wires between planes, where data crosses
+        // a wire runs straight up or down — the z axis of the drawing — between two parts
+        // that stand at the same place on their sheets. Downward: from the upper part's base
+        // to the lower part's top. The ochre flywheel wire climbs the other way.
+        var w=function(a,b,cls,label){
+          var A=partsPos[a], B=partsPos[b];
+          var from=cls==='up'?A.top:A.base, to=cls==='up'?B.base:B.top;
+          if(cls!=='up'){ from=A.base; to=B.top; }
+          var x=from[0], d='M'+x+' '+from[1]+' L'+x+' '+to[1];
+          svg+='<path class="c-wire '+(cls||'')+'" d="'+d+'" data-wire/>';
+          if(cls==='up') svg+='<path d="M'+(x-6*u)+' '+(to[1]+12*u)+' l'+(6*u)+' '+(-12*u)+' l'+(6*u)+' '+(12*u)+'" fill="none" stroke="#96600a" stroke-width="1.4"/>';
+          if(label){ var my=from[1]+(to[1]-from[1])*0.42; svg+='<text x="'+(x+12*u)+'" y="'+my+'" font-size="'+(12*u)+'" font-weight="500" fill="'+(cls==='up'?'#96600a':'#0a0a0a')+'">'+label+'</text>'; }
+        };
+        w('serve:S3','mon:Drift report','','logs, every prediction');
+        w('mon:GitHub issue','ci:Train','','drift breach → retrain');
+        w('ci:Deploy','serve:Lambda','up','');
+        w('ci:Deploy','k8s:API by digest','','the same image, ~30 min a month');
+        totalH=(TOP+3*GAP+420)*u;
+        html='<div class="c-draw" style="height:'+totalH+'px"><svg class="c-svg" viewBox="0 0 '+W+' '+totalH+'" aria-hidden="true">'+svg+'</svg>';
+        C_PLANES.forEach(function(pl,i){
+          html+='<div class="c-cap rv" data-x="l" style="left:'+(86*u)+'px;top:'+((TOP+i*GAP-150)*u)+'px">'+pl.cap+'</div>';
+        });
+        html+='<div class="c-cap rv" data-x="r" style="left:'+((OX+(300-100)*c30+30)*u)+'px;top:'+((TOP+0.5*GAP-90)*u)+'px;width:'+(250*u)+'px"><p class="micro t-k o">The ochre wire</p><h2 class="t-h" style="font-size:'+(26*u)+'px">The retrain flywheel</h2><p class="t-p" style="font-size:'+(13.5*u)+'px">'+T.fly2+'</p></div>';
+        html+='</div>';
+      }else{
+        // phone: one sheet per block, the caption under it; long wires become a label
+        C_PLANES.forEach(function(pl,i){
+          var hh=(300)*u, sv=plane(pl,150,i);
+          var tags=['↓ logs to Monitoring','↓ a breach retrains in CI/CD','↑ a pass ships to Serving · ↓ the same image','—'][i];
+          html+='<div class="c-draw" style="height:'+hh+'px"><svg class="c-svg" viewBox="0 0 '+W+' '+hh+'" aria-hidden="true">'+sv+'</svg></div>';
+          html+='<div style="padding:0 '+(24*u)+'px '+(40*u)+'px"><p class="micro t-k o" style="margin-bottom:'+(14*u)+'px">'+tags+'</p>'+pl.cap+'</div>';
+        });
+      }
+      // the closed stack: the same four sheets, nearly touching
+      var mini='<svg viewBox="-260 -40 520 360" aria-hidden="true">';
+      C_PLANES.slice().reverse().forEach(function(pl,j){
+        var i=3-j, oy=i*46;
+        var pts=[[0,0],[PW,0],[PW,PD],[0,PD]].map(function(c){ var x=c[0]-cx,y=c[1]-cy; return [((x-y)*c30*0.42).toFixed(1),(((x+y)*s30)*0.42+oy).toFixed(1)].join(','); }).join(' ');
+        mini+='<polygon class="c-mp" data-i="'+i+'" points="'+pts+'" fill="'+pl.fill+'" stroke="#0a0a0a" stroke-width="1" '+(pl.ghost?'stroke-dasharray="4 4" fill-opacity=".5"':'')+'/>';
+        mini+='<text class="c-mp" data-i="'+i+'" x="'+(155)+'" y="'+(oy+8)+'" font-size="12" font-family="Outfit" font-weight="500">'+pl.name+'</text>';
+      });
+      mini+='</svg>';
+      var head='<div class="c-head"><h1 class="pg-title display rv">Architecture</h1><p class="pg-lead rv">The machine behind the doodle</p>'+
+        '<p class="t-p rv">'+T.ov+'</p><p class="t-p rv" style="margin-top:0">Scroll, and the stack comes apart.</p><div class="c-mini">'+mini+'</div></div>';
+      this.scr.innerHTML=head+html+'<div class="c-tail"><p class="micro t-k">Every claim is published</p>'+LINKS+'</div>';
+      this.pls=[].slice.call(this.scr.querySelectorAll('.c-pl'));
+      this.wires=[].slice.call(this.scr.querySelectorAll('[data-wire]')).map(function(p){ var L=p.getTotalLength(); p.style.strokeDasharray=L; p.style.strokeDashoffset=L; return {p:p,L:L}; });
+      this.mps=[].slice.call(this.scr.querySelectorAll('.c-mp'));
+    },
+    tick:function(){
+      if(!this.pls) return;
+      var fr=this.scr.getBoundingClientRect(), H=fr.height, st=this.scr.scrollTop, ph=phone(), u=this.scr.clientWidth/(ph?390:1440);
+      // each sheet drops into place from above as it enters — the stack coming apart
+      this.pls.forEach(function(g){
+        var r=g.getBoundingClientRect(), top=r.top-fr.top;
+        var p=reduce?1:easeOut(clamp((H*0.95-top)/(H*0.45),0,1));
+        g.style.opacity=p.toFixed(3);
+        g.style.transform='translate(0,'+((1-p)*-90*u).toFixed(1)+'px)';
+      });
+      this.wires.forEach(function(w){
+        var r=w.p.getBoundingClientRect(), mid=(r.top+r.bottom)/2-fr.top;
+        var p=reduce?1:clamp((H*0.9-mid)/(H*0.5),0,1);
+        w.p.style.strokeDashoffset=(w.L*(1-p)).toFixed(1);
+      });
+      // the closed stack in the head fades as the drawing starts
+      var mo=reduce?1:clamp(1-st/(H*0.9),0.25,1);
+      this.mps.forEach(function(m){ m.style.opacity=mo; });
+    }
+  };
+
+
+  /* ================================================================== shared
+     One exploded sheet, in local drawing units, centred on (0,0). iso(x,y,z): x runs
+     down-right, y runs down-left, z up. Used by A and B (and the parts data by E). */
+  var C30=Math.cos(Math.PI/6);
+  var iso=function(x,y,z){ return [(x-y)*C30,(x+y)*0.5-(z||0)]; };
+  var fp=function(p){ return p[0].toFixed(1)+','+p[1].toFixed(1); };
+  var SPW=520, SPD=300;
+  function sheet(pl,o){
+    var hw=SPW/2, hd=SPD/2, T=10, s='', pts={}, ts=o.ts||1;
+    var c=[[-hw,-hd],[hw,-hd],[hw,hd],[-hw,hd]].map(function(q){ return iso(q[0],q[1],0); });
+    var dn=function(p){ return [p[0],p[1]+T]; };
+    var g=pl.ghost, dash=g?' stroke-dasharray="5 5"':'';
+    var side=o.ink?'url(#'+o.hatch+')':pl.fill, op=g&&!o.ink?' fill-opacity=".4"':'';
+    var topFill=o.ink?'#fff':pl.fill;
+    s+='<polygon class="ln" pathLength="1" points="'+[c[1],c[2],dn(c[2]),dn(c[1])].map(fp).join(' ')+'" fill="'+side+'" stroke="#0a0a0a" stroke-width="1"'+dash+op+(o.ink?'':' style="filter:brightness(.92)"')+'/>';
+    s+='<polygon class="ln" pathLength="1" points="'+[c[2],c[3],dn(c[3]),dn(c[2])].map(fp).join(' ')+'" fill="'+side+'" stroke="#0a0a0a" stroke-width="1"'+dash+op+(o.ink?'':' style="filter:brightness(.85)"')+'/>';
+    s+='<polygon class="ln" pathLength="1" points="'+c.map(fp).join(' ')+'" fill="'+topFill+'" stroke="#0a0a0a" stroke-width="1"'+dash+(g&&!o.ink?' fill-opacity=".5"':'')+'/>';
+    pl.parts.forEach(function(pt){
+      var bx=pt.x*SPW/560-hw, by=pt.y*SPD/320-hd, bw=60, bh=pt.gate?18:32;
+      var sq=[[0,0],[bw,0],[bw,bw],[0,bw]];
+      var top=sq.map(function(q){ return iso(bx+q[0]-bw/2,by+q[1]-bw/2,bh); });
+      var base=sq.map(function(q){ return iso(bx+q[0]-bw/2,by+q[1]-bw/2,0); });
+      var fc=o.ink?'#fff':(g?'rgba(255,255,255,.55)':'#fff'), pd=g?' stroke-dasharray="3 3"':'';
+      s+='<polygon class="ln" pathLength="1" points="'+[top[1],top[2],base[2],base[1]].map(fp).join(' ')+'" fill="'+fc+'" stroke="#0a0a0a" stroke-width=".9"'+pd+(o.ink?'':' style="filter:brightness(.94)"')+'/>';
+      s+='<polygon class="ln" pathLength="1" points="'+[top[2],top[3],base[3],base[2]].map(fp).join(' ')+'" fill="'+fc+'" stroke="#0a0a0a" stroke-width=".9"'+pd+(o.ink?'':' style="filter:brightness(.86)"')+'/>';
+      s+='<polygon class="ln" pathLength="1" points="'+top.map(fp).join(' ')+'" fill="'+fc+'" stroke="#0a0a0a" stroke-width=".9"'+pd+'/>';
+      var lp=iso(bx,by,bh+bw/2+26);
+      if(o.labels){
+        s+='<text x="'+lp[0]+'" y="'+lp[1]+'" font-size="'+(13*ts)+'" font-weight="500" text-anchor="middle" fill="#0a0a0a">'+pt.n+'</text>';
+        s+='<text x="'+lp[0]+'" y="'+(lp[1]+14*ts)+'" font-size="'+(10.5*ts)+'" text-anchor="middle" fill="#6b6b6b">'+pt.s+'</text>';
+      }
+      if(pt.gate && o.ink){
+        var dz2=iso(bx+120,by-30,0), a2=iso(bx+28,by,0);
+        s+='<line class="ln" pathLength="1" x1="'+a2[0]+'" y1="'+a2[1]+'" x2="'+dz2[0]+'" y2="'+(dz2[1]+14)+'" stroke="#0a0a0a" stroke-dasharray="4 4"/>';
+        s+='<line class="ln" pathLength="1" x1="'+(dz2[0]-11)+'" y1="'+(dz2[1]+18)+'" x2="'+(dz2[0]+11)+'" y2="'+(dz2[1]+18)+'" stroke="#0a0a0a" stroke-width="1.8"/>';
+        s+='<text x="'+dz2[0]+'" y="'+(dz2[1]+38)+'" font-size="'+(11*ts)+'" letter-spacing="1.6" font-weight="500" text-anchor="middle" fill="#96600a">0.50 · BLOCKED</text>';
+      }
+      if(pt.gate && o.labels){
+        var dz=iso(bx+70,by+60,0), a0=iso(bx+20,by+20,0);
+        s+='<line x1="'+a0[0]+'" y1="'+a0[1]+'" x2="'+dz[0]+'" y2="'+(dz[1]+12)+'" stroke="#0a0a0a" stroke-dasharray="4 4"/>';
+        s+='<line x1="'+(dz[0]-10)+'" y1="'+(dz[1]+16)+'" x2="'+(dz[0]+10)+'" y2="'+(dz[1]+16)+'" stroke="#0a0a0a" stroke-width="1.8"/>';
+        s+='<text x="'+dz[0]+'" y="'+(dz[1]+32*ts)+'" font-size="'+(11.5*ts)+'" font-weight="500" text-anchor="middle" fill="#96600a">v7 · 0.50 — blocked</text>';
+      }
+      pts[pt.n]={top:iso(bx,by,bh),base:iso(bx,by,0),x:bx,y:by};
+    });
+    return {svg:s,pts:pts,c:c};
+  }
+  // the four wires between the planes: [from plane, part] → [to plane, part], kind, label
+  var WIRES=[
+    {a:[0,'S3'],b:[1,'Drift report'],up:false,l:'logs, every prediction'},
+    {a:[1,'GitHub issue'],b:[2,'Train'],up:false,l:'drift breach → retrain'},
+    {a:[2,'Deploy'],b:[0,'Lambda'],up:true,l:'the flywheel'},
+    {a:[2,'Deploy'],b:[3,'API by digest'],up:false,l:'the same image'}
+  ];
+
+  /* a story told against one fixed drawing: blocks scroll past, and the scroll between
+     two blocks moves the drawing from one block's state to the next. Shared by A, D, E.
+     Text strength is camera-driven on the laptop (each block is at 1 at its own stop). */
+  function Story(scr,cls){ this.scr=scr; this.cls=cls; this.anchors=[]; this.blocks=[]; }
+  Story.prototype.layout=function(){
+    var H=this.scr.clientHeight, max=this.scr.scrollHeight-H, ph=phone(), prev=0;
+    this.blocks=[].slice.call(this.scr.querySelectorAll('.'+this.cls));
+    this.anchors=this.blocks.map(function(b,i){
+      if(!i) return 0;
+      var a=ph?b.offsetTop-0.53*H:b.offsetTop+b.offsetHeight/2-H/2;
+      a=clamp(a,prev+1,Math.max(prev+1,max)); prev=a; return a;
+    });
+  };
+  Story.prototype.state=function(){
+    var st=this.scr.scrollTop, an=this.anchors, i=0, ph=phone(), H=this.scr.clientHeight;
+    if(an.length<2) return null;
+    while(i<an.length-2 && st>=an[i+1]) i++;
+    var seg=Math.max(1,an[i+1]-an[i]), f=clamp((st-an[i])/seg,0,1), e;
+    if(reduce) e=f<.5?0:1;
+    else if(ph){ var T2=Math.min(seg,H*.34); e=smooth((st-(an[i+1]-T2))/T2); }
+    else e=smooth((f-.12)/.76);
+    this.blocks.forEach(function(b,j){
+      if(!j){ b.style.opacity=ph?String(clamp(1-st/(H*.28),0,1)):''; return; }
+      if(ph||reduce){ b.style.opacity=''; return; }
+      var o=0;
+      if(j===i) o=1-clamp((f-.15)/.3,0,1);
+      else if(j===i+1) o=clamp((f-.55)/.3,0,1);
+      b.style.opacity=o.toFixed(3);
+    });
+    return {i:i,e:e,f:f,st:st,H:H,W:this.scr.clientWidth,ph:ph,u:this.scr.clientWidth/(ph?390:1440),an:an};
+  };
+  var mix=function(P,S,key,e,def){ var a=P[S.i][key], b=P[S.i+1][key]; if(a==null) a=def; if(b==null) b=def; return lerp(a,b,e); };
+  var STORY_TEXT={
+    ov:txt('System overview','Four planes',[T.ov,T.one]),
+    serve:txt('Plane 1 · always on','Serving',[T.serve]),
+    mon:txt('Plane 2 · weekly','Evidence &amp; drift',[T.evi,T.evi2]),
+    ci:txt('Plane 3 · on every merge','The quality gate',[T.gate,T.gate2]),
+    k8s:txt('Plane 4 · ~30 minutes a month','Ephemeral Kubernetes',[T.k8s,T.k8s2],'o'),
+    fly:txt('The ochre wire','The retrain flywheel',[T.fly,T.fly2]),
+    deploy:txt('On a pass','Deploy',['A challenger that clears the gate ships: GitHub Actions builds the image with Docker and updates the Lambda.',T.fly2]),
+    end:'<p class="micro t-k">Every claim is published</p><p class="t-p">'+T.evi2+'</p>'+LINKS
+  };
+  function storyBlocks(cls,keys){
+    return '<div class="'+cls+' head"><h1 class="pg-title display rv">Architecture</h1><p class="pg-lead rv">The machine behind the doodle</p></div>'+
+      keys.map(function(k){ return '<div class="'+cls+(k==='end'?' end':'')+'">'+STORY_TEXT[k]+'</div>'; }).join('');
+  }
+
+  /* ================================================================== A
+     Pulled apart, live. Four sheet groups are drawn once; each frame sets their
+     transforms (the explode, the pull-out) and redraws the wires between them. */
+  var XA_PH=[
+    {k:'head',sep:22,hero:1},
+    {k:'ov',sep:175,wires:1},
+    {k:'serve',sep:175,focus:0},
+    {k:'mon',sep:175,focus:1},
+    {k:'ci',sep:175,focus:2},
+    {k:'k8s',sep:175,focus:3,mat:1},
+    {k:'fly',sep:175,wires:1,fly:1},
+    {k:'end',sep:22}
+  ];
+  var XA={
+    scr:document.getElementById('sA'),
+    build:function(){
+      var ph=phone(), ts=ph?1.9:1.45, self=this;
+      var svg='<svg class="xs" aria-hidden="true"><g class="xa-wires"></g>';
+      this.sheets=C_PLANES.map(function(pl,i){
+        var r=sheet(pl,{labels:true,ts:ts});
+        return r;
+      });
+      // draw the bottom sheet first so upper sheets sit over the wires that leave them
+      for(var i=3;i>=0;i--) svg+='<g class="xa-pl" data-i="'+i+'">'+this.sheets[i].svg+'</g>';
+      svg+='<g class="xa-top"></g><circle class="xa-dot" r="5" fill="#96600a" opacity="0"/></svg>';
+      this.scr.innerHTML='<div class="xa-stage"><div class="xa-plate"></div>'+svg+'</div><div class="xa-flow">'+
+        storyBlocks('xa-block',['ov','serve','mon','ci','k8s','fly','end'])+'</div>';
+      this.svg=this.scr.querySelector('.xa-stage svg');
+      this.gs=[].slice.call(this.scr.querySelectorAll('.xa-pl')).sort(function(a,b){ return a.dataset.i-b.dataset.i; });
+      this.wg=this.scr.querySelector('.xa-wires'); this.tg=this.scr.querySelector('.xa-top'); this.dot=this.scr.querySelector('.xa-dot');
+      this.story=new Story(this.scr,'xa-block'); this.story.layout();
+    },
+    tick:function(){
+      if(!this.story) return;
+      var S=this.story.state(); if(!S) return;
+      var P=XA_PH, e=S.e, ph=S.ph, u=S.u, W=S.W, H=S.H;
+      this.svg.setAttribute('viewBox','0 0 '+W+' '+H);
+      var place=function(p){ return ph?{cx:W/2,cy:.27*H,k:.36*u}:p.hero?{cx:.66*W,cy:.6*H,k:.62*u}:{cx:.31*W,cy:.5*H,k:.6*u}; };
+      var p0=place(P[S.i]), p1=place(P[S.i+1]);
+      var cx=lerp(p0.cx,p1.cx,e), cy=lerp(p0.cy,p1.cy,e), k=lerp(p0.k,p1.k,e);
+      var sep=mix(P,S,'sep',e,22)*(ph?.62:1);
+      var anyF=lerp(P[S.i].focus!=null?1:0,P[S.i+1].focus!=null?1:0,e);
+      var T=[];
+      for(var i=0;i<4;i++){
+        var w=lerp(P[S.i].focus===i?1:0,P[S.i+1].focus===i?1:0,e);
+        var sc=k*(1+0.1*w), X=cx+w*(ph?0:130*u), Y=cy+(i-1.5)*sep*k-w*(ph?0:10*u);
+        T.push({X:X,Y:Y,s:sc});
+        this.gs[i].setAttribute('transform','translate('+X.toFixed(1)+','+Y.toFixed(1)+') scale('+sc.toFixed(4)+')');
+        this.gs[i].style.opacity=(1-anyF*(1-w)*.74).toFixed(3);
+      }
+      var near=e<.5?P[S.i]:P[S.i+1];
+      this.gs[3].classList.toggle('mat',!!near.mat);
+      // wires: only when the stack is open; quiet while one sheet is pulled out
+      var open=clamp((sep/(ph?.62:1)-22)/150,0,1), self=this;
+      var at=function(pi,part,key){ var p=self.sheets[pi].pts[part][key]; return [T[pi].X+T[pi].s*p[0], T[pi].Y+T[pi].s*p[1]]; };
+      var ws='', ts='';
+      WIRES.forEach(function(wr){
+        var A=at(wr.a[0],wr.a[1],wr.up?'top':'base'), B=at(wr.b[0],wr.b[1],wr.up?'base':'top');
+        ws+='<path class="wire'+(wr.up?' up':'')+'" d="M'+A[0].toFixed(1)+' '+A[1].toFixed(1)+' L'+B[0].toFixed(1)+' '+B[1].toFixed(1)+'"/>';
+        if(!ph && !wr.up) ts+='<text x="'+(A[0]+8*u).toFixed(1)+'" y="'+lerp(A[1],B[1],.45).toFixed(1)+'" font-size="'+(11.5*u)+'" font-weight="500">'+wr.l+'</text>';
+      });
+      this.wg.innerHTML=ws; this.wg.style.opacity=(open*(1-anyF*.7)).toFixed(3);
+      this.tg.innerHTML=ts; this.tg.style.opacity=(open*(1-anyF)).toFixed(3);
+      // the flywheel: a dot runs the loop — logs down, breach down, a new model back up
+      var fw=lerp(P[S.i].fly?1:0,P[S.i+1].fly?1:0,e);
+      if(fw>.02){
+        var loop=[at(0,'S3','base'),at(1,'Drift report','top'),at(1,'GitHub issue','base'),at(2,'Train','top'),at(2,'Deploy','top'),at(0,'Lambda','base'),at(0,'S3','base')];
+        var Ls=[],tot=0; for(var j=1;j<loop.length;j++){ var d=Math.hypot(loop[j][0]-loop[j-1][0],loop[j][1]-loop[j-1][1]); Ls.push(d); tot+=d; }
+        var fi=XA_PH.findIndex(function(p){ return p.fly; });
+        var q=reduce?.5:clamp((S.st-S.an[fi]+.45*H)/(0.9*H),0,1)*tot, pos=loop[0];
+        for(var j2=0;j2<Ls.length;j2++){ if(q<=Ls[j2]){ var t=q/Ls[j2]; pos=[lerp(loop[j2][0],loop[j2+1][0],t),lerp(loop[j2][1],loop[j2+1][1],t)]; break; } q-=Ls[j2]; }
+        this.dot.setAttribute('cx',pos[0].toFixed(1)); this.dot.setAttribute('cy',pos[1].toFixed(1));
+        this.wg.insertAdjacentHTML('beforeend','<path class="wire up" stroke-dasharray="3 5" d="M'+loop.map(function(p){ return p[0].toFixed(1)+' '+p[1].toFixed(1); }).join(' L')+'"/>');
+        this.wg.style.opacity=Math.max(+this.wg.style.opacity,fw).toFixed(3);
+      }
+      this.dot.setAttribute('opacity',fw.toFixed(3));
+    }
+  };
+
+  /* ================================================================== B
+     The assembly drawing: ink only, balloons, a parts list, lifetimes as dimensions. */
+  var XB_TOOLS={'Browser':['canvas','grades: a yes, or a no'],'Lambda':['FastAPI + ONNX','scales to zero'],'S3':['Amazon S3','logs and labeled drawings'],
+    'Drift report':['Evidently','every Monday'],'Evidence hub':['JSON contracts','the site reads these'],'GitHub issue':['GitHub','opened on a drift breach'],
+    'Train':['PyTorch · DVC','training split only'],'Registry':['MLflow','champion and challenger'],'Quality gate':['—','floor 0.85, no regression beyond ε'],
+    'Deploy':['Docker · GitHub Actions','by image digest'],'EKS + VPC':['Terraform','apply → destroy'],'API by digest':['Helm','the same image'],'Load':['k6 · Prometheus','≈ 30 min a month']};
+  var XB_LIFE=['ALWAYS ON · ~$0','EVERY MONDAY','EVERY MERGE','≈ 30 MIN / MONTH'];
+  var XB={
+    scr:document.getElementById('sB'),
+    build:function(){
+      var ph=phone(), bs=ph?1.9:1.15, VW=ph?900:1500, cx=ph?470:780, top=ph?300:290, sep=ph?330:300, VH=top+3*sep+(ph?300:260);
+      var svg='<svg class="xs xb" viewBox="0 0 '+VW+' '+VH+'" aria-hidden="true"><defs><pattern id="xbH" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="5" stroke="#0a0a0a" stroke-width=".7"/></pattern></defs>';
+      // zone marks along the frame, as on a real sheet
+      for(var z=0;z<4;z++){ svg+='<text x="'+(VW*(z+.5)/4)+'" y="16" font-size="'+(10*bs)+'" text-anchor="middle" fill="#6b6b6b">'+(z+1)+'</text><text x="12" y="'+(VH*(z+.5)/4)+'" font-size="'+(10*bs)+'" fill="#6b6b6b">'+'ABCD'[z]+'</text>'; }
+      var n=0, rows=[], G=[], parts=[];
+      // numbering runs top to bottom, but the sheets are drawn bottom first, so each
+      // upper sheet covers the back of the one below it
+      C_PLANES.forEach(function(pl){ pl.parts.forEach(function(pt){ n++; rows.push({n:n,pt:pt,pl:pl}); }); });
+      var numOf=function(name){ return rows.filter(function(r){ return r.pt.n===name; })[0].n; };
+      var sheetsSvg=[];
+      C_PLANES.forEach(function(pl,i){
+        var r=sheet(pl,{ink:true,labels:false,hatch:'xbH',ts:bs}), oy=top+i*sep;
+        G.push({r:r,oy:oy});
+        var g='<g class="xb-g" transform="translate('+cx+','+oy+')">'+r.svg;
+        pl.parts.forEach(function(pt){
+          var nn=numOf(pt.n);
+          var p=r.pts[pt.n].top, right=p[0]>0, bx=p[0]+(right?100:-100), by=p[1]-62;
+          var rr=13*bs, ang=Math.atan2(by-p[1],bx-p[0]);
+          g+='<line class="ln" pathLength="1" x1="'+p[0]+'" y1="'+p[1]+'" x2="'+(bx-rr*Math.cos(ang)).toFixed(1)+'" y2="'+(by-rr*Math.sin(ang)).toFixed(1)+'" stroke="#0a0a0a" stroke-width=".8"/>';
+          g+='<circle class="ln" pathLength="1" cx="'+p[0]+'" cy="'+p[1]+'" r="2.2" fill="#0a0a0a"/>';
+          g+='<circle class="ln" pathLength="1" cx="'+bx+'" cy="'+by+'" r="'+rr+'" fill="#fff" stroke="#0a0a0a" stroke-width="1"/>';
+          g+='<text x="'+bx+'" y="'+(by+4.5*bs)+'" font-size="'+(12.5*bs)+'" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" fill="#96600a">'+nn+'</text>';
+        });
+        // the plane's lifetime, drawn as a dimension along its back-left edge, outside the
+        // stack, where no other sheet reaches
+        var c3=r.c[3], c2=r.c[0], ox=-0.5*56, oy=-0.866*56, A=[c3[0]+ox,c3[1]+oy], B=[c2[0]+ox,c2[1]+oy];
+        g+='<line class="ln" pathLength="1" x1="'+(c3[0]+ox*.2)+'" y1="'+(c3[1]+oy*.2)+'" x2="'+(A[0]+ox*.15)+'" y2="'+(A[1]+oy*.15)+'" stroke="#0a0a0a" stroke-width=".7"/>';
+        g+='<line class="ln" pathLength="1" x1="'+(c2[0]+ox*.2)+'" y1="'+(c2[1]+oy*.2)+'" x2="'+(B[0]+ox*.15)+'" y2="'+(B[1]+oy*.15)+'" stroke="#0a0a0a" stroke-width=".7"/>';
+        g+='<line class="ln" pathLength="1" x1="'+A[0]+'" y1="'+A[1]+'" x2="'+B[0]+'" y2="'+B[1]+'" stroke="'+(pl.ghost?'#96600a':'#0a0a0a')+'" stroke-width="1"/>';
+        [A,B].forEach(function(q){ g+='<line class="ln" pathLength="1" x1="'+(q[0]-6)+'" y1="'+(q[1]+6)+'" x2="'+(q[0]+6)+'" y2="'+(q[1]-6)+'" stroke="#0a0a0a" stroke-width="1.4"/>'; });
+        var mx=(A[0]+B[0])/2, my=(A[1]+B[1])/2, deg=Math.atan2(B[1]-A[1],B[0]-A[0])*180/Math.PI;
+        g+='<text x="'+mx+'" y="'+(my-8)+'" font-size="'+(11*bs)+'" letter-spacing="2" text-anchor="middle" font-weight="500" fill="'+(pl.ghost?'#96600a':'#0a0a0a')+'" transform="rotate('+deg.toFixed(2)+' '+mx+' '+my+')">'+XB_LIFE[i]+'</text>';
+        // the plane's name at its right corner
+        var c1=r.c[1];
+        g+='<text x="'+(c1[0]+(ph?-10:16))+'" y="'+(c1[1]+(ph?-30:-6))+'" font-size="'+(10*bs)+'" letter-spacing="2.2" text-anchor="'+(ph?'end':'start')+'" fill="#6b6b6b" font-family="ui-monospace,Menlo,monospace">PLANE '+(i+1)+'</text>';
+        g+='<text class="nm" x="'+(c1[0]+(ph?-10:16))+'" y="'+(c1[1]+(ph?-8:16))+'" font-size="'+(19*bs)+'" text-anchor="'+(ph?'end':'start')+'">'+pl.name+'</text>';
+        sheetsSvg.push(g+'</g>');
+      });
+      svg+=sheetsSvg.reverse().join('');
+      // wires: straight down between parts at the same spot on two sheets
+      var wg='<g class="xb-g xb-w">';
+      WIRES.forEach(function(wr){
+        var A=G[wr.a[0]], B=G[wr.b[0]];
+        var pa=A.r.pts[wr.a[1]], pb=B.r.pts[wr.b[1]];
+        var from=wr.up?[cx+pa.top[0],A.oy+pa.top[1]]:[cx+pa.base[0],A.oy+pa.base[1]];
+        var to=wr.up?[cx+pb.base[0],B.oy+pb.base[1]]:[cx+pb.top[0],B.oy+pb.top[1]];
+        var col=wr.up?'#96600a':'#0a0a0a';
+        wg+='<line class="ln" pathLength="1" x1="'+from[0]+'" y1="'+from[1]+'" x2="'+to[0]+'" y2="'+to[1]+'" stroke="'+col+'" stroke-width="'+(wr.up?1.5:1)+'"/>';
+        var tip=to, dir=wr.up?1:-1;
+        wg+='<path class="ln" pathLength="1" d="M'+(tip[0]-6)+' '+(tip[1]+dir*10)+' L'+tip[0]+' '+tip[1]+' L'+(tip[0]+6)+' '+(tip[1]+dir*10)+'" fill="none" stroke="'+col+'" stroke-width="1.2"/>';
+        var ly=lerp(from[1],to[1],.42);
+        wg+='<text x="'+(from[0]+10)+'" y="'+ly+'" font-size="'+(10*bs)+'" letter-spacing="1.6" font-weight="500" fill="'+col+'">'+wr.l.toUpperCase()+'</text>';
+      });
+      svg+=wg+'</g></svg>';
+      var notes=[['System overview',[T.ov,T.one]],['The retrain flywheel',[T.fly,T.fly2]],['The quality gate',[T.gate,T.gate2]],['Ephemeral Kubernetes',[T.k8s,T.k8s2]],['Evidence &amp; drift',[T.evi,T.evi2]]];
+      var notesH='<p class="micro t-k">Notes</p><div class="xb-notes">'+notes.map(function(nn,i){
+        return '<div class="xb-note rv"><span class="n">'+(i+1)+'.</span><div><h3 class="t-h">'+nn[0]+'</h3>'+nn[1].map(function(p){ return '<p class="t-p">'+p+'</p>'; }).join('')+'</div></div>';
+      }).join('')+'</div>';
+      var list='<table class="xb-table rv"><tr><th>Item</th><th>Part</th><th class="opt">Plane</th><th>Tool</th><th class="opt">Note</th></tr>'+
+        rows.map(function(r){ var t=XB_TOOLS[r.pt.n]||['','']; return '<tr><td class="n">'+r.n+'</td><td>'+r.pt.n+'</td><td class="opt m">'+r.pl.name+'</td><td>'+t[0]+'</td><td class="opt m">'+t[1]+'</td></tr>'; }).join('')+'</table>';
+      var title='<table class="xb-table xb-title rv"><tr><td colspan="2" class="big"><span>Title</span>QuickDraw MLOps — Architecture</td></tr>'+
+        '<tr><td><span>Drawn</span>M. Kamwal</td><td><span>Date</span>2026-10</td></tr>'+
+        '<tr><td><span>Scale</span>Not to scale</td><td><span>Sheet</span>1 of 1</td></tr>'+
+        '<tr><td colspan="2"><span>Source</span>architecture.json · planes exploded for clarity</td></tr></table>';
+      this.scr.innerHTML='<div class="xb-head"><h1 class="pg-title display rv">Architecture</h1><p class="pg-lead rv">The machine behind the doodle</p></div>'+
+        '<div class="xb-paper"><div class="xb-frame">'+svg+'</div><div class="xb-sub">'+notesH+'<div class="xb-tables">'+list+title+'</div></div></div>'+
+        '<div class="xb-tail"><p class="micro t-k">Every claim is published</p>'+LINKS+'</div>';
+      this.gs=[].slice.call(this.scr.querySelectorAll('.xb-g'));
+    },
+    // each sheet plots itself as it comes up the screen: lines first, then fills and words
+    tick:function(){
+      if(!this.gs) return;
+      var fr=this.scr.getBoundingClientRect(), H=fr.height;
+      this.gs.forEach(function(g){
+        var r=g.getBoundingClientRect(), top=r.top-fr.top;
+        var p=reduce?1:clamp((H*0.98-top)/(H*0.5),0,1);
+        g.style.setProperty('--d',(1-p).toFixed(3));
+        g.style.setProperty('--o',clamp((p-.55)/.45,0,1).toFixed(3));
+      });
+    }
+  };
+
+  /* ================================================================== C
+     The section: one drawing as an SVG <symbol>, shown whole and in five details. */
+  var XC_DET=[
+    {id:'A',c:[590,370],h:'The ground floor',txt:txt('Detail A · ground floor','Serving',[T.serve,T.one])},
+    {id:'B',c:[490,190],h:'Upstairs',txt:txt('Detail B · upstairs','Evidence &amp; drift',[T.evi,T.evi2])},
+    {id:'C',c:[570,650],h:'The gate',txt:txt('Detail C · the basement','The quality gate',[T.gate,T.gate2])},
+    {id:'D',c:[790,430],h:'The lift',txt:txt('Detail D · the lift','The retrain flywheel',[T.fly,T.fly2])},
+    {id:'E',c:[1040,330],h:'The pavilion',txt:txt('Detail E · the yard','Ephemeral Kubernetes',[T.k8s,T.k8s2],'o')}
+  ];
+  var XC={
+    scr:document.getElementById('sC'),
+    section:function(){
+      var s='', G='#e0f7e7';
+      var lab=function(x,y,n,sub,anchor){ return '<text x="'+x+'" y="'+y+'" font-size="13" font-weight="500" text-anchor="'+(anchor||'middle')+'">'+n+'</text>'+(sub?'<text x="'+x+'" y="'+(y+14)+'" font-size="10.5" fill="#6b6b6b" text-anchor="'+(anchor||'middle')+'">'+sub+'</text>':''); };
+      var box=function(x0,x1,y0,y1,dash){ return '<rect x="'+x0+'" y="'+y0+'" width="'+(x1-x0)+'" height="'+(y1-y0)+'" fill="#fff" stroke="#0a0a0a" stroke-width="1"'+(dash?' stroke-dasharray="4 4" fill-opacity=".5"':'')+'/>'; };
+      // earth, then the building and the tunnel cut out of it
+      s+='<rect x="0" y="420" width="1200" height="360" fill="url(#xcE)"/>';
+      s+='<rect x="194" y="434" width="652" height="216" fill="'+G+'"/>';
+      s+='<rect x="846" y="598" width="210" height="34" fill="'+G+'"/>';
+      s+='<rect x="1024" y="420" width="32" height="212" fill="'+G+'"/>';
+      s+='<line x1="0" y1="420" x2="1200" y2="420" stroke="#0a0a0a" stroke-width="1.8"/>';
+      // slabs and walls, cut and hatched
+      [[180,70,680,14],[180,236,680,14],[180,420,680,14],[180,650,680,14]].forEach(function(r){ s+='<rect x="'+r[0]+'" y="'+r[1]+'" width="'+r[2]+'" height="'+r[3]+'" fill="url(#xcH)" stroke="#0a0a0a" stroke-width="1.2"/>'; });
+      [[180,84,152],[180,250,80],[180,434,216],[846,84,152],[846,250,170],[846,434,164],[846,632,18]].forEach(function(r){ s+='<rect x="'+r[0]+'" y="'+r[1]+'" width="14" height="'+r[2]+'" fill="url(#xcH)" stroke="#0a0a0a" stroke-width="1.2"/>'; });
+      // the openings: the lift shaft through the ground slab
+      s+='<rect x="790" y="419" width="40" height="16" fill="'+G+'"/>';
+      // level marks on the left
+      [['+1','Monitoring','EVERY MONDAY',150],['±0','Serving','ALWAYS ON · ~$0',300],['−1','CI/CD','EVERY MERGE',520]].forEach(function(L){
+        s+='<text class="nm" x="24" y="'+L[3]+'" font-size="26">'+L[0]+'</text><text x="24" y="'+(L[3]+22)+'" font-size="14" font-weight="500">'+L[1]+'</text><text x="24" y="'+(L[3]+38)+'" font-size="9" letter-spacing="1.8" fill="#6b6b6b">'+L[2]+'</text>';
+      });
+      // the street door: visitors walk in at ground level
+      s+='<line x1="40" y1="398" x2="172" y2="398" stroke="#0a0a0a" stroke-width="1.2"/><path d="M164 392 172 398 164 404" fill="none" stroke="#0a0a0a" stroke-width="1.2"/>';
+      s+='<text x="40" y="388" font-size="11" fill="#6b6b6b">visitors draw</text>';
+      // +1 Monitoring
+      s+=box(240,340,196,236)+lab(290,172,'GitHub issue','on a drift breach');
+      s+=box(420,520,196,236)+lab(470,172,'Drift report','Evidently');
+      s+=box(600,720,196,236)+lab(660,172,'Evidence hub','JSON contracts');
+      // ±0 Serving
+      s+=box(600,740,340,420)+lab(670,312,'Lambda','FastAPI + ONNX · scales to zero');
+      s+='<path d="M430 352 V412 A40 10 0 0 0 510 412 V352" fill="#fff" stroke="#0a0a0a"/><ellipse cx="470" cy="352" rx="40" ry="10" fill="#fff" stroke="#0a0a0a"/>'+lab(470,322,'S3','logs · labeled drawings');
+      // −1 CI/CD
+      s+=box(240,340,600,650)+lab(290,576,'Train','PyTorch · DVC');
+      s+=box(380,470,600,650)+lab(425,576,'Registry','MLflow');
+      s+=box(510,590,618,650)+lab(550,594,'Quality gate','floor 0.85 · ε');
+      s+=box(640,760,600,650)+lab(700,576,'Deploy','Docker · GitHub Actions');
+      // the reject pit under the gate: a 0.50 model goes down, not up
+      s+='<rect x="575" y="664" width="60" height="44" fill="'+G+'" stroke="#0a0a0a" stroke-dasharray="4 4"/>';
+      s+='<path d="M585 650 C590 668 598 676 605 690" fill="none" stroke="#0a0a0a" stroke-dasharray="3 3"/>';
+      s+='<text x="605" y="728" font-size="11.5" font-weight="500" text-anchor="middle" fill="#96600a">v7 · 0.50 — blocked</text>';
+      // pipes: logs up, the breach down
+      s+='<line x1="470" y1="342" x2="470" y2="238" stroke="#0a0a0a" stroke-width="1.2"/><path d="M464 248 470 238 476 248" fill="none" stroke="#0a0a0a" stroke-width="1.2"/>';
+      s+='<text x="478" y="290" font-size="11" font-weight="500">logs</text>';
+      s+='<line x1="290" y1="238" x2="290" y2="598" stroke="#0a0a0a" stroke-width="1.2" stroke-dasharray="5 4"/><path d="M284 588 290 598 296 588" fill="none" stroke="#0a0a0a" stroke-width="1.2"/>';
+      s+='<text x="298" y="300" font-size="11" font-weight="500">breach → retrain</text>';
+      // the lift: the flywheel, in ochre — a new model rides up to the shop
+      s+='<line x1="790" y1="300" x2="790" y2="650" stroke="#96600a" stroke-width="1.6"/><line x1="830" y1="300" x2="830" y2="650" stroke="#96600a" stroke-width="1.6"/>';
+      s+='<rect x="795" y="470" width="30" height="40" fill="#f8dfc4" stroke="#96600a" stroke-width="1.2"/>';
+      s+='<path d="M802 456 810 444 818 456" fill="none" stroke="#96600a" stroke-width="1.4"/>';
+      s+='<line x1="760" y1="625" x2="790" y2="625" stroke="#96600a" stroke-width="1.4"/>';
+      s+='<line x1="790" y1="380" x2="746" y2="380" stroke="#96600a" stroke-width="1.4"/><path d="M756 374 746 380 756 386" fill="none" stroke="#96600a" stroke-width="1.4"/>';
+      s+='<text x="810" y="288" font-size="11" font-weight="500" fill="#96600a" text-anchor="middle">a new model ships</text>';
+      s+='<text x="0" y="0" font-size="10" letter-spacing="2" font-weight="500" fill="#96600a" transform="translate(782 600) rotate(-90)">THE LIFT · THE FLYWHEEL</text>';
+      // the tunnel to the yard: the same image, to a pavilion that is mostly not there
+      s+='<path d="M760 615 H1040 V430" fill="none" stroke="#0a0a0a" stroke-width="1.2" stroke-dasharray="6 4"/>';
+      s+='<text x="900" y="592" font-size="11" font-weight="500" text-anchor="middle">the same image</text>';
+      // the pavilion, dashed: up ~30 minutes a month
+      s+='<rect x="930" y="250" width="220" height="170" fill="#fbd3dc" fill-opacity=".35" stroke="#0a0a0a" stroke-dasharray="6 5"/>';
+      s+='<path d="M930 250 L1040 200 L1150 250" fill="none" stroke="#0a0a0a" stroke-dasharray="6 5"/>';
+      s+='<path d="M930 420 L1040 250 L1150 420" fill="none" stroke="#0a0a0a" stroke-width=".7" stroke-dasharray="3 5" opacity=".6"/>';
+      s+=box(950,1030,370,420,1)+lab(990,358,'EKS + VPC','Terraform');
+      s+=box(1050,1130,370,420,1)+lab(1090,358,'API by digest','Helm');
+      s+='<text x="1040" y="300" font-size="11" text-anchor="middle" fill="#6b6b6b">k6 load · Prometheus</text>';
+      s+='<text class="nm" x="1040" y="172" font-size="22" text-anchor="middle">Ephemeral K8s</text><text x="1040" y="190" font-size="9.5" letter-spacing="1.8" text-anchor="middle" fill="#96600a">UP ~30 MIN A MONTH</text>';
+      return s;
+    },
+    build:function(){
+      var defs='<svg class="xc-defs" aria-hidden="true"><defs>'+
+        '<pattern id="xcH" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#0a0a0a" stroke-width=".7"/></pattern>'+
+        '<pattern id="xcE" width="14" height="14" patternUnits="userSpaceOnUse"><path d="M2 4h4M9 11h3" stroke="#0a0a0a" stroke-width=".7" opacity=".45"/><circle cx="11" cy="3" r=".9" fill="#0a0a0a" opacity=".4"/></pattern>'+
+        '</defs><symbol id="xcSec" viewBox="0 0 1200 780"><g class="xs">'+this.section()+'</g></symbol></svg>';
+      var circles=XC_DET.map(function(d){
+        return '<circle cx="'+d.c[0]+'" cy="'+d.c[1]+'" r="86" fill="none" stroke="#96600a" stroke-width="1.2" stroke-dasharray="5 5"/>'+
+          '<text x="'+(d.c[0]-64)+'" y="'+(d.c[1]-62)+'" font-size="24" fill="#96600a" style="font-family:\'Bodoni Moda\',serif;font-weight:500">'+d.id+'</text>';
+      }).join('');
+      var main='<div class="xc-main rv"><svg viewBox="0 0 1200 780" aria-hidden="true"><use href="#xcSec" width="1200" height="780"/>'+circles+'</svg></div>'+
+        '<div class="xc-cap"><span>Section A–A · through the platform</span><span>Not to scale</span></div>';
+      var rows=XC_DET.map(function(d,i){
+        var R=165, vb=(d.c[0]-R)+' '+(d.c[1]-R)+' '+(2*R)+' '+(2*R);
+        return '<div class="xc-row'+(i%2?' flip':'')+'"><div class="xc-txt rv">'+d.txt+'</div>'+
+          '<div class="xc-det rv"><div style="border:1px solid #0a0a0a;border-radius:50%;overflow:hidden;background:var(--ground);aspect-ratio:1"><svg viewBox="'+vb+'" style="display:block;width:100%;height:100%" aria-hidden="true"><use href="#xcSec" width="1200" height="780"/></svg></div>'+
+          '<span class="tag"><b>'+d.id+'</b>'+d.h+'</span></div></div>';
+      }).join('');
+      this.scr.innerHTML=defs+'<div class="xc-head"><h1 class="pg-title display rv">Architecture</h1><p class="pg-lead rv">The machine behind the doodle</p><p class="t-p rv" style="margin-top:calc(26*var(--u))">'+T.ov+'</p></div>'+
+        main+'<div class="xc-rows">'+rows+'</div><div class="xc-tail"><p class="micro t-k">Every claim is published</p>'+LINKS+'</div>';
+    },
+    tick:function(){}
+  };
+
+  /* ================================================================== D
+     The ring, exploded. The Home ring is four arcs of one annulus. A tilt parameter t
+     moves the projection from flat (t=0, a circle, as on Home) to isometric (t=1); the
+     arcs then thicken into solid segments that move out along their own bisectors. */
+  var XD_W=[
+    {k:'serve',name:['Serving'],th:225,fill:'#dee5f4',lab:'labServe'},
+    {k:'mon',name:['Monitoring'],th:315,fill:'#d8ecde',lab:'labMon'},
+    {k:'build',name:['Build &amp;','Ephemeral K8s'],th:45,fill:'#f8dfc4',lab:'labBuild',split:true},
+    {k:'deploy',name:['Deploy'],th:135,fill:'#fbd3dc',lab:'labDeploy'}
+  ];
+  var XD_PH=[
+    {k:'head',t:0,d:0,hero:1},
+    {k:'ov',t:1,d:46},
+    {k:'serve',t:1,d:46,focus:'serve'},
+    {k:'mon',t:1,d:46,focus:'mon'},
+    {k:'ci',t:1,d:46,focus:'build',gate:1},
+    {k:'k8s',t:1,d:46,focus:'build',mat:1},
+    {k:'deploy',t:1,d:46,focus:'deploy'},
+    {k:'fly',t:1,d:46,fly:1},
+    {k:'end',t:0,d:0}
+  ];
+  var XD={
+    scr:document.getElementById('sD'),
+    build:function(){
+      this.scr.innerHTML='<div class="xd-stage"><div class="xd-plate"></div><svg aria-hidden="true"><g class="xd-g"></g></svg></div><div class="xd-flow">'+
+        storyBlocks('xd-block',['ov','serve','mon','ci','k8s','deploy','fly','end'])+'</div>';
+      this.svg=this.scr.querySelector('.xd-stage svg'); this.g=this.scr.querySelector('.xd-g');
+      this.story=new Story(this.scr,'xd-block'); this.story.layout();
+    },
+    tick:function(){
+      if(!this.story) return;
+      var S=this.story.state(); if(!S) return;
+      var P=XD_PH, e=S.e, ph=S.ph, u=S.u, W=S.W, H=S.H;
+      this.svg.setAttribute('viewBox','0 0 '+W+' '+H);
+      var place=function(p){ return ph?{cx:W/2,cy:.27*H,k:.42*u}:p.hero?{cx:.66*W,cy:.6*H,k:.86*u}:{cx:.31*W,cy:.5*H,k:.92*u}; };
+      var p0=place(P[S.i]), p1=place(P[S.i+1]);
+      var cx=lerp(p0.cx,p1.cx,e), cy=lerp(p0.cy,p1.cy,e), k=lerp(p0.k,p1.k,e);
+      var t=mix(P,S,'t',e,1), d=mix(P,S,'d',e,0);
+      var a=lerp(Math.SQRT1_2,C30,t), b=lerp(Math.SQRT1_2,.5,t);
+      var R1=lerp(254,112,t), R2=262, TH=16*t;
+      var near=e<.5?P[S.i]:P[S.i+1];
+      var anyF=lerp(P[S.i].focus?1:0,P[S.i+1].focus?1:0,e);
+      var Pt=function(x,y,z){ return [cx+k*(x-y)*a, cy+k*((x+y)*b-z*t)]; };
+      var rad=Math.PI/180, s='', labels='';
+      var order=XD_W.slice().sort(function(A,B){ return (Math.cos(A.th*rad)+Math.sin(A.th*rad))-(Math.cos(B.th*rad)+Math.sin(B.th*rad)); });
+      var segPath=function(th1,th2,ox,oy,z,fill,dash,fo){
+        var N=18, outer=[], inner=[], o='';
+        for(var j=0;j<=N;j++){ var th=(th1+(th2-th1)*j/N)*rad; outer.push([ox+R2*Math.cos(th),oy+R2*Math.sin(th),th]); inner.push([ox+R1*Math.cos(th),oy+R1*Math.sin(th),th]); }
+        var dsh=dash?' stroke-dasharray="5 5"':'';
+        if(TH>.5){
+          // the walls that face the viewer, then the top
+          for(var j2=0;j2<N;j2++){
+            var m=(outer[j2][2]+outer[j2+1][2])/2;
+            if(Math.cos(m)+Math.sin(m)>0) o+='<polygon points="'+[Pt(outer[j2][0],outer[j2][1],z),Pt(outer[j2+1][0],outer[j2+1][1],z),Pt(outer[j2+1][0],outer[j2+1][1],z-TH),Pt(outer[j2][0],outer[j2][1],z-TH)].map(fp).join(' ')+'" fill="'+fill+'" fill-opacity="'+fo+'" stroke="none" style="filter:brightness(.88)"/>';
+            if(Math.cos(m)+Math.sin(m)<0) o+='<polygon points="'+[Pt(inner[j2][0],inner[j2][1],z),Pt(inner[j2+1][0],inner[j2+1][1],z),Pt(inner[j2+1][0],inner[j2+1][1],z-TH),Pt(inner[j2][0],inner[j2][1],z-TH)].map(fp).join(' ')+'" fill="'+fill+'" fill-opacity="'+fo+'" stroke="none" style="filter:brightness(.82)"/>';
+          }
+          [[0,1],[N,-1]].forEach(function(E){
+            var q=E[0], th=outer[q][2], nx=E[1]>0?Math.sin(th):-Math.sin(th), ny=E[1]>0?-Math.cos(th):Math.cos(th);
+            if(nx+ny>0) o+='<polygon points="'+[Pt(inner[q][0],inner[q][1],z),Pt(outer[q][0],outer[q][1],z),Pt(outer[q][0],outer[q][1],z-TH),Pt(inner[q][0],inner[q][1],z-TH)].map(fp).join(' ')+'" fill="'+fill+'" fill-opacity="'+fo+'" stroke="#0a0a0a" stroke-width=".8"'+dsh+' style="filter:brightness(.92)"/>';
+          });
+          // the visible lower outline of the outer wall
+          var lo=outer.filter(function(q){ return Math.cos(q[2])+Math.sin(q[2])>0; });
+          if(lo.length>1) o+='<polyline points="'+lo.map(function(q){ return fp(Pt(q[0],q[1],z-TH)); }).join(' ')+'" fill="none" stroke="#0a0a0a" stroke-width=".9"'+dsh+'/>';
+        }
+        var top=outer.map(function(q){ return Pt(q[0],q[1],z); }).concat(inner.slice().reverse().map(function(q){ return Pt(q[0],q[1],z); }));
+        o+='<polygon points="'+top.map(fp).join(' ')+'" fill="'+fill+'" fill-opacity="'+(t<.05?0:fo)+'" stroke="#0a0a0a" stroke-width="1"'+dsh+'/>';
+        return o;
+      };
+      var self=this;
+      order.forEach(function(w){
+        var wf=lerp(P[S.i].focus===w.k?1:0,P[S.i+1].focus===w.k?1:0,e);
+        var ox=d*Math.cos(w.th*rad), oy=d*Math.sin(w.th*rad), z=70*wf*t;
+        var op=(1-anyF*(1-wf)*.72);
+        var g='<g opacity="'+op.toFixed(3)+'">';
+        if(w.split){
+          var mat=near.mat?1:0;
+          g+=segPath(w.th-41,w.th,ox,oy,z,w.fill,false,1);
+          g+=segPath(w.th,w.th+41,ox,oy,z,mat?w.fill:'#fbd3dc',!mat,mat?1:.35);
+        }else g+=segPath(w.th-41,w.th+41,ox,oy,z,w.fill,false,1);
+        g+='</g>';
+        s+=g;
+        // the label: on the ring when flat (as on Home), above its segment when open
+        var rl=lerp(R2,(R1+R2)/2,t), lz=z+lerp(0,58,t), lp=Pt(ox+rl*Math.cos(w.th*rad),oy+rl*Math.sin(w.th*rad),lz);
+        var fs=(ph?15:24)*u, on=near.focus===w.k;
+        var halo=' style="paint-order:stroke;stroke:#e0f7e7;stroke-width:'+(9*u)+'px;stroke-linejoin:round"';
+        labels+='<g opacity="'+op.toFixed(3)+'">';
+        w.name.forEach(function(nm,li){
+          labels+='<text class="nm" x="'+lp[0].toFixed(1)+'" y="'+(lp[1]+(li-(w.name.length-1))*fs*1.05).toFixed(1)+'" font-size="'+fs+'" text-anchor="middle" fill="'+(on?'#96600a':'#0a0a0a')+'"'+halo+'>'+nm.toUpperCase()+'</text>';
+        });
+        var ms=MARKS[w.lab], sz=(ph?12:17)*u, gap=(ph?6:9)*u, tw=ms.length*sz+(ms.length-1)*gap, x0=lp[0]-tw/2, y0=lp[1]+8*u;
+        labels+='<rect x="'+(x0-6*u)+'" y="'+(y0-3*u)+'" width="'+(tw+12*u)+'" height="'+(sz+6*u)+'" fill="#e0f7e7" opacity="'+(1-t)+'"/>';
+        ms.forEach(function(m,mi){ labels+=m.svg.replace('<svg ','<svg x="'+(x0+mi*(sz+gap)).toFixed(1)+'" y="'+y0.toFixed(1)+'" width="'+sz+'" height="'+sz+'" style="color:'+(m.color||'#0a0a0a')+'" '); });
+        labels+='</g>';
+        if(w.split){
+          var gw=lerp(P[S.i].gate?1:0,P[S.i+1].gate?1:0,e), mw=lerp(P[S.i].mat?1:0,P[S.i+1].mat?1:0,e);
+          var g0=Pt(ox+R2*Math.cos((w.th-22)*rad),oy+R2*Math.sin((w.th-22)*rad),z), g1=Pt(ox+(R2+70)*Math.cos((w.th-22)*rad),oy+(R2+70)*Math.sin((w.th-22)*rad),z);
+          labels+='<g opacity="'+gw.toFixed(3)+'"><line x1="'+g0[0]+'" y1="'+g0[1]+'" x2="'+g1[0]+'" y2="'+g1[1]+'" stroke="#0a0a0a" stroke-dasharray="4 4"/><line x1="'+(g1[0]-9*u)+'" y1="'+(g1[1]+4*u)+'" x2="'+(g1[0]+9*u)+'" y2="'+(g1[1]-4*u)+'" stroke="#0a0a0a" stroke-width="1.8"/>'+
+            '<text x="'+(g1[0]+12*u)+'" y="'+(g1[1]+16*u)+'" font-size="'+(12*u)+'" font-weight="500" fill="#96600a">v7 · 0.50 — blocked</text></g>';
+          var k0=Pt(ox+(R2+40)*Math.cos((w.th+22)*rad),oy+(R2+40)*Math.sin((w.th+22)*rad),z);
+          labels+='<text x="'+k0[0]+'" y="'+(k0[1]+20*u)+'" font-size="'+(12*u)+'" font-weight="500" fill="#96600a" text-anchor="middle" opacity="'+mw.toFixed(3)+'">~30 min a month</text>';
+        }
+      });
+      // the loop's chevrons sit in the gaps between segments, pointing clockwise
+      var fw=lerp(P[S.i].fly?1:0,P[S.i+1].fly?1:0,e), chev='';
+      [270,0,90,180].forEach(function(phi){
+        var r0=(R1+R2)/2, A=Pt(r0*Math.cos((phi-3)*rad),r0*Math.sin((phi-3)*rad),0), B=Pt(r0*Math.cos((phi+3)*rad),r0*Math.sin((phi+3)*rad),0);
+        var ang=Math.atan2(B[1]-A[1],B[0]-A[0])*180/Math.PI, m=[(A[0]+B[0])/2,(A[1]+B[1])/2];
+        chev+='<path d="M-6-6 0 0-6 6" transform="translate('+m[0].toFixed(1)+','+m[1].toFixed(1)+') rotate('+ang.toFixed(1)+')" fill="none" stroke="'+(fw>.5?'#96600a':'#0a0a0a')+'" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>';
+      });
+      if(fw>.02){
+        var fi=XD_PH.findIndex(function(p){ return p.fly; });
+        var q=reduce?.5:clamp((S.st-S.an[fi]+.45*H)/(0.9*H),0,1);
+        var th=(225+360*q)*rad, r0=(R1+R2)/2, dp=Pt(r0*Math.cos(th),r0*Math.sin(th),20*t);
+        chev+='<circle cx="'+dp[0].toFixed(1)+'" cy="'+dp[1].toFixed(1)+'" r="'+(6*u)+'" fill="#96600a" opacity="'+fw.toFixed(3)+'"/>';
+      }
+      this.g.innerHTML=s+chev+labels;
+    }
+  };
+
+  /* ================================================================== E
+     Sheets on the desk: four paper cards, from above. A pile that fans out; each card
+     comes forward for its step; ink threads pinned from card to card. */
+  var XE_PH=[
+    {k:'head',lay:'pile',hero:1},
+    {k:'ov',lay:'fan',threads:1},
+    {k:'serve',lay:'fan',focus:0},
+    {k:'mon',lay:'fan',focus:1},
+    {k:'ci',lay:'fan',focus:2},
+    {k:'k8s',lay:'fan',focus:3},
+    {k:'fly',lay:'fan',threads:1,fly:1},
+    {k:'end',lay:'pile'}
+  ];
+  var XE={
+    scr:document.getElementById('sE'),
+    card:function(pl){
+      // a flat plan of the plane, 300 x 190
+      var s='<svg viewBox="0 0 300 190" aria-hidden="true" class="xs" style="display:block;width:100%;height:100%">';
+      s+='<text class="nm" x="18" y="34" font-size="22">'+pl.name+'</text><text x="18" y="52" font-size="9" letter-spacing="1.8" fill="'+(pl.ghost?'#96600a':'#6b6b6b')+'">'+pl.sub.toUpperCase()+'</text>';
+      s+='<rect x="14" y="64" width="272" height="112" rx="3" fill="'+pl.fill+'" fill-opacity="'+(pl.ghost?.35:.8)+'" stroke="#0a0a0a" stroke-width=".6"'+(pl.ghost?' stroke-dasharray="4 4"':'')+'/>';
+      pl.parts.forEach(function(pt){
+        var x=24+pt.x/560*250, y=72+pt.y/320*96;
+        s+='<rect x="'+(x-34)+'" y="'+(y-12)+'" width="68" height="24" rx="2" fill="#fff" stroke="#0a0a0a" stroke-width=".7"'+(pl.ghost?' stroke-dasharray="3 3"':'')+'/>';
+        s+='<text x="'+x+'" y="'+(y+4)+'" font-size="9.5" font-weight="500" text-anchor="middle">'+pt.n+'</text>';
+      });
+      return s+'</svg>';
+    },
+    build:function(){
+      var self=this;
+      var cards=C_PLANES.map(function(pl,i){
+        return '<div class="xe-card'+(pl.ghost?' ghost':'')+'" data-i="'+i+'">'+self.card(pl)+'</div>';
+      }).join('');
+      this.scr.innerHTML='<div class="xe-stage"><div class="xe-plate"></div>'+cards+'<svg class="xe-threads" aria-hidden="true"></svg></div><div class="xe-flow">'+
+        storyBlocks('xe-block',['ov','serve','mon','ci','k8s','fly','end'])+'</div>';
+      this.cards=[].slice.call(this.scr.querySelectorAll('.xe-card'));
+      this.th=this.scr.querySelector('.xe-threads');
+      this.story=new Story(this.scr,'xe-block'); this.story.layout();
+    },
+    lay:function(name,ph,W,H,hero){
+      if(name==='pile'){
+        var c=ph?[.5*W,.27*H]:hero?[.68*W,.6*H]:[.31*W,.52*H];
+        return [[-6,-8,-3],[4,-2,2],[-2,6,-1],[8,10,3.5]].map(function(o){ return {x:c[0]+o[0],y:c[1]+o[1],r:o[2]}; });
+      }
+      if(ph) return [[.27,.15,-3],[.73,.18,2.2],[.28,.37,1.6],[.73,.39,-2.4]].map(function(o){ return {x:o[0]*W,y:o[1]*H,r:o[2]}; });
+      return [[.18,.31,-3],[.44,.34,2.2],[.19,.69,1.6],[.45,.72,-2.4]].map(function(o){ return {x:o[0]*W,y:o[1]*H,r:o[2]}; });
+    },
+    tick:function(){
+      if(!this.story) return;
+      var S=this.story.state(); if(!S) return;
+      var P=XE_PH, e=S.e, ph=S.ph, u=S.u, W=S.W, H=S.H;
+      var cw=(ph?170:330)*u, chh=cw*190/300;
+      var L0=this.lay(P[S.i].lay,ph,W,H,P[S.i].hero), L1=this.lay(P[S.i+1].lay,ph,W,H,P[S.i+1].hero);
+      var anyF=lerp(P[S.i].focus!=null?1:0,P[S.i+1].focus!=null?1:0,e);
+      var fc=ph?[.5*W,.27*H]:[.31*W,.5*H], fs=ph?1.75:1.4;
+      var T=[];
+      for(var i=0;i<4;i++){
+        var w=lerp(P[S.i].focus===i?1:0,P[S.i+1].focus===i?1:0,e);
+        var x=lerp(L0[i].x,L1[i].x,e), y=lerp(L0[i].y,L1[i].y,e), r=lerp(L0[i].r,L1[i].r,e);
+        x=lerp(x,fc[0],w); y=lerp(y,fc[1],w); r=lerp(r,0,w); var sc=lerp(1,fs,w);
+        T.push({x:x,y:y,r:r,s:sc});
+        var c=this.cards[i];
+        c.style.width=cw+'px'; c.style.height=chh+'px';
+        c.style.transform='translate('+(x-cw/2).toFixed(1)+'px,'+(y-chh/2).toFixed(1)+'px) rotate('+r.toFixed(2)+'deg) scale('+sc.toFixed(3)+')';
+        c.style.zIndex=w>.5?10:(4-i);
+        c.style.opacity=(1-anyF*(1-w)*.65).toFixed(3);
+        c.style.boxShadow='0 '+((14+26*w)*u).toFixed(1)+'px '+((30+40*w)*u).toFixed(1)+'px '+(-18*u).toFixed(1)+'px rgba(10,10,10,'+(.28+.15*w).toFixed(2)+')';
+      }
+      // threads: from a part on one card to a part on another, pinned at both ends
+      var self=this, pinAt=function(ci,part,edge){
+        var pl=C_PLANES[ci], pt=pl.parts.filter(function(q){ return q.n===part; })[0];
+        var lx=(24+pt.x/560*250)/300*cw-cw/2, ly=(72+pt.y/320*96+edge*12)/190*chh-chh/2, t=T[ci], a=t.r*Math.PI/180;
+        return [t.x+t.s*(lx*Math.cos(a)-ly*Math.sin(a)), t.y+t.s*(lx*Math.sin(a)+ly*Math.cos(a))];
+      };
+      var spread=lerp(P[S.i].lay==='fan'?1:0,P[S.i+1].lay==='fan'?1:0,e);
+      var fw=lerp(P[S.i].fly?1:0,P[S.i+1].fly?1:0,e);
+      var s='';
+      WIRES.forEach(function(wr){
+        // pin each end on the edge of its part that faces the other end
+        var up=T[wr.b[0]].y<T[wr.a[0]].y;
+        var A=pinAt(wr.a[0],wr.a[1],up?-1:1), B=pinAt(wr.b[0],wr.b[1],up?1:-1);
+        var mx=(A[0]+B[0])/2, my=(A[1]+B[1])/2+40*u;
+        var col=wr.up||fw>.5?'#96600a':'#0a0a0a';
+        s+='<path d="M'+A[0].toFixed(1)+' '+A[1].toFixed(1)+' Q '+mx.toFixed(1)+' '+my.toFixed(1)+' '+B[0].toFixed(1)+' '+B[1].toFixed(1)+'" fill="none" stroke="'+col+'" stroke-width="'+(wr.up?1.6:1.1)+'"/>';
+        [A,B].forEach(function(p){ s+='<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="'+(3.4*u)+'" fill="'+col+'"/>'; });
+      });
+      this.th.setAttribute('viewBox','0 0 '+W+' '+H);
+      this.th.innerHTML=s;
+      this.th.style.opacity=(spread*(1-anyF)).toFixed(3);
+    }
+  };
+
+  /* ------------------------------------------------------------------ reveals + loop */
+  var screens=[].slice.call(document.querySelectorAll('.screen'));
+  function revealIn(scr){
+    var fr=scr.getBoundingClientRect(), H=fr.height;
+    [].slice.call(scr.querySelectorAll('.rv')).forEach(function(el){
+      var top=el.getBoundingClientRect().top-fr.top;
+      var p=reduce?1:easeOut(clamp((H*0.94-top)/(H*0.22),0,1));
+      el.style.opacity=String(p);
+      var x=el.dataset.x;
+      if(reduce||p>.999){ el.style.transform=''; return; }
+      el.style.transform = x ? 'translate3d('+((1-p)*(x==='r'?24:-24))+'px,0,0)' : 'translate3d(0,'+((1-p)*14)+'px,0)';
+    });
+  }
+  var ALL=[C,XA,XB,XC,XD,XE];
+  function tickAll(){ screens.forEach(revealIn); ALL.forEach(function(v){ v.tick(); }); }
+  var queued=false;
+  function req(){ if(queued) return; queued=true; requestAnimationFrame(function(){ queued=false; tickAll(); }); }
+  screens.forEach(function(s){ s.addEventListener('scroll',req,{passive:true}); });
+  addEventListener('scroll',req,{passive:true});
+  function rebuild(){
+    [].forEach.call(document.querySelectorAll('.f-top,.f-tray'),function(e){ e.remove(); });
+    screens.forEach(function(s){ s.scrollTop=0; });
+    ALL.forEach(function(v){ v.build(); });
+    ['f0','fA','fB','fC','fD','fE'].forEach(chrome);
+    tickAll();
+  }
+  function relayout(){ [XA,XD,XE].forEach(function(v){ v.story.layout(); }); tickAll(); }
+  addEventListener('resize',rebuild);
+  [].slice.call(document.querySelectorAll('.sizer button')).forEach(function(b){
+    b.addEventListener('click',function(){
+      document.body.classList.toggle('phone',b.dataset.size==='phone');
+      [].slice.call(document.querySelectorAll('.sizer button')).forEach(function(o){ o.setAttribute('aria-pressed',String(o===b)); });
+      requestAnimationFrame(rebuild);
+    });
+  });
+  if(/[?&]size=phone/.test(location.search)){ document.body.classList.add('phone');
+    [].slice.call(document.querySelectorAll('.sizer button')).forEach(function(o){ o.setAttribute('aria-pressed',String(o.dataset.size==='phone')); }); }
+  rebuild();
+  addEventListener('load',relayout);
+  if(document.fonts) document.fonts.ready.then(relayout);
+})();
+</script>
+</body>
+</html>
