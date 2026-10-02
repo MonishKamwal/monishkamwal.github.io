@@ -522,7 +522,11 @@ against the built system at implementation.
 - **Mobile:** each chapter's line turns vertical (the Journey path adaptation); cards become
   the reading sheet.
 
-### Skills page (`/skills`)  _(LOCKED 2026-07-17)_
+### Skills page (`/skills`)  _(LOCKED 2026-07-17 · LAYOUT SUPERSEDED 2026-10-02)_
+
+> **Superseded 2026-10-02:** the page is now **"Into the map"**: it opens on the Home §5 map and
+> scrolls into it, one stop per competency and per crossing. The two tiers and the drift arrival
+> below are replaced. The "skills with receipts" rule stays. See the decision log, 2026-10-02.
 
 **Skills with receipts** — the page claims less and proves more. Dusty-rose wash (tint
 precedent, from Home §5); section indicator reads **"Skills"**. **No proficiency bars,
@@ -1109,6 +1113,47 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 ## Decision log
 
 Newest first. Each entry: what was decided and why.
+
+- **2026-10-02** — **The Skills page becomes "Into the map"** (`sections-prototype.html`).
+  Monish chose variant A from the new sketch sheet `skills-page-sketches.html`. The sheet has four
+  versions and the old page as a control.
+  - **What it is.** The page opens on the Home §5 map, with the same shapes at the same places.
+    The map stays fixed and the text scrolls over it. The page has eleven stops: the overview,
+    five competencies, four crossings, and the toolbox. The scroll position between two stops
+    moves the view from one stop to the next.
+  - **Content.** Each competency has one line and its tools. Each tool has one line about what it
+    did in this project, and one proof link. This keeps the "skills with receipts" rule from
+    Stage 3. Each shared tool (S3, ONNX, k6, GitHub Actions) has its own stop and receipt. The
+    proof links go to pages in both modes. All wording and links are placeholders.
+  - **Supersedes** the Stage 3 Skills layout: the "Proven here" tier, the divider, and the drift
+    arrival. "Also in the toolbox" stays as the last stop. The title sits at the left of the map,
+    as on Home §5, and not in the centred column of the other inner pages.
+  - **The scroll is not taken.** The page uses the normal browser scroll. A mouse, a trackpad,
+    and a touch screen get the same page. A click or a tap on a shape scrolls to its stop.
+  - **Laptop layout.** Each stop puts its target at about 29% from the left. The text column
+    starts at 59%. A map label that reaches the text column fades out. The shapes can stay pale
+    under the text.
+  - **Portrait layout** (`max-width:700px` or `max-aspect-ratio:9/10`). The map holds the top
+    half of the screen, and the text scrolls below it. An opaque area hides text that goes up
+    under the map. The view holds while the visitor reads a block. It moves in the last third
+    of a screen before the next block. The title screen is 92vh tall, so the first move has room.
+  - **The camera drives the text strength.** On the laptop layout, each block is at full strength
+    at its own stop. Do not use the shared `.reveal` here. Its window ends at 60% of the screen
+    height, and the lower receipts of a centred block are below that line. They would never reach
+    full strength. This is the recurring bug from Home.
+  - **Two fades were removed.** A ground-coloured layer over the map, and then a mask on the map,
+    both showed 8-bit vertical stripes over the multiply-blended shapes. Fade the labels on this
+    map, not an area of it.
+  - **The map is a copy of Home §5.** It is the Home §5 wide composition without the way-out
+    shape. A change to the Home §5 shapes is also a change here. The `--w-*` wash tokens are now
+    in `sections-prototype.html` too.
+  - **Checks** (`skillspage.js` in `.browser-tools`). At every stop, the block and every reveal are
+    at opacity 1. At laptop sizes from 1280×720 to 1920×1080, each block fits above the tray.
+    There are no page errors. With reduced motion, the view jumps between stops and all text
+    shows. `dockcheck.js`: the tray still switches all three Story pages. Touch was not tested,
+    because the harness cannot send real touch input.
+  - **Open.** Home §5's "See all skills" goes to `#skills`. A link to one stop, for example
+    `#skills/k6`, is possible but not built.
 
 - **2026-10-01** — **"See all skills →" moves to the bottom right, off "Building the front"**
   (`transition-prototype.html`, wide layout only). Monish asked for the way out to move from
