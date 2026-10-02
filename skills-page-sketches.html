@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sketches — the Skills page</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..700&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ground:#ffe8ee;          /* the Skills page's dusty-rose wash */
+    --ink:#0a0a0a;
+    --muted:#6b6b6b;
+    --hair:#e8e8e8;
+    --warm:#c98a3a;
+    --deep-ochre:#96600a;
+    /* the warm family of the Home §5 washes */
+    --w-rose:#fbd3dc;
+    --w-ochre:#f8dfc4;
+    --w-sage:#d8ecde;
+    --w-blue:#dee5f4;
+    --w-sand:#f1e7d0;
+    --ease-out-expo:cubic-bezier(.16,1,.3,1);
+    --ease-hover:cubic-bezier(.2,.7,.35,1);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;background:var(--ground);color:var(--ink);
+    font-family:"Outfit",system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-weight:330;line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .display{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 96;font-weight:500;
+    line-height:.92;letter-spacing:-.02em;
+  }
+  .micro{text-transform:uppercase;letter-spacing:.22em;font-size:11.5px;font-weight:500;color:var(--muted);}
+  .wrap{max-width:1060px;margin:0 auto;padding:clamp(56px,10vh,110px) clamp(16px,5vw,44px) clamp(60px,10vh,120px);}
+
+  /* ---------- sheet chrome — the same as skills-sketches.html and arch-sketches.html ---------- */
+  .sheet-head{margin-bottom:clamp(40px,7vh,72px);}
+  .sheet-head h1{font-size:clamp(38px,7vw,68px);text-transform:uppercase;margin:10px 0 0;}
+  .sheet-head p{margin:16px 0 0;max-width:62ch;font-size:15.5px;color:var(--muted);}
+  .sheet-head .facts{margin-top:22px;padding-top:16px;border-top:1px solid var(--ink);max-width:62ch;font-size:14px;color:var(--muted);}
+  .sheet-head .facts b{color:var(--ink);font-weight:500;}
+  .sheet-head .facts + .facts{border-top:0;padding-top:0;margin-top:14px;}
+  .sk{padding:clamp(40px,7vh,76px) 0;border-top:1px solid var(--ink);}
+  .sk-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;}
+  .sk-head h2{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
+    font-size:clamp(24px,4vw,38px);line-height:1.02;margin:0;
+  }
+  .sk-key{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--deep-ochre);letter-spacing:.1em;}
+  .sk-note{margin:12px 0 0;max-width:60ch;font-size:15px;color:var(--muted);}
+  .sk-note b{color:var(--ink);font-weight:500;}
+  .sk-cost{margin:10px 0 0;max-width:60ch;font-size:13.5px;color:var(--muted);}
+  .sk-cost b{color:var(--ink);font-weight:500;}
+  .stage{margin-top:clamp(26px,4.5vh,46px);}
+  .hint{margin:10px 0 0;font-size:12.5px;color:var(--muted);text-align:center;}
+
+  /* the laptop / phone switch rides along at the top of the sheet */
+  .sizer{
+    position:sticky;top:12px;z-index:50;display:flex;justify-content:flex-end;
+    margin:-8px 0 0;pointer-events:none;
+  }
+  .sizer-in{
+    pointer-events:auto;display:flex;gap:4px;padding:5px 6px;background:#fff;
+    border:1px solid var(--hair);border-radius:30px;box-shadow:0 8px 24px -16px rgba(10,10,10,.4);
+  }
+  .sizer button{
+    font:inherit;font-size:12.5px;color:var(--muted);background:none;border:0;border-radius:20px;
+    padding:5px 13px;cursor:pointer;
+  }
+  .sizer button[aria-pressed="true"]{color:#fff;background:var(--ink);}
+  .sizer button:focus-visible{outline:2px solid var(--warm);outline-offset:2px;}
+
+  /* ---------- the frame: one real screen, scrollable ----------
+     Each version is a whole page, so the box scrolls on its own. The box is a container,
+     and --u is one real pixel of the screen it stands for: 1/1440 of the box on the laptop
+     size, 1/390 on the phone size. Every size below is written as "N real pixels", so the
+     type is judged at its true size against the screen, not against this sheet. */
+  .frame{
+    position:relative;container-type:size;
+    width:100%;aspect-ratio:1440/900;margin:0 auto;
+    background:var(--ground);overflow:hidden;border:1px solid var(--ink);
+    --u:calc(100cqw / 1440);
+  }
+  body.phone .frame{width:min(390px,100%);aspect-ratio:390/844;--u:calc(100cqw / 390);}
+  .screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;}
+
+  /* the inner-page chrome, copied from sections-prototype.html (Stage 4.6) */
+  .f-top{
+    position:absolute;top:0;left:0;right:0;z-index:30;pointer-events:none;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:calc(18*var(--u)) calc(26*var(--u)) calc(30*var(--u));
+    /* stands in for the real pages' edge blur, so scrolled text does not run under "Home" */
+    background:linear-gradient(180deg,var(--ground) 55%,rgba(255,232,238,0));
+  }
+  .f-home{
+    display:inline-flex;align-items:center;gap:calc(7*var(--u));
+    font-size:calc(12*var(--u));letter-spacing:.14em;text-transform:uppercase;color:var(--ink);
+  }
+  .f-home svg{width:calc(17*var(--u));height:auto;}
+  .f-menu svg{width:calc(26*var(--u));height:auto;display:block;}
+  .f-tray{
+    position:absolute;left:50%;bottom:calc(18*var(--u));transform:translateX(-50%);z-index:30;
+    background:#fff;border:1px solid var(--hair);border-radius:calc(30*var(--u));
+    padding:calc(6*var(--u)) calc(8*var(--u));display:flex;gap:calc(4*var(--u));
+    box-shadow:0 calc(8*var(--u)) calc(24*var(--u)) calc(-16*var(--u)) rgba(10,10,10,.4);
+  }
+  .f-tray span{font-size:calc(12.5*var(--u));color:var(--muted);border-radius:calc(20*var(--u));padding:calc(6*var(--u)) calc(14*var(--u));line-height:1.6;}
+  .f-tray span.on{color:#fff;background:var(--ink);}
+
+  /* the page head every version shares: the inner-page title + lead */
+  .pg{padding:calc(135*var(--u)) calc(270*var(--u)) 0;}
+  body.phone .pg{padding:calc(110*var(--u)) calc(24*var(--u)) 0;}
+  .pg-title{font-size:calc(96*var(--u));text-transform:uppercase;margin:0;}
+  .pg-lead{margin:calc(12*var(--u)) 0 0;font-size:calc(21*var(--u));color:var(--muted);}
+  body.phone .pg-title{font-size:calc(46*var(--u));}
+  body.phone .pg-lead{font-size:calc(16*var(--u));}
+  .pg-end{height:calc(150*var(--u));}
+
+  .link{
+    color:var(--deep-ochre);text-decoration:none;
+    border-bottom:1px solid rgba(150,96,10,.32);
+    transition:color .18s var(--ease-out-expo),border-color .18s var(--ease-out-expo);
+  }
+  @media(hover:hover) and (pointer:fine){ .link:hover{color:var(--warm);border-bottom-color:var(--warm);} }
+
+  /* one receipt: the tool, what it did here, the proof. Every version uses it. */
+  .rc-t{font-size:calc(22*var(--u));font-weight:400;letter-spacing:-.005em;line-height:1.2;}
+  .rc-d{margin:calc(3*var(--u)) 0 calc(5*var(--u));font-size:calc(14.5*var(--u));color:var(--muted);line-height:1.5;}
+  .rc-a{font-size:calc(13.5*var(--u));}
+  .rc-w{color:var(--muted);}
+
+  .rv{opacity:0;}
+
+  /* the Bodoni competency name — sentence case, as Home §5 has it since 2026-10-01 */
+  .cname{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 48;font-weight:500;letter-spacing:-.01em;line-height:1.02;
+  }
+
+  /* ================= 0 — the current page ================= */
+  .z-tier{margin:calc(48*var(--u)) 0 calc(26*var(--u));font-size:calc(11.5*var(--u));}
+  .z-proven{display:flex;flex-direction:column;gap:calc(34*var(--u));}
+  .z-skill{max-width:min(calc(560*var(--u)),82%);}
+  .z-skill.r{margin-left:auto;text-align:right;}
+  .z-name{font-size:calc(34*var(--u));font-weight:350;letter-spacing:-.01em;line-height:1.1;}
+  .z-did{margin:calc(5*var(--u)) 0 calc(6*var(--u));font-size:calc(14*var(--u));color:var(--muted);}
+  .z-ev{font-size:calc(13.5*var(--u));}
+  .z-div{height:1px;background:var(--ink);margin:calc(70*var(--u)) 0;}
+  .z-box{display:flex;flex-wrap:wrap;gap:calc(10*var(--u)) calc(22*var(--u));}
+  .z-box span{font-size:calc(22*var(--u));color:var(--muted);font-weight:300;}
+  body.phone .z-name{font-size:calc(22*var(--u));}
+  body.phone .z-box span{font-size:calc(16*var(--u));}
+  #f0 .pg{padding-bottom:0;}
+  .z-body{padding:0 calc(270*var(--u));}
+  body.phone .z-body{padding:0 calc(24*var(--u));}
+
+  /* ================= A — into the map ================= */
+  .a-stage{position:sticky;top:0;height:100cqh;z-index:0;}
+  .a-map{position:absolute;left:0;top:0;width:100%;height:100%;display:block;}
+  .a-plate{
+    position:absolute;top:0;bottom:0;right:0;width:50%;pointer-events:none;opacity:0;z-index:1;
+    background:linear-gradient(90deg,rgba(255,232,238,0),var(--ground) 30%);
+  }
+  .a-flow{position:relative;margin-top:-100cqh;}
+  .a-block{
+    min-height:100cqh;display:flex;flex-direction:column;justify-content:center;
+    padding:calc(110*var(--u)) calc(90*var(--u)) calc(110*var(--u)) 59%;
+  }
+  .a-block.head{justify-content:flex-start;padding:calc(135*var(--u)) 0 0 calc(86*var(--u));}
+  .a-block.head .pg-title,.a-block.head .pg-lead{position:relative;}
+  .a-k{font-size:calc(11*var(--u));margin:0 0 calc(12*var(--u));}
+  .a-name{font-size:calc(46*var(--u));margin:0;}
+  .a-tool{font-size:calc(44*var(--u));font-weight:350;letter-spacing:-.015em;line-height:1.05;margin:0;}
+  .a-line{margin:calc(10*var(--u)) 0 calc(24*var(--u));font-size:calc(17*var(--u));color:var(--muted);line-height:1.45;max-width:34ch;}
+  .a-rcs{display:flex;flex-direction:column;gap:calc(18*var(--u));}
+  .a-box{display:flex;flex-wrap:wrap;gap:calc(6*var(--u)) calc(18*var(--u));max-width:calc(420*var(--u));}
+  .a-box span{font-size:calc(19*var(--u));color:var(--muted);font-weight:300;}
+  /* the map: the Home §5 composition, the same shapes at the same places */
+  .a-map .blob{mix-blend-mode:multiply;}
+  .a-map .m-name{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 28;font-weight:500;letter-spacing:-.005em;fill:var(--ink);
+    transition:fill .3s var(--ease-hover);
+  }
+  .a-map .m-tool{font-family:"Outfit",sans-serif;font-weight:350;fill:var(--muted);}
+  .a-map .m-shared{
+    font-family:"Outfit",sans-serif;font-weight:500;fill:var(--ink);
+    transform-box:fill-box;transform-origin:center;
+    transition:scale .3s var(--ease-hover),fill .3s var(--ease-hover);
+  }
+  .a-map .m-g{cursor:pointer;}
+  .a-map .m-g text{transition:opacity .3s var(--ease-hover);}
+  .a-map .m-g.on .m-name{fill:var(--deep-ochre);}
+  .a-map .m-shared.on{scale:1.25;fill:var(--deep-ochre);}
+  /* phone: the map holds the top of the screen and the reading runs underneath it */
+  body.phone .a-stage{z-index:2;pointer-events:none;}
+  body.phone .a-map{top:9cqh;height:51cqh;pointer-events:auto;z-index:1;}
+  body.phone .a-plate{
+    left:0;right:0;width:auto;top:0;bottom:auto;height:66cqh;opacity:1;z-index:0;
+    background:linear-gradient(180deg,var(--ground) 0,var(--ground) 60cqh,rgba(255,232,238,0) 66cqh);
+  }
+  body.phone .a-block{min-height:0;justify-content:flex-start;padding:0 calc(24*var(--u)) 30cqh;}
+  body.phone .a-block.head{min-height:64cqh;padding:calc(110*var(--u)) calc(24*var(--u)) 0;position:relative;z-index:3;}
+  body.phone .a-block.end{padding-bottom:40cqh;}
+  body.phone .a-name{font-size:calc(30*var(--u));}
+  body.phone .a-tool{font-size:calc(30*var(--u));}
+  body.phone .a-line{font-size:calc(15*var(--u));margin:calc(8*var(--u)) 0 calc(16*var(--u));}
+  body.phone .a-box span{font-size:calc(16*var(--u));}
+  body.phone .rc-t{font-size:calc(19*var(--u));}
+
+  /* ================= B — the map, unrolled ================= */
+  .b-page{position:relative;}
+  .b-ch{position:relative;padding:calc(40*var(--u)) 0;}
+  .b-blob{position:absolute;top:calc(-300*var(--u));bottom:calc(-300*var(--u));mix-blend-mode:multiply;pointer-events:none;}
+  .b-blob svg{width:100%;height:100%;display:block;}
+  .b-in{position:relative;z-index:1;}
+  .b-ch.L .b-blob{left:-8%;width:84%;}
+  .b-ch.R .b-blob{left:24%;width:84%;}
+  .b-ch.R .b-blob svg{transform:scaleX(-1);}
+  .b-ch.L .b-in{margin-left:9%;width:40%;}
+  .b-ch.R .b-in{margin-left:55%;width:38%;}
+  .b-ch.hub .b-blob{left:-6%;width:112%;}
+  .b-ch.hub .b-in{margin:0 auto;width:66%;display:grid;grid-template-columns:1fr 1fr;gap:0 calc(56*var(--u));}
+  .b-ch.hub .b-in .b-rcs{padding-top:calc(8*var(--u));}
+  .b-name{font-size:calc(58*var(--u));margin:0;}
+  .b-line{margin:calc(12*var(--u)) 0 calc(28*var(--u));font-size:calc(18*var(--u));color:var(--muted);line-height:1.45;max-width:36ch;}
+  .b-rcs{display:flex;flex-direction:column;gap:calc(20*var(--u));}
+  .b-hinge{position:relative;height:calc(300*var(--u));z-index:1;}
+  .b-lens{
+    /* left/top put the centre of the tool NAME on the widest run of the overlap
+       (measured by sklens2.js); the receipt hangs below it */
+    position:absolute;transform:translate(-50%,calc(-15*var(--u)));text-align:center;
+    width:calc(300*var(--u));
+  }
+  .b-lens .b-st{font-size:calc(28*var(--u));font-weight:500;line-height:1.1;}
+  .b-lens .b-sk{font-size:calc(10.5*var(--u));margin:calc(6*var(--u)) 0 calc(6*var(--u));color:var(--deep-ochre);}
+  .b-lens .rc-d{margin:0 0 calc(4*var(--u));}
+  .b-fork{display:grid;grid-template-columns:1fr 1fr;position:relative;}
+  .b-fork .b-ch .b-in{margin-left:18%;width:70%;}
+  .b-fork .b-ch.L .b-blob{left:-16%;width:112%;}
+  .b-fork .b-ch.R .b-blob{left:4%;width:112%;}
+  .b-fork .b-ch.R .b-in{margin-left:14%;}
+  .b-tail{position:relative;z-index:1;padding:calc(330*var(--u)) calc(270*var(--u)) 0;}
+  .b-box{display:flex;flex-wrap:wrap;gap:calc(8*var(--u)) calc(22*var(--u));margin-top:calc(16*var(--u));}
+  .b-box span{font-size:calc(22*var(--u));color:var(--muted);font-weight:300;}
+  .tail-k{font-size:calc(11.5*var(--u));}
+  body.phone .b-ch.L .b-blob{left:-40%;width:120%;}
+  body.phone .b-ch.R .b-blob{left:20%;width:120%;}
+  body.phone .b-ch.hub .b-blob{left:-20%;width:140%;}
+  body.phone .b-ch .b-in,body.phone .b-ch.L .b-in,body.phone .b-ch.R .b-in{margin:0 calc(24*var(--u));width:auto;}
+  body.phone .b-ch.hub .b-in{display:block;}
+  body.phone .b-name{font-size:calc(34*var(--u));}
+  body.phone .b-line{font-size:calc(15*var(--u));margin:calc(8*var(--u)) 0 calc(18*var(--u));}
+  body.phone .rc-t{font-size:calc(19*var(--u));}
+  body.phone .b-lens{width:calc(170*var(--u));transform:translate(-50%,calc(-11*var(--u)));}
+  body.phone .b-lens .b-st{font-size:calc(20*var(--u));}
+  body.phone .b-fork{display:block;}
+  body.phone .b-fork .b-ch.L .b-blob{left:-40%;width:120%;bottom:0;}
+  body.phone .b-fork .b-ch.R .b-blob{left:20%;width:120%;top:calc(60*var(--u));}
+  body.phone .b-fork .b-ch.R{margin-top:calc(140*var(--u));}
+  body.phone .b-tail{padding:calc(330*var(--u)) calc(24*var(--u)) 0;}
+  body.phone .b-box span{font-size:calc(16*var(--u));}
+
+  /* ================= C — the receipts ================= */
+  .c-desk{position:relative;margin:calc(10*var(--u)) calc(40*var(--u)) 0;aspect-ratio:505/817;}
+  .c-desk svg{position:absolute;inset:0;width:100%;height:100%;display:block;}
+  .c-desk .blob{mix-blend-mode:multiply;}
+  .c-desk .d-name{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 48;font-weight:500;letter-spacing:-.01em;fill:var(--ink);
+  }
+  .card{
+    position:absolute;width:calc(222*var(--u));
+    background:#fff;border:1px solid var(--hair);border-radius:calc(4*var(--u));
+    padding:calc(13*var(--u)) calc(16*var(--u)) calc(12*var(--u));
+    box-shadow:0 calc(18*var(--u)) calc(34*var(--u)) calc(-24*var(--u)) rgba(10,10,10,.35),0 calc(2*var(--u)) calc(6*var(--u)) calc(-3*var(--u)) rgba(10,10,10,.12);
+    transform:translate(-50%,-50%) rotate(var(--r,0deg));
+    transition:transform .35s var(--ease-out-expo),box-shadow .35s var(--ease-out-expo);
+  }
+  .card .c-no{display:flex;justify-content:space-between;font-size:calc(9.5*var(--u));letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:calc(6*var(--u));}
+  .card .rc-t{font-size:calc(19*var(--u));}
+  .card .rc-d{font-size:calc(12.5*var(--u));margin:calc(3*var(--u)) 0 calc(9*var(--u));}
+  .card .c-tear{border-top:1px dashed #cfcfcf;padding-top:calc(7*var(--u));}
+  .card .rc-a{font-size:calc(12*var(--u));}
+  .card.shared{border-top:calc(3*var(--u)) solid var(--ink);}
+  .card.shared .c-no{color:var(--deep-ochre);}
+  @media(hover:hover) and (pointer:fine){
+    .card:hover{
+      z-index:5;transform:translate(-50%,-54%) rotate(0deg) scale(1.04);
+      box-shadow:0 calc(26*var(--u)) calc(44*var(--u)) calc(-24*var(--u)) rgba(10,10,10,.42),0 calc(2*var(--u)) calc(6*var(--u)) calc(-3*var(--u)) rgba(10,10,10,.12);
+    }
+  }
+  .c-stack{display:none;}
+  .c-tail{padding:calc(60*var(--u)) calc(270*var(--u)) 0;}
+  body.phone .c-desk{display:none;}
+  body.phone .c-stack{display:block;}
+  body.phone .c-tail{padding:calc(60*var(--u)) calc(24*var(--u)) 0;}
+  .c-cl{position:relative;padding:calc(30*var(--u)) calc(24*var(--u)) calc(10*var(--u));}
+  .c-cl .b-blob{top:calc(-40*var(--u));bottom:calc(-40*var(--u));left:-30%;width:150%;}
+  .c-cl .cname{font-size:calc(30*var(--u));margin:0 0 calc(16*var(--u));position:relative;}
+  .c-cl .card,.c-hinge .card{position:relative;transform:rotate(var(--r,0deg));width:86%;}
+  .c-cl .card + .card{margin-top:calc(14*var(--u));}
+  .c-cl .card:nth-of-type(even){margin-left:14%;}
+  .c-hinge{position:relative;z-index:1;display:flex;justify-content:center;gap:calc(10*var(--u));padding:calc(26*var(--u)) calc(16*var(--u));}
+  .c-hinge .card{width:calc(200*var(--u));}
+
+  /* ================= D — oversized, drifting ================= */
+  .d-ch{position:relative;padding:calc(30*var(--u)) 0 calc(80*var(--u));}
+  .d-wordrow{position:relative;height:calc(230*var(--u));margin-bottom:calc(10*var(--u));}
+  .d-band{position:absolute;left:0;right:0;top:calc(80*var(--u));height:calc(120*var(--u));mix-blend-mode:multiply;}
+  .d-word{
+    position:absolute;left:0;top:0;white-space:nowrap;will-change:transform;
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 96;font-weight:400;font-style:italic;
+    font-size:calc(210*var(--u));line-height:1;letter-spacing:-.03em;
+  }
+  .d-ledger{margin:0 calc(270*var(--u));}
+  .d-line{font-size:calc(18*var(--u));color:var(--muted);margin:0 0 calc(18*var(--u));}
+  .d-row{
+    display:grid;grid-template-columns:calc(190*var(--u)) 1fr calc(250*var(--u));gap:calc(24*var(--u));
+    align-items:baseline;padding:calc(13*var(--u)) 0;border-top:1px solid rgba(10,10,10,.85);
+  }
+  .d-row:last-child{border-bottom:1px solid rgba(10,10,10,.85);}
+  .d-row .rc-t{font-size:calc(20*var(--u));}
+  .d-row .rc-d{margin:0;}
+  .d-row .rc-a{text-align:right;justify-self:end;}
+  .d-sh{display:block;font-size:calc(10*var(--u));letter-spacing:.18em;text-transform:uppercase;color:var(--deep-ochre);font-weight:500;margin-top:calc(2*var(--u));}
+  .d-tail{padding:calc(20*var(--u)) calc(270*var(--u)) 0;}
+  body.phone .d-wordrow{height:calc(104*var(--u));}
+  body.phone .d-band{top:calc(36*var(--u));height:calc(54*var(--u));}
+  body.phone .d-word{font-size:calc(96*var(--u));}
+  body.phone .d-ledger,body.phone .d-tail{margin:0;padding-left:calc(24*var(--u));padding-right:calc(24*var(--u));}
+  body.phone .d-row{grid-template-columns:1fr;gap:calc(2*var(--u));}
+  body.phone .d-row .rc-a{justify-self:start;text-align:left;}
+  body.phone .d-line{font-size:calc(15*var(--u));}
+
+  @media (prefers-reduced-motion:reduce){
+    .rv{opacity:1!important;transform:none!important;}
+    .card,.a-map *{transition:none!important;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="sheet-head">
+    <span class="micro">Sketches · the Skills page</span>
+    <h1 class="display">Four ways to open the map</h1>
+    <p>Home §5 now shows five competencies as overlapping washes, and its "See all skills" shape
+      leads to this page. The Skills page in <code>sections-prototype.html</code> is still the July
+      version: a list of tool names, each with one line and one link. It does not look like the
+      place that the visitor just left. These are four new versions of the full page. Each one is
+      a working page in a screen-shaped box. Scroll inside the box. Panel 0 is the current page,
+      kept as the control.</p>
+    <div class="facts">
+      <b>Decision, 2026-10-02: A was chosen.</b> It is built into the Skills page in
+      <code>sections-prototype.html</code>. This sheet stays as the record of the options.
+    </div>
+    <div class="facts">
+      <b>What every version keeps.</b> The July rule "skills with receipts": each tool has one
+      line that says what it did in this project, and one link to the proof. There are no bars,
+      levels, or ratings. The proof links go to both modes: Architecture and Journey, and also
+      Quality, Monitoring, and Performance. The tools, lines, and links are placeholders. The
+      structure is what is under review.
+    </div>
+    <div class="facts">
+      <b>What every version adds.</b> The Home §5 content: five competencies, the tools inside
+      each one, and the four shared tools (S3, ONNX, k6, GitHub Actions). A shared tool gets its
+      own receipt, because it is the only tool that does work for two competencies.
+    </div>
+    <div class="facts">
+      <b>Mouse, trackpad, touch.</b> All four versions move only with the normal scroll. No
+      version takes control of the scroll, so all three input types get the same page. Use the
+      switch to see each version at phone size. The harness cannot send real touch input, so
+      the phone size here shows the layout, not the feel of a finger.
+    </div>
+  </div>
+
+  <div class="sizer"><div class="sizer-in" role="group" aria-label="Screen size">
+    <button type="button" data-size="laptop" aria-pressed="true">Laptop 1440 × 900</button>
+    <button type="button" data-size="phone" aria-pressed="false">Phone 390 × 844</button>
+  </div></div>
+
+<!-- ============================================================ 0 -->
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">0</span><h2>The current page</h2></div>
+    <p class="sk-note">The control, taken from <code>sections-prototype.html</code>. Nine tools on
+      alternate sides, then a divider, then the long tail of tool names.</p>
+    <div class="stage"><div class="frame" id="f0"><div class="screen" id="s0"></div></div></div>
+    <p class="hint">Scroll inside the box.</p>
+    <p class="sk-cost"><b>Costs:</b> this is the "list with a line next to it" that the Home
+      section was rebuilt to get away from. It does not use the competencies or the shared tools,
+      so a visitor who arrives from the washes finds a different page.</p>
+  </section>
+
+<!-- ============================================================ A -->
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">A</span><h2>Into the map</h2></div>
+    <p class="sk-note">The page opens on the Home §5 map, with the same shapes at the same places.
+      The visitor then goes <b>into</b> it. The map holds still while the text scrolls, and each
+      scroll step moves the view to the next stop: a competency, then the crossing to the next
+      one, then that competency. The crossings are stops too, so S3, ONNX, k6 and GitHub Actions
+      each get their own receipt. A click or a tap on a shape goes to its stop. At the end, the
+      view moves back out and shows the whole map again.</p>
+    <div class="stage"><div class="frame" id="fA"><div class="screen" id="sA"></div></div></div>
+    <p class="hint">Scroll inside the box, or click a shape.</p>
+    <p class="sk-cost"><b>Costs:</b> this is the most motion on any inner page, and all of it
+      depends on the scroll. Eleven stops is a long walk for a visitor who wants only to find
+      "Terraform". On a phone the map takes the top half of the screen, so the reading area is
+      small. The map must also stay correct on two pages now: a change to Home §5 is a change here.</p>
+  </section>
+
+<!-- ============================================================ B -->
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">B</span><h2>The map, unrolled</h2></div>
+    <p class="sk-note">The same five shapes, laid out down the page as chapters. Each shape goes
+      off the left or right edge. Two shapes that share a tool overlap at the edge between their
+      chapters, and the shared tool sits in that overlap with its receipt. Shipping shares tools
+      with two competencies below it, so the page <b>forks</b> there: Watching and Front sit side
+      by side under it, and they do not touch each other. The page layout is the same graph as
+      the map.</p>
+    <div class="stage"><div class="frame" id="fB"><div class="screen" id="sB"></div></div></div>
+    <p class="hint">Scroll inside the box.</p>
+    <p class="sk-cost"><b>Costs:</b> on a phone the fork cannot stay side by side. Front goes
+      under Watching and loses its contact with Shipping, so GitHub Actions stands in Shipping
+      only. That is a small false statement on the smallest screen. The washes are behind the text
+      on the full page, so the warm colour covers more area than it does on Home.</p>
+  </section>
+
+<!-- ============================================================ C -->
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">C</span><h2>The receipts, on the table</h2></div>
+    <p class="sk-note">The word "receipts" taken at its word. Each tool is a small paper slip,
+      in the card style of the Journey and Architecture pages, put down at a small angle on its
+      competency's shape. A shared tool is a slip with an ink top edge, put across the overlap of
+      its two shapes. The shapes use the portrait arrangement from Home §5, made large, so the
+      table is about three screens deep. With a mouse, a slip straightens and lifts when the
+      pointer is on it.</p>
+    <div class="stage"><div class="frame" id="fC"><div class="screen" id="sC"></div></div></div>
+    <p class="hint">Scroll inside the box. Put the pointer on a slip.</p>
+    <p class="sk-cost"><b>Costs:</b> fifteen slips on five shapes is busy, and each slip is placed
+      by hand, the same permanent cost as the Home washes. On a phone the table cannot stay a
+      table: it becomes a stack of slips, one competency after the next, with the same fork
+      problem as B. The angle of the slips is the most playful thing on the site. It is near the
+      line, so judge it against "never childish".</p>
+  </section>
+
+<!-- ============================================================ D -->
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">D</span><h2>Oversized, drifting</h2></div>
+    <p class="sk-note">Each competency name is set very large in Bodoni italic, wider than the
+      screen, on a band of its wash. When the page scrolls, each name moves slowly to the side,
+      in the opposite direction from the name before it. This is the "drift" from the July spec,
+      on the names instead of the lines. Under each name, a plain ledger: tool, what it did, and
+      the proof. A shared tool is in the ledger of both of its competencies, with an ochre mark.</p>
+    <div class="stage"><div class="frame" id="fD"><div class="screen" id="sD"></div></div></div>
+    <p class="hint">Scroll inside the box.</p>
+    <p class="sk-cost"><b>Costs:</b> it has the weakest link to the Home map. The shapes become
+      straight bands, and the crossings become a mark in a table. The ledger is the easiest of
+      the four to read, and the most like a list. The large names do the work that the shapes do
+      in A, B and C.</p>
+  </section>
+
+  <section class="sk" id="pick">
+    <div class="sk-head"><span class="sk-key">?</span><h2>What I'd pick, and why</h2></div>
+    <p class="sk-note">Now that they are built, <b>A and B are the two to choose between.</b> Both
+      keep the Home map as the structure of the page, and both make the crossings into real
+      places with their own receipt. C and D are each strong in one way and weak in another. C's
+      slips are the most charming thing on the sheet, and also the busiest, and the angle is near
+      the "childish" line. D has the best type on the sheet, but it drops the map, and the map is
+      what Home §5 gave the visitor.</p>
+    <p class="sk-note"><b>My pick is B.</b> A visitor on a skills page looks for a name such as
+      "Terraform" and for its proof. B lets them read with a normal scroll, and the graph is still
+      the layout of the page. A is the better first moment: the visitor lands on the map they just
+      left and goes into it. But A has eleven stops of camera motion, it adds to the arrival line
+      and the edge blur, and its phone reading area is small. If you like A's first screen, B can
+      open on the full Home map and then unroll it. That is a small change, and I can build it.</p>
+    <p class="sk-note">One sentence: <b>B if the page is for reading, A if the page is for
+      remembering.</b></p>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var clamp=function(v,a,b){ return Math.min(b,Math.max(a,v)); };
+  var lerp=function(a,b,t){ return a+(b-a)*t; };
+  var easeOut=function(s){ return s<=0?0:s>=1?1:1-Math.pow(1-s,3); };
+  var smooth=function(s){ s=clamp(s,0,1); return s*s*(3-2*s); };
+  var phone=function(){ return document.body.classList.contains('phone'); };
+
+  /* ------------------------------------------------------------------ content
+     Placeholder wording. The structure is real: five competencies, the tools inside
+     each one, and the four tools that two competencies share (Home §5's crossings). */
+  var P1="M104 10 C158 2 196 46 188 96 C182 138 200 160 172 180 C140 202 88 196 56 178 C22 158 2 122 10 84 C18 44 58 18 104 10 Z";
+  var P2="M92 6 C146 0 178 34 186 80 C194 128 164 178 112 190 C66 200 20 174 10 128 C0 82 22 38 66 16 C74 12 84 8 92 6 Z";
+  var P3="M60 14 C110 -4 176 16 190 64 C204 114 176 164 130 186 C86 206 32 190 14 148 C-2 110 10 56 44 26 C50 20 54 16 60 14 Z";
+
+  var COMP={
+    data:{name:'Keeping data honest',wash:'var(--w-ochre)',path:P2,
+      line:'Nothing reaches a model before it has a version and a check.',
+      tools:[
+        {t:'DVC',did:'Versions the dataset out of Git and into the one S3 bucket.',ev:'“One bucket, three jobs”',where:'Journey'},
+        {t:'Pandera',did:'Checks the data schema before the data can reach training.',ev:'“Pandera at the door”',where:'Journey'}]},
+    train:{name:'Training models',wash:'var(--w-sage)',path:P1,
+      line:'A model has to beat the last one before it can ship.',
+      tools:[
+        {t:'PyTorch',did:'Trains the QuickDraw CNN that guesses your drawing on Home.',ev:'the model',where:'Architecture'},
+        {t:'scikit-learn',did:'Gives the baseline that the CNN must beat.',ev:'the runs table',where:'Quality'},
+        {t:'Python',did:'Every pipeline step, from the data checks to the quality gate.',ev:'the repo',where:'GitHub'}]},
+    ship:{name:'Shipping it',wash:'var(--w-rose)',path:P3,
+      line:'From a trained file to a live address, and back down to zero.',
+      tools:[
+        {t:'Docker',did:'Packs the model and its server into one image.',ev:'the container image',where:'Architecture'},
+        {t:'AWS Lambda',did:'Serves the model, and scales to zero between visitors.',ev:'the serve path',where:'Architecture'},
+        {t:'Terraform',did:'Builds the weekly EKS cluster and tears it down again.',ev:'the dress rehearsal',where:'Architecture'}]},
+    watch:{name:'Watching it run',wash:'var(--w-blue)',path:P1,
+      line:'Proof that the model still works after it ships.',
+      tools:[
+        {t:'MLflow',did:'Records every run. The registry promotes the winner.',ev:'the registry',where:'Architecture'},
+        {t:'Evidently',did:'Compares this week’s predictions with the training data.',ev:'drift this week',where:'Monitoring'},
+        {t:'Grafana',did:'Keeps the load-test dashboards as evidence.',ev:'the last capture',where:'Performance'}]},
+    front:{name:'Building the front',wash:'var(--w-sand)',path:P2,
+      line:'The page you are reading, and the demo on it.',
+      tools:[
+        {t:'Next.js',did:'This site: a static export that calls the live model.',ev:'the repo',where:'GitHub'},
+        {t:'TypeScript',did:'Types the data contracts that the Data pages read.',ev:'the contracts',where:'GitHub'}]}
+  };
+  var SHARED={
+    s3:  {t:'S3',pair:['data','train'],did:'One bucket holds the data, the models, and the evidence.',ev:'“One bucket, three jobs”',where:'Journey'},
+    onnx:{t:'ONNX',pair:['train','ship'],did:'The model leaves PyTorch as ONNX, so a cold start stays short.',ev:'the export step',where:'Architecture'},
+    k6:  {t:'k6',pair:['ship','watch'],did:'Puts load on the live model each month and records the result.',ev:'the last load test',where:'Performance'},
+    gha: {t:'GitHub Actions',pair:['ship','front'],did:'Retrains on each model change, and deploys this site.',ev:'a CI run',where:'GitHub'}
+  };
+  var SHORT={data:'Data',train:'Training',ship:'Shipping',watch:'Watching',front:'Front'};
+  var TOOLBOX=['FastAPI','SQL','Kubernetes','CloudWatch','pandas','NumPy','pytest','Bash','Git','Tailwind'];
+
+  function rc(t,cls){
+    return '<div class="rc '+(cls||'')+'"><div class="rc-t">'+t.t+'</div><p class="rc-d">'+t.did+'</p>'+
+      '<a class="link rc-a" href="#" onclick="return false">'+t.ev+' <span class="rc-w">· '+t.where+'</span>&nbsp;→</a></div>';
+  }
+  function pairLabel(s){ return SHORT[s.pair[0]]+' + '+SHORT[s.pair[1]]; }
+  function head(cls){
+    return '<div class="pg '+(cls||'')+'"><h1 class="pg-title display rv">Skills</h1>'+
+      '<p class="pg-lead rv" data-x="l">What I build with</p></div>';
+  }
+  var CHROME_TOP='<div class="f-top"><span class="f-home"><svg viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M16 6H1M6 1 1 6l5 5" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Home</span></span>'+
+    '<span class="f-menu"><svg viewBox="0 0 26 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 1h24M1 7h24M1 13h24" stroke-linecap="round"/></svg></span></div>';
+  var CHROME_TRAY='<div class="f-tray"><span>Architecture</span><span>Journey</span><span class="on">Skills</span></div>';
+  function box(cls){ return '<div class="'+cls+'">'+TOOLBOX.map(function(t){return '<span>'+t+'</span>';}).join('')+'</div>'; }
+  function blob(k,flip){
+    return '<div class="b-blob"><svg viewBox="0 0 200 200" preserveAspectRatio="none"><path class="blob" fill="'+COMP[k].wash+'" opacity=".5" d="'+COMP[k].path+'"/></svg></div>';
+  }
+
+  /* ------------------------------------------------------------------ 0 */
+  (function(){
+    var rows=[
+      ['PyTorch → ONNX','Trained the QuickDraw CNN and exported it to ONNX for cold-start-friendly serving.','the model, in Architecture →'],
+      ['GitHub Actions','CI retrains on every model-affecting merge and runs the quality gate.','a training run →'],
+      ['MLflow','Tracks every run and artifact; the registry promotes the winner.','the registry stop →'],
+      ['DVC','Versions the dataset out of Git, into the one S3 bucket.','“One bucket, three jobs” →'],
+      ['Pandera','Validates the data schema before it can reach training.','“Pandera at the door” →'],
+      ['AWS Lambda','Serves the model scale-to-zero behind a Function URL.','the serve path →'],
+      ['Terraform','Stands up the weekly EKS cluster and tears it back down.','the dress rehearsal →'],
+      ['k6 + Grafana','Load-tests the deployed model and captures the dashboards as evidence.','a load-test result →'],
+      ['Next.js','This site — static export, client-side calls to the live model.','the repo →']];
+    var h=head()+'<div class="z-body"><p class="micro z-tier rv">Proven here</p><div class="z-proven">'+
+      rows.map(function(r,i){ return '<div class="z-skill rv'+(i%2?' r':'')+'" data-x="'+(i%2?'r':'l')+'"><div class="z-name">'+r[0]+'</div><p class="z-did">'+r[1]+'</p><a class="link z-ev" href="#" onclick="return false">'+r[2]+'</a></div>'; }).join('')+
+      '</div><div class="z-div"></div><p class="micro z-tier rv">Also in the toolbox</p>'+
+      '<div class="z-box rv">'+['Python','TypeScript','FastAPI','Docker','scikit-learn','pandas','NumPy','SQL','Kubernetes','S3','CloudWatch','Evidently','Bash','Git','pytest','Tailwind'].map(function(t){return '<span>'+t+'</span>';}).join('')+
+      '</div></div><div class="pg-end"></div>';
+    document.getElementById('s0').innerHTML=h;
+    document.getElementById('f0').insertAdjacentHTML('beforeend',CHROME_TOP+CHROME_TRAY);
+  })();
+
+  /* ------------------------------------------------------------------ A
+     The map is Home §5's wide composition, unchanged: same paths, same transforms, same
+     label coordinates. The way-out shape is left off — this page IS where it leads. */
+  var MAP=[
+    {k:'train',fill:'var(--w-sage)',tr:'translate(365,175) scale(2.05) rotate(-9 100 100)',d:P1,name:[579,378],tools:[[579,420,'Python · PyTorch'],[579,448,'scikit-learn']]},
+    {k:'data',fill:'var(--w-ochre)',tr:'translate(110,310) scale(1.75) rotate(15 100 100)',d:P2,name:[282,478],tools:[[282,514,'DVC · Pandera']]},
+    {k:'ship',fill:'var(--w-rose)',tr:'translate(625,255) scale(2.05) rotate(-4 100 100)',d:P3,name:[852,455],tools:[[845,497,'Docker · Terraform'],[845,525,'AWS Lambda']]},
+    {k:'watch',fill:'var(--w-blue)',tr:'translate(905,125) scale(1.70) rotate(8 100 100)',d:P1,name:[1081,290],tools:[[1081,328,'MLflow · Grafana · Evidently']]},
+    {k:'front',fill:'var(--w-sand)',tr:'translate(898,470) scale(1.60) rotate(-16 100 100)',d:P2,name:[1054,622],tools:[[1054,654,'Next.js · TypeScript']]}
+  ];
+  var MAP_SHARED={s3:[398,421],onnx:[688,435],k6:[969,368],gha:[961,559]};
+  function mapSvg(){
+    var s='<svg class="a-map" viewBox="-182.5 -102.5 1825 1025" preserveAspectRatio="xMidYMid meet" aria-hidden="true">';
+    MAP.forEach(function(m){
+      s+='<g class="m-g" data-k="'+m.k+'"><path class="blob" fill="'+m.fill+'" transform="'+m.tr+'" d="'+m.d+'"/>'+
+        '<text class="m-name" x="'+m.name[0]+'" y="'+m.name[1]+'" font-size="28" text-anchor="middle">'+COMP[m.k].name+'</text>'+
+        m.tools.map(function(t){ return '<text class="m-tool" x="'+t[0]+'" y="'+t[1]+'" font-size="19" text-anchor="middle">'+t[2]+'</text>'; }).join('')+'</g>';
+    });
+    Object.keys(MAP_SHARED).forEach(function(k){
+      var p=MAP_SHARED[k];
+      s+='<text class="m-shared" data-s="'+k+'" x="'+p[0]+'" y="'+p[1]+'" font-size="18" text-anchor="middle">'+SHARED[k].t+'</text>';
+    });
+    return s+'</svg>';
+  }
+  // the camera's stops, in map units. x/y is what the view centres on; w/h is the area
+  // that must stay in view. Laptop stops put the target at about a third from the left,
+  // so the text column on the right has clear paper.
+  var A_STOPS=[
+    {k:'head', x:730, y:410, w:1825,h:1025,pw:1180,ph:700,px:664,py:262,wide:true},
+    {k:'data', x:282, y:440, w:1150,h:700, lit:['data']},
+    {k:'s3',   x:398, y:418, w:1000,h:620, lit:['data','train'],s:'s3'},
+    {k:'train',x:579, y:372, w:1150,h:700, lit:['train']},
+    {k:'onnx', x:688, y:432, w:1000,h:620, lit:['train','ship'],s:'onnx'},
+    {k:'ship', x:850, y:450, w:1150,h:700, lit:['ship']},
+    {k:'k6',   x:969, y:364, w:1000,h:620, lit:['ship','watch'],s:'k6'},
+    {k:'watch',x:1081,y:282, w:1150,h:700, lit:['watch']},
+    {k:'gha',  x:961, y:555, w:1000,h:620, lit:['ship','front'],s:'gha'},
+    {k:'front',x:1054,y:612, w:1150,h:700, lit:['front']},
+    {k:'end',  x:560, y:457, w:2100,h:900,pw:1180,ph:700,px:664,py:457,rest:.42}
+  ];
+  (function(){
+    var order=['data','s3','train','onnx','ship','k6','watch','gha','front'];
+    var h='<div class="a-stage"><div class="a-plate"></div>'+mapSvg()+'</div><div class="a-flow">'+
+      '<div class="a-block head" data-stop="head"><h1 class="pg-title display rv">Skills</h1><p class="pg-lead rv" data-x="l">What I build with</p></div>';
+    order.forEach(function(k,i){
+      if(COMP[k]){
+        var c=COMP[k], n=['data','train','ship','watch','front'].indexOf(k)+1;
+        h+='<div class="a-block" data-stop="'+k+'"><p class="micro a-k rv">'+n+' of 5</p><h2 class="cname a-name rv">'+c.name+'</h2>'+
+          '<p class="a-line rv">'+c.line+'</p><div class="a-rcs">'+c.tools.map(function(t){return rc(t,'rv');}).join('')+'</div></div>';
+      }else{
+        var s=SHARED[k];
+        h+='<div class="a-block" data-stop="'+k+'"><p class="micro a-k rv" style="color:var(--deep-ochre)">Shared · '+pairLabel(s)+'</p>'+
+          '<h2 class="a-tool rv">'+s.t+'</h2><p class="a-line rv">'+s.did+'</p>'+
+          '<a class="link rc-a rv" href="#" onclick="return false">'+s.ev+' <span class="rc-w">· '+s.where+'</span>&nbsp;→</a></div>';
+      }
+    });
+    h+='<div class="a-block end" data-stop="end"><p class="micro a-k rv">Also in the toolbox</p>'+box('a-box rv')+'</div></div>';
+    document.getElementById('sA').innerHTML=h;
+    document.getElementById('fA').insertAdjacentHTML('beforeend',CHROME_TOP+CHROME_TRAY);
+  })();
+
+  var A={
+    scr:document.getElementById('sA'),
+    svg:null, plate:null, blocks:[], anchors:[], groups:{}, shared:{}, headEl:null,
+    init:function(){
+      this.svg=this.scr.querySelector('.a-map');
+      this.plate=this.scr.querySelector('.a-plate');
+      this.headEl=this.scr.querySelector('.a-block.head');
+      this.blocks=[].slice.call(this.scr.querySelectorAll('.a-block'));
+      var self=this;
+      [].slice.call(this.svg.querySelectorAll('.m-g')).forEach(function(g){
+        self.groups[g.dataset.k]={g:g,blob:g.querySelector('.blob')};
+        // a click or a tap on a shape goes to its stop — the same on every input type
+        g.addEventListener('click',function(){
+          var i=A_STOPS.findIndex(function(s){return s.k===g.dataset.k;});
+          self.scr.scrollTo({top:self.anchors[i],behavior:reduce?'auto':'smooth'});
+        });
+      });
+      [].slice.call(this.svg.querySelectorAll('.m-shared')).forEach(function(t){ self.shared[t.dataset.s]=t; });
+      this.layout();
+    },
+    layout:function(){
+      var H=this.scr.clientHeight, max=this.scr.scrollHeight-H, ph=phone(), prev=0;
+      this.anchors=this.blocks.map(function(b,i){
+        if(i===0) return 0;
+        var a= ph ? b.offsetTop-0.62*H : b.offsetTop+b.offsetHeight/2-H/2;
+        a=clamp(a,prev+1,max); prev=a; return a;
+      });
+    },
+    cam:function(s){
+      // turn a stop into a viewBox [cx, cy, W] for the map's current shape on screen
+      var ph=phone(), r=this.svg.getBoundingClientRect(), AR=r.width/Math.max(1,r.height);
+      var x=s.x,y=s.y,w=s.w,h=s.h;
+      if(ph && s.pw){ x=s.px; y=s.py; w=s.pw; h=s.ph; }
+      else if(ph){ w=s.w*0.62; h=s.h*0.62; }
+      var W=Math.max(w,h*AR);
+      var cx=x;
+      if(!ph && !s.wide) cx=x+W*0.21;   // target at ~29% from the left
+      return [cx,y,W,AR];
+    },
+    tick:function(){
+      if(!this.svg) return;
+      var st=this.scr.scrollTop, an=this.anchors, i=0;
+      while(i<an.length-2 && st>=an[i+1]) i++;
+      var f=an[i+1]>an[i] ? clamp((st-an[i])/(an[i+1]-an[i]),0,1) : 0;
+      var e=reduce ? (f<.5?0:1) : smooth((f-.12)/.76);
+      var a=this.cam(A_STOPS[i]), b=this.cam(A_STOPS[i+1]);
+      var W=Math.exp(lerp(Math.log(a[2]),Math.log(b[2]),e));
+      var cx=lerp(a[0],b[0],e), cy=lerp(a[1],b[1],e), Hh=W/a[3];
+      this.svg.setAttribute('viewBox',(cx-W/2).toFixed(1)+' '+(cy-Hh/2).toFixed(1)+' '+W.toFixed(1)+' '+Hh.toFixed(1));
+      // shapes: lit ones at full colour, the rest quieter than Home's resting .42
+      var S0=A_STOPS[i], S1=A_STOPS[i+1], self=this;
+      Object.keys(this.groups).forEach(function(k){
+        var v0=(S0.lit||[]).indexOf(k)>=0?1:(S0.rest||(S0.lit?.26:.42));
+        var v1=(S1.lit||[]).indexOf(k)>=0?1:(S1.rest||(S1.lit?.26:.42));
+        var v=lerp(v0,v1,e);
+        self.groups[k].blob.style.opacity=v.toFixed(3);
+        // an unlit shape's words go quiet with it, so only the stop's own labels read
+        var tv=clamp((v-.26)/(.42-.26),0,1)*.75+.25; if(v>.42) tv=1;
+        [].forEach.call(self.groups[k].g.querySelectorAll('text'),function(t){ t.style.opacity=tv.toFixed(3); });
+        var near=e<.5?S0:S1;
+        self.groups[k].g.classList.toggle('on',(near.lit||[]).length===1 && near.lit[0]===k);
+      });
+      var nearS=(e<.5?S0:S1).s;
+      Object.keys(this.shared).forEach(function(k){ self.shared[k].classList.toggle('on',k===nearS); });
+      // the laptop plate: off on the overview, on at every stop
+      if(!phone()){
+        var p0=S0.lit?1:0, p1=S1.lit?1:0;
+        this.plate.style.opacity=lerp(p0,p1,e).toFixed(3);
+        this.headEl.style.opacity='';
+      }else{
+        this.plate.style.opacity='';
+        this.headEl.style.opacity=String(clamp(1-st/(this.scr.clientHeight*0.28),0,1));
+      }
+    }
+  };
+
+  /* ------------------------------------------------------------------ B
+     Chapters down the page. A blob reaches 300px past its chapter, into the hinge row
+     between it and the next chapter, so two neighbours overlap in that row — and the
+     shared tool is placed inside the overlap. Clear pairs are kept clear by the order:
+     a chapter between two shapes keeps them apart; Watching and Front sit in two
+     columns with a gap between their shapes. */
+  (function(){
+    function ch(k,side){
+      var c=COMP[k];
+      var inner = side==='hub'
+        ? '<div><h2 class="cname b-name rv">'+c.name+'</h2><p class="b-line rv">'+c.line+'</p></div><div class="b-rcs">'+c.tools.map(function(t){return rc(t,'rv');}).join('')+'</div>'
+        : '<h2 class="cname b-name rv" data-x="'+(side==='R'?'r':'l')+'">'+c.name+'</h2><p class="b-line rv" data-x="'+(side==='R'?'r':'l')+'">'+c.line+'</p><div class="b-rcs">'+c.tools.map(function(t){return rc(t,'rv');}).join('')+'</div>';
+      return '<section class="b-ch '+side+'" data-k="'+k+'">'+blob(k)+'<div class="b-in">'+inner+'</div></section>';
+    }
+    // [left%, top%] of the widest run inside both shapes, laptop then phone — measured with
+    // sklens2.js, not reasoned. A curved crossing's centroid can fall outside it, so not that.
+    function lens(k,l,t,pl,pt){
+      var s=SHARED[k];
+      return '<div class="b-lens rv" data-s="'+k+'" style="left:'+l+'%;top:'+t+'%" data-l="'+l+'" data-t="'+t+'" data-pl="'+pl+'" data-pt="'+pt+'"><div class="b-st">'+s.t+'</div>'+
+        '<p class="micro b-sk">Shared · '+pairLabel(s)+'</p><p class="rc-d">'+s.did+'</p>'+
+        '<a class="link rc-a" href="#" onclick="return false">'+s.ev+' <span class="rc-w">· '+s.where+'</span>&nbsp;→</a></div>';
+    }
+    var h=head()+'<div class="b-page" style="margin-top:calc(330*var(--u))">'+
+      ch('data','L')+'<div class="b-hinge">'+lens('s3',49.8,40.6,47.7,45.6)+'</div>'+
+      ch('train','R')+'<div class="b-hinge">'+lens('onnx',59.8,49.5,66.8,58.6)+'</div>'+
+      // on the phone, GitHub Actions has no overlap to sit in — the cost named in the notes
+      ch('ship','hub')+'<div class="b-hinge">'+lens('k6',23.1,45,32,45.6)+lens('gha',78,27.2,74,47)+'</div>'+
+      '<div class="b-fork">'+ch('watch','L')+ch('front','R')+'</div>'+
+      '<div class="b-tail"><p class="micro tail-k rv">Also in the toolbox</p>'+box('b-box rv')+'</div></div><div class="pg-end"></div>';
+    document.getElementById('sB').innerHTML=h;
+    document.getElementById('fB').insertAdjacentHTML('beforeend',CHROME_TOP+CHROME_TRAY);
+  })();
+  function bPlace(){
+    [].slice.call(document.querySelectorAll('#sB .b-lens')).forEach(function(l){
+      var ph=phone();
+      l.style.left=(ph?l.dataset.pl:l.dataset.l)+'%';
+      l.style.top=(ph?l.dataset.pt:l.dataset.t)+'%';
+    });
+  }
+
+  /* ------------------------------------------------------------------ C
+     The portrait arrangement from Home §5 (viewBox 20 27 505 817), made large. Every
+     slip has a hand-placed centre and angle in map units. */
+  var C_MAP=[
+    {k:'data', tr:'translate(68,78) scale(1.00) rotate(15 100 100)',  name:[166,116]},
+    {k:'train',tr:'translate(152,186) scale(1.28) rotate(-9 100 100)', name:[332,228]},
+    {k:'ship', tr:'translate(55,380) scale(1.30) rotate(-4 100 100)',  name:[128,452]},
+    {k:'front',tr:'translate(272,424) scale(0.86) rotate(-16 100 100)',name:[392,458]},
+    {k:'watch',tr:'translate(140,580) scale(1.00) rotate(8 100 100)',  name:[304,678]}
+  ];
+  // [competency, tool index, x, y, angle] — a slip is about 82 x 62 map units
+  var C_SLIPS=[
+    ['data',0,118,195,-3],['data',1,222,163,2.5],
+    ['train',0,345,290,2],['train',1,262,335,-2.5],['train',2,350,377,1.5],
+    ['ship',0,100,500,-2],['ship',1,190,548,2.2],['ship',2,100,602,-1.2],
+    ['front',0,400,530,2],['front',1,395,600,-2.2],
+    ['watch',0,190,726,-2],['watch',1,296,721,2],['watch',2,245,792,-1]
+  ];
+  var C_SHARED={s3:[214,250,-1.5],onnx:[239,416,2],k6:[213,617,1.5],gha:[292,517,-2.5]};
+  (function(){
+    var n=0;
+    function slip(t,sub,shared){
+      n++;
+      return '<div class="c-no"><span>No. '+String(n).padStart(2,'0')+'</span><span>'+sub+'</span></div>'+
+        '<div class="rc-t">'+t.t+'</div><p class="rc-d">'+t.did+'</p>'+
+        '<div class="c-tear"><a class="link rc-a" href="#" onclick="return false">'+t.ev+' <span class="rc-w">· '+t.where+'</span>&nbsp;→</a></div>';
+    }
+    var pos=function(x,y){ return 'left:'+((x-20)/505*100).toFixed(2)+'%;top:'+((y-27)/817*100).toFixed(2)+'%;'; };
+    var svg='<svg viewBox="20 27 505 817" aria-hidden="true">'+C_MAP.map(function(m){
+      return '<path class="blob" fill="'+COMP[m.k].wash+'" transform="'+m.tr+'" d="'+COMP[m.k].path+'"/>';
+    }).join('')+C_MAP.map(function(m){
+      return '<text class="d-name" x="'+m.name[0]+'" y="'+m.name[1]+'" font-size="'+(m.k==='front'?15:19)+'" text-anchor="middle">'+COMP[m.k].name+'</text>';
+    }).join('')+'</svg>';
+    var desk='<div class="c-desk">'+svg;
+    C_SLIPS.forEach(function(s){
+      var t=COMP[s[0]].tools[s[1]];
+      desk+='<div class="card" style="'+pos(s[2],s[3])+'--r:'+s[4]+'deg">'+slip(t,SHORT[s[0]])+'</div>';
+    });
+    Object.keys(C_SHARED).forEach(function(k){
+      var p=C_SHARED[k];
+      desk+='<div class="card shared" style="'+pos(p[0],p[1])+'--r:'+p[2]+'deg">'+slip(SHARED[k],pairLabel(SHARED[k]),true)+'</div>';
+    });
+    desk+='</div>';
+    // the phone stack: one cluster per competency, the shared slips between neighbours
+    n=0;
+    function cl(k){
+      var c=COMP[k];
+      return '<div class="c-cl">'+blob(k)+'<h2 class="cname">'+c.name+'</h2>'+
+        c.tools.map(function(t,i){ return '<div class="card" style="--r:'+(i%2?1.6:-1.4)+'deg">'+slip(t,SHORT[k])+'</div>'; }).join('')+'</div>';
+    }
+    function hinge(keys){
+      return '<div class="c-hinge">'+keys.map(function(k){ return '<div class="card shared" style="--r:'+(k==='gha'?1.5:-1.2)+'deg">'+slip(SHARED[k],pairLabel(SHARED[k]),true)+'</div>'; }).join('')+'</div>';
+    }
+    var stack='<div class="c-stack">'+cl('data')+hinge(['s3'])+cl('train')+hinge(['onnx'])+cl('ship')+hinge(['k6','gha'])+cl('watch')+cl('front')+'</div>';
+    var h=head()+desk+stack+'<div class="c-tail"><p class="micro tail-k rv">Also in the toolbox</p>'+box('b-box rv')+'</div><div class="pg-end"></div>';
+    document.getElementById('sC').innerHTML=h;
+    document.getElementById('fC').insertAdjacentHTML('beforeend',CHROME_TOP+CHROME_TRAY);
+  })();
+
+  /* ------------------------------------------------------------------ D */
+  (function(){
+    var h=head();
+    ['data','train','ship','watch','front'].forEach(function(k,i){
+      var c=COMP[k];
+      var rows=c.tools.map(function(t){ return {t:t}; });
+      Object.keys(SHARED).forEach(function(sk){
+        var s=SHARED[sk], j=s.pair.indexOf(k);
+        if(j>=0) rows.push({t:s,other:s.pair[1-j]});
+      });
+      h+='<section class="d-ch" data-dir="'+(i%2?'r':'l')+'"><div class="d-wordrow"><div class="d-band" style="background:'+c.wash+'"></div>'+
+        '<div class="d-word">'+c.name+'</div></div><div class="d-ledger"><p class="d-line rv">'+c.line+'</p>'+
+        rows.map(function(r){
+          return '<div class="d-row rv"><div class="rc-t">'+r.t.t+(r.other?'<span class="d-sh">Shared with '+SHORT[r.other]+'</span>':'')+'</div>'+
+            '<p class="rc-d">'+r.t.did+'</p><a class="link rc-a" href="#" onclick="return false">'+r.t.ev+' <span class="rc-w">· '+r.t.where+'</span>&nbsp;→</a></div>';
+        }).join('')+'</div></section>';
+    });
+    h+='<div class="d-tail"><p class="micro tail-k rv">Also in the toolbox</p>'+box('b-box rv')+'</div><div class="pg-end"></div>';
+    document.getElementById('sD').innerHTML=h;
+    document.getElementById('fD').insertAdjacentHTML('beforeend',CHROME_TOP+CHROME_TRAY);
+  })();
+  function dTick(){
+    var scr=document.getElementById('sD'), H=scr.clientHeight, W=scr.clientWidth, top0=scr.getBoundingClientRect().top;
+    [].slice.call(scr.querySelectorAll('.d-ch')).forEach(function(ch){
+      var r=ch.getBoundingClientRect(), word=ch.querySelector('.d-word');
+      var p=clamp((H-(r.top-top0))/(H+r.height),0,1);
+      if(reduce) p=.35;
+      var ww=word.scrollWidth, travel=Math.max(ww-0.84*W, 0.25*W);
+      var x0=0.08*W, x1=x0-travel;           // drift from left-aligned to the left
+      if(ch.dataset.dir==='r'){ var t=x0; x0=x1; x1=t; }
+      word.style.transform='translate3d('+lerp(x0,x1,p).toFixed(1)+'px,0,0)';
+    });
+  }
+
+  /* ------------------------------------------------------------------ reveals
+     The prototypes' rule: a reveal is a function of position, read every frame, never a
+     timer. Here the position is inside each box's own scroll. */
+  var screens=[].slice.call(document.querySelectorAll('.screen'));
+  function revealIn(scr){
+    var fr=scr.getBoundingClientRect(), H=fr.height;
+    [].slice.call(scr.querySelectorAll('.rv')).forEach(function(el){
+      var top=el.getBoundingClientRect().top-fr.top;
+      var p=reduce?1:easeOut(clamp((H*0.94-top)/(H*0.22),0,1));
+      el.style.opacity=String(p);
+      var x=el.dataset.x;
+      if(reduce||p>.999){ el.style.transform=''; return; }
+      el.style.transform = x ? 'translate3d('+((1-p)*(x==='r'?24:-24))+'px,0,0)' : 'translate3d(0,'+((1-p)*14)+'px,0)';
+    });
+  }
+  function tickAll(){ screens.forEach(revealIn); A.tick(); dTick(); }
+  var queued=false;
+  function req(){ if(queued) return; queued=true; requestAnimationFrame(function(){ queued=false; tickAll(); }); }
+  screens.forEach(function(s){ s.addEventListener('scroll',req,{passive:true}); });
+  addEventListener('scroll',req,{passive:true});
+  function relayout(){ bPlace(); A.layout(); tickAll(); }
+  addEventListener('resize',relayout);
+
+  // the laptop / phone switch
+  [].slice.call(document.querySelectorAll('.sizer button')).forEach(function(b){
+    b.addEventListener('click',function(){
+      document.body.classList.toggle('phone',b.dataset.size==='phone');
+      [].slice.call(document.querySelectorAll('.sizer button')).forEach(function(o){ o.setAttribute('aria-pressed',String(o===b)); });
+      screens.forEach(function(s){ s.scrollTop=0; });
+      requestAnimationFrame(relayout);
+    });
+  });
+  if(/[?&]size=phone/.test(location.search)){ document.body.classList.add('phone');
+    [].slice.call(document.querySelectorAll('.sizer button')).forEach(function(o){ o.setAttribute('aria-pressed',String(o.dataset.size==='phone')); }); }
+
+  A.init(); bPlace(); tickAll();
+  addEventListener('load',relayout);
+  if(document.fonts) document.fonts.ready.then(relayout);
+  window.__sk={A:A,relayout:relayout};
+})();
+</script>
+</body>
+</html>

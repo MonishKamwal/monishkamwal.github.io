@@ -20,6 +20,12 @@
     --wash-ochre:#ffecdb;
     --wash-rose:#ffe8ee;
     --deep-ochre:#96600a;
+    /* the Home §5 washes — the Skills map uses the same five, at the same values */
+    --w-rose:#fbd3dc;
+    --w-ochre:#f8dfc4;
+    --w-sage:#d8ecde;
+    --w-blue:#dee5f4;
+    --w-sand:#f1e7d0;
     --ease-out-expo:cubic-bezier(.16,1,.3,1);
     --dur:.48s; /* the loose global motion value */
   }
@@ -328,18 +334,88 @@
   .arch-close p{margin:0 0 14px;font-size:14.5px;color:var(--muted-foreground);max-width:64ch;}
   .arch-close .links{display:flex;gap:26px;flex-wrap:wrap;font-size:15px;}
 
-  /* ================= SKILLS ================= */
-  .tier-label{margin:clamp(30px,6vh,56px) 0 clamp(18px,3vh,30px);}
-  .proven{display:flex;flex-direction:column;gap:clamp(22px,4vh,40px);}
-  .skill{max-width:min(560px,82%);opacity:0;}
-  .skill.r{margin-left:auto;text-align:right;}
-  .skill .name{font-size:clamp(22px,3.6vw,34px);font-weight:350;letter-spacing:-.01em;line-height:1.1;}
-  .skill .did{margin:5px 0 6px;font-size:14px;color:var(--muted-foreground);}
-  .skill.r .did{margin-left:auto;}
-  .skill .ev{font-size:13.5px;}
-  .divider{height:1px;background:var(--foreground);margin:clamp(44px,8vh,80px) 0;opacity:.9;}
-  .toolbox{display:flex;flex-wrap:wrap;gap:10px 22px;}
-  .toolbox .t{font-size:clamp(16px,2.2vw,22px);color:var(--muted-foreground);font-weight:300;opacity:0;}
+  /* ================= SKILLS — into the map (2026-10-02) =================
+     The page opens on Home §5's map — the same five shapes at the same places — and
+     the visitor goes INTO it. The map is a sticky stage; the text scrolls over it in
+     normal flow, one block per stop (each competency, and each crossing between two of
+     them). The scroll position between two blocks moves the camera between their
+     stops, so the scroll is never taken over: mouse, trackpad and touch all get the
+     same page. A click or tap on a shape scrolls to its stop. Chosen from
+     skills-page-sketches.html (variant A). */
+  .sk-stage{position:sticky;top:0;height:100vh;height:100svh;z-index:0;}
+  .sk-map{position:absolute;left:0;top:0;width:100%;height:100%;display:block;}
+  /* laptop: there is no fade layer over the map. Two were tried — a ground-coloured
+     layer, then a mask — and both drew 8-bit vertical stripes wherever they crossed the
+     multiply-blended shapes. The shapes may sit pale under the text column; only the
+     map's WORDS must not, so the script fades each map label by where it lands on screen
+     (see skLabelFade). */
+  .sk-plate{display:none;}
+  /* the text lies over the stage. It lets the pointer through to the shapes; only its
+     own contents (the links) catch it. */
+  .sk-flow{position:relative;margin-top:-100vh;margin-top:-100svh;pointer-events:none;}
+  .sk-flow a{pointer-events:auto;}
+  .sk-block{
+    min-height:100vh;min-height:100svh;display:flex;flex-direction:column;justify-content:center;
+    padding:110px clamp(36px,6vw,90px) 110px 59%;
+  }
+  /* the head sits in the map's empty top-left, as it does on Home §5 */
+  .sk-block.head{justify-content:flex-start;padding:clamp(96px,15vh,150px) 0 0 clamp(24px,6vw,86px);}
+  .sk-k{margin:0 0 12px;}
+  .sk-k.shared{color:var(--deep-ochre);}
+  .sk-name{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 48;font-weight:500;letter-spacing:-.01em;line-height:1.02;
+    font-size:clamp(32px,3.2vw,46px);margin:0;
+  }
+  .sk-tool{font-size:clamp(32px,3.1vw,44px);font-weight:350;letter-spacing:-.015em;line-height:1.05;margin:0;}
+  .sk-line{margin:10px 0 24px;font-size:17px;color:var(--muted-foreground);line-height:1.45;max-width:34ch;}
+  .sk-rcs{display:flex;flex-direction:column;gap:18px;}
+  .sk-rc-t{font-size:22px;font-weight:400;letter-spacing:-.005em;line-height:1.2;}
+  .sk-rc-d{margin:3px 0 5px;font-size:14.5px;color:var(--muted-foreground);line-height:1.5;}
+  .sk-ev{font-size:13.5px;align-self:flex-start;}
+  .sk-ev .w{color:var(--muted-foreground);}
+  .sk-box{display:flex;flex-wrap:wrap;gap:6px 18px;max-width:420px;}
+  .sk-box span{font-size:19px;color:var(--muted-foreground);font-weight:300;}
+  .sk-block > *{transition:none;}
+  /* the map — Home §5's wide composition, unchanged except that the way-out shape is
+     left off (this page is where it leads) */
+  .sk-map .blob{mix-blend-mode:multiply;}
+  .sk-map .m-g{cursor:pointer;}
+  /* a map label's opacity = its shape's quiet level (--sk-t) × its place on screen (--sk-l) */
+  .sk-map text{opacity:calc(var(--sk-t,1) * var(--sk-l,1));}
+  .sk-map .m-name{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 28;font-weight:500;letter-spacing:-.005em;fill:var(--foreground);
+    transition:fill .3s var(--ease-out-expo),opacity .3s var(--ease-out-expo);
+  }
+  .sk-map .m-tool{font-family:"Outfit",sans-serif;font-weight:350;fill:var(--muted-foreground);}
+  .sk-map .m-shared{
+    font-family:"Outfit",sans-serif;font-weight:500;fill:var(--foreground);pointer-events:none;
+    transform-box:fill-box;transform-origin:center;
+    transition:scale .3s var(--ease-out-expo),fill .3s var(--ease-out-expo);
+  }
+  .sk-map .m-g.on .m-name{fill:var(--deep-ochre);}
+  .sk-map .m-shared.on{scale:1.25;fill:var(--deep-ochre);}
+  /* portrait and phone: the map holds the top of the screen and the reading runs
+     underneath it. The stage rises above the text, and its opaque top hides text that
+     has scrolled up under the map. Keep this query in step with SK_PORTRAIT in the script. */
+  @media (max-width:700px),(max-aspect-ratio:9/10){
+    .sk-stage{z-index:2;pointer-events:none;}
+    .sk-map{top:9%;height:51%;z-index:1;pointer-events:auto;}
+    .sk-plate{
+      display:block;position:absolute;top:0;left:0;right:0;height:66%;z-index:0;pointer-events:none;
+      background:linear-gradient(180deg,var(--ground) 0,var(--ground) 91%,transparent);
+    }
+    .sk-block{min-height:0;justify-content:flex-start;padding:0 clamp(24px,6vw,40px) 30vh;}
+    /* tall enough that the first block rises from the bottom over ~a third of a screen,
+       which is the runway the camera needs to leave the overview */
+    .sk-block.head{min-height:92vh;padding:clamp(96px,15vh,150px) clamp(24px,6vw,40px) 0;position:relative;z-index:3;}
+    .sk-block.end{padding-bottom:40vh;}
+    .sk-name,.sk-tool{font-size:30px;}
+    .sk-line{font-size:15px;margin:8px 0 16px;}
+    .sk-rc-t{font-size:19px;}
+    .sk-box span{font-size:16px;}
+  }
 
   /* ================= ABOUT ================= */
   .bio{display:flex;gap:clamp(24px,5vw,54px);align-items:flex-start;margin-bottom:clamp(36px,7vh,70px);flex-wrap:wrap;}
@@ -444,7 +520,7 @@
   }
   @media (prefers-reduced-motion:reduce){
     *{animation:none!important;transition:none!important;}
-    .reveal,.skill,.toolbox .t,.j-entry,.cv-stop{opacity:1!important;}
+    .reveal,.j-entry,.cv-stop,.sk-block{opacity:1!important;}
   }
 </style>
 </head>
@@ -661,35 +737,134 @@
     </div>
   </section>
 
-  <!-- ================= SKILLS ================= -->
+  <!-- ================= SKILLS — into the map =================
+       Content is placeholder; the structure is the decision. Five competencies and the
+       four tools two of them share, in the order the camera visits them. Every tool has
+       one line on what it did here and one proof link (Stage 3's "skills with receipts").
+       The map below must match Home §5's wide composition in transition-prototype.html:
+       a change there is a change here. -->
   <section class="page" data-page="skills" data-arrival="line">
-    <div class="wrap">
-      <div class="page-head reveal">
-        <h1 class="page-title display">Skills</h1>
-        <p class="page-lead">What I build with</p>
+    <div class="sk-stage">
+      <div class="sk-plate"></div>
+      <svg class="sk-map" id="skMap" viewBox="-182.5 -102.5 1825 1025" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+        <g class="m-g" data-k="train">
+          <path class="blob" fill="var(--w-sage)" transform="translate(365,175) scale(2.05) rotate(-9 100 100)"
+                d="M104 10 C158 2 196 46 188 96 C182 138 200 160 172 180 C140 202 88 196 56 178 C22 158 2 122 10 84 C18 44 58 18 104 10 Z"/>
+          <text class="m-name" x="579" y="378" font-size="28" text-anchor="middle">Training models</text>
+          <text class="m-tool" x="579" y="420" font-size="19" text-anchor="middle">Python · PyTorch</text>
+          <text class="m-tool" x="579" y="448" font-size="19" text-anchor="middle">scikit-learn</text>
+        </g>
+        <g class="m-g" data-k="data">
+          <path class="blob" fill="var(--w-ochre)" transform="translate(110,310) scale(1.75) rotate(15 100 100)"
+                d="M92 6 C146 0 178 34 186 80 C194 128 164 178 112 190 C66 200 20 174 10 128 C0 82 22 38 66 16 C74 12 84 8 92 6 Z"/>
+          <text class="m-name" x="282" y="478" font-size="28" text-anchor="middle">Keeping data honest</text>
+          <text class="m-tool" x="282" y="514" font-size="19" text-anchor="middle">DVC · Pandera</text>
+        </g>
+        <g class="m-g" data-k="ship">
+          <path class="blob" fill="var(--w-rose)" transform="translate(625,255) scale(2.05) rotate(-4 100 100)"
+                d="M60 14 C110 -4 176 16 190 64 C204 114 176 164 130 186 C86 206 32 190 14 148 C-2 110 10 56 44 26 C50 20 54 16 60 14 Z"/>
+          <text class="m-name" x="852" y="455" font-size="28" text-anchor="middle">Shipping it</text>
+          <text class="m-tool" x="845" y="497" font-size="19" text-anchor="middle">Docker · Terraform</text>
+          <text class="m-tool" x="845" y="525" font-size="19" text-anchor="middle">AWS Lambda</text>
+        </g>
+        <g class="m-g" data-k="watch">
+          <path class="blob" fill="var(--w-blue)" transform="translate(905,125) scale(1.70) rotate(8 100 100)"
+                d="M104 10 C158 2 196 46 188 96 C182 138 200 160 172 180 C140 202 88 196 56 178 C22 158 2 122 10 84 C18 44 58 18 104 10 Z"/>
+          <text class="m-name" x="1081" y="290" font-size="28" text-anchor="middle">Watching it run</text>
+          <text class="m-tool" x="1081" y="328" font-size="19" text-anchor="middle">MLflow · Grafana · Evidently</text>
+        </g>
+        <g class="m-g" data-k="front">
+          <path class="blob" fill="var(--w-sand)" transform="translate(898,470) scale(1.60) rotate(-16 100 100)"
+                d="M92 6 C146 0 178 34 186 80 C194 128 164 178 112 190 C66 200 20 174 10 128 C0 82 22 38 66 16 C74 12 84 8 92 6 Z"/>
+          <text class="m-name" x="1054" y="622" font-size="28" text-anchor="middle">Building the front</text>
+          <text class="m-tool" x="1054" y="654" font-size="19" text-anchor="middle">Next.js · TypeScript</text>
+        </g>
+        <text class="m-shared" data-s="s3" x="398" y="421" font-size="18" text-anchor="middle">S3</text>
+        <text class="m-shared" data-s="onnx" x="688" y="435" font-size="18" text-anchor="middle">ONNX</text>
+        <text class="m-shared" data-s="k6" x="969" y="368" font-size="18" text-anchor="middle">k6</text>
+        <text class="m-shared" data-s="gha" x="961" y="559" font-size="18" text-anchor="middle">GitHub Actions</text>
+      </svg>
+    </div>
+    <div class="sk-flow">
+      <div class="sk-block head" data-stop="head">
+        <h1 class="page-title display reveal">Skills</h1>
+        <p class="page-lead reveal" data-stagger="1">What I build with</p>
       </div>
-
-      <p class="micro tier-label reveal">Proven here</p>
-      <div class="proven">
-        <div class="skill" data-dir="left"><div class="name">PyTorch → ONNX</div><p class="did">Trained the QuickDraw CNN and exported it to ONNX for cold-start-friendly serving.</p><a class="link ev" href="#" onclick="return false">the model, in Architecture →</a></div>
-        <div class="skill r" data-dir="right"><div class="name">GitHub Actions</div><p class="did">CI retrains on every model-affecting merge and runs the quality gate.</p><a class="link ev" href="#" onclick="return false">a training run →</a></div>
-        <div class="skill" data-dir="left"><div class="name">MLflow</div><p class="did">Tracks every run and artifact; the registry promotes the winner.</p><a class="link ev" href="#" onclick="return false">the registry stop →</a></div>
-        <div class="skill r" data-dir="right"><div class="name">DVC</div><p class="did">Versions the dataset out of Git, into the one S3 bucket.</p><a class="link ev" href="#" onclick="return false">“One bucket, three jobs” →</a></div>
-        <div class="skill" data-dir="left"><div class="name">Pandera</div><p class="did">Validates the data schema before it can reach training.</p><a class="link ev" href="#" onclick="return false">“Pandera at the door” →</a></div>
-        <div class="skill r" data-dir="right"><div class="name">AWS Lambda</div><p class="did">Serves the model scale-to-zero behind a Function URL.</p><a class="link ev" href="#" onclick="return false">the serve path →</a></div>
-        <div class="skill" data-dir="left"><div class="name">Terraform</div><p class="did">Stands up the weekly EKS cluster and tears it back down.</p><a class="link ev" href="#" onclick="return false">the dress rehearsal →</a></div>
-        <div class="skill r" data-dir="right"><div class="name">k6 + Grafana</div><p class="did">Load-tests the deployed model and captures the dashboards as evidence.</p><a class="link ev" href="#" onclick="return false">a load-test result →</a></div>
-        <div class="skill" data-dir="left"><div class="name">Next.js</div><p class="did">This site — static export, client-side calls to the live model.</p><a class="link ev" href="#" onclick="return false">the repo →</a></div>
+      <div class="sk-block" data-stop="data">
+        <p class="micro sk-k">1 of 5</p>
+        <h2 class="sk-name">Keeping data honest</h2>
+        <p class="sk-line">Nothing reaches a model before it has a version and a check.</p>
+        <div class="sk-rcs">
+          <div class="sk-rc"><div class="sk-rc-t">DVC</div><p class="sk-rc-d">Versions the dataset out of Git and into the one S3 bucket.</p><a class="link sk-ev" href="#" onclick="return false">“One bucket, three jobs” <span class="w">· Journey</span>&nbsp;→</a></div>
+          <div class="sk-rc"><div class="sk-rc-t">Pandera</div><p class="sk-rc-d">Checks the data schema before the data can reach training.</p><a class="link sk-ev" href="#" onclick="return false">“Pandera at the door” <span class="w">· Journey</span>&nbsp;→</a></div>
+        </div>
       </div>
-
-      <div class="divider" aria-hidden="true"></div>
-
-      <p class="micro tier-label reveal">Also in the toolbox</p>
-      <div class="toolbox">
-        <span class="t">Python</span><span class="t">TypeScript</span><span class="t">FastAPI</span><span class="t">Docker</span>
-        <span class="t">scikit-learn</span><span class="t">pandas</span><span class="t">NumPy</span><span class="t">SQL</span>
-        <span class="t">Kubernetes</span><span class="t">S3</span><span class="t">CloudWatch</span><span class="t">Evidently</span>
-        <span class="t">Bash</span><span class="t">Git</span><span class="t">pytest</span><span class="t">Tailwind</span>
+      <div class="sk-block" data-stop="s3">
+        <p class="micro sk-k shared">Shared · Data + Training</p>
+        <h2 class="sk-tool">S3</h2>
+        <p class="sk-line">One bucket holds the data, the models, and the evidence.</p>
+        <a class="link sk-ev" href="#" onclick="return false">“One bucket, three jobs” <span class="w">· Journey</span>&nbsp;→</a>
+      </div>
+      <div class="sk-block" data-stop="train">
+        <p class="micro sk-k">2 of 5</p>
+        <h2 class="sk-name">Training models</h2>
+        <p class="sk-line">A model has to beat the last one before it can ship.</p>
+        <div class="sk-rcs">
+          <div class="sk-rc"><div class="sk-rc-t">PyTorch</div><p class="sk-rc-d">Trains the QuickDraw CNN that guesses your drawing on Home.</p><a class="link sk-ev" href="#" onclick="return false">the model <span class="w">· Architecture</span>&nbsp;→</a></div>
+          <div class="sk-rc"><div class="sk-rc-t">scikit-learn</div><p class="sk-rc-d">Gives the baseline that the CNN must beat.</p><a class="link sk-ev" href="#" onclick="return false">the runs table <span class="w">· Quality</span>&nbsp;→</a></div>
+          <div class="sk-rc"><div class="sk-rc-t">Python</div><p class="sk-rc-d">Every pipeline step, from the data checks to the quality gate.</p><a class="link sk-ev" href="#" onclick="return false">the repo <span class="w">· GitHub</span>&nbsp;→</a></div>
+        </div>
+      </div>
+      <div class="sk-block" data-stop="onnx">
+        <p class="micro sk-k shared">Shared · Training + Shipping</p>
+        <h2 class="sk-tool">ONNX</h2>
+        <p class="sk-line">The model leaves PyTorch as ONNX, so a cold start stays short.</p>
+        <a class="link sk-ev" href="#" onclick="return false">the export step <span class="w">· Architecture</span>&nbsp;→</a>
+      </div>
+      <div class="sk-block" data-stop="ship">
+        <p class="micro sk-k">3 of 5</p>
+        <h2 class="sk-name">Shipping it</h2>
+        <p class="sk-line">From a trained file to a live address, and back down to zero.</p>
+        <div class="sk-rcs">
+          <div class="sk-rc"><div class="sk-rc-t">Docker</div><p class="sk-rc-d">Packs the model and its server into one image.</p><a class="link sk-ev" href="#" onclick="return false">the container image <span class="w">· Architecture</span>&nbsp;→</a></div>
+          <div class="sk-rc"><div class="sk-rc-t">AWS Lambda</div><p class="sk-rc-d">Serves the model, and scales to zero between visitors.</p><a class="link sk-ev" href="#" onclick="return false">the serve path <span class="w">· Architecture</span>&nbsp;→</a></div>
+          <div class="sk-rc"><div class="sk-rc-t">Terraform</div><p class="sk-rc-d">Builds the weekly EKS cluster and tears it down again.</p><a class="link sk-ev" href="#" onclick="return false">the dress rehearsal <span class="w">· Architecture</span>&nbsp;→</a></div>
+        </div>
+      </div>
+      <div class="sk-block" data-stop="k6">
+        <p class="micro sk-k shared">Shared · Shipping + Watching</p>
+        <h2 class="sk-tool">k6</h2>
+        <p class="sk-line">Puts load on the live model each month and records the result.</p>
+        <a class="link sk-ev" href="#" onclick="return false">the last load test <span class="w">· Performance</span>&nbsp;→</a>
+      </div>
+      <div class="sk-block" data-stop="watch">
+        <p class="micro sk-k">4 of 5</p>
+        <h2 class="sk-name">Watching it run</h2>
+        <p class="sk-line">Proof that the model still works after it ships.</p>
+        <div class="sk-rcs">
+          <div class="sk-rc"><div class="sk-rc-t">MLflow</div><p class="sk-rc-d">Records every run. The registry promotes the winner.</p><a class="link sk-ev" href="#" onclick="return false">the registry <span class="w">· Architecture</span>&nbsp;→</a></div>
+          <div class="sk-rc"><div class="sk-rc-t">Evidently</div><p class="sk-rc-d">Compares this week’s predictions with the training data.</p><a class="link sk-ev" href="#" onclick="return false">drift this week <span class="w">· Monitoring</span>&nbsp;→</a></div>
+          <div class="sk-rc"><div class="sk-rc-t">Grafana</div><p class="sk-rc-d">Keeps the load-test dashboards as evidence.</p><a class="link sk-ev" href="#" onclick="return false">the last capture <span class="w">· Performance</span>&nbsp;→</a></div>
+        </div>
+      </div>
+      <div class="sk-block" data-stop="gha">
+        <p class="micro sk-k shared">Shared · Shipping + Front</p>
+        <h2 class="sk-tool">GitHub Actions</h2>
+        <p class="sk-line">Retrains on each model change, and deploys this site.</p>
+        <a class="link sk-ev" href="#" onclick="return false">a CI run <span class="w">· GitHub</span>&nbsp;→</a>
+      </div>
+      <div class="sk-block" data-stop="front">
+        <p class="micro sk-k">5 of 5</p>
+        <h2 class="sk-name">Building the front</h2>
+        <p class="sk-line">The page you are reading, and the demo on it.</p>
+        <div class="sk-rcs">
+          <div class="sk-rc"><div class="sk-rc-t">Next.js</div><p class="sk-rc-d">This site: a static export that calls the live model.</p><a class="link sk-ev" href="#" onclick="return false">the repo <span class="w">· GitHub</span>&nbsp;→</a></div>
+          <div class="sk-rc"><div class="sk-rc-t">TypeScript</div><p class="sk-rc-d">Types the data contracts that the Data pages read.</p><a class="link sk-ev" href="#" onclick="return false">the contracts <span class="w">· GitHub</span>&nbsp;→</a></div>
+        </div>
+      </div>
+      <div class="sk-block end" data-stop="end">
+        <p class="micro sk-k">Also in the toolbox</p>
+        <div class="sk-box"><span>FastAPI</span><span>SQL</span><span>Kubernetes</span><span>CloudWatch</span><span>pandas</span><span>NumPy</span><span>pytest</span><span>Bash</span><span>Git</span><span>Tailwind</span></div>
       </div>
     </div>
   </section>
@@ -788,7 +963,7 @@
   let revealEls=[];
   function cacheReveals(){
     const p=active();
-    revealEls=[...p.querySelectorAll('.reveal,.skill,.toolbox .t,.j-entry,.cv-stop')];
+    revealEls=[...p.querySelectorAll('.reveal,.j-entry,.cv-stop')];
   }
   function revealProgress(el){
     const r=el.getBoundingClientRect();
@@ -1000,6 +1175,134 @@
     });
   }
 
+  // ---- Skills: into the map ----
+  // The camera's stops, in map units. x/y is the point the view centres on, w/h the area
+  // that must stay in view; lit is the shapes at full colour, s the shared label that
+  // lifts. On the laptop layout a stop puts its target ~29% from the left, so the text
+  // column on the right has clear paper. The order matches the .sk-block order.
+  const SK_PORTRAIT=window.matchMedia('(max-width:700px),(max-aspect-ratio:9/10)');
+  const SK_STOPS=[
+    {k:'head', x:730, y:410, w:1825,h:1025,wide:true,whole:true},
+    {k:'data', x:282, y:440, w:1150,h:700, lit:['data']},
+    {k:'s3',   x:398, y:418, w:1000,h:620, lit:['data','train'],s:'s3'},
+    {k:'train',x:579, y:372, w:1150,h:700, lit:['train']},
+    {k:'onnx', x:688, y:432, w:1000,h:620, lit:['train','ship'],s:'onnx'},
+    {k:'ship', x:850, y:450, w:1150,h:700, lit:['ship']},
+    {k:'k6',   x:969, y:364, w:1000,h:620, lit:['ship','watch'],s:'k6'},
+    {k:'watch',x:1081,y:282, w:1150,h:700, lit:['watch']},
+    {k:'gha',  x:961, y:555, w:1000,h:620, lit:['ship','front'],s:'gha'},
+    {k:'front',x:1054,y:612, w:1150,h:700, lit:['front']},
+    {k:'end',  x:560, y:457, w:2100,h:900, whole:true,rest:.42}
+  ];
+  // the whole map's content box (map units), used for the portrait overview
+  const SK_CONTENT={x:664,y:457,w:1180,h:700};
+  const skMap=document.getElementById('skMap');
+  const skPage=skMap.closest('.page');
+  const skBlocks=[...skPage.querySelectorAll('.sk-block')];
+  const skHead=skPage.querySelector('.sk-block.head');
+  const skGroups={}, skShared={};
+  skMap.querySelectorAll('.m-g').forEach(g=>{ skGroups[g.dataset.k]={g,blob:g.querySelector('.blob'),texts:[...g.querySelectorAll('text')]}; });
+  skMap.querySelectorAll('.m-shared').forEach(t=>{ skShared[t.dataset.s]=t; });
+  let skAnchors=[], skLabels=null;
+  // every map label with its centre and half-width in map units (measured once shown)
+  function skMeasureLabels(){
+    skLabels=[...skMap.querySelectorAll('text')].map(t=>{ const b=t.getBBox(); return {t,cx:b.x+b.width/2,hw:b.width/2}; });
+  }
+  // the scroll position at which each block is "its" stop: on the laptop, the block
+  // centred on the screen; in portrait, the block's top reaching the reading area
+  function skillsLayout(){
+    if(activeName!=='skills') return;
+    skMeasureLabels();
+    const vh=window.innerHeight, max=document.documentElement.scrollHeight-vh, port=SK_PORTRAIT.matches;
+    let prev=0;
+    skAnchors=skBlocks.map((b,i)=>{
+      if(i===0) return 0;
+      const top=b.getBoundingClientRect().top+window.scrollY;
+      let a=port ? top-0.62*vh : top+b.offsetHeight/2-vh/2;
+      a=clamp(a,prev+1,Math.max(prev+1,max)); prev=a; return a;
+    });
+  }
+  // a stop → [centre x, centre y, view width, aspect] for the map's current box
+  function skCam(s){
+    const r=skMap.getBoundingClientRect(), AR=r.width/Math.max(1,r.height), port=SK_PORTRAIT.matches;
+    let {x,y,w,h}=s;
+    if(port && s.whole){
+      x=SK_CONTENT.x; w=SK_CONTENT.w; h=SK_CONTENT.h;
+      const W=Math.max(w,h*AR), H=W/AR;
+      // the overview sits low in the band, clear of the title above it
+      y = s.k==='head' ? Math.min(SK_CONTENT.y, SK_CONTENT.y+SK_CONTENT.h/2+0.03*H-H/2) : SK_CONTENT.y;
+      return [x,y,W,AR];
+    }
+    if(port){ w*=0.62; h*=0.62; }
+    const W=Math.max(w,h*AR);
+    return [(!port && !s.wide) ? x+W*0.21 : x, y, W, AR];
+  }
+  const skSmooth=v=>{ v=clamp(v,0,1); return v*v*(3-2*v); };
+  function applySkills(){
+    if(!skAnchors.length) return;
+    const st=window.scrollY, an=skAnchors, port=SK_PORTRAIT.matches, vh=window.innerHeight;
+    let i=0;
+    while(i<an.length-2 && st>=an[i+1]) i++;
+    const seg=Math.max(1,an[i+1]-an[i]), f=clamp((st-an[i])/seg,0,1);
+    // laptop: the camera moves through the middle of the step. Portrait: it holds while
+    // the block is read and moves in the last third of a screen before the next block.
+    let e;
+    if(reduce) e=f<.5?0:1;
+    else if(port){ const T=Math.min(seg,vh*0.32); e=skSmooth((st-(an[i+1]-T))/T); }
+    else e=skSmooth((f-.12)/.76);
+    const A=skCam(SK_STOPS[i]), B=skCam(SK_STOPS[i+1]);
+    const W=Math.exp(Math.log(A[2])+(Math.log(B[2])-Math.log(A[2]))*e);
+    const cx=A[0]+(B[0]-A[0])*e, cy=A[1]+(B[1]-A[1])*e, H=W/A[3];
+    skMap.setAttribute('viewBox',(cx-W/2).toFixed(1)+' '+(cy-H/2).toFixed(1)+' '+W.toFixed(1)+' '+H.toFixed(1));
+    // shapes: lit ones at full colour; the rest quieter than Home's resting .42, and
+    // their words go quiet with them, so only the stop's own labels read
+    const S0=SK_STOPS[i], S1=SK_STOPS[i+1], near=e<.5?S0:S1;
+    const level=(S,k)=>(S.lit||[]).includes(k)?1:(S.rest||(S.lit?.26:.42));
+    for(const k in skGroups){
+      const v=level(S0,k)+(level(S1,k)-level(S0,k))*e, g=skGroups[k];
+      g.blob.style.opacity=v.toFixed(3);
+      const tv=v>.42?1:clamp((v-.26)/(.42-.26),0,1)*.75+.25;
+      g.texts.forEach(t=>{ t.style.setProperty('--sk-t',tv.toFixed(3)); });
+      g.g.classList.toggle('on',(near.lit||[]).length===1 && near.lit[0]===k);
+    }
+    for(const k in skShared) skShared[k].classList.toggle('on',k===near.s);
+    // laptop: a map label whose right edge reaches the text column fades out, in step
+    // with how far the camera is into a stop (the overview keeps every label)
+    const fade=port?0:(S0.lit?1:0)+((S1.lit?1:0)-(S0.lit?1:0))*e;
+    if(skLabels){
+      const mw=skMap.getBoundingClientRect().width, col=0.57*mw;
+      skLabels.forEach(L=>{
+        const right=((L.cx+L.hw)-(cx-W/2))/W*mw;
+        L.t.style.setProperty('--sk-l',(1-fade*(1-clamp((col-right)/(0.05*mw),0,1))).toFixed(3));
+      });
+    }
+    if(port){
+      skHead.style.opacity=String(clamp(1-st/(vh*0.28),0,1));
+      skBlocks.forEach((b,j)=>{ if(j) b.style.opacity=''; });
+    }else{
+      skHead.style.opacity='';
+      // each block is at full strength at its own stop and fades as the next one comes —
+      // driven by the same scroll position as the camera, so a block can never rest
+      // short of 1 (the shared .reveal window ends at 60% of the screen, and the lower
+      // receipts of a centred block sit below that)
+      skBlocks.forEach((b,j)=>{
+        if(!j) return;
+        let o=0;
+        if(reduce) o=1;
+        else if(j===i) o=1-clamp((f-.15)/.3,0,1);
+        else if(j===i+1) o=clamp((f-.55)/.3,0,1);
+        b.style.opacity=o.toFixed(3);
+      });
+    }
+  }
+  // a click or a tap on a shape goes to its stop — the same on every input type
+  Object.keys(skGroups).forEach(k=>{
+    skGroups[k].g.addEventListener('click',()=>{
+      const i=SK_STOPS.findIndex(s=>s.k===k);
+      if(skAnchors[i]!=null) window.scrollTo({top:skAnchors[i],behavior:reduce?'auto':'smooth'});
+    });
+  });
+
   // ---- the per-frame apply for the active page ----
   function applyReveals(){
     for(const el of revealEls){
@@ -1010,6 +1313,7 @@
     }
     if(activeName==='journey') applyJourney();
     if(activeName==='about'){ applyCV('cvWork'); applyCV('cvEdu'); }
+    if(activeName==='skills') applySkills();
   }
   // edge blur is scroll-driven: top fades in over the first ~140px of scroll,
   // bottom fades out over the last ~140px so the page end reads crisp
@@ -1039,6 +1343,7 @@
       b.setAttribute('aria-current',on?'page':'false');
     });
     if(name==='journey') buildJourney();
+    if(name==='skills') skillsLayout();
     cacheReveals();
     runArrival();
     applyReveals();
@@ -1248,7 +1553,8 @@
   });
 
   // ---- boot ----
-  window.addEventListener('resize',()=>{ if(activeName==='journey') buildJourney(); });
+  window.addEventListener('resize',()=>{ if(activeName==='journey') buildJourney(); skillsLayout(); });
+  if(document.fonts) document.fonts.ready.then(skillsLayout);
   buildJourney();
   cacheReveals();
   runArrival();
