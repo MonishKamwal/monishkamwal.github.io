@@ -467,7 +467,12 @@ read, and keep walking.
 - **Mobile:** the card fills most of the screen with small margins — a reading sheet — and
   closes the same three ways.
 
-### Architecture page (`/architecture`)  _(LOCKED 2026-07-17 · AMENDED 2026-07-20)_
+### Architecture page (`/architecture`)  _(LOCKED 2026-07-17 · AMENDED 2026-07-20 · LAYOUT SUPERSEDED 2026-10-02)_
+
+> **Superseded 2026-10-02:** the page is now **"Pulled apart, crossings are stops"**: the four
+> planes as an exploded isometric drawing that the scroll opens, with a stop for each plane and a
+> stop for each wire between two planes. The three chapters and the overview flowchart below are
+> replaced. The paper cards and the per-component URLs stay. See the decision log, 2026-10-02.
 
 > **Amended in Stage 4.7 (2026-07-20):** the page now opens with a **consolidated
 > system-overview diagram** (the whole machine in one view) under an **"Overview"**
@@ -824,7 +829,10 @@ between, and routing every hop through the slide-in menu is friction. Two additi
 
 ---
 
-## Stage 4.7 — Architecture page: overview, then breakdown (from prototyping)  _(LOCKED 2026-07-20)_
+## Stage 4.7 — Architecture page: overview, then breakdown (from prototyping)  _(LOCKED 2026-07-20 · SUPERSEDED 2026-10-02)_
+
+> **Superseded 2026-10-02** by the exploded drawing (decision log, 2026-10-02). The overview
+> diagram, the zones and the chapter diagrams below are no longer on the page.
 
 Prototyping the Architecture page (`sections-prototype.html`) showed the three-chapter
 story never lets a visitor see the **whole system at once** — they meet the parts before
@@ -1113,6 +1121,50 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 ## Decision log
 
 Newest first. Each entry: what was decided and why.
+
+- **2026-10-02** — **The Architecture page becomes "Pulled apart, crossings are stops"**
+  (`sections-prototype.html`). Monish chose it over three sketch sheets:
+  `arch-page-sketches.html` (four page ideas; he chose C, the exploded drawing),
+  `arch-exploded-sketches.html` (five versions of C; he chose A, "Pulled apart, live"), and
+  `arch-connections-sketches.html` (four ways to show the wires; he chose A3).
+  - **What it is.** The four planes are an exploded isometric drawing on a sticky stage: Serving,
+    Monitoring, CI/CD and Ephemeral K8s, each a sheet with its parts. The text scrolls over the
+    drawing. The page opens on the closed stack. The next stop opens it. Each plane stop slides
+    its sheet out toward the text.
+  - **Crossings are stops.** After each plane comes a stop for the wire that leaves it: logs
+    (Serving → Monitoring), the drift breach (Monitoring → CI/CD), the same image (CI/CD →
+    Ephemeral K8s), and a new model (CI/CD → Serving), which closes the loop and ends the page.
+    On a wire stop, only the two sheets that the wire joins stay lit. This is the Skills page's
+    crossings pattern. Eleven stops in all.
+  - **Why the wires changed.** In the first build of A, the wires were thin, drawn under the
+    sheets, and faded when a sheet slid forward. Monish said the connections got lost. Now the
+    wires are drawn over the sheets, with a port, an arrowhead and a paper tag. The wires of the
+    plane or crossing in focus are ochre. A focused sheet slides out only 60px, so its wires stay
+    nearly straight.
+  - **Sends / receives.** Under each plane's text, one row for each wire that leaves or reaches
+    the plane. A row lights its wire: hover with a mouse, tap on a touch screen.
+  - **Content.** The plane text is from the live `architecture.json` (fetched 2026-10-02), with
+    light cuts. The contract's thumbs-up and thumbs-down emoji are "a yes" and "a no" here, and
+    the producer side must change to match. **The four wire texts are not in the contract.** They
+    were written for this page and are placeholder.
+  - **The paper cards stay.** A part opens its card on click, tap, Enter or Space, and the URL
+    becomes `#architecture/<id>`. The blocked 0.50 model has its own card. Parts without a
+    written card show a short placeholder card.
+  - **Layouts.** Laptop: the drawing left, the text column from 62%. Portrait (`max-width:700px`
+    or `max-aspect-ratio:9/10`, the same query as Skills): the drawing in the top half, the text
+    below, the view held while a block is read.
+  - **The camera drives the text strength** on the laptop, as on Skills. Do not use the shared
+    `.reveal` for these blocks.
+  - **Kubernetes sheet.** It is dashed, because it mostly does not exist. It becomes solid on its
+    own stop.
+  - **Checks** (`archpage.js` in `.browser-tools`). At every stop the block is at opacity 1. Each
+    block fits above the tray at laptop sizes from 1280×720 to 1920×1080. A part click opens its
+    card, and `#architecture/blocked` opens the blocked card. There are no page errors, including
+    with reduced motion. `dockcheck.js`: the tray still switches all three Story pages. Touch was
+    not tested, because the harness cannot send real touch input.
+  - **Open.** Real cards for the parts that have only placeholders. The Home §3 ring's "Explore
+    the full architecture" now arrives on a closed stack, not on the ring. A hand-off from the
+    ring to the stack is not designed yet.
 
 - **2026-10-02** — **The Skills page becomes "Into the map"** (`sections-prototype.html`).
   Monish chose variant A from the new sketch sheet `skills-page-sketches.html`. The sheet has four
