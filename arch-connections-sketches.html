@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sketches — the connections</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..700&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ground:#e0f7e7;          /* the Architecture page's sage wash */
+    --ink:#0a0a0a;
+    --muted:#6b6b6b;
+    --hair:#e8e8e8;
+    --warm:#c98a3a;
+    --deep-ochre:#96600a;
+    --w-rose:#fbd3dc;
+    --w-ochre:#f8dfc4;
+    --w-sage:#d8ecde;
+    --w-blue:#dee5f4;
+    --w-sand:#f1e7d0;
+    --ease-out-expo:cubic-bezier(.16,1,.3,1);
+    --ease-hover:cubic-bezier(.2,.7,.35,1);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;background:var(--ground);color:var(--ink);
+    font-family:"Outfit",system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-weight:330;line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .display{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 96;font-weight:500;line-height:.92;letter-spacing:-.02em;
+  }
+  .micro{text-transform:uppercase;letter-spacing:.22em;font-size:11.5px;font-weight:500;color:var(--muted);}
+  .wrap{max-width:1060px;margin:0 auto;padding:clamp(56px,10vh,110px) clamp(16px,5vw,44px) clamp(60px,10vh,120px);}
+
+  /* ---------- sheet chrome — the same as the earlier sketch sheets ---------- */
+  .sheet-head{margin-bottom:clamp(40px,7vh,72px);}
+  .sheet-head h1{font-size:clamp(38px,7vw,68px);text-transform:uppercase;margin:10px 0 0;}
+  .sheet-head p{margin:16px 0 0;max-width:62ch;font-size:15.5px;color:var(--muted);}
+  .sheet-head .facts{margin-top:22px;padding-top:16px;border-top:1px solid var(--ink);max-width:62ch;font-size:14px;color:var(--muted);}
+  .sheet-head .facts b{color:var(--ink);font-weight:500;}
+  .sheet-head .facts + .facts{border-top:0;padding-top:0;margin-top:14px;}
+  .sk{padding:clamp(40px,7vh,76px) 0;border-top:1px solid var(--ink);}
+  .sk-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;}
+  .sk-head h2{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
+    font-size:clamp(24px,4vw,38px);line-height:1.02;margin:0;
+  }
+  .sk-key{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--deep-ochre);letter-spacing:.1em;}
+  .sk-note{margin:12px 0 0;max-width:60ch;font-size:15px;color:var(--muted);}
+  .sk-note b{color:var(--ink);font-weight:500;}
+  .sk-cost{margin:10px 0 0;max-width:60ch;font-size:13.5px;color:var(--muted);}
+  .sk-cost b{color:var(--ink);font-weight:500;}
+  .stage{margin-top:clamp(26px,4.5vh,46px);}
+  .hint{margin:10px 0 0;font-size:12.5px;color:var(--muted);text-align:center;}
+  code{font-family:ui-monospace,Menlo,monospace;font-size:.88em;}
+  .sizer{position:sticky;top:12px;z-index:50;display:flex;justify-content:flex-end;margin:-8px 0 0;pointer-events:none;}
+  .sizer-in{pointer-events:auto;display:flex;gap:4px;padding:5px 6px;background:#fff;border:1px solid var(--hair);border-radius:30px;box-shadow:0 8px 24px -16px rgba(10,10,10,.4);}
+  .sizer button{font:inherit;font-size:12.5px;color:var(--muted);background:none;border:0;border-radius:20px;padding:5px 13px;cursor:pointer;}
+  .sizer button[aria-pressed="true"]{color:#fff;background:var(--ink);}
+  .sizer button:focus-visible{outline:2px solid var(--warm);outline-offset:2px;}
+
+  /* ---------- the frame: one real screen, scrollable ----------
+     --u is one real pixel of the screen the box stands for: 1/1440 of the box on the
+     laptop size, 1/390 on the phone size. */
+  .frame{
+    position:relative;container-type:size;width:100%;aspect-ratio:1440/900;margin:0 auto;
+    background:var(--ground);overflow:hidden;border:1px solid var(--ink);--u:calc(100cqw / 1440);
+  }
+  body.phone .frame{width:min(390px,100%);aspect-ratio:390/844;--u:calc(100cqw / 390);}
+  .screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;}
+  .f-top{
+    position:absolute;top:0;left:0;right:0;z-index:30;pointer-events:none;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:calc(18*var(--u)) calc(26*var(--u)) calc(30*var(--u));
+    background:linear-gradient(180deg,var(--ground) 55%,rgba(224,247,231,0));
+  }
+  .f-home{display:inline-flex;align-items:center;gap:calc(7*var(--u));font-size:calc(12*var(--u));letter-spacing:.14em;text-transform:uppercase;color:var(--ink);}
+  .f-home svg{width:calc(17*var(--u));height:auto;}
+  .f-menu svg{width:calc(26*var(--u));height:auto;display:block;}
+  .f-tray{
+    position:absolute;left:50%;bottom:calc(18*var(--u));transform:translateX(-50%);z-index:30;
+    background:#fff;border:1px solid var(--hair);border-radius:calc(30*var(--u));
+    padding:calc(6*var(--u)) calc(8*var(--u));display:flex;gap:calc(4*var(--u));
+    box-shadow:0 calc(8*var(--u)) calc(24*var(--u)) calc(-16*var(--u)) rgba(10,10,10,.4);
+  }
+  .f-tray span{font-size:calc(12.5*var(--u));color:var(--muted);border-radius:calc(20*var(--u));padding:calc(6*var(--u)) calc(14*var(--u));line-height:1.6;}
+  .f-tray span.on{color:#fff;background:var(--ink);}
+
+  .pg-title{font-size:calc(96*var(--u));text-transform:uppercase;margin:0;}
+  .pg-lead{margin:calc(12*var(--u)) 0 0;font-size:calc(21*var(--u));color:var(--muted);}
+  body.phone .pg-title{font-size:calc(44*var(--u));}
+  body.phone .pg-lead{font-size:calc(16*var(--u));}
+  .link{color:var(--deep-ochre);text-decoration:none;border-bottom:1px solid rgba(150,96,10,.32);}
+  .rv{opacity:0;}
+
+  /* the reading voice every version shares: a Bodoni section name, a micro label, body */
+  .t-k{font-size:calc(11*var(--u));margin:0 0 calc(12*var(--u));}
+  .t-k.o{color:var(--deep-ochre);}
+  .t-h{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 48;font-weight:500;letter-spacing:-.01em;line-height:1.04;
+    font-size:calc(40*var(--u));margin:0 0 calc(14*var(--u));
+  }
+  .t-p{margin:0 0 calc(12*var(--u));font-size:calc(15.5*var(--u));line-height:1.6;color:#3a3a3a;max-width:46ch;}
+  .t-p b{font-weight:500;color:var(--ink);}
+  .t-links{display:flex;gap:calc(22*var(--u));flex-wrap:wrap;font-size:calc(14*var(--u));margin-top:calc(8*var(--u));}
+  body.phone .t-h{font-size:calc(28*var(--u));}
+  body.phone .t-p{font-size:calc(14.5*var(--u));}
+
+  /* a tool mark: the Home ring's logos, in their own colours */
+  .bm{display:inline-flex;width:calc(18*var(--u));height:calc(18*var(--u));color:var(--bc,var(--ink));}
+  .bm svg{width:100%;height:100%;}
+  .bmrow{display:inline-flex;gap:calc(9*var(--u));align-items:center;justify-content:center;}
+
+  /* ================= C — the exploded drawing ================= */
+  .c-head{padding:calc(135*var(--u)) calc(86*var(--u)) 0;position:relative;min-height:calc(560*var(--u));}
+  .c-mini{position:absolute;right:calc(110*var(--u));top:calc(150*var(--u));width:calc(420*var(--u));}
+  .c-mini svg{width:100%;height:auto;display:block;overflow:visible;}
+  .c-head .t-p{max-width:calc(560*var(--u));margin-top:calc(34*var(--u));}
+  .c-draw{position:relative;width:100%;}
+  .c-draw > svg{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;}
+  .c-cap{position:absolute;width:calc(420*var(--u));}
+  .c-svg text{font-family:"Outfit",sans-serif;}
+  .c-svg text.c-nm{font-family:"Bodoni Moda",Georgia,serif;font-variation-settings:"opsz" 48;font-weight:500;}
+  .c-pl{will-change:transform,opacity;}
+  .c-wire{fill:none;stroke:var(--ink);stroke-width:1.2;}
+  .c-wire.up{stroke:var(--deep-ochre);stroke-width:1.4;}
+  .c-tail{padding:calc(40*var(--u)) calc(86*var(--u)) calc(160*var(--u));}
+  body.phone .c-head{padding:calc(110*var(--u)) calc(24*var(--u)) 0;min-height:0;}
+  body.phone .c-mini{position:relative;right:auto;top:auto;width:calc(260*var(--u));margin:calc(30*var(--u)) auto 0;}
+  body.phone .c-tail{padding:calc(30*var(--u)) calc(24*var(--u)) calc(140*var(--u));}
+  body.phone .c-cap{width:calc(342*var(--u));}
+
+
+  /* ================= shared: one exploded sheet ================= */
+  .xs text{font-family:"Outfit",sans-serif;}
+  .xs text.nm{font-family:"Bodoni Moda",Georgia,serif;font-variation-settings:"opsz" 48;font-weight:500;}
+  .xs .wire{fill:none;stroke:var(--ink);stroke-width:1.2;}
+  .xs .wire.up{stroke:var(--deep-ochre);stroke-width:1.6;}
+
+  /* ================= A — pulled apart, live ================= */
+  .xa-stage{position:sticky;top:0;height:100cqh;z-index:0;pointer-events:none;}
+  .xa-stage > svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;}
+  .xa-flow{position:relative;margin-top:-100cqh;}
+  .xa-block{
+    min-height:100cqh;display:flex;flex-direction:column;justify-content:center;
+    padding:calc(110*var(--u)) calc(90*var(--u)) calc(110*var(--u)) 62%;
+  }
+  .xa-block.head{justify-content:flex-start;padding:calc(135*var(--u)) 0 0 calc(86*var(--u));}
+  .xa-plate{display:none;}
+  body.phone .xa-stage{z-index:2;}
+  body.phone .xa-plate{display:block;position:absolute;left:0;right:0;top:0;height:53cqh;background:linear-gradient(180deg,var(--ground) 0,var(--ground) 90%,rgba(224,247,231,0));}
+  body.phone .xa-block{min-height:0;justify-content:flex-start;padding:0 calc(24*var(--u)) 34cqh;}
+  body.phone .xa-block.head{min-height:86cqh;padding:calc(110*var(--u)) calc(24*var(--u)) 0;position:relative;z-index:3;}
+  body.phone .xa-block.end{padding-bottom:40cqh;}
+
+  /* ================= B — the assembly drawing ================= */
+  .xb-head{padding:calc(135*var(--u)) calc(86*var(--u)) 0;}
+  .xb-paper{
+    position:relative;margin:calc(44*var(--u)) calc(40*var(--u)) 0;background:#fff;
+    border:1px solid var(--hair);border-radius:calc(4*var(--u));
+    box-shadow:0 calc(30*var(--u)) calc(60*var(--u)) calc(-34*var(--u)) rgba(10,10,10,.35);
+    padding:calc(22*var(--u));
+  }
+  .xb-frame{border:1.4px solid var(--ink);outline:1px solid var(--ink);outline-offset:calc(5*var(--u));position:relative;}
+  .xb-frame > svg{display:block;width:100%;height:auto;overflow:visible;}
+  .xb-zone{position:absolute;font-family:ui-monospace,Menlo,monospace;font-size:calc(10*var(--u));color:var(--muted);}
+  .xb-g .ln{stroke-dasharray:1;stroke-dashoffset:var(--d,0);}
+  .xb-g text,.xb-g .fade{opacity:var(--o,1);}
+  .xb-g polygon{fill-opacity:var(--o,1);}
+  .xb-sub{padding:calc(36*var(--u)) calc(22*var(--u)) calc(10*var(--u));}
+  .xb-notes{columns:2;column-gap:calc(56*var(--u));}
+  .xb-note{break-inside:avoid;display:grid;grid-template-columns:calc(34*var(--u)) 1fr;margin:0 0 calc(10*var(--u));}
+  .xb-note .n{font-family:ui-monospace,Menlo,monospace;font-size:calc(12*var(--u));color:var(--deep-ochre);padding-top:calc(3*var(--u));}
+  .xb-note .t-p{font-size:calc(14*var(--u));margin-bottom:calc(6*var(--u));}
+  .xb-note .t-h{font-size:calc(22*var(--u));margin:0 0 calc(6*var(--u));}
+  .xb-tables{display:grid;grid-template-columns:1.7fr 1fr;gap:calc(34*var(--u));align-items:end;margin-top:calc(26*var(--u));}
+  .xb-table{width:100%;border-collapse:collapse;font-size:calc(12*var(--u));line-height:1.35;}
+  .xb-table th,.xb-table td{border:1px solid var(--ink);padding:calc(5*var(--u)) calc(8*var(--u));text-align:left;vertical-align:top;}
+  .xb-table th{font-size:calc(9.5*var(--u));letter-spacing:.18em;text-transform:uppercase;font-weight:500;}
+  .xb-table td.n{font-family:ui-monospace,Menlo,monospace;color:var(--deep-ochre);width:calc(34*var(--u));}
+  .xb-table td.m{color:var(--muted);}
+  .xb-title td{font-size:calc(11*var(--u));}
+  .xb-title td.big{font-family:"Bodoni Moda",Georgia,serif;font-size:calc(19*var(--u));font-weight:500;}
+  .xb-title td span{display:block;font-size:calc(8.5*var(--u));letter-spacing:.2em;text-transform:uppercase;color:var(--muted);}
+  .xb-tail{padding:calc(40*var(--u)) calc(86*var(--u)) calc(160*var(--u));}
+  body.phone .xb-head{padding:calc(110*var(--u)) calc(24*var(--u)) 0;}
+  body.phone .xb-paper{margin:calc(30*var(--u)) calc(12*var(--u)) 0;padding:calc(10*var(--u));}
+  body.phone .xb-notes{columns:1;}
+  body.phone .xb-tables{grid-template-columns:1fr;}
+  body.phone .xb-table .opt{display:none;}
+  body.phone .xb-tail{padding:calc(30*var(--u)) calc(24*var(--u)) calc(150*var(--u));}
+
+  /* ================= C — the section ================= */
+  .xc-defs{position:absolute;width:0;height:0;overflow:hidden;}
+  .xc-head{padding:calc(135*var(--u)) calc(86*var(--u)) 0;}
+  .xc-main{margin:calc(30*var(--u)) calc(40*var(--u)) 0;}
+  .xc-main svg{display:block;width:100%;height:auto;max-height:76cqh;margin:0 auto;}
+  .xc-cap{display:flex;justify-content:space-between;margin:calc(10*var(--u)) calc(40*var(--u)) 0;font-size:calc(11*var(--u));letter-spacing:.2em;text-transform:uppercase;color:var(--muted);}
+  .xc-rows{padding:calc(70*var(--u)) calc(86*var(--u)) 0;display:flex;flex-direction:column;gap:calc(80*var(--u));}
+  .xc-row{display:grid;grid-template-columns:1fr 1fr;gap:calc(56*var(--u));align-items:center;}
+  .xc-row.flip .xc-txt{order:2;}
+  .xc-det{position:relative;width:100%;max-width:calc(470*var(--u));justify-self:center;}
+  .xc-det svg{display:block;width:100%;height:auto;border:1px solid var(--ink);background:var(--ground);border-radius:50%;}
+  .xc-det .tag{position:absolute;left:50%;bottom:calc(-30*var(--u));transform:translateX(-50%);white-space:nowrap;font-size:calc(11*var(--u));letter-spacing:.2em;text-transform:uppercase;color:var(--muted);}
+  .xc-det .tag b{font-family:"Bodoni Moda",Georgia,serif;font-size:calc(18*var(--u));letter-spacing:0;color:var(--deep-ochre);font-weight:500;margin-right:calc(6*var(--u));}
+  .xc-tail{padding:calc(80*var(--u)) calc(86*var(--u)) calc(160*var(--u));}
+  body.phone .xc-head{padding:calc(110*var(--u)) calc(24*var(--u)) 0;}
+  body.phone .xc-main,body.phone .xc-cap{margin-left:calc(8*var(--u));margin-right:calc(8*var(--u));}
+  body.phone .xc-cap{font-size:calc(8*var(--u));}
+  body.phone .xc-rows{padding:calc(50*var(--u)) calc(24*var(--u)) 0;gap:calc(70*var(--u));}
+  body.phone .xc-row{grid-template-columns:1fr;gap:calc(44*var(--u));}
+  body.phone .xc-row .xc-det{order:-1;width:78%;margin:0 auto;}
+  body.phone .xc-row.flip .xc-txt{order:2;}
+  body.phone .xc-tail{padding:calc(60*var(--u)) calc(24*var(--u)) calc(150*var(--u));}
+
+  /* ================= D — the ring, exploded ================= */
+  .xd-stage{position:sticky;top:0;height:100cqh;z-index:0;pointer-events:none;}
+  .xd-stage > svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;}
+  .xd-stage text{font-family:"Outfit",sans-serif;}
+  .xd-stage text.nm{font-family:"Bodoni Moda",Georgia,serif;font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;}
+  .xd-flow{position:relative;margin-top:-100cqh;}
+  .xd-block{
+    min-height:100cqh;display:flex;flex-direction:column;justify-content:center;
+    padding:calc(110*var(--u)) calc(90*var(--u)) calc(110*var(--u)) 61%;
+  }
+  .xd-block.head{justify-content:flex-start;padding:calc(135*var(--u)) 0 0 calc(86*var(--u));}
+  .xd-plate{display:none;}
+  body.phone .xd-stage{z-index:2;}
+  body.phone .xd-plate{display:block;position:absolute;left:0;right:0;top:0;height:53cqh;background:linear-gradient(180deg,var(--ground) 0,var(--ground) 90%,rgba(224,247,231,0));}
+  body.phone .xd-block{min-height:0;justify-content:flex-start;padding:0 calc(24*var(--u)) 34cqh;}
+  body.phone .xd-block.head{min-height:86cqh;padding:calc(110*var(--u)) calc(24*var(--u)) 0;position:relative;z-index:3;}
+  body.phone .xd-block.end{padding-bottom:40cqh;}
+
+  .xa-pl.mat polygon{stroke-dasharray:none!important;fill-opacity:1!important;}
+
+  /* ================= E — sheets on the desk ================= */
+  .xe-stage{position:sticky;top:0;height:100cqh;z-index:0;pointer-events:none;}
+  .xe-card{
+    position:absolute;left:0;top:0;transform-origin:center;background:#fff;
+    border:1px solid var(--hair);border-radius:calc(5*var(--u));will-change:transform;
+  }
+  .xe-card.ghost{background:rgba(255,255,255,.45);border:1px dashed var(--ink);}
+  .xe-threads{position:absolute;inset:0;width:100%;height:100%;z-index:20;overflow:visible;}
+  .xe-flow{position:relative;margin-top:-100cqh;}
+  .xe-block{
+    min-height:100cqh;display:flex;flex-direction:column;justify-content:center;
+    padding:calc(110*var(--u)) calc(90*var(--u)) calc(110*var(--u)) 62%;
+  }
+  .xe-block.head{justify-content:flex-start;padding:calc(135*var(--u)) 0 0 calc(86*var(--u));}
+  .xe-plate{display:none;}
+  body.phone .xe-stage{z-index:2;}
+  body.phone .xe-plate{display:block;position:absolute;left:0;right:0;top:0;height:53cqh;background:linear-gradient(180deg,var(--ground) 0,var(--ground) 90%,rgba(224,247,231,0));}
+  body.phone .xe-block{min-height:0;justify-content:flex-start;padding:0 calc(24*var(--u)) 34cqh;}
+  body.phone .xe-block.head{min-height:86cqh;padding:calc(110*var(--u)) calc(24*var(--u)) 0;position:relative;z-index:3;}
+  body.phone .xe-block.end{padding-bottom:40cqh;}
+
+  @media (prefers-reduced-motion:reduce){
+    .rv{opacity:1!important;transform:none!important;}
+    *{transition:none!important;}
+  }
+
+  /* ================= the sends / receives rows ================= */
+  .io{list-style:none;margin:calc(14*var(--u)) 0 0;padding:calc(12*var(--u)) 0 0;border-top:1px solid rgba(10,10,10,.85);display:flex;flex-direction:column;gap:calc(6*var(--u));max-width:46ch;}
+  .io li{font-size:calc(14*var(--u));line-height:1.4;cursor:default;padding:calc(3*var(--u)) calc(8*var(--u)) calc(3*var(--u)) 0;border-radius:calc(4*var(--u));transition:color .2s var(--ease-hover);}
+  .io .io-k{display:inline-block;width:calc(82*var(--u));font-size:calc(9.5*var(--u));letter-spacing:.2em;text-transform:uppercase;font-weight:500;color:var(--muted);}
+  .io .io-to{color:var(--muted);}
+  .io li.on{color:var(--deep-ochre);}
+  .io li.on .io-to{color:var(--deep-ochre);}
+  @media(hover:hover) and (pointer:fine){ .io li:hover{color:var(--deep-ochre);} }
+  body.phone .io li{font-size:calc(13.5*var(--u));}
+  @media (prefers-reduced-motion:reduce){
+    .rv{opacity:1!important;transform:none!important;}
+    *{transition:none!important;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="sheet-head">
+    <span class="micro">Sketches · Pulled apart, live — the connections</span>
+    <h1 class="display">Four ways to show the wires</h1>
+    <p>You chose "Pulled apart, live" (A in <code>arch-exploded-sketches.html</code>), and the wires
+      between the sheets get lost. They were thin, they were drawn <b>under</b> the sheets, and they
+      faded out when a sheet slid forward — which is the moment you want to see what it connects
+      to. These are four ways to put the connections forward. Panel 0 is A as it stands.</p>
+    <div class="facts">
+      <b>What all four change.</b> The wires are drawn <b>over</b> the sheets. A sheet slides out
+      half as far, so its wires stay nearly straight. The wires of the sheet in focus turn ochre
+      and stay at full strength; the other wires fade. Each wire has a label on a paper tag.
+    </div>
+    <div class="facts">
+      <b>What all four add.</b> Under each plane's text, a short <b>sends / receives</b> list: one
+      row for each wire that leaves or reaches the plane. With a mouse, put the pointer on a row
+      and its wire lights. On a touch screen, tap the row; tap it again to let go.
+    </div>
+    <div class="facts">
+      <b>Mouse, trackpad, touch.</b> The drawing moves only with the normal scroll. The harness
+      cannot send real touch input, so the phone size shows the layout only.
+    </div>
+  </div>
+  <div class="sizer"><div class="sizer-in" role="group" aria-label="Screen size">
+    <button type="button" data-size="laptop" aria-pressed="true">Laptop 1440 × 900</button>
+    <button type="button" data-size="phone" aria-pressed="false">Phone 390 × 844</button>
+  </div></div>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">0</span><h2>The control</h2></div>
+    <p class="sk-note">A from the last sheet, unchanged. Watch the wires when a sheet slides forward.</p>
+    <div class="stage"><div class="frame" id="f0"><div class="screen" id="s0"></div></div></div>
+    <p class="hint">Scroll inside the box.</p>
+    <p class="sk-cost"><b>Costs:</b> the problem this sheet is about: the wires sit under the sheets, and they fade exactly when a plane is in focus.</p>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">A1</span><h2>Wires in front</h2></div>
+    <p class="sk-note">The simplest fix. The wires are heavier and drawn over the sheets, with a port where a wire leaves and an arrowhead where it arrives. When a plane is in focus, <b>its wires turn ochre</b> and keep their tags; every other wire drops back. The sends / receives rows say the same thing in words.</p>
+    <div class="stage"><div class="frame" id="f1"><div class="screen" id="s1"></div></div></div>
+    <p class="hint">Scroll inside the box.</p>
+    <p class="sk-cost"><b>Costs:</b> it is the least new. The drawing gets busier in the overview, where all four wires and four tags show at once.</p>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">A2</span><h2>The data moves</h2></div>
+    <p class="sk-note">The wires become <b>pipes</b>: a soft wide body, an ink core, and small packets inside. The packets <b>move with the scroll</b>, always in the direction the data goes: logs down to Monitoring, the breach down to CI/CD, a new model up to Serving, the image down to the cluster. Nothing moves while you read.</p>
+    <div class="stage"><div class="frame" id="f2"><div class="screen" id="s2"></div></div></div>
+    <p class="hint">Scroll inside the box.</p>
+    <p class="sk-cost"><b>Costs:</b> the most motion of the four, on top of a drawing that is already moving. The packets only move while you scroll, so a visitor who stops sees dotted lines, not flow.</p>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">A3</span><h2>Crossings are stops</h2></div>
+    <p class="sk-note">The wires get <b>their own scroll steps</b>, the way the Skills page gives each shared tool a stop. After each plane comes the wire that leaves it. On a wire step, only the two sheets it joins stay lit, the wire is ochre, and the text explains the crossing: what goes across, and why.</p>
+    <div class="stage"><div class="frame" id="f3"><div class="screen" id="s3"></div></div></div>
+    <p class="hint">Scroll inside the box.</p>
+    <p class="sk-cost"><b>Costs:</b> four more steps, so twelve in all, which is a long walk. The wire text is mine, written from the contract; it needs your check, and the producer side has no wire text to keep it in step.</p>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">A4</span><h2>Light shafts</h2></div>
+    <p class="sk-note">Each connection is a <b>volume</b>, not a line: a translucent column the width of the parts it joins, with an open mouth on each sheet. The flywheel shaft is ochre; the others are a cool blue-grey. The shafts multiply with the sheets, so where a shaft passes a sheet you see both.</p>
+    <div class="stage"><div class="frame" id="f4"><div class="screen" id="s4"></div></div></div>
+    <p class="hint">Scroll inside the box.</p>
+    <p class="sk-cost"><b>Costs:</b> the shafts are wide, so in the overview they cover parts of the sheets. It is the most stylized of the four and the furthest from the site’s thin ink line.</p>
+  </section>
+
+  <section class="sk" id="pick">
+    <div class="sk-head"><span class="sk-key">?</span><h2>What I'd pick, and why</h2></div>
+    <p class="sk-note">All four fix the base problem, because the wires now sit over the sheets and
+      stay lit for the plane in focus. They differ in how much the connections lead.</p>
+    <p class="sk-note"><b>My pick is A3: crossings are stops.</b> Your note was that the connections get
+      lost. In A1, A2 and A4 they are better drawn, but they are still the supporting cast of a plane.
+      A3 is the only version where <b>a connection is the subject</b>, with its own step, its own two
+      lit sheets and its own text. The loop is the story of this platform, and the wires are the
+      loop. A3 already uses A1's drawing (wires in front, ochre when in focus, paper tags), so it is
+      A1 plus the stops. The cost is length: twelve steps. If that is too long, A1 alone is the
+      lightest fix, and the sends / receives rows carry the connections in words.</p>
+    <p class="sk-note">A2's moving packets could join A3 later, on the wire steps only, where motion
+      along the wire is the point. I would not use them on every step.</p>
+  </section>
+</div>
+<script>
+(function(){
+  "use strict";
+  var reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var clamp=function(v,a,b){ return Math.min(b,Math.max(a,v)); };
+  var lerp=function(a,b,t){ return a+(b-a)*t; };
+  var easeOut=function(s){ return s<=0?0:s>=1?1:1-Math.pow(1-s,3); };
+  var smooth=function(s){ s=clamp(s,0,1); return s*s*(3-2*s); };
+  var phone=function(){ return document.body.classList.contains('phone'); };
+  var NS='http://www.w3.org/2000/svg';
+
+  /* ------------------------------------------------------------------ marks
+     The Home §3 ring's logos, copied out of transition-prototype.html. */
+  var MARKS={"labServe": [{"drawn": false, "color": "#FF9900", "name": "AWS Lambda", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M4.9855 0c-.2941.0031-.5335.2466-.534.5482L4.446 5.456c0 .1451.06.2835.159.3891a.5322.5322 0 0 0 .3806.1562h3.4282l8.197 17.6805a.5365.5365 0 0 0 .4885.3181h5.811c.2969 0 .5426-.2448.5426-.5482V18.544c0-.3035-.2392-.5482-.5425-.5482h-2.0138L12.7394.3153C12.647.124 12.4564 0 12.2452 0h-7.254Zm.5397 1.0907h6.3678l8.16 17.6804a.5365.5365 0 0 0 .4885.3181h1.8178v3.8173H17.437L9.2402 5.226a.536.536 0 0 0-.4885-.318H5.5223Zm2.0137 8.2366c-.2098.0011-.3937.1193-.4857.3096L.6002 23.2133a.5506.5506 0 0 0 .0313.5282.5334.5334 0 0 0 .4544.25h6.169a.5468.5468 0 0 0 .497-.3096l3.38-7.166a.5405.5405 0 0 0-.0029-.4686L8.036 9.637a.5468.5468 0 0 0-.4942-.3096Zm.0057 1.8036 2.488 5.1522-3.1214 6.6206H1.9465Z\"/></svg>"}, {"drawn": false, "color": "#009688", "name": "FastAPI", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 .0387C5.3729.0384.0003 5.3931 0 11.9988c-.001 6.6066 5.372 11.9628 12 11.9625 6.628.0003 12.001-5.3559 12-11.9625-.0003-6.6057-5.3729-11.9604-12-11.96m-.829 5.4153h7.55l-7.5805 5.3284h5.1828L5.279 18.5436q2.9466-6.5444 5.892-13.0896\"/></svg>"}, {"drawn": false, "color": "#005CED", "name": "ONNX", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M23.0325 11.2963c-.0503 0-.1006 0-.1508.0126l-4.021-7.4387c.0754-.1383.1131-.289.1131-.4524 0-.5403-.4398-.9675-.9675-.9675-.2765 0-.5278.113-.7037.3015L9.286 1.156C9.2357.6785 8.821.3016 8.3184.3016c-.5277 0-.9675.4398-.9675.9675 0 .1634.0377.3141.113.4524l-6.245 8.9591c-.0753-.0251-.1633-.0377-.2513-.0377-.5403 0-.9675.4398-.9675.9676 0 .5403.4398.9675.9675.9675h.0377l3.3676 8.3309c-.0503.1257-.088.2639-.088.402 0 .5404.4398.9676.9676.9676.2764 0 .5277-.113.7036-.3015l10.1152.9926c.1005.4273.49.7288.9424.7288.5403 0 .9676-.4398.9676-.9675 0-.2388-.088-.465-.2262-.6283l5.1141-8.8712c.0503.0126.1005.0126.1634.0126.5403 0 .9675-.4398.9675-.9676 0-.5403-.4272-.98-.9675-.98zM17.2272 4.021c.1131.1508.2765.264.4524.3267l-1.533 11.5728c-.1005.0252-.1885.0503-.2764.1005L7.4513 8.708c.0251-.0754.0377-.1634.0377-.2514 0-.0628-.0126-.1256-.0126-.1884zm4.8754 8.5068l-5.177 3.556a1.105 1.105 0 0 0-.1256-.0753L18.3455 4.335h.0126l3.9456 7.288c-.1508.1759-.2388.3895-.2388.6408 0 .1005.0126.1885.0377.2638zM6.3832 7.5016c-.4649.0754-.8293.4775-.8293.955v.0628l-3.4555 2.0481 5.378-7.7026zm.3519 1.91c.1256-.0252.2513-.088.3518-.1634l8.356 7.2628c-.0377.113-.0628.2262-.0628.3518v.0503l-9.311 3.845c-.1382-.201-.3518-.3518-.6031-.402zm8.8963 8.1172c.1257.1382.3016.2513.5026.289l.465 4.046c-.201.1006-.3519.264-.4524.4524l-9.8136-.955zm1.1435.2136c.3267-.1633.5403-.49.5403-.867 0-.088-.0126-.1634-.0377-.2513l4.7372-3.2545-4.8 8.331zm.2513-14.3497l-9.889 4.31-.1131-.0755 1.2565-5.3906h.0377c.3393 0 .6409-.1759.8168-.4397l7.891 1.5706zM1.935 11.6105c0-.0629-.0126-.1257-.0126-.1885l3.9079-2.2995c.0754.0754.1633.1508.2638.201L4.8252 20.243l-3.2043-7.9036c.1885-.176.3142-.4398.3142-.7288Z\"/></svg>"}], "labMon": [{"drawn": true, "color": null, "name": "Evidently — no logo published", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 20h18\"/><path d=\"M6 20v-6M10 20v-10M14 20v-4M18 20v-8\"/><path d=\"M4.5 6.5 8 3l3.5 3.5\"/><path d=\"M8 3v6\"/></svg>"}, {"drawn": false, "color": "#E6522C", "name": "Prometheus", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 0C5.373 0 0 5.372 0 12c0 6.627 5.373 12 12 12s12-5.373 12-12c0-6.628-5.373-12-12-12zm0 22.46c-1.885 0-3.414-1.26-3.414-2.814h6.828c0 1.553-1.528 2.813-3.414 2.813zm5.64-3.745H6.36v-2.046h11.28v2.046zm-.04-3.098H6.391c-.037-.043-.075-.086-.111-.13-1.155-1.401-1.427-2.133-1.69-2.879-.005-.025 1.4.287 2.395.511 0 0 .513.119 1.262.255-.72-.843-1.147-1.915-1.147-3.01 0-2.406 1.845-4.508 1.18-6.207.648.053 1.34 1.367 1.387 3.422.689-.951.977-2.69.977-3.755 0-1.103.727-2.385 1.454-2.429-.648 1.069.168 1.984.894 4.256.272.854.237 2.29.447 3.201.07-1.892.395-4.652 1.595-5.605-.529 1.2.079 2.702.494 3.424.671 1.164 1.078 2.047 1.078 3.716a4.642 4.642 0 01-1.11 2.996c.792-.149 1.34-.283 1.34-.283l2.573-.502s-.374 1.538-1.81 3.019z\"/></svg>"}, {"drawn": false, "color": "#F46800", "name": "Grafana", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M23.02 10.59a8.578 8.578 0 0 0-.862-3.034 8.911 8.911 0 0 0-1.789-2.445c.337-1.342-.413-2.505-.413-2.505-1.292-.08-2.113.4-2.416.62-.052-.02-.102-.044-.154-.064-.22-.089-.446-.172-.677-.247-.231-.073-.47-.14-.711-.197a9.867 9.867 0 0 0-.875-.161C14.557.753 12.94 0 12.94 0c-1.804 1.145-2.147 2.744-2.147 2.744l-.018.093c-.098.029-.2.057-.298.088-.138.042-.275.094-.413.143-.138.055-.275.107-.41.166a8.869 8.869 0 0 0-1.557.87l-.063-.029c-2.497-.955-4.716.195-4.716.195-.203 2.658.996 4.33 1.235 4.636a11.608 11.608 0 0 0-.607 2.635C1.636 12.677.953 15.014.953 15.014c1.926 2.214 4.171 2.351 4.171 2.351.003-.002.006-.002.006-.005.285.509.615.994.986 1.446.156.19.32.371.488.548-.704 2.009.099 3.68.099 3.68 2.144.08 3.553-.937 3.849-1.173a9.784 9.784 0 0 0 3.164.501h.08l.055-.003.107-.002.103-.005.003.002c1.01 1.44 2.788 1.646 2.788 1.646 1.264-1.332 1.337-2.653 1.337-2.94v-.058c0-.02-.003-.039-.003-.06.265-.187.52-.387.758-.6a7.875 7.875 0 0 0 1.415-1.7c1.43.083 2.437-.885 2.437-.885-.236-1.49-1.085-2.216-1.264-2.354l-.018-.013-.016-.013a.217.217 0 0 1-.031-.02c.008-.092.016-.18.02-.27.011-.162.016-.323.016-.48v-.253l-.005-.098-.008-.135a1.891 1.891 0 0 0-.01-.13c-.003-.042-.008-.083-.013-.125l-.016-.124-.018-.122a6.215 6.215 0 0 0-2.032-3.73 6.015 6.015 0 0 0-3.222-1.46 6.292 6.292 0 0 0-.85-.048l-.107.002h-.063l-.044.003-.104.008a4.777 4.777 0 0 0-3.335 1.695c-.332.4-.592.84-.768 1.297a4.594 4.594 0 0 0-.312 1.817l.003.091c.005.055.007.11.013.164a3.615 3.615 0 0 0 .698 1.82 3.53 3.53 0 0 0 1.827 1.282c.33.098.66.14.971.137.039 0 .078 0 .114-.002l.063-.003c.02 0 .041-.003.062-.003.034-.002.065-.007.099-.01.007 0 .018-.003.028-.003l.031-.005.06-.008a1.18 1.18 0 0 0 .112-.02c.036-.008.072-.013.109-.024a2.634 2.634 0 0 0 .914-.415c.028-.02.056-.041.085-.065a.248.248 0 0 0 .039-.35.244.244 0 0 0-.309-.06l-.078.042c-.09.044-.184.083-.283.116a2.476 2.476 0 0 1-.475.096c-.028.003-.054.006-.083.006l-.083.002c-.026 0-.054 0-.08-.002l-.102-.006h-.012l-.024.006c-.016-.003-.031-.003-.044-.006-.031-.002-.06-.007-.091-.01a2.59 2.59 0 0 1-.724-.213 2.557 2.557 0 0 1-.667-.438 2.52 2.52 0 0 1-.805-1.475 2.306 2.306 0 0 1-.029-.444l.006-.122v-.023l.002-.031c.003-.021.003-.04.005-.06a3.163 3.163 0 0 1 1.352-2.29 3.12 3.12 0 0 1 .937-.43 2.946 2.946 0 0 1 .776-.101h.06l.07.002.045.003h.026l.07.005a4.041 4.041 0 0 1 1.635.49 3.94 3.94 0 0 1 1.602 1.662 3.77 3.77 0 0 1 .397 1.414l.005.076.003.075c.002.026.002.05.002.075 0 .024.003.052 0 .07v.065l-.002.073-.008.174a6.195 6.195 0 0 1-.08.639 5.1 5.1 0 0 1-.267.927 5.31 5.31 0 0 1-.624 1.13 5.052 5.052 0 0 1-3.237 2.014 4.82 4.82 0 0 1-.649.066l-.039.003h-.287a6.607 6.607 0 0 1-1.716-.265 6.776 6.776 0 0 1-3.4-2.274 6.75 6.75 0 0 1-.746-1.15 6.616 6.616 0 0 1-.714-2.596l-.005-.083-.002-.02v-.056l-.003-.073v-.096l-.003-.104v-.07l.003-.163c.008-.22.026-.45.054-.678a8.707 8.707 0 0 1 .28-1.355c.128-.444.286-.872.473-1.277a7.04 7.04 0 0 1 1.456-2.1 5.925 5.925 0 0 1 .953-.763c.169-.111.343-.213.524-.306.089-.05.182-.091.273-.135.047-.02.093-.042.138-.062a7.177 7.177 0 0 1 .714-.267l.145-.045c.049-.015.098-.026.148-.041.098-.029.197-.052.296-.076.049-.013.1-.02.15-.033l.15-.032.151-.028.076-.013.075-.01.153-.024c.057-.01.114-.013.171-.023l.169-.021c.036-.003.073-.008.106-.01l.073-.008.036-.003.042-.002c.057-.003.114-.008.171-.01l.086-.006h.023l.037-.003.145-.007a7.999 7.999 0 0 1 1.708.125 7.917 7.917 0 0 1 2.048.68 8.253 8.253 0 0 1 1.672 1.09l.09.077.089.078c.06.052.114.107.171.159.057.052.112.106.166.16.052.055.107.107.159.164a8.671 8.671 0 0 1 1.41 1.978c.012.026.028.052.04.078l.04.078.075.156c.023.051.05.1.07.153l.065.15a8.848 8.848 0 0 1 .45 1.34.19.19 0 0 0 .201.142.186.186 0 0 0 .172-.184c.01-.246.002-.532-.024-.856z\"/></svg>"}, {"drawn": false, "color": "#569A31", "name": "Amazon S3", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M20.913 13.147l.12-.895c.947.576 1.258.922 1.354 1.071-.16.031-.562.046-1.474-.176zm-2.174 7.988a.547.547 0 0 0-.005.073c0 .084-.207.405-1.124.768a10.28 10.28 0 0 1-1.438.432c-1.405.325-3.128.504-4.853.504-4.612 0-7.412-1.184-7.412-1.704a.547.547 0 0 0-.005-.073L1.81 5.602c.135.078.28.154.432.227.042.02.086.038.128.057.134.062.272.122.417.18l.179.069c.154.058.314.114.478.168.043.013.084.029.13.043.207.065.423.127.646.187l.176.044c.175.044.353.087.534.127a23.414 23.414 0 0 0 .843.17l.121.023c.252.045.508.085.768.122.071.011.144.02.216.03.2.027.4.053.604.077l.24.027c.245.026.49.05.74.07l.081.009c.275.022.552.04.83.056l.233.012c.21.01.422.018.633.025a33.088 33.088 0 0 0 2.795-.026l.232-.011c.278-.016.555-.034.83-.056l.08-.008c.25-.02.497-.045.742-.072l.238-.026c.205-.024.408-.05.609-.077.07-.01.141-.019.211-.03.261-.037.519-.078.772-.122l.111-.02c.215-.04.427-.082.634-.125l.212-.047c.186-.041.368-.085.546-.13l.166-.042c.225-.06.444-.122.654-.189.04-.012.077-.026.115-.038a10.6 10.6 0 0 0 .493-.173c.058-.021.114-.044.17-.066.15-.06.293-.12.43-.185.038-.017.079-.034.116-.052.153-.073.3-.15.436-.228l-.976 7.245c-2.488-.78-5.805-2.292-7.311-3a1.09 1.09 0 0 0-1.088-1.085c-.6 0-1.088.489-1.088 1.088 0 .6.488 1.089 1.088 1.089.196 0 .378-.056.537-.148 1.72.812 5.144 2.367 7.715 3.15zm-7.42-20.047c5.677 0 9.676 1.759 9.75 2.736l-.014.113c-.01.033-.031.067-.048.101-.015.028-.026.057-.047.087-.024.033-.058.068-.09.102-.028.03-.051.06-.084.09-.038.035-.087.07-.133.105-.04.03-.074.06-.119.091-.053.036-.116.071-.177.107-.05.03-.095.06-.15.09-.068.036-.147.073-.222.11-.059.028-.114.057-.177.085-.084.038-.177.074-.268.111-.068.027-.13.054-.203.082-.097.036-.205.072-.31.107-.075.026-.148.053-.228.079-.111.035-.233.069-.35.103-.085.024-.165.05-.253.073-.124.034-.258.065-.389.098-.093.022-.181.046-.278.068-.139.032-.287.061-.433.091-.098.02-.191.041-.293.06-.155.03-.32.057-.482.084-.1.018-.198.036-.302.052-.166.026-.342.048-.515.072-.11.014-.213.03-.325.044-.181.023-.372.041-.56.06-.11.012-.218.025-.332.036-.188.016-.386.029-.58.043-.122.009-.24.02-.364.028-.207.012-.422.02-.635.028-.12.005-.234.012-.354.016a35.605 35.605 0 0 1-2.069 0c-.12-.004-.234-.011-.352-.016-.214-.008-.43-.016-.637-.028-.122-.008-.238-.02-.36-.027-.195-.015-.394-.028-.584-.044-.11-.01-.215-.024-.324-.035-.19-.02-.384-.038-.568-.06l-.315-.044c-.176-.024-.355-.046-.525-.073-.1-.015-.192-.033-.29-.05-.167-.028-.335-.055-.494-.086-.096-.018-.183-.038-.276-.056-.151-.032-.305-.062-.45-.095-.09-.02-.173-.043-.26-.064-.138-.034-.277-.067-.407-.102-.082-.022-.157-.046-.235-.069a11.75 11.75 0 0 1-.368-.108c-.075-.024-.141-.049-.213-.073-.11-.037-.223-.075-.325-.113-.067-.025-.125-.051-.188-.077-.096-.038-.195-.076-.282-.115-.06-.027-.11-.054-.166-.08-.08-.039-.162-.077-.233-.116-.052-.028-.094-.055-.142-.084-.063-.038-.13-.075-.185-.113-.043-.029-.075-.058-.113-.086-.048-.037-.098-.073-.139-.11-.032-.029-.054-.057-.08-.087-.033-.035-.069-.07-.093-.104-.02-.03-.031-.058-.046-.086-.018-.035-.039-.068-.049-.102l-.015-.113c.076-.977 4.074-2.736 9.748-2.736zm12.182 12.124c-.118-.628-.84-1.291-2.31-2.128l.963-7.16a.531.531 0 0 0 .005-.073C22.16 1.581 16.447 0 11.32 0 6.194 0 .482 1.581.482 3.851a.58.58 0 0 0 .005.072L2.819 21.25c.071 2.002 5.236 2.75 8.5 2.75 1.805 0 3.615-.188 5.098-.531.598-.138 1.133-.3 1.592-.48 1.18-.467 1.789-1.053 1.813-1.739l.945-7.018c.557.131 1.016.197 1.389.197.54 0 .902-.137 1.134-.413a.956.956 0 0 0 .21-.804Z\"/></svg>"}], "labBuild": [{"drawn": false, "color": "#EE4C2C", "name": "PyTorch", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12.005 0L4.952 7.053a9.865 9.865 0 000 14.022 9.866 9.866 0 0014.022 0c3.984-3.9 3.986-10.205.085-14.023l-1.744 1.743c2.904 2.905 2.904 7.634 0 10.538s-7.634 2.904-10.538 0-2.904-7.634 0-10.538l4.647-4.646.582-.665zm3.568 3.899a1.327 1.327 0 00-1.327 1.327 1.327 1.327 0 001.327 1.328A1.327 1.327 0 0016.9 5.226 1.327 1.327 0 0015.573 3.9z\"/></svg>"}, {"drawn": false, "color": "#0194E2", "name": "MLflow", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M11.883.002a12.044 12.044 0 0 0-9.326 19.463l3.668-2.694A7.573 7.573 0 0 1 12.043 4.45v2.867l6.908-5.14A12.012 12.012 0 0 0 11.883.002zm9.562 4.533L17.777 7.23a7.573 7.573 0 0 1-5.818 12.322v-2.867l-6.908 5.14a12.046 12.046 0 0 0 16.394-17.29z\"/></svg>"}, {"drawn": false, "color": "#844FBA", "name": "Terraform", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M1.44 0v7.575l6.561 3.79V3.787zm21.12 4.227l-6.561 3.791v7.574l6.56-3.787zM8.72 4.23v7.575l6.561 3.787V8.018zm0 8.405v7.575L15.28 24v-7.578z\"/></svg>"}, {"drawn": false, "color": "#FF9900", "name": "Amazon EKS", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"m14.67 8.505-2.875 3.335 3.128 3.648h-1.168l-2.808-3.277v3.368h-.842V8.421h.842v2.947l2.603-2.863Zm7.225 6.751-3.369-2.021V8.421a.42.42 0 0 0-.209-.364l-4.843-2.825V1.159l8.42 4.976Zm.635-9.724L13.267.06a.422.422 0 0 0-.635.362v5.053c0 .15.08.288.208.363l4.844 2.826v4.81a.42.42 0 0 0 .205.362l4.21 2.526a.42.42 0 0 0 .638-.361V5.895a.42.42 0 0 0-.207-.363ZM11.977 23.1l-9.872-5.248V6.135l8.421-4.976v4.084L6.09 8.066a.422.422 0 0 0-.195.355v7.158a.42.42 0 0 0 .226.373l5.665 2.948a.42.42 0 0 0 .387 0l5.496-2.84 3.382 2.03Zm10.135-5.356-4.21-2.526a.42.42 0 0 0-.411-.013l-5.51 2.847-5.244-2.729v-6.67l4.436-2.824a.422.422 0 0 0 .195-.355V.42a.421.421 0 0 0-.635-.362L1.47 5.532a.421.421 0 0 0-.207.363v12.21c0 .156.086.299.223.372l10.297 5.474a.421.421 0 0 0 .401-.004l9.915-5.473a.422.422 0 0 0 .013-.73Z\"/></svg>"}], "labDeploy": [{"drawn": false, "color": "#2088FF", "name": "GitHub Actions", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M10.984 13.836a.5.5 0 0 1-.353-.146l-.745-.743a.5.5 0 1 1 .706-.708l.392.391 1.181-1.18a.5.5 0 0 1 .708.707l-1.535 1.533a.504.504 0 0 1-.354.146zm9.353-.147l1.534-1.532a.5.5 0 0 0-.707-.707l-1.181 1.18-.392-.391a.5.5 0 1 0-.706.708l.746.743a.497.497 0 0 0 .706-.001zM4.527 7.452l2.557-1.585A1 1 0 0 0 7.09 4.17L4.533 2.56A1 1 0 0 0 3 3.406v3.196a1.001 1.001 0 0 0 1.527.85zm2.03-2.436L4 6.602V3.406l2.557 1.61zM24 12.5c0 1.93-1.57 3.5-3.5 3.5a3.503 3.503 0 0 1-3.46-3h-2.08a3.503 3.503 0 0 1-3.46 3 3.502 3.502 0 0 1-3.46-3h-.558c-.972 0-1.85-.399-2.482-1.042V17c0 1.654 1.346 3 3 3h.04c.244-1.693 1.7-3 3.46-3 1.93 0 3.5 1.57 3.5 3.5S13.43 24 11.5 24a3.502 3.502 0 0 1-3.46-3H8c-2.206 0-4-1.794-4-4V9.899A5.008 5.008 0 0 1 0 5c0-2.757 2.243-5 5-5s5 2.243 5 5a5.005 5.005 0 0 1-4.952 4.998A2.482 2.482 0 0 0 7.482 12h.558c.244-1.693 1.7-3 3.46-3a3.502 3.502 0 0 1 3.46 3h2.08a3.503 3.503 0 0 1 3.46-3c1.93 0 3.5 1.57 3.5 3.5zm-15 8c0 1.378 1.122 2.5 2.5 2.5s2.5-1.122 2.5-2.5-1.122-2.5-2.5-2.5S9 19.122 9 20.5zM5 9c2.206 0 4-1.794 4-4S7.206 1 5 1 1 2.794 1 5s1.794 4 4 4zm9 3.5c0-1.378-1.122-2.5-2.5-2.5S9 11.122 9 12.5s1.122 2.5 2.5 2.5 2.5-1.122 2.5-2.5zm9 0c0-1.378-1.122-2.5-2.5-2.5S18 11.122 18 12.5s1.122 2.5 2.5 2.5 2.5-1.122 2.5-2.5zm-13 8a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0zm2 0a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0zm12 0c0 1.93-1.57 3.5-3.5 3.5a3.503 3.503 0 0 1-3.46-3.002c-.007.001-.013.005-.021.005l-.506.017h-.017a.5.5 0 0 1-.016-.999l.506-.017c.018-.002.035.006.052.007A3.503 3.503 0 0 1 20.5 17c1.93 0 3.5 1.57 3.5 3.5zm-1 0c0-1.378-1.122-2.5-2.5-2.5S18 19.122 18 20.5s1.122 2.5 2.5 2.5 2.5-1.122 2.5-2.5z\"/></svg>"}, {"drawn": false, "color": "#2496ED", "name": "Docker", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M13.983 11.078h2.119a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.119a.185.185 0 00-.185.185v1.888c0 .102.083.185.185.185m-2.954-5.43h2.118a.186.186 0 00.186-.186V3.574a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m0 2.716h2.118a.187.187 0 00.186-.186V6.29a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.887c0 .102.082.185.185.186m-2.93 0h2.12a.186.186 0 00.184-.186V6.29a.185.185 0 00-.185-.185H8.1a.185.185 0 00-.185.185v1.887c0 .102.083.185.185.186m-2.964 0h2.119a.186.186 0 00.185-.186V6.29a.185.185 0 00-.185-.185H5.136a.186.186 0 00-.186.185v1.887c0 .102.084.185.186.186m5.893 2.715h2.118a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m-2.93 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.083.185.185.185m-2.964 0h2.119a.185.185 0 00.185-.185V9.006a.185.185 0 00-.184-.186h-2.12a.186.186 0 00-.186.186v1.887c0 .102.084.185.186.185m-2.92 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.082.185.185.185M23.763 9.89c-.065-.051-.672-.51-1.954-.51-.338.001-.676.03-1.01.087-.248-1.7-1.653-2.53-1.716-2.566l-.344-.199-.226.327c-.284.438-.49.922-.612 1.43-.23.97-.09 1.882.403 2.661-.595.332-1.55.413-1.744.42H.751a.751.751 0 00-.75.748 11.376 11.376 0 00.692 4.062c.545 1.428 1.355 2.48 2.41 3.124 1.18.723 3.1 1.137 5.275 1.137.983.003 1.963-.086 2.93-.266a12.248 12.248 0 003.823-1.389c.98-.567 1.86-1.288 2.61-2.136 1.252-1.418 1.998-2.997 2.553-4.4h.221c1.372 0 2.215-.549 2.68-1.009.309-.293.55-.65.707-1.046l.098-.288Z\"/></svg>"}, {"drawn": false, "color": "#FF9900", "name": "AWS Lambda", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M4.9855 0c-.2941.0031-.5335.2466-.534.5482L4.446 5.456c0 .1451.06.2835.159.3891a.5322.5322 0 0 0 .3806.1562h3.4282l8.197 17.6805a.5365.5365 0 0 0 .4885.3181h5.811c.2969 0 .5426-.2448.5426-.5482V18.544c0-.3035-.2392-.5482-.5425-.5482h-2.0138L12.7394.3153C12.647.124 12.4564 0 12.2452 0h-7.254Zm.5397 1.0907h6.3678l8.16 17.6804a.5365.5365 0 0 0 .4885.3181h1.8178v3.8173H17.437L9.2402 5.226a.536.536 0 0 0-.4885-.318H5.5223Zm2.0137 8.2366c-.2098.0011-.3937.1193-.4857.3096L.6002 23.2133a.5506.5506 0 0 0 .0313.5282.5334.5334 0 0 0 .4544.25h6.169a.5468.5468 0 0 0 .497-.3096l3.38-7.166a.5405.5405 0 0 0-.0029-.4686L8.036 9.637a.5468.5468 0 0 0-.4942-.3096Zm.0057 1.8036 2.488 5.1522-3.1214 6.6206H1.9465Z\"/></svg>"}]};
+  function mark(lab,name){
+    var m=MARKS[lab].filter(function(x){ return x.name.indexOf(name)===0; })[0];
+    if(!m) return '';
+    return '<span class="bm" style="'+(m.color?'--bc:'+m.color:'')+'" title="'+m.name+'">'+m.svg+'</span>';
+  }
+  function row(lab){ return '<span class="bmrow">'+MARKS[lab].map(function(m){ return mark(lab,m.name); }).join('')+'</span>'; }
+
+  /* ------------------------------------------------------------------ content
+     From architecture.json (fetched 2026-10-02), with light cuts. The emoji become
+     "a yes" / "a no" — the site has no emoji. */
+  var T={
+    ov:'Four planes: an always-on <b>serving plane</b> at ~$0, a <b>CI/CD plane</b> on GitHub Actions, an <b>ephemeral Kubernetes plane</b> that exists ~30 minutes a month, and a <b>monitoring plane</b> that closes the loop back into training.',
+    one:'A visitor’s drawing becomes a prediction, a log line, and — if they grade it — labeled training data. Every merge retrains, gates, and redeploys the model without a human. Every week the logs are scored for drift.',
+    fly:'A visitor draws, the model guesses, and the visitor grades the guess — a yes, or a no with the correct class. Those labeled drawings accumulate in S3. On demand, a training run folds them into the <b>training split only</b>, so evaluation stays honest, registers a challenger, and the quality gate decides whether it ships.',
+    fly2:'The canvas → CI → deploy → drift → feedback → retrain loop closes without a human in it.',
+    gate:'<b>Ship and re-crown are decoupled.</b> Every training run produces a challenger; the gate compares it to the reigning champion on held-out test accuracy, with two rules — an absolute floor (0.85) and no regression beyond a small epsilon. Pass, and the challenger ships.',
+    gate2:'The champion alias only moves on a strict improvement, so “champion” always means the best-ever bar. A crippled 0.50 model is blocked in CI, deploy steps skip, and the live model is untouched.',
+    k8s:'The same serving image that runs on Lambda also runs on Kubernetes — but only for ~30 minutes a month. A workflow does <b>apply → exercise → destroy</b>: Terraform brings up EKS and a VPC, Helm deploys the API by image digest, Prometheus scrapes it, k6 drives load, and everything is torn down.',
+    k8s2:'A monthly failsafe sweeps any survivor tagged <code>tier=ephemeral</code>, so a botched teardown can’t quietly bill. No always-on cluster cost, anywhere.',
+    evi:'Every claim on the site is backed by a published artifact. The evidence hub renders from the MLflow registry. The weekly drift report scores real predictions against a reference distribution; feedback becomes a proxy-accuracy signal; a drift breach opens a GitHub issue.',
+    evi2:'The site styles all of it — including this very page — from JSON contracts, never from the platform’s own HTML.',
+    serve:'An always-on serving plane at ~$0. AWS Lambda wakes from zero, runs FastAPI with an ONNX model, and sends the guess back to the canvas.'
+  };
+  var LINKS='<div class="t-links"><a class="link" href="#" onclick="return false">Browse the raw evidence&nbsp;→</a><a class="link" href="#" onclick="return false">The repo&nbsp;→</a></div>';
+  function txt(k,h,ps,cls){ return '<p class="micro t-k '+(cls||'')+'">'+k+'</p><h2 class="t-h">'+h+'</h2>'+ps.map(function(p){ return '<p class="t-p">'+p+'</p>'; }).join(''); }
+
+  var CHROME_TOP='<div class="f-top"><span class="f-home"><svg viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M16 6H1M6 1 1 6l5 5" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Home</span></span>'+
+    '<span class="f-menu"><svg viewBox="0 0 26 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 1h24M1 7h24M1 13h24" stroke-linecap="round"/></svg></span></div>';
+  var CHROME_TRAY='<div class="f-tray"><span class="on">Architecture</span><span>Journey</span><span>Skills</span></div>';
+  function chrome(id){ document.getElementById(id).insertAdjacentHTML('beforeend',CHROME_TOP+CHROME_TRAY); }
+
+  /* ================================================================== C
+     Isometric sheets. iso(x,y,z) → screen: x runs down-right, y runs down-left, z up.
+     Coordinates are in u (laptop) — the whole drawing is one SVG in u units. */
+  var C_PLANES=[
+    {k:'serve', name:'Serving', sub:'always on · ~$0', fill:'#dee5f4',
+     parts:[{n:'Browser',s:'canvas · yes / no',x:110,y:250},{n:'Lambda',s:'FastAPI + ONNX',x:300,y:100},{n:'S3',s:'logs + labeled drawings',x:470,y:250}],
+     cap:txt('Plane 1 · always on','Serving',[T.serve,T.one])},
+    {k:'mon', name:'Monitoring', sub:'every Monday', fill:'#d8ecde',
+     parts:[{n:'Drift report',s:'Evidently',x:470,y:250},{n:'Evidence hub',s:'JSON contracts',x:470,y:80},{n:'GitHub issue',s:'on a drift breach',x:130,y:250}],
+     cap:txt('Plane 2 · weekly','Evidence &amp; drift',[T.evi,T.evi2])},
+    {k:'ci', name:'CI/CD', sub:'every merge', fill:'#f8dfc4',
+     parts:[{n:'Train',s:'PyTorch · DVC',x:130,y:250},{n:'Registry',s:'MLflow',x:130,y:80},{n:'Quality gate',s:'floor 0.85 · ε',x:460,y:200,gate:true},{n:'Deploy',s:'Docker → Lambda',x:300,y:100}],
+     cap:txt('Plane 3 · on every merge','The quality gate',[T.gate,T.gate2])},
+    {k:'k8s', name:'Ephemeral K8s', sub:'~30 minutes a month', fill:'#fbd3dc', ghost:true,
+     parts:[{n:'EKS + VPC',s:'Terraform',x:120,y:240},{n:'API by digest',s:'Helm',x:300,y:100},{n:'Load',s:'k6 · Prometheus',x:470,y:250}],
+     cap:txt('Plane 4 · ~30 minutes a month','Ephemeral Kubernetes',[T.k8s,T.k8s2],'o')}
+  ];
+  /* ================================================================== shared
+     One exploded sheet, in local drawing units, centred on (0,0). iso(x,y,z): x runs
+     down-right, y runs down-left, z up. Used by A and B (and the parts data by E). */
+  var C30=Math.cos(Math.PI/6);
+  var iso=function(x,y,z){ return [(x-y)*C30,(x+y)*0.5-(z||0)]; };
+  var fp=function(p){ return p[0].toFixed(1)+','+p[1].toFixed(1); };
+  var SPW=520, SPD=300;
+  function sheet(pl,o){
+    var hw=SPW/2, hd=SPD/2, T=10, s='', pts={}, ts=o.ts||1;
+    var c=[[-hw,-hd],[hw,-hd],[hw,hd],[-hw,hd]].map(function(q){ return iso(q[0],q[1],0); });
+    var dn=function(p){ return [p[0],p[1]+T]; };
+    var g=pl.ghost, dash=g?' stroke-dasharray="5 5"':'';
+    var side=o.ink?'url(#'+o.hatch+')':pl.fill, op=g&&!o.ink?' fill-opacity=".4"':'';
+    var topFill=o.ink?'#fff':pl.fill;
+    s+='<polygon class="ln" pathLength="1" points="'+[c[1],c[2],dn(c[2]),dn(c[1])].map(fp).join(' ')+'" fill="'+side+'" stroke="#0a0a0a" stroke-width="1"'+dash+op+(o.ink?'':' style="filter:brightness(.92)"')+'/>';
+    s+='<polygon class="ln" pathLength="1" points="'+[c[2],c[3],dn(c[3]),dn(c[2])].map(fp).join(' ')+'" fill="'+side+'" stroke="#0a0a0a" stroke-width="1"'+dash+op+(o.ink?'':' style="filter:brightness(.85)"')+'/>';
+    s+='<polygon class="ln" pathLength="1" points="'+c.map(fp).join(' ')+'" fill="'+topFill+'" stroke="#0a0a0a" stroke-width="1"'+dash+(g&&!o.ink?' fill-opacity=".5"':'')+'/>';
+    pl.parts.forEach(function(pt){
+      var bx=pt.x*SPW/560-hw, by=pt.y*SPD/320-hd, bw=60, bh=pt.gate?18:32;
+      var sq=[[0,0],[bw,0],[bw,bw],[0,bw]];
+      var top=sq.map(function(q){ return iso(bx+q[0]-bw/2,by+q[1]-bw/2,bh); });
+      var base=sq.map(function(q){ return iso(bx+q[0]-bw/2,by+q[1]-bw/2,0); });
+      var fc=o.ink?'#fff':(g?'rgba(255,255,255,.55)':'#fff'), pd=g?' stroke-dasharray="3 3"':'';
+      s+='<polygon class="ln" pathLength="1" points="'+[top[1],top[2],base[2],base[1]].map(fp).join(' ')+'" fill="'+fc+'" stroke="#0a0a0a" stroke-width=".9"'+pd+(o.ink?'':' style="filter:brightness(.94)"')+'/>';
+      s+='<polygon class="ln" pathLength="1" points="'+[top[2],top[3],base[3],base[2]].map(fp).join(' ')+'" fill="'+fc+'" stroke="#0a0a0a" stroke-width=".9"'+pd+(o.ink?'':' style="filter:brightness(.86)"')+'/>';
+      s+='<polygon class="ln" pathLength="1" points="'+top.map(fp).join(' ')+'" fill="'+fc+'" stroke="#0a0a0a" stroke-width=".9"'+pd+'/>';
+      var lp=iso(bx,by,bh+bw/2+26);
+      if(o.labels){
+        s+='<text x="'+lp[0]+'" y="'+lp[1]+'" font-size="'+(13*ts)+'" font-weight="500" text-anchor="middle" fill="#0a0a0a">'+pt.n+'</text>';
+        s+='<text x="'+lp[0]+'" y="'+(lp[1]+14*ts)+'" font-size="'+(10.5*ts)+'" text-anchor="middle" fill="#6b6b6b">'+pt.s+'</text>';
+      }
+      if(pt.gate && o.ink){
+        var dz2=iso(bx+120,by-30,0), a2=iso(bx+28,by,0);
+        s+='<line class="ln" pathLength="1" x1="'+a2[0]+'" y1="'+a2[1]+'" x2="'+dz2[0]+'" y2="'+(dz2[1]+14)+'" stroke="#0a0a0a" stroke-dasharray="4 4"/>';
+        s+='<line class="ln" pathLength="1" x1="'+(dz2[0]-11)+'" y1="'+(dz2[1]+18)+'" x2="'+(dz2[0]+11)+'" y2="'+(dz2[1]+18)+'" stroke="#0a0a0a" stroke-width="1.8"/>';
+        s+='<text x="'+dz2[0]+'" y="'+(dz2[1]+38)+'" font-size="'+(11*ts)+'" letter-spacing="1.6" font-weight="500" text-anchor="middle" fill="#96600a">0.50 · BLOCKED</text>';
+      }
+      if(pt.gate && o.labels){
+        var dz=iso(bx+70,by+60,0), a0=iso(bx+20,by+20,0);
+        s+='<line x1="'+a0[0]+'" y1="'+a0[1]+'" x2="'+dz[0]+'" y2="'+(dz[1]+12)+'" stroke="#0a0a0a" stroke-dasharray="4 4"/>';
+        s+='<line x1="'+(dz[0]-10)+'" y1="'+(dz[1]+16)+'" x2="'+(dz[0]+10)+'" y2="'+(dz[1]+16)+'" stroke="#0a0a0a" stroke-width="1.8"/>';
+        s+='<text x="'+dz[0]+'" y="'+(dz[1]+32*ts)+'" font-size="'+(11.5*ts)+'" font-weight="500" text-anchor="middle" fill="#96600a">v7 · 0.50 — blocked</text>';
+      }
+      pts[pt.n]={top:iso(bx,by,bh),base:iso(bx,by,0),x:bx,y:by};
+    });
+    return {svg:s,pts:pts,c:c};
+  }
+  // the four wires between the planes: [from plane, part] → [to plane, part], kind, label
+  var WIRES=[
+    {a:[0,'S3'],b:[1,'Drift report'],up:false,l:'logs, every prediction'},
+    {a:[1,'GitHub issue'],b:[2,'Train'],up:false,l:'drift breach → retrain'},
+    {a:[2,'Deploy'],b:[0,'Lambda'],up:true,l:'the flywheel'},
+    {a:[2,'Deploy'],b:[3,'API by digest'],up:false,l:'the same image'}
+  ];
+
+  /* a story told against one fixed drawing: blocks scroll past, and the scroll between
+     two blocks moves the drawing from one block's state to the next. Shared by A, D, E.
+     Text strength is camera-driven on the laptop (each block is at 1 at its own stop). */
+  function Story(scr,cls){ this.scr=scr; this.cls=cls; this.anchors=[]; this.blocks=[]; }
+  Story.prototype.layout=function(){
+    var H=this.scr.clientHeight, max=this.scr.scrollHeight-H, ph=phone(), prev=0;
+    this.blocks=[].slice.call(this.scr.querySelectorAll('.'+this.cls));
+    this.anchors=this.blocks.map(function(b,i){
+      if(!i) return 0;
+      var a=ph?b.offsetTop-0.53*H:b.offsetTop+b.offsetHeight/2-H/2;
+      a=clamp(a,prev+1,Math.max(prev+1,max)); prev=a; return a;
+    });
+  };
+  Story.prototype.state=function(){
+    var st=this.scr.scrollTop, an=this.anchors, i=0, ph=phone(), H=this.scr.clientHeight;
+    if(an.length<2) return null;
+    while(i<an.length-2 && st>=an[i+1]) i++;
+    var seg=Math.max(1,an[i+1]-an[i]), f=clamp((st-an[i])/seg,0,1), e;
+    if(reduce) e=f<.5?0:1;
+    else if(ph){ var T2=Math.min(seg,H*.34); e=smooth((st-(an[i+1]-T2))/T2); }
+    else e=smooth((f-.12)/.76);
+    this.blocks.forEach(function(b,j){
+      if(!j){ b.style.opacity=ph?String(clamp(1-st/(H*.28),0,1)):''; return; }
+      if(ph||reduce){ b.style.opacity=''; return; }
+      var o=0;
+      if(j===i) o=1-clamp((f-.15)/.3,0,1);
+      else if(j===i+1) o=clamp((f-.55)/.3,0,1);
+      b.style.opacity=o.toFixed(3);
+    });
+    return {i:i,e:e,f:f,st:st,H:H,W:this.scr.clientWidth,ph:ph,u:this.scr.clientWidth/(ph?390:1440),an:an};
+  };
+  var mix=function(P,S,key,e,def){ var a=P[S.i][key], b=P[S.i+1][key]; if(a==null) a=def; if(b==null) b=def; return lerp(a,b,e); };
+  var STORY_TEXT={
+    ov:txt('System overview','Four planes',[T.ov,T.one]),
+    serve:txt('Plane 1 · always on','Serving',[T.serve]),
+    mon:txt('Plane 2 · weekly','Evidence &amp; drift',[T.evi,T.evi2]),
+    ci:txt('Plane 3 · on every merge','The quality gate',[T.gate,T.gate2]),
+    k8s:txt('Plane 4 · ~30 minutes a month','Ephemeral Kubernetes',[T.k8s,T.k8s2],'o'),
+    fly:txt('The ochre wire','The retrain flywheel',[T.fly,T.fly2]),
+    deploy:txt('On a pass','Deploy',['A challenger that clears the gate ships: GitHub Actions builds the image with Docker and updates the Lambda.',T.fly2]),
+    end:'<p class="micro t-k">Every claim is published</p><p class="t-p">'+T.evi2+'</p>'+LINKS
+  };
+  function storyBlocks(cls,keys){
+    return '<div class="'+cls+' head"><h1 class="pg-title display rv">Architecture</h1><p class="pg-lead rv">The machine behind the doodle</p></div>'+
+      keys.map(function(k){ return '<div class="'+cls+(k==='end'?' end':'')+'">'+STORY_TEXT[k]+'</div>'; }).join('');
+  }
+
+
+  /* ================================================================== the variants
+     One factory, five pages: the control (A as it stands) and four ways to put the
+     connections forward. Each wire has a weight (0..1) every frame; how a weight is
+     drawn is the only thing that changes between A1, A2 and A4. A3 also adds a scroll
+     stop for each wire. */
+  var W_TEXT=[
+    {k:'Logs, every prediction',h:'From Serving to Monitoring',p:'Every prediction Lambda serves is written to S3 as a log line. Every Monday the drift report reads that week’s logs and compares them with the training data.'},
+    {k:'Drift breach → retrain',h:'From Monitoring to CI/CD',p:'When drift crosses its threshold, the report opens a GitHub issue. A retrain folds the labeled drawings into the training split, and the gate decides whether the result ships.'},
+    {k:'A new model ships',h:'From CI/CD back to Serving',p:'A challenger that clears the gate is built into an image and deployed to Lambda. This is the wire that closes the loop: canvas → CI → deploy → drift → feedback → retrain.'},
+    {k:'The same image',h:'From CI/CD to Ephemeral K8s',p:'The image that serves on Lambda is the one Helm deploys to EKS, by digest — so the monthly load test measures the real thing, not a copy.'}
+  ];
+  var PLANE_NAMES=['Serving','Monitoring','CI/CD','Ephemeral K8s'];
+  // the sends / receives rows under each plane's text, each one tied to its wire
+  function ioRows(pi){
+    var rows='';
+    WIRES.forEach(function(w,j){
+      if(w.a[0]===pi) rows+='<li data-w="'+j+'"><span class="io-k">Sends</span>'+W_TEXT[j].k.toLowerCase()+' <span class="io-to">→ '+PLANE_NAMES[w.b[0]]+'</span></li>';
+      if(w.b[0]===pi) rows+='<li data-w="'+j+'"><span class="io-k">Receives</span>'+W_TEXT[j].k.toLowerCase()+' <span class="io-to">← '+PLANE_NAMES[w.a[0]]+'</span></li>';
+    });
+    return '<ul class="io">'+rows+'</ul>';
+  }
+  var PLANE_KEYS=['serve','mon','ci','k8s'];
+  function makePulled(id,o){
+    var V={scr:document.getElementById(id),o:o,hover:-1};
+    // the steps: planes, and — for A3 — a stop for each wire between them
+    var PH=[{k:'head',sep:22,hero:1},{k:'ov',sep:175,all:1}];
+    var steps=o.crossings
+      ? [['p',0],['w',0],['p',1],['w',1],['p',2],['w',3],['p',3],['w',2]]
+      : [['p',0],['p',1],['p',2],['p',3]];
+    steps.forEach(function(s){
+      if(s[0]==='p') PH.push({k:PLANE_KEYS[s[1]],sep:175,focus:s[1],mat:s[1]===3?1:0});
+      else PH.push({k:'w'+s[1],sep:200,cross:s[1]});
+    });
+    if(!o.crossings) PH.push({k:'fly',sep:175,all:1,fly:1});
+    PH.push({k:'end',sep:22});
+    V.PH=PH;
+    V.build=function(){
+      var ph=phone(), ts=ph?1.9:1.45, self=this;
+      var svg='<svg class="xs" aria-hidden="true">'+(o.mode==='thin'?'<g class="cw"></g>':'');
+      this.sheets=C_PLANES.map(function(pl){ return sheet(pl,{labels:true,ts:ts}); });
+      for(var i=3;i>=0;i--) svg+='<g class="xa-pl" data-i="'+i+'">'+this.sheets[i].svg+'</g>';
+      // in every new variant the connections are drawn OVER the sheets, not under them
+      svg+=(o.mode==='thin'?'':'<g class="cw"></g>')+'<g class="cl"></g><circle class="xa-dot" r="5" fill="#96600a" opacity="0"/></svg>';
+      var blocks='<div class="xa-block head"><h1 class="pg-title display rv">Architecture</h1><p class="pg-lead rv">The machine behind the doodle</p></div>';
+      PH.slice(1).forEach(function(p){
+        var html;
+        if(p.focus!=null) html=STORY_TEXT[p.k]+(o.io?ioRows(p.focus):'');
+        else if(p.cross!=null) html='<p class="micro t-k o">The wire · '+W_TEXT[p.cross].h+'</p><h2 class="t-h">'+W_TEXT[p.cross].k+'</h2><p class="t-p">'+W_TEXT[p.cross].p+'</p>';
+        else html=STORY_TEXT[p.k];
+        blocks+='<div class="xa-block'+(p.k==='end'?' end':'')+'">'+html+'</div>';
+      });
+      this.scr.innerHTML='<div class="xa-stage"><div class="xa-plate"></div>'+svg+'</div><div class="xa-flow">'+blocks+'</div>';
+      this.svg=this.scr.querySelector('.xa-stage svg');
+      this.gs=[].slice.call(this.scr.querySelectorAll('.xa-pl')).sort(function(a,b){ return a.dataset.i-b.dataset.i; });
+      this.wg=this.scr.querySelector('.cw'); this.lg=this.scr.querySelector('.cl'); this.dot=this.scr.querySelector('.xa-dot');
+      this.story=new Story(this.scr,'xa-block'); this.story.layout();
+      // a sends / receives row lights its wire: hover with a mouse, tap on a touch screen
+      [].forEach.call(this.scr.querySelectorAll('.io li'),function(li){
+        var j=+li.dataset.w;
+        li.addEventListener('mouseenter',function(){ self.hover=j; req(); });
+        li.addEventListener('mouseleave',function(){ self.hover=-1; req(); });
+        li.addEventListener('pointerup',function(e){ if(e.pointerType==='mouse') return; self.hover=self.hover===j?-1:j; req(); });
+      });
+    };
+    V.tick=function(){
+      if(!this.story) return;
+      var S=this.story.state(); if(!S) return;
+      var P=this.PH, e=S.e, ph=S.ph, u=S.u, W=S.W, H=S.H, self=this;
+      this.svg.setAttribute('viewBox','0 0 '+W+' '+H);
+      var place=function(p){ return ph?{cx:W/2,cy:.27*H,k:.36*u}:p.hero?{cx:.66*W,cy:.6*H,k:.62*u}:{cx:.31*W,cy:.5*H,k:.6*u}; };
+      var p0=place(P[S.i]), p1=place(P[S.i+1]);
+      var cx=lerp(p0.cx,p1.cx,e), cy=lerp(p0.cy,p1.cy,e), k=lerp(p0.k,p1.k,e);
+      var sep=mix(P,S,'sep',e,22)*(ph?.62:1);
+      // which planes are lit: the focused one, or the two ends of the wire in focus
+      var litOf=function(p,i){
+        if(p.focus!=null) return p.focus===i?1:0;
+        if(p.cross!=null) return (WIRES[p.cross].a[0]===i||WIRES[p.cross].b[0]===i)?1:0;
+        return null;
+      };
+      var anyF=lerp(P[S.i].focus!=null||P[S.i].cross!=null?1:0,P[S.i+1].focus!=null||P[S.i+1].cross!=null?1:0,e);
+      var T=[];
+      for(var i=0;i<4;i++){
+        var w=lerp(P[S.i].focus===i?1:0,P[S.i+1].focus===i?1:0,e);
+        var l0=litOf(P[S.i],i), l1=litOf(P[S.i+1],i), lit=lerp(l0==null?1:l0,l1==null?1:l1,e);
+        // a pulled sheet slides out less when its wires are the point: the wires stay straight
+        var pull=o.mode==='thin'?130:60;
+        var sc=k*(1+0.1*w), X=cx+w*(ph?0:pull*u), Y=cy+(i-1.5)*sep*k-w*(ph?0:10*u);
+        T.push({X:X,Y:Y,s:sc});
+        this.gs[i].setAttribute('transform','translate('+X.toFixed(1)+','+Y.toFixed(1)+') scale('+sc.toFixed(4)+')');
+        this.gs[i].style.opacity=(1-anyF*(1-lit)*.74).toFixed(3);
+      }
+      var near=e<.5?P[S.i]:P[S.i+1];
+      this.gs[3].classList.toggle('mat',!!near.mat);
+      var open=clamp((sep/(ph?.62:1)-22)/150,0,1);
+      var at=function(pi,part,key){ var p=self.sheets[pi].pts[part][key]; return [T[pi].X+T[pi].s*p[0], T[pi].Y+T[pi].s*p[1]]; };
+      // each wire's weight this frame: 1 when it is the subject, low when it is not
+      var wOf=function(p,j){
+        var wr=WIRES[j];
+        if(p.cross!=null) return p.cross===j?1:.12;
+        if(p.focus!=null) return (wr.a[0]===p.focus||wr.b[0]===p.focus)?1:.15;
+        if(p.all) return .75;
+        return 0;
+      };
+      var ws='', ls='';
+      WIRES.forEach(function(wr,j){
+        var A=at(wr.a[0],wr.a[1],wr.up?'top':'base'), B=at(wr.b[0],wr.b[1],wr.up?'base':'top');
+        var hw=lerp(wOf(P[S.i],j),wOf(P[S.i+1],j),e);
+        if(self.hover>=0) hw=self.hover===j?1:Math.min(hw,.15);
+        hw*=open;
+        if(o.mode==='thin'){
+          // the control: A exactly as it was
+          ws+='<path class="wire'+(wr.up?' up':'')+'" d="M'+A[0].toFixed(1)+' '+A[1].toFixed(1)+' L'+B[0].toFixed(1)+' '+B[1].toFixed(1)+'"/>';
+          if(!ph && !wr.up) ls+='<text x="'+(A[0]+8*u).toFixed(1)+'" y="'+lerp(A[1],B[1],.45).toFixed(1)+'" font-size="'+(11.5*u)+'" font-weight="500">'+wr.l+'</text>';
+          return;
+        }
+        var hot=hw>.85, col=hot||wr.up?'#96600a':'#0a0a0a', d='M'+A[0].toFixed(1)+' '+A[1].toFixed(1)+' L'+B[0].toFixed(1)+' '+B[1].toFixed(1);
+        var dir=Math.atan2(B[1]-A[1],B[0]-A[0]), mx=lerp(A[0],B[0],.5), my=lerp(A[1],B[1],.5);
+        var g='<g opacity="'+(.18+.82*hw).toFixed(3)+'">';
+        if(o.mode==='front'){
+          g+='<path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="'+((1.4+1.4*hw)*u).toFixed(2)+'"/>';
+        }else if(o.mode==='pipe'){
+          // a pipe: a soft wide body, an ink core, and packets that move with the scroll
+          g+='<path d="'+d+'" fill="none" stroke="'+(wr.up?'rgba(201,138,58,.28)':'rgba(10,10,10,.10)')+'" stroke-width="'+(12*u).toFixed(1)+'" stroke-linecap="round"/>';
+          g+='<path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="'+(1*u).toFixed(2)+'"/>';
+          g+='<path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="'+(5.5*u).toFixed(1)+'" stroke-linecap="round" stroke-dasharray="0 '+(18*u).toFixed(1)+'" stroke-dashoffset="'+(-(S.st*0.32)%(18*u)).toFixed(1)+'"/>';
+        }else if(o.mode==='shaft'){
+          // a shaft: a translucent column the width of the parts it joins
+          var hwid=(34*u)*k/(.6*u);
+          var nx=Math.cos(dir+Math.PI/2)*hwid/2, ny=Math.sin(dir+Math.PI/2)*hwid/2;
+          var fill=wr.up?'rgba(201,138,58,'+(.22+.28*hw).toFixed(2)+')':'rgba(63,82,134,'+(.10+.16*hw).toFixed(2)+')';
+          g+='<polygon points="'+[[A[0]+nx,A[1]+ny],[B[0]+nx,B[1]+ny],[B[0]-nx,B[1]-ny],[A[0]-nx,A[1]-ny]].map(fp).join(' ')+'" fill="'+fill+'" style="mix-blend-mode:multiply"/>';
+          g+='<path d="M'+(A[0]+nx).toFixed(1)+' '+(A[1]+ny).toFixed(1)+' L'+(B[0]+nx).toFixed(1)+' '+(B[1]+ny).toFixed(1)+' M'+(A[0]-nx).toFixed(1)+' '+(A[1]-ny).toFixed(1)+' L'+(B[0]-nx).toFixed(1)+' '+(B[1]-ny).toFixed(1)+'" fill="none" stroke="'+col+'" stroke-width="'+(.8*u).toFixed(2)+'"/>';
+          // the two ends: ellipses, as the mouth of a tube on a sheet
+          [A,B].forEach(function(q){ g+='<ellipse cx="'+q[0].toFixed(1)+'" cy="'+q[1].toFixed(1)+'" rx="'+(hwid/2).toFixed(1)+'" ry="'+(hwid/4).toFixed(1)+'" fill="none" stroke="'+col+'" stroke-width="'+(.9*u).toFixed(2)+'"/>'; });
+        }
+        // the arrowhead at the receiving end, and a port at each end
+        var ah=(7+3*hw)*u;
+        g+='<path d="M'+(B[0]-ah*Math.cos(dir-0.5)).toFixed(1)+' '+(B[1]-ah*Math.sin(dir-0.5)).toFixed(1)+' L'+B[0].toFixed(1)+' '+B[1].toFixed(1)+' L'+(B[0]-ah*Math.cos(dir+0.5)).toFixed(1)+' '+(B[1]-ah*Math.sin(dir+0.5)).toFixed(1)+'" fill="none" stroke="'+col+'" stroke-width="'+(1.6*u).toFixed(2)+'" stroke-linecap="round" stroke-linejoin="round"/>';
+        if(o.mode!=='shaft') g+='<circle cx="'+A[0].toFixed(1)+'" cy="'+A[1].toFixed(1)+'" r="'+((3+2*hw)*u).toFixed(1)+'" fill="'+col+'"/>';
+        g+='</g>';
+        ws+=g;
+        // the label: a paper tag on the wire, readable over anything behind it
+        if(hw>.3){
+          var fs=(ph?10:12)*u, txt=wr.l, tw=txt.length*fs*.56+16*u, th=fs+10*u;
+          var TAG=[{t:.55,side:1},{t:.5,side:-1},{t:.3,side:-1},{t:.62,side:1}][j];
+          mx=lerp(A[0],B[0],TAG.t); my=lerp(A[1],B[1],TAG.t);
+          var gapX=(o.mode==='shaft'?22:12)*u;
+          var lx=TAG.side>0?mx+gapX:mx-gapX-tw, anchorShift=0;
+          lx=clamp(lx,10*u,W-tw-10*u);   // a tag never leaves the screen
+          ls+='<g opacity="'+clamp((hw-.3)/.4,0,1).toFixed(3)+'"><rect x="'+(lx+anchorShift).toFixed(1)+'" y="'+(my-th/2).toFixed(1)+'" width="'+tw.toFixed(1)+'" height="'+th.toFixed(1)+'" rx="'+(th/2).toFixed(1)+'" fill="#fff" stroke="'+col+'" stroke-width="'+(.8*u).toFixed(2)+'"/>'+
+            '<text x="'+(lx+anchorShift+tw/2).toFixed(1)+'" y="'+(my+fs*.36).toFixed(1)+'" font-size="'+fs.toFixed(1)+'" font-weight="500" text-anchor="middle" fill="'+col+'">'+txt+'</text></g>';
+        }
+      });
+      this.wg.innerHTML=ws; this.lg.innerHTML=ls;
+      if(o.mode==='thin'){ this.wg.style.opacity=(open*(1-anyF*.7)).toFixed(3); this.lg.style.opacity=(open*(1-anyF)).toFixed(3); }
+      // the flywheel dot (all but A3, which gives the flywheel wire its own stop)
+      var fw=lerp(P[S.i].fly?1:0,P[S.i+1].fly?1:0,e);
+      if(fw>.02){
+        var loop=[at(0,'S3','base'),at(1,'Drift report','top'),at(1,'GitHub issue','base'),at(2,'Train','top'),at(2,'Deploy','top'),at(0,'Lambda','base'),at(0,'S3','base')];
+        var Ls=[],tot=0; for(var j=1;j<loop.length;j++){ var dd=Math.hypot(loop[j][0]-loop[j-1][0],loop[j][1]-loop[j-1][1]); Ls.push(dd); tot+=dd; }
+        var fi=P.findIndex(function(p){ return p.fly; });
+        var q=reduce?.5:clamp((S.st-S.an[fi]+.45*H)/(0.9*H),0,1)*tot, pos=loop[0];
+        for(var j2=0;j2<Ls.length;j2++){ if(q<=Ls[j2]){ var t=q/Ls[j2]; pos=[lerp(loop[j2][0],loop[j2+1][0],t),lerp(loop[j2][1],loop[j2+1][1],t)]; break; } q-=Ls[j2]; }
+        this.dot.setAttribute('cx',pos[0].toFixed(1)); this.dot.setAttribute('cy',pos[1].toFixed(1));
+      }
+      this.dot.setAttribute('opacity',fw.toFixed(3));
+      // the rows under the text light with their wire
+      [].forEach.call(this.scr.querySelectorAll('.io li'),function(li){ li.classList.toggle('on',self.hover===+li.dataset.w); });
+    };
+    return V;
+  }
+  var V0=makePulled('s0',{mode:'thin'});
+  var V1=makePulled('s1',{mode:'front',io:1});
+  var V2=makePulled('s2',{mode:'pipe',io:1});
+  var V3=makePulled('s3',{mode:'front',io:1,crossings:1});
+  var V4=makePulled('s4',{mode:'shaft',io:1});
+  /* ------------------------------------------------------------------ reveals + loop */
+  var screens=[].slice.call(document.querySelectorAll('.screen'));
+  function revealIn(scr){
+    var fr=scr.getBoundingClientRect(), H=fr.height;
+    [].slice.call(scr.querySelectorAll('.rv')).forEach(function(el){
+      var top=el.getBoundingClientRect().top-fr.top;
+      var p=reduce?1:easeOut(clamp((H*0.94-top)/(H*0.22),0,1));
+      el.style.opacity=String(p);
+      var x=el.dataset.x;
+      if(reduce||p>.999){ el.style.transform=''; return; }
+      el.style.transform = x ? 'translate3d('+((1-p)*(x==='r'?24:-24))+'px,0,0)' : 'translate3d(0,'+((1-p)*14)+'px,0)';
+    });
+  }
+  var ALL=[V0,V1,V2,V3,V4];
+  function tickAll(){ screens.forEach(revealIn); ALL.forEach(function(v){ v.tick(); }); }
+  var queued=false;
+  function req(){ if(queued) return; queued=true; requestAnimationFrame(function(){ queued=false; tickAll(); }); }
+  screens.forEach(function(s){ s.addEventListener('scroll',req,{passive:true}); });
+  addEventListener('scroll',req,{passive:true});
+  function rebuild(){
+    [].forEach.call(document.querySelectorAll('.f-top,.f-tray'),function(e){ e.remove(); });
+    screens.forEach(function(s){ s.scrollTop=0; });
+    ALL.forEach(function(v){ v.build(); });
+    ['f0','f1','f2','f3','f4'].forEach(chrome);
+    tickAll();
+  }
+  function relayout(){ ALL.forEach(function(v){ v.story.layout(); }); tickAll(); }
+  addEventListener('resize',rebuild);
+  [].slice.call(document.querySelectorAll('.sizer button')).forEach(function(b){
+    b.addEventListener('click',function(){
+      document.body.classList.toggle('phone',b.dataset.size==='phone');
+      [].slice.call(document.querySelectorAll('.sizer button')).forEach(function(o){ o.setAttribute('aria-pressed',String(o===b)); });
+      requestAnimationFrame(rebuild);
+    });
+  });
+  if(/[?&]size=phone/.test(location.search)){ document.body.classList.add('phone');
+    [].slice.call(document.querySelectorAll('.sizer button')).forEach(function(o){ o.setAttribute('aria-pressed',String(o.dataset.size==='phone')); }); }
+  rebuild();
+  addEventListener('load',relayout);
+  if(document.fonts) document.fonts.ready.then(relayout);
+})();
+</script>
+</body>
+</html>
