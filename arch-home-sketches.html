@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sketches — Home §3, in the inner page's language</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..700&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ground:#e0f7e7;          /* §3's sage wash on Home */
+    --ink:#0a0a0a;
+    --muted:#6b6b6b;
+    --hair:#e8e8e8;
+    --warm:#c98a3a;
+    --deep-ochre:#96600a;
+    --f-serve:#dee5f4;  --f-mon:#d8ecde;  --f-ci:#f8dfc4;  --f-k8s:#fbd3dc;
+    --ease-out-expo:cubic-bezier(.16,1,.3,1);
+    --ease-hover:cubic-bezier(.2,.7,.35,1);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;background:#f3f6f4;color:var(--ink);
+    font-family:"Outfit",system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-weight:330;line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .display{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 96;font-weight:500;line-height:.92;letter-spacing:-.02em;
+  }
+  .micro{text-transform:uppercase;letter-spacing:.22em;font-size:11.5px;font-weight:500;color:var(--muted);}
+  .wrap{max-width:1180px;margin:0 auto;padding:clamp(56px,10vh,110px) clamp(16px,5vw,44px) clamp(60px,10vh,120px);}
+
+  /* ---------- sheet chrome (same as the arch sketch sheets) ---------- */
+  .sheet-head{margin-bottom:clamp(40px,7vh,72px);}
+  .sheet-head h1{font-size:clamp(38px,7vw,68px);text-transform:uppercase;margin:10px 0 0;}
+  .sheet-head p{margin:16px 0 0;max-width:64ch;font-size:15.5px;color:var(--muted);}
+  .sheet-head .facts{margin-top:22px;padding-top:16px;border-top:1px solid var(--ink);max-width:64ch;font-size:14px;color:var(--muted);}
+  .sheet-head .facts b{color:var(--ink);font-weight:500;}
+  .sk{padding:clamp(40px,7vh,76px) 0;border-top:1px solid var(--ink);}
+  .sk-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;}
+  .sk-head h2{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
+    font-size:clamp(24px,4vw,38px);line-height:1.02;margin:0;
+  }
+  .sk-key{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--deep-ochre);letter-spacing:.1em;}
+  .sk-note{margin:12px 0 0;max-width:66ch;font-size:15px;color:var(--muted);}
+  .sk-note b{color:var(--ink);font-weight:500;}
+  .stage{margin-top:clamp(26px,4.5vh,46px);}
+  code{font-family:ui-monospace,Menlo,monospace;font-size:.88em;}
+  .sizer{position:sticky;top:12px;z-index:50;display:flex;justify-content:flex-end;margin:-8px 0 0;pointer-events:none;}
+  .sizer-in{pointer-events:auto;display:flex;gap:4px;padding:5px 6px;background:#fff;border:1px solid var(--hair);border-radius:30px;box-shadow:0 8px 24px -16px rgba(10,10,10,.4);}
+  .sizer button{font:inherit;font-size:12.5px;color:var(--muted);background:none;border:0;border-radius:20px;padding:5px 13px;cursor:pointer;}
+  .sizer button[aria-pressed="true"]{color:#fff;background:var(--ink);}
+  .sizer button:focus-visible{outline:2px solid var(--warm);outline-offset:2px;}
+
+  /* ---------- one Home §3, as a real section-sized screen ----------
+     --u is one CSS px of the 1440-wide board the frame stands for. */
+  .hf{
+    position:relative;container-type:inline-size;width:100%;aspect-ratio:1440/816;margin:0 auto;
+    background:var(--ground);overflow:hidden;border:1px solid var(--ink);--u:calc(100cqw / 1440);
+  }
+  body.phone .hf{width:min(390px,100%);aspect-ratio:390/760;--u:calc(100cqw / 390);}
+  .hf > svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;}
+  .hf text{font-family:"Outfit",sans-serif;}
+  .hf text.nm{font-family:"Bodoni Moda",Georgia,serif;font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;}
+
+  /* the reading column: eyebrow, Bodoni title, lead, and the one CTA */
+  .hf-copy{position:absolute;z-index:3;}
+  .hf-eyebrow{font-size:calc(12*var(--u));letter-spacing:.24em;text-transform:uppercase;color:var(--muted);font-weight:500;margin:0 0 calc(14*var(--u));}
+  .hf-title{font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 96;font-weight:500;letter-spacing:-.02em;line-height:.98;font-size:calc(58*var(--u));margin:0;}
+  .hf-lead{font-size:calc(19*var(--u));color:var(--muted);margin:calc(14*var(--u)) 0 calc(26*var(--u));line-height:1.4;}
+  .hf-cta{display:inline-flex;align-items:center;gap:calc(8*var(--u));font-size:calc(17*var(--u));color:var(--deep-ochre);text-decoration:none;border-bottom:1px solid rgba(150,96,10,.32);padding-bottom:calc(2*var(--u));transition:color .2s var(--ease-hover),border-color .2s var(--ease-hover);}
+  .hf-cta .ar{transition:transform .2s var(--ease-hover);}
+  .hf-cta:hover{color:var(--warm);border-color:var(--warm);}
+  .hf-cta:hover .ar{transform:translateX(calc(5*var(--u)));}
+
+  /* per-variant copy placement */
+  .v-overview .hf-copy{left:calc(86*var(--u));top:50%;transform:translateY(-50%);width:calc(440*var(--u));}
+  .v-fan     .hf-copy{left:50%;top:calc(70*var(--u));transform:translateX(-50%);width:calc(760*var(--u));text-align:center;}
+  .v-fan     .hf-lead{margin-bottom:calc(10*var(--u));}
+  .v-hero    .hf-copy{right:calc(90*var(--u));top:50%;transform:translateY(-50%);width:calc(400*var(--u));text-align:left;}
+  .v-loop    .hf-copy{left:50%;top:50%;transform:translate(-50%,-50%);width:calc(300*var(--u));text-align:center;}
+
+  /* the staircase (H5/H6): title + lead top-left, exactly where §3 keeps them; a
+     cta-strong link bottom-right, as on Journey ("Read the journey") and Skills. */
+  .v-stair .hf-copy,.v-split .hf-copy{left:calc(58*var(--u));top:calc(46*var(--u));width:auto;}
+  .hf-title.up{text-transform:uppercase;font-variation-settings:"opsz" 72;font-size:calc(50*var(--u));line-height:1;white-space:nowrap;}
+  .v-stair .hf-lead,.v-split .hf-lead{margin:calc(14*var(--u)) 0 0;}
+
+  /* H7 (split): the deck on the left, a plane key + the link on the right */
+  .hf-side{position:absolute;z-index:3;right:calc(72*var(--u));top:50%;transform:translateY(-50%);width:calc(468*var(--u));}
+  .hf-key{display:flex;flex-direction:column;gap:calc(20*var(--u));margin:0 0 calc(34*var(--u));padding-bottom:calc(26*var(--u));border-bottom:1px solid rgba(10,10,10,.14);}
+  .hf-key .kr{display:flex;align-items:center;gap:calc(13*var(--u));}
+  .hf-key .kr b{width:calc(11*var(--u));height:calc(11*var(--u));border-radius:calc(3*var(--u));flex:0 0 auto;border:1px solid rgba(10,10,10,.18);}
+  .hf-key .kn{font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 48;font-weight:500;letter-spacing:-.01em;font-size:calc(22*var(--u));width:calc(188*var(--u));}
+  .hf-key .kn.g{color:var(--muted);}
+  .hf-key .kl{display:flex;align-items:center;gap:calc(11*var(--u));margin-left:auto;}
+  .hf-key .kl span{line-height:0;}
+  /* phone is simulated by body.phone + a 390-wide container (not the viewport), so the
+     phone tweaks for the staircase/split live here, not in the max-width media query */
+  body.phone .hf-title.up{white-space:normal;font-size:calc(32*var(--u));}
+  body.phone .v-stair .hf-copy,body.phone .v-split .hf-copy{width:calc(342*var(--u));}
+
+  /* ============ H8–H11 — dynamic designs based on the inner architecture page ============ */
+  .v-top .hf-copy{left:calc(58*var(--u));top:calc(46*var(--u));width:auto;}
+  .v-top .hf-lead{margin:calc(14*var(--u)) 0 0;}
+  body.phone .v-top .hf-copy{width:calc(342*var(--u));}
+  .dk-pl{transition:opacity .25s var(--ease-out-expo);}
+
+  /* H8 live — the deck assembles on arrival */
+  body:not(.phone) .v-live .hf-copy{opacity:0;transform:translateY(calc(10*var(--u)));transition:opacity .7s var(--ease-out-expo),transform .7s var(--ease-out-expo);}
+  body:not(.phone) .v-live.go .hf-copy{opacity:1;transform:none;}
+  .v-live .hf-botlink{left:calc(58*var(--u));right:auto;bottom:calc(54*var(--u));}
+  body:not(.phone) .v-live .hf-botlink{opacity:0;transition:opacity .7s var(--ease-out-expo) .45s;}
+  body:not(.phone) .v-live.go .hf-botlink{opacity:1;}
+  body:not(.phone) .v-live .dk-wires{opacity:0;transition:opacity .8s var(--ease-out-expo) .5s;}
+  body:not(.phone) .v-live.go .dk-wires{opacity:1;}
+  .h8-fly{will-change:stroke-dashoffset;}
+  .h8-replay{position:absolute;z-index:4;right:calc(22*var(--u));bottom:calc(20*var(--u));font:inherit;font-size:calc(12*var(--u));color:var(--muted);background:#fff;border:1px solid var(--hair);border-radius:calc(20*var(--u));padding:calc(5*var(--u)) calc(13*var(--u));cursor:pointer;opacity:0;transition:opacity .5s var(--ease-out-expo) .85s,color .2s;}
+  body:not(.phone) .v-live.go .h8-replay{opacity:1;}
+  .h8-replay:hover{color:var(--ink);}
+
+  /* H9 focus — a plane list lights its wires on hover */
+  .fl-list{position:absolute;z-index:3;left:calc(58*var(--u));top:calc(222*var(--u));width:calc(360*var(--u));list-style:none;margin:0;padding:0;}
+  .fl-item{display:flex;flex-direction:column;gap:calc(1*var(--u));padding:calc(11*var(--u)) calc(12*var(--u)) calc(11*var(--u)) calc(16*var(--u));border-left:2px solid transparent;cursor:default;outline:none;transition:border-color .2s var(--ease-hover),background .2s var(--ease-hover);}
+  .fl-item .fl-n{font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 48;font-weight:500;font-size:calc(23*var(--u));letter-spacing:-.01em;transition:color .2s var(--ease-hover);}
+  .fl-item .fl-s{font-size:calc(12.5*var(--u));color:var(--muted);letter-spacing:.02em;}
+  .fl-item.on{border-left-color:var(--deep-ochre);background:rgba(150,96,10,.055);}
+  .fl-item.on .fl-n{color:var(--deep-ochre);}
+  .fl-item:focus-visible{border-left-color:var(--warm);}
+  .fl-hint{position:absolute;z-index:3;left:calc(58*var(--u));bottom:calc(98*var(--u));font-size:calc(12.5*var(--u));color:var(--muted);}
+  .v-focus .hf-botlink{left:calc(58*var(--u));right:auto;bottom:calc(52*var(--u));}
+
+  /* H10 cycle — the camera auto-visits each plane */
+  .cy-cap{position:absolute;z-index:3;right:calc(84*var(--u));top:50%;transform:translateY(-50%);width:calc(420*var(--u));}
+  .cy-k{font-size:calc(11*var(--u));letter-spacing:.22em;text-transform:uppercase;color:var(--deep-ochre);font-weight:500;margin:0 0 calc(12*var(--u));}
+  .cy-n{font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 48;font-weight:500;letter-spacing:-.01em;font-size:calc(36*var(--u));margin:0 0 calc(12*var(--u));line-height:1.04;}
+  .cy-s{font-size:calc(15.5*var(--u));color:#3a3a3a;line-height:1.6;margin:0 0 calc(24*var(--u));max-width:calc(380*var(--u));min-height:calc(78*var(--u));}
+  .cy-dots{display:flex;gap:calc(9*var(--u));margin-bottom:calc(26*var(--u));}
+  .cy-dots b{width:calc(8*var(--u));height:calc(8*var(--u));border-radius:50%;background:rgba(10,10,10,.2);transition:background .3s,transform .3s;}
+  .cy-dots b.on{background:var(--deep-ochre);transform:scale(1.25);}
+
+  /* H11 flywheel — a packet travels the retrain loop */
+  .v-flywheel .hf-botlink{left:50%;right:auto;transform:translateX(-50%);bottom:calc(46*var(--u));}
+  .fw-hint{position:absolute;z-index:3;left:50%;transform:translateX(-50%);bottom:calc(92*var(--u));font-size:calc(12.5*var(--u));color:var(--muted);}
+  .fw-dot{will-change:cx,cy;}
+
+  /* H12 cycle, tweened — the caption cross-fades/slides; arrows flank the text */
+  .cy-txt{min-height:calc(112*var(--u));will-change:opacity,transform;}
+  .cy-arrow{position:absolute;z-index:4;top:50%;transform:translateY(-50%);width:calc(46*var(--u));height:calc(46*var(--u));background:transparent;border:0;color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;transition:color .2s var(--ease-hover),scale .2s var(--ease-hover);}
+  .cy-arrow svg{width:calc(20*var(--u));height:calc(20*var(--u));display:block;}
+  .cy-arrow:hover{color:var(--warm);scale:1.12;}
+  .cy-arrow:focus-visible{outline:2px solid var(--warm);outline-offset:2px;border-radius:50%;}
+  .cy-arrow.prev{right:calc(524*var(--u));}
+  .cy-arrow.next{right:calc(26*var(--u));}
+  /* the section link, matched to Journey's "Read the journey" (.link.cta-strong) */
+  .cy-cap .hf-cta{font-size:calc(20*var(--u));font-weight:380;}
+
+  /* phone: all four fall back to the inner page's portrait stack + top copy + bottom link */
+  body.phone .fl-list,body.phone .fl-hint,body.phone .cy-cap,body.phone .cy-arrow,body.phone .h8-replay{display:none;}
+  body.phone .v-live .hf-botlink,body.phone .v-focus .hf-botlink,body.phone .v-cycle .hf-botlink,body.phone .v-flywheel .hf-botlink{left:0;right:0;transform:none;text-align:center;bottom:calc(30*var(--u));}
+  .hf-botlink{position:absolute;z-index:3;right:calc(66*var(--u));bottom:calc(46*var(--u));}
+  .hf-botbar{position:absolute;z-index:3;left:calc(58*var(--u));right:calc(58*var(--u));bottom:calc(40*var(--u));
+    display:flex;align-items:center;justify-content:space-between;gap:calc(26*var(--u));}
+  .hf-botbar .tools{display:flex;align-items:center;gap:calc(17*var(--u));flex-wrap:wrap;}
+  .hf-botbar .tools span{line-height:0;}
+
+  /* the floating tool chips a sheet can carry (variants 2–4) live inside the SVG;
+     the legend strip under the overview still is HTML so it can wrap on a phone */
+  .hf-legend{position:absolute;z-index:3;left:50%;bottom:calc(26*var(--u));transform:translateX(-50%);
+    display:flex;gap:calc(26*var(--u));align-items:center;}
+  .hf-legend .lg{display:flex;align-items:center;gap:calc(7*var(--u));font-size:calc(12.5*var(--u));color:var(--muted);}
+  .hf-legend .lg b{display:inline-flex;width:calc(9*var(--u));height:calc(9*var(--u));border-radius:2px;}
+  .hint{margin:10px 0 0;font-size:12.5px;color:var(--muted);text-align:center;}
+
+  @media (max-width:760px){
+    .v-overview .hf-copy,.v-hero .hf-copy{left:calc(24*var(--u));right:auto;top:calc(40*var(--u));transform:none;width:calc(342*var(--u));}
+    .v-fan .hf-copy{top:calc(34*var(--u));width:calc(342*var(--u));}
+    .v-loop .hf-copy{width:calc(240*var(--u));}
+    .v-stair .hf-copy,.v-split .hf-copy{left:calc(24*var(--u));top:calc(36*var(--u));width:calc(342*var(--u));}
+    .hf-title.up{font-size:calc(34*var(--u));white-space:normal;}
+    .hf-side{display:none;}
+    .hf-botbar .tools{display:none;}
+    .hf-botbar{justify-content:center;left:0;right:0;bottom:calc(30*var(--u));}
+    .hf-botlink{left:0;right:0;bottom:calc(30*var(--u));text-align:center;}
+    .hf-title{font-size:calc(40*var(--u));}
+    .hf-lead{font-size:calc(15*var(--u));}
+    .hf-cta{font-size:calc(14*var(--u));}
+  }
+  @media (prefers-reduced-motion:reduce){ *{transition:none!important;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="sheet-head">
+    <span class="micro">Sketches · Home §3 "Behind the Scenes" — matching the inner page</span>
+    <h1 class="display">Four ways to tease the machine</h1>
+    <p>The inner Architecture page draws the system as four <b>isometric sheets</b> pulled apart in
+      space, wires over them, the retrain <b>flywheel</b> in ochre. Home §3 is one screen in a
+      six-section scroll, so it can't take over the page the way the inner one does — it previews
+      that drawing as a still that reveals on arrival, and ends on the one link in. These are four
+      compositions of the same sheets. Pick one and I'll build it into
+      <code>transition-prototype.html</code>, replacing the ring.</p>
+    <div class="facts"><b>Shared by all four.</b> The four plane fills, the Bodoni plane names, the
+      ochre flywheel, and the brand logos from today's ring (Lambda, PyTorch, Docker…) — regrouped
+      onto the inner page's four planes. The copy stays the demo's: "Behind the Scenes" /
+      "From strokes to prediction" / "Explore the full architecture →".</div>
+    <div class="facts">The drawings below are static stills (no entrance), so the composition is what
+      you're judging. The laptop board is what matters for the choice; phones get tuned on build.</div>
+  </div>
+  <div class="sizer"><div class="sizer-in" role="group" aria-label="Screen size">
+    <button type="button" data-size="laptop" aria-pressed="true">Laptop 1440</button>
+    <button type="button" data-size="phone" aria-pressed="false">Phone 390</button>
+  </div></div>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">H1</span><h2>The overview still</h2></div>
+    <p class="sk-note">The inner page's opening pose, frozen: the four sheets stacked and pulled
+      apart, every part drawn, all four wires faint, the flywheel wire ochre. The reading column and
+      the link sit to the left, exactly where the inner page keeps them on a laptop. <b>Tightest
+      match</b> — the teaser is a literal still of where the link leads. Logos run as a legend below.</p>
+    <div class="stage"><div class="hf v-overview" id="hfOverview"></div></div>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">H2</span><h2>The exploded fan</h2></div>
+    <p class="sk-note">The four sheets spread across the width on a shallow diagonal, each carrying
+      its plane name and its own tools. The wires read left → right and the ochre flywheel arcs back
+      to the start, so the <b>loop is legible at a glance</b> without a scroll. Title centred above,
+      link centred below. Poster-like; the logos sit on the sheets, not in a legend.</p>
+    <div class="stage"><div class="hf v-fan" id="hfFan"></div></div>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">H3</span><h2>Hero sheet, with depth</h2></div>
+    <p class="sk-note">Serving — the always-on front door the visitor actually touches — stands in
+      front at full size with its tools; the other three fan behind it, receding and paler, with the
+      flywheel threading them. It says <b>"there's a whole stack inside"</b> and leans on the link to
+      go in. The most invitational, the least complete — a teaser in the truest sense.</p>
+    <div class="stage"><div class="hf v-hero" id="hfHero"></div></div>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">H4</span><h2>The loop is the hero</h2></div>
+    <p class="sk-note">Keeps today's ring's <b>job</b> — showing the loop — but in the new language:
+      the four sheets sit at the points of a diamond where the ring's four stops were, and the ochre
+      flywheel is drawn boldly as the closed loop that threads them. The link sits in the middle, in
+      the loop's eye, as it does on the ring now. Bridges the ring into the sheets.</p>
+    <div class="stage"><div class="hf v-loop" id="hfLoop"></div></div>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">H5</span><h2>The staircase — wired</h2></div>
+    <p class="sk-note">H1's overview, <b>stepped down-right</b>: Serving, then lower to Monitoring,
+      to CI/CD, to Ephemeral K8s. The title and subtitle stay top-left, where §3 keeps them now; the
+      <b>link sits bottom-right</b>, styled like Journey's "Read the journey" and Skills' "See all
+      skills". Spreading the sheets lets the wires run between them, so the <b>loop is visible at a
+      glance</b> — flywheel ochre, the rest faint. All the tools run as one legend row along the
+      bottom. On a phone it falls back to the inner page's portrait stack.</p>
+    <div class="stage"><div class="hf v-stair" id="hfStair5"></div></div>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">H6</span><h2>The staircase — clean</h2></div>
+    <p class="sk-note">The same staircase and the same top-left title / bottom-right link, but
+      <b>no wires</b>: just the four sheets stepping down, each with its plane name and its own tools
+      beside it. Quieter and more poster-like — the connections wait on the inner page, and the link
+      carries "there's more inside". Same portrait-stack fallback on a phone.</p>
+    <div class="stage"><div class="hf v-stair" id="hfStair6"></div></div>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">H7</span><h2>Split — deck left, key &amp; link right</h2></div>
+    <p class="sk-note">H1's stacked overview, kept as a deck but moved to the <b>left</b>. The title sits
+      <b>on one line</b> at the top-left, following the rest of Home's sections (Journey, Skills), with
+      the subtitle under it. The right side carries a small <b>key</b> — each plane's colour, name and
+      tools — and the <b>"Explore the full architecture" link beneath it</b>, so the right isn't a lone
+      floating link and the key names the shapes on the left. Wires faint, flywheel ochre. Phone keeps
+      the inner page's portrait stack.</p>
+    <div class="stage"><div class="hf v-split" id="hfSplit"></div></div>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">H8</span><h2>Assembles on arrival</h2></div>
+    <p class="sk-note">Framed like the inner page's own landing — big title top-left, deck center-right.
+      As the section scrolls into view the <b>layers fan apart into the stack</b>, the wires fade in and
+      the <b>flywheel draws itself</b>: one orchestrated reveal, the way the ring draws itself today, with
+      no scroll takeover. The motion is the thing the seven stills can't show. Use <b>Replay</b> to watch
+      it again. Phone keeps the inner page's portrait stack.</p>
+    <div class="stage"><div class="hf v-top v-live" id="hfLive"></div></div>
+    <p class="hint">Scroll it into view to trigger the build — or press Replay.</p>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">H9</span><h2>Trace on hover</h2></div>
+    <p class="sk-note">The inner page's focus mechanic, live on Home: a <b>list of the four planes</b> on the
+      left, and hovering (or focusing) one <b>lights its wires in ochre</b> and dims the other sheets — so a
+      visitor can trace what each plane connects to without leaving the page. Deck center-right, link
+      bottom-left. Phone shows the static portrait stack.</p>
+    <div class="stage"><div class="hf v-top v-focus" id="hfFocus"></div></div>
+    <p class="hint">Hover (or tab to) a plane in the list.</p>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">H10</span><h2>Auto-cycling camera</h2></div>
+    <p class="sk-note">An ambient preview of the whole scrollytell: the deck <b>visits each plane in turn</b>
+      on a gentle timer — the plane lifts and lights, and a caption + progress dots on the right name it and
+      say what it does. No interaction needed; it reads itself. Respects reduced-motion (holds on Serving).</p>
+    <div class="stage"><div class="hf v-top v-cycle" id="hfCycle"></div></div>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">H11</span><h2>The loop, turning</h2></div>
+    <p class="sk-note">The retrain flywheel made literal: a <b>packet travels the closed loop</b> — S3 → drift →
+      issue → train → deploy → back to Lambda — continuously through the deck, the way the inner page's
+      flywheel dot moves. Quiet ambient motion that pulls the eye to the loop, with the link below. Respects
+      reduced-motion (dot hidden).</p>
+    <div class="stage"><div class="hf v-top v-flywheel" id="hfFlywheel"></div></div>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">H12</span><h2>Auto-cycling camera, tweened</h2></div>
+    <p class="sk-note">H10 refined to your notes. The change between planes is now a <b>smooth tween</b>, not a
+      snap: the focused sheet eases forward and brightens while the others settle back and the wires morph —
+      the way the inner page's camera moves between stops. The caption <b>cross-fades and slides</b> between
+      planes. Two semi-transparent <b>arrows flank the text</b> — click to jump a plane back or forward; the
+      auto-cycle keeps running from there. Respects reduced-motion (holds on Serving).</p>
+    <div class="stage"><div class="hf v-top v-cycle" id="hfCycle2"></div></div>
+  </section>
+</div>
+<script>
+(function(){
+  "use strict";
+var MARKS={"labServe": [{"drawn": false, "color": "#FF9900", "name": "AWS Lambda", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M4.9855 0c-.2941.0031-.5335.2466-.534.5482L4.446 5.456c0 .1451.06.2835.159.3891a.5322.5322 0 0 0 .3806.1562h3.4282l8.197 17.6805a.5365.5365 0 0 0 .4885.3181h5.811c.2969 0 .5426-.2448.5426-.5482V18.544c0-.3035-.2392-.5482-.5425-.5482h-2.0138L12.7394.3153C12.647.124 12.4564 0 12.2452 0h-7.254Zm.5397 1.0907h6.3678l8.16 17.6804a.5365.5365 0 0 0 .4885.3181h1.8178v3.8173H17.437L9.2402 5.226a.536.536 0 0 0-.4885-.318H5.5223Zm2.0137 8.2366c-.2098.0011-.3937.1193-.4857.3096L.6002 23.2133a.5506.5506 0 0 0 .0313.5282.5334.5334 0 0 0 .4544.25h6.169a.5468.5468 0 0 0 .497-.3096l3.38-7.166a.5405.5405 0 0 0-.0029-.4686L8.036 9.637a.5468.5468 0 0 0-.4942-.3096Zm.0057 1.8036 2.488 5.1522-3.1214 6.6206H1.9465Z\"/></svg>"}, {"drawn": false, "color": "#009688", "name": "FastAPI", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 .0387C5.3729.0384.0003 5.3931 0 11.9988c-.001 6.6066 5.372 11.9628 12 11.9625 6.628.0003 12.001-5.3559 12-11.9625-.0003-6.6057-5.3729-11.9604-12-11.96m-.829 5.4153h7.55l-7.5805 5.3284h5.1828L5.279 18.5436q2.9466-6.5444 5.892-13.0896\"/></svg>"}, {"drawn": false, "color": "#005CED", "name": "ONNX", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M23.0325 11.2963c-.0503 0-.1006 0-.1508.0126l-4.021-7.4387c.0754-.1383.1131-.289.1131-.4524 0-.5403-.4398-.9675-.9675-.9675-.2765 0-.5278.113-.7037.3015L9.286 1.156C9.2357.6785 8.821.3016 8.3184.3016c-.5277 0-.9675.4398-.9675.9675 0 .1634.0377.3141.113.4524l-6.245 8.9591c-.0753-.0251-.1633-.0377-.2513-.0377-.5403 0-.9675.4398-.9675.9676 0 .5403.4398.9675.9675.9675h.0377l3.3676 8.3309c-.0503.1257-.088.2639-.088.402 0 .5404.4398.9676.9676.9676.2764 0 .5277-.113.7036-.3015l10.1152.9926c.1005.4273.49.7288.9424.7288.5403 0 .9676-.4398.9676-.9675 0-.2388-.088-.465-.2262-.6283l5.1141-8.8712c.0503.0126.1005.0126.1634.0126.5403 0 .9675-.4398.9675-.9676 0-.5403-.4272-.98-.9675-.98zM17.2272 4.021c.1131.1508.2765.264.4524.3267l-1.533 11.5728c-.1005.0252-.1885.0503-.2764.1005L7.4513 8.708c.0251-.0754.0377-.1634.0377-.2514 0-.0628-.0126-.1256-.0126-.1884zm4.8754 8.5068l-5.177 3.556a1.105 1.105 0 0 0-.1256-.0753L18.3455 4.335h.0126l3.9456 7.288c-.1508.1759-.2388.3895-.2388.6408 0 .1005.0126.1885.0377.2638zM6.3832 7.5016c-.4649.0754-.8293.4775-.8293.955v.0628l-3.4555 2.0481 5.378-7.7026zm.3519 1.91c.1256-.0252.2513-.088.3518-.1634l8.356 7.2628c-.0377.113-.0628.2262-.0628.3518v.0503l-9.311 3.845c-.1382-.201-.3518-.3518-.6031-.402zm8.8963 8.1172c.1257.1382.3016.2513.5026.289l.465 4.046c-.201.1006-.3519.264-.4524.4524l-9.8136-.955zm1.1435.2136c.3267-.1633.5403-.49.5403-.867 0-.088-.0126-.1634-.0377-.2513l4.7372-3.2545-4.8 8.331zm.2513-14.3497l-9.889 4.31-.1131-.0755 1.2565-5.3906h.0377c.3393 0 .6409-.1759.8168-.4397l7.891 1.5706zM1.935 11.6105c0-.0629-.0126-.1257-.0126-.1885l3.9079-2.2995c.0754.0754.1633.1508.2638.201L4.8252 20.243l-3.2043-7.9036c.1885-.176.3142-.4398.3142-.7288Z\"/></svg>"}], "labMon": [{"drawn": true, "color": null, "name": "Evidently — no logo published", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 20h18\"/><path d=\"M6 20v-6M10 20v-10M14 20v-4M18 20v-8\"/><path d=\"M4.5 6.5 8 3l3.5 3.5\"/><path d=\"M8 3v6\"/></svg>"}, {"drawn": false, "color": "#E6522C", "name": "Prometheus", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 0C5.373 0 0 5.372 0 12c0 6.627 5.373 12 12 12s12-5.373 12-12c0-6.628-5.373-12-12-12zm0 22.46c-1.885 0-3.414-1.26-3.414-2.814h6.828c0 1.553-1.528 2.813-3.414 2.813zm5.64-3.745H6.36v-2.046h11.28v2.046zm-.04-3.098H6.391c-.037-.043-.075-.086-.111-.13-1.155-1.401-1.427-2.133-1.69-2.879-.005-.025 1.4.287 2.395.511 0 0 .513.119 1.262.255-.72-.843-1.147-1.915-1.147-3.01 0-2.406 1.845-4.508 1.18-6.207.648.053 1.34 1.367 1.387 3.422.689-.951.977-2.69.977-3.755 0-1.103.727-2.385 1.454-2.429-.648 1.069.168 1.984.894 4.256.272.854.237 2.29.447 3.201.07-1.892.395-4.652 1.595-5.605-.529 1.2.079 2.702.494 3.424.671 1.164 1.078 2.047 1.078 3.716a4.642 4.642 0 01-1.11 2.996c.792-.149 1.34-.283 1.34-.283l2.573-.502s-.374 1.538-1.81 3.019z\"/></svg>"}, {"drawn": false, "color": "#F46800", "name": "Grafana", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M23.02 10.59a8.578 8.578 0 0 0-.862-3.034 8.911 8.911 0 0 0-1.789-2.445c.337-1.342-.413-2.505-.413-2.505-1.292-.08-2.113.4-2.416.62-.052-.02-.102-.044-.154-.064-.22-.089-.446-.172-.677-.247-.231-.073-.47-.14-.711-.197a9.867 9.867 0 0 0-.875-.161C14.557.753 12.94 0 12.94 0c-1.804 1.145-2.147 2.744-2.147 2.744l-.018.093c-.098.029-.2.057-.298.088-.138.042-.275.094-.413.143-.138.055-.275.107-.41.166a8.869 8.869 0 0 0-1.557.87l-.063-.029c-2.497-.955-4.716.195-4.716.195-.203 2.658.996 4.33 1.235 4.636a11.608 11.608 0 0 0-.607 2.635C1.636 12.677.953 15.014.953 15.014c1.926 2.214 4.171 2.351 4.171 2.351.003-.002.006-.002.006-.005.285.509.615.994.986 1.446.156.19.32.371.488.548-.704 2.009.099 3.68.099 3.68 2.144.08 3.553-.937 3.849-1.173a9.784 9.784 0 0 0 3.164.501h.08l.055-.003.107-.002.103-.005.003.002c1.01 1.44 2.788 1.646 2.788 1.646 1.264-1.332 1.337-2.653 1.337-2.94v-.058c0-.02-.003-.039-.003-.06.265-.187.52-.387.758-.6a7.875 7.875 0 0 0 1.415-1.7c1.43.083 2.437-.885 2.437-.885-.236-1.49-1.085-2.216-1.264-2.354l-.018-.013-.016-.013a.217.217 0 0 1-.031-.02c.008-.092.016-.18.02-.27.011-.162.016-.323.016-.48v-.253l-.005-.098-.008-.135a1.891 1.891 0 0 0-.01-.13c-.003-.042-.008-.083-.013-.125l-.016-.124-.018-.122a6.215 6.215 0 0 0-2.032-3.73 6.015 6.015 0 0 0-3.222-1.46 6.292 6.292 0 0 0-.85-.048l-.107.002h-.063l-.044.003-.104.008a4.777 4.777 0 0 0-3.335 1.695c-.332.4-.592.84-.768 1.297a4.594 4.594 0 0 0-.312 1.817l.003.091c.005.055.007.11.013.164a3.615 3.615 0 0 0 .698 1.82 3.53 3.53 0 0 0 1.827 1.282c.33.098.66.14.971.137.039 0 .078 0 .114-.002l.063-.003c.02 0 .041-.003.062-.003.034-.002.065-.007.099-.01.007 0 .018-.003.028-.003l.031-.005.06-.008a1.18 1.18 0 0 0 .112-.02c.036-.008.072-.013.109-.024a2.634 2.634 0 0 0 .914-.415c.028-.02.056-.041.085-.065a.248.248 0 0 0 .039-.35.244.244 0 0 0-.309-.06l-.078.042c-.09.044-.184.083-.283.116a2.476 2.476 0 0 1-.475.096c-.028.003-.054.006-.083.006l-.083.002c-.026 0-.054 0-.08-.002l-.102-.006h-.012l-.024.006c-.016-.003-.031-.003-.044-.006-.031-.002-.06-.007-.091-.01a2.59 2.59 0 0 1-.724-.213 2.557 2.557 0 0 1-.667-.438 2.52 2.52 0 0 1-.805-1.475 2.306 2.306 0 0 1-.029-.444l.006-.122v-.023l.002-.031c.003-.021.003-.04.005-.06a3.163 3.163 0 0 1 1.352-2.29 3.12 3.12 0 0 1 .937-.43 2.946 2.946 0 0 1 .776-.101h.06l.07.002.045.003h.026l.07.005a4.041 4.041 0 0 1 1.635.49 3.94 3.94 0 0 1 1.602 1.662 3.77 3.77 0 0 1 .397 1.414l.005.076.003.075c.002.026.002.05.002.075 0 .024.003.052 0 .07v.065l-.002.073-.008.174a6.195 6.195 0 0 1-.08.639 5.1 5.1 0 0 1-.267.927 5.31 5.31 0 0 1-.624 1.13 5.052 5.052 0 0 1-3.237 2.014 4.82 4.82 0 0 1-.649.066l-.039.003h-.287a6.607 6.607 0 0 1-1.716-.265 6.776 6.776 0 0 1-3.4-2.274 6.75 6.75 0 0 1-.746-1.15 6.616 6.616 0 0 1-.714-2.596l-.005-.083-.002-.02v-.056l-.003-.073v-.096l-.003-.104v-.07l.003-.163c.008-.22.026-.45.054-.678a8.707 8.707 0 0 1 .28-1.355c.128-.444.286-.872.473-1.277a7.04 7.04 0 0 1 1.456-2.1 5.925 5.925 0 0 1 .953-.763c.169-.111.343-.213.524-.306.089-.05.182-.091.273-.135.047-.02.093-.042.138-.062a7.177 7.177 0 0 1 .714-.267l.145-.045c.049-.015.098-.026.148-.041.098-.029.197-.052.296-.076.049-.013.1-.02.15-.033l.15-.032.151-.028.076-.013.075-.01.153-.024c.057-.01.114-.013.171-.023l.169-.021c.036-.003.073-.008.106-.01l.073-.008.036-.003.042-.002c.057-.003.114-.008.171-.01l.086-.006h.023l.037-.003.145-.007a7.999 7.999 0 0 1 1.708.125 7.917 7.917 0 0 1 2.048.68 8.253 8.253 0 0 1 1.672 1.09l.09.077.089.078c.06.052.114.107.171.159.057.052.112.106.166.16.052.055.107.107.159.164a8.671 8.671 0 0 1 1.41 1.978c.012.026.028.052.04.078l.04.078.075.156c.023.051.05.1.07.153l.065.15a8.848 8.848 0 0 1 .45 1.34.19.19 0 0 0 .201.142.186.186 0 0 0 .172-.184c.01-.246.002-.532-.024-.856z\"/></svg>"}, {"drawn": false, "color": "#569A31", "name": "Amazon S3", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M20.913 13.147l.12-.895c.947.576 1.258.922 1.354 1.071-.16.031-.562.046-1.474-.176zm-2.174 7.988a.547.547 0 0 0-.005.073c0 .084-.207.405-1.124.768a10.28 10.28 0 0 1-1.438.432c-1.405.325-3.128.504-4.853.504-4.612 0-7.412-1.184-7.412-1.704a.547.547 0 0 0-.005-.073L1.81 5.602c.135.078.28.154.432.227.042.02.086.038.128.057.134.062.272.122.417.18l.179.069c.154.058.314.114.478.168.043.013.084.029.13.043.207.065.423.127.646.187l.176.044c.175.044.353.087.534.127a23.414 23.414 0 0 0 .843.17l.121.023c.252.045.508.085.768.122.071.011.144.02.216.03.2.027.4.053.604.077l.24.027c.245.026.49.05.74.07l.081.009c.275.022.552.04.83.056l.233.012c.21.01.422.018.633.025a33.088 33.088 0 0 0 2.795-.026l.232-.011c.278-.016.555-.034.83-.056l.08-.008c.25-.02.497-.045.742-.072l.238-.026c.205-.024.408-.05.609-.077.07-.01.141-.019.211-.03.261-.037.519-.078.772-.122l.111-.02c.215-.04.427-.082.634-.125l.212-.047c.186-.041.368-.085.546-.13l.166-.042c.225-.06.444-.122.654-.189.04-.012.077-.026.115-.038a10.6 10.6 0 0 0 .493-.173c.058-.021.114-.044.17-.066.15-.06.293-.12.43-.185.038-.017.079-.034.116-.052.153-.073.3-.15.436-.228l-.976 7.245c-2.488-.78-5.805-2.292-7.311-3a1.09 1.09 0 0 0-1.088-1.085c-.6 0-1.088.489-1.088 1.088 0 .6.488 1.089 1.088 1.089.196 0 .378-.056.537-.148 1.72.812 5.144 2.367 7.715 3.15zm-7.42-20.047c5.677 0 9.676 1.759 9.75 2.736l-.014.113c-.01.033-.031.067-.048.101-.015.028-.026.057-.047.087-.024.033-.058.068-.09.102-.028.03-.051.06-.084.09-.038.035-.087.07-.133.105-.04.03-.074.06-.119.091-.053.036-.116.071-.177.107-.05.03-.095.06-.15.09-.068.036-.147.073-.222.11-.059.028-.114.057-.177.085-.084.038-.177.074-.268.111-.068.027-.13.054-.203.082-.097.036-.205.072-.31.107-.075.026-.148.053-.228.079-.111.035-.233.069-.35.103-.085.024-.165.05-.253.073-.124.034-.258.065-.389.098-.093.022-.181.046-.278.068-.139.032-.287.061-.433.091-.098.02-.191.041-.293.06-.155.03-.32.057-.482.084-.1.018-.198.036-.302.052-.166.026-.342.048-.515.072-.11.014-.213.03-.325.044-.181.023-.372.041-.56.06-.11.012-.218.025-.332.036-.188.016-.386.029-.58.043-.122.009-.24.02-.364.028-.207.012-.422.02-.635.028-.12.005-.234.012-.354.016a35.605 35.605 0 0 1-2.069 0c-.12-.004-.234-.011-.352-.016-.214-.008-.43-.016-.637-.028-.122-.008-.238-.02-.36-.027-.195-.015-.394-.028-.584-.044-.11-.01-.215-.024-.324-.035-.19-.02-.384-.038-.568-.06l-.315-.044c-.176-.024-.355-.046-.525-.073-.1-.015-.192-.033-.29-.05-.167-.028-.335-.055-.494-.086-.096-.018-.183-.038-.276-.056-.151-.032-.305-.062-.45-.095-.09-.02-.173-.043-.26-.064-.138-.034-.277-.067-.407-.102-.082-.022-.157-.046-.235-.069a11.75 11.75 0 0 1-.368-.108c-.075-.024-.141-.049-.213-.073-.11-.037-.223-.075-.325-.113-.067-.025-.125-.051-.188-.077-.096-.038-.195-.076-.282-.115-.06-.027-.11-.054-.166-.08-.08-.039-.162-.077-.233-.116-.052-.028-.094-.055-.142-.084-.063-.038-.13-.075-.185-.113-.043-.029-.075-.058-.113-.086-.048-.037-.098-.073-.139-.11-.032-.029-.054-.057-.08-.087-.033-.035-.069-.07-.093-.104-.02-.03-.031-.058-.046-.086-.018-.035-.039-.068-.049-.102l-.015-.113c.076-.977 4.074-2.736 9.748-2.736zm12.182 12.124c-.118-.628-.84-1.291-2.31-2.128l.963-7.16a.531.531 0 0 0 .005-.073C22.16 1.581 16.447 0 11.32 0 6.194 0 .482 1.581.482 3.851a.58.58 0 0 0 .005.072L2.819 21.25c.071 2.002 5.236 2.75 8.5 2.75 1.805 0 3.615-.188 5.098-.531.598-.138 1.133-.3 1.592-.48 1.18-.467 1.789-1.053 1.813-1.739l.945-7.018c.557.131 1.016.197 1.389.197.54 0 .902-.137 1.134-.413a.956.956 0 0 0 .21-.804Z\"/></svg>"}], "labBuild": [{"drawn": false, "color": "#EE4C2C", "name": "PyTorch", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12.005 0L4.952 7.053a9.865 9.865 0 000 14.022 9.866 9.866 0 0014.022 0c3.984-3.9 3.986-10.205.085-14.023l-1.744 1.743c2.904 2.905 2.904 7.634 0 10.538s-7.634 2.904-10.538 0-2.904-7.634 0-10.538l4.647-4.646.582-.665zm3.568 3.899a1.327 1.327 0 00-1.327 1.327 1.327 1.327 0 001.327 1.328A1.327 1.327 0 0016.9 5.226 1.327 1.327 0 0015.573 3.9z\"/></svg>"}, {"drawn": false, "color": "#0194E2", "name": "MLflow", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M11.883.002a12.044 12.044 0 0 0-9.326 19.463l3.668-2.694A7.573 7.573 0 0 1 12.043 4.45v2.867l6.908-5.14A12.012 12.012 0 0 0 11.883.002zm9.562 4.533L17.777 7.23a7.573 7.573 0 0 1-5.818 12.322v-2.867l-6.908 5.14a12.046 12.046 0 0 0 16.394-17.29z\"/></svg>"}, {"drawn": false, "color": "#844FBA", "name": "Terraform", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M1.44 0v7.575l6.561 3.79V3.787zm21.12 4.227l-6.561 3.791v7.574l6.56-3.787zM8.72 4.23v7.575l6.561 3.787V8.018zm0 8.405v7.575L15.28 24v-7.578z\"/></svg>"}, {"drawn": false, "color": "#FF9900", "name": "Amazon EKS", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"m14.67 8.505-2.875 3.335 3.128 3.648h-1.168l-2.808-3.277v3.368h-.842V8.421h.842v2.947l2.603-2.863Zm7.225 6.751-3.369-2.021V8.421a.42.42 0 0 0-.209-.364l-4.843-2.825V1.159l8.42 4.976Zm.635-9.724L13.267.06a.422.422 0 0 0-.635.362v5.053c0 .15.08.288.208.363l4.844 2.826v4.81a.42.42 0 0 0 .205.362l4.21 2.526a.42.42 0 0 0 .638-.361V5.895a.42.42 0 0 0-.207-.363ZM11.977 23.1l-9.872-5.248V6.135l8.421-4.976v4.084L6.09 8.066a.422.422 0 0 0-.195.355v7.158a.42.42 0 0 0 .226.373l5.665 2.948a.42.42 0 0 0 .387 0l5.496-2.84 3.382 2.03Zm10.135-5.356-4.21-2.526a.42.42 0 0 0-.411-.013l-5.51 2.847-5.244-2.729v-6.67l4.436-2.824a.422.422 0 0 0 .195-.355V.42a.421.421 0 0 0-.635-.362L1.47 5.532a.421.421 0 0 0-.207.363v12.21c0 .156.086.299.223.372l10.297 5.474a.421.421 0 0 0 .401-.004l9.915-5.473a.422.422 0 0 0 .013-.73Z\"/></svg>"}], "labDeploy": [{"drawn": false, "color": "#2088FF", "name": "GitHub Actions", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M10.984 13.836a.5.5 0 0 1-.353-.146l-.745-.743a.5.5 0 1 1 .706-.708l.392.391 1.181-1.18a.5.5 0 0 1 .708.707l-1.535 1.533a.504.504 0 0 1-.354.146zm9.353-.147l1.534-1.532a.5.5 0 0 0-.707-.707l-1.181 1.18-.392-.391a.5.5 0 1 0-.706.708l.746.743a.497.497 0 0 0 .706-.001zM4.527 7.452l2.557-1.585A1 1 0 0 0 7.09 4.17L4.533 2.56A1 1 0 0 0 3 3.406v3.196a1.001 1.001 0 0 0 1.527.85zm2.03-2.436L4 6.602V3.406l2.557 1.61zM24 12.5c0 1.93-1.57 3.5-3.5 3.5a3.503 3.503 0 0 1-3.46-3h-2.08a3.503 3.503 0 0 1-3.46 3 3.502 3.502 0 0 1-3.46-3h-.558c-.972 0-1.85-.399-2.482-1.042V17c0 1.654 1.346 3 3 3h.04c.244-1.693 1.7-3 3.46-3 1.93 0 3.5 1.57 3.5 3.5S13.43 24 11.5 24a3.502 3.502 0 0 1-3.46-3H8c-2.206 0-4-1.794-4-4V9.899A5.008 5.008 0 0 1 0 5c0-2.757 2.243-5 5-5s5 2.243 5 5a5.005 5.005 0 0 1-4.952 4.998A2.482 2.482 0 0 0 7.482 12h.558c.244-1.693 1.7-3 3.46-3a3.502 3.502 0 0 1 3.46 3h2.08a3.503 3.503 0 0 1 3.46-3c1.93 0 3.5 1.57 3.5 3.5zm-15 8c0 1.378 1.122 2.5 2.5 2.5s2.5-1.122 2.5-2.5-1.122-2.5-2.5-2.5S9 19.122 9 20.5zM5 9c2.206 0 4-1.794 4-4S7.206 1 5 1 1 2.794 1 5s1.794 4 4 4zm9 3.5c0-1.378-1.122-2.5-2.5-2.5S9 11.122 9 12.5s1.122 2.5 2.5 2.5 2.5-1.122 2.5-2.5zm9 0c0-1.378-1.122-2.5-2.5-2.5S18 11.122 18 12.5s1.122 2.5 2.5 2.5 2.5-1.122 2.5-2.5zm-13 8a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0zm2 0a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0zm12 0c0 1.93-1.57 3.5-3.5 3.5a3.503 3.503 0 0 1-3.46-3.002c-.007.001-.013.005-.021.005l-.506.017h-.017a.5.5 0 0 1-.016-.999l.506-.017c.018-.002.035.006.052.007A3.503 3.503 0 0 1 20.5 17c1.93 0 3.5 1.57 3.5 3.5zm-1 0c0-1.378-1.122-2.5-2.5-2.5S18 19.122 18 20.5s1.122 2.5 2.5 2.5 2.5-1.122 2.5-2.5z\"/></svg>"}, {"drawn": false, "color": "#2496ED", "name": "Docker", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M13.983 11.078h2.119a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.119a.185.185 0 00-.185.185v1.888c0 .102.083.185.185.185m-2.954-5.43h2.118a.186.186 0 00.186-.186V3.574a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m0 2.716h2.118a.187.187 0 00.186-.186V6.29a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.887c0 .102.082.185.185.186m-2.93 0h2.12a.186.186 0 00.184-.186V6.29a.185.185 0 00-.185-.185H8.1a.185.185 0 00-.185.185v1.887c0 .102.083.185.185.186m-2.964 0h2.119a.186.186 0 00.185-.186V6.29a.185.185 0 00-.185-.185H5.136a.186.186 0 00-.186.185v1.887c0 .102.084.185.186.186m5.893 2.715h2.118a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m-2.93 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.083.185.185.185m-2.964 0h2.119a.185.185 0 00.185-.185V9.006a.185.185 0 00-.184-.186h-2.12a.186.186 0 00-.186.186v1.887c0 .102.084.185.186.185m-2.92 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.082.185.185.185M23.763 9.89c-.065-.051-.672-.51-1.954-.51-.338.001-.676.03-1.01.087-.248-1.7-1.653-2.53-1.716-2.566l-.344-.199-.226.327c-.284.438-.49.922-.612 1.43-.23.97-.09 1.882.403 2.661-.595.332-1.55.413-1.744.42H.751a.751.751 0 00-.75.748 11.376 11.376 0 00.692 4.062c.545 1.428 1.355 2.48 2.41 3.124 1.18.723 3.1 1.137 5.275 1.137.983.003 1.963-.086 2.93-.266a12.248 12.248 0 003.823-1.389c.98-.567 1.86-1.288 2.61-2.136 1.252-1.418 1.998-2.997 2.553-4.4h.221c1.372 0 2.215-.549 2.68-1.009.309-.293.55-.65.707-1.046l.098-.288Z\"/></svg>"}, {"drawn": false, "color": "#FF9900", "name": "AWS Lambda", "svg": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M4.9855 0c-.2941.0031-.5335.2466-.534.5482L4.446 5.456c0 .1451.06.2835.159.3891a.5322.5322 0 0 0 .3806.1562h3.4282l8.197 17.6805a.5365.5365 0 0 0 .4885.3181h5.811c.2969 0 .5426-.2448.5426-.5482V18.544c0-.3035-.2392-.5482-.5425-.5482h-2.0138L12.7394.3153C12.647.124 12.4564 0 12.2452 0h-7.254Zm.5397 1.0907h6.3678l8.16 17.6804a.5365.5365 0 0 0 .4885.3181h1.8178v3.8173H17.437L9.2402 5.226a.536.536 0 0 0-.4885-.318H5.5223Zm2.0137 8.2366c-.2098.0011-.3937.1193-.4857.3096L.6002 23.2133a.5506.5506 0 0 0 .0313.5282.5334.5334 0 0 0 .4544.25h6.169a.5468.5468 0 0 0 .497-.3096l3.38-7.166a.5405.5405 0 0 0-.0029-.4686L8.036 9.637a.5468.5468 0 0 0-.4942-.3096Zm.0057 1.8036 2.488 5.1522-3.1214 6.6206H1.9465Z\"/></svg>"}]};
+
+  /* ---- flatten the ring's logo groups into one lookup by name ---- */
+  var LOGO={};
+  Object.keys(MARKS).forEach(function(g){ MARKS[g].forEach(function(m){ LOGO[m.name]=m; }); });
+  function logoByPrefix(name){ for(var k in LOGO){ if(k.indexOf(name)===0) return LOGO[k]; } return null; }
+
+  /* ---- the four planes, with the inner page's fills and the logos regrouped onto them ---- */
+  var PLANES=[
+    {k:'serve',name:'Serving',   fill:'#dee5f4', logos:['AWS Lambda','FastAPI','ONNX']},
+    {k:'mon',  name:'Monitoring',fill:'#d8ecde', logos:['Evidently','Prometheus','Grafana','Amazon S3']},
+    {k:'ci',   name:'CI/CD',     fill:'#f8dfc4', logos:['PyTorch','MLflow','Docker','GitHub Actions']},
+    {k:'k8s',  name:'Ephemeral K8s', fill:'#fbd3dc', ghost:true, logos:['Terraform','Amazon EKS']}
+  ];
+  // parts for the faithful overview still (inner page's component boxes)
+  var PARTS=[
+    [{n:'Browser',x:110,y:250},{n:'Lambda',x:300,y:100},{n:'S3',x:470,y:250}],
+    [{n:'Drift',x:470,y:250},{n:'Hub',x:470,y:80},{n:'Issue',x:130,y:250}],
+    [{n:'Train',x:130,y:250},{n:'Registry',x:130,y:80},{n:'Gate',x:460,y:200,gate:1},{n:'Deploy',x:300,y:100}],
+    [{n:'EKS',x:120,y:240},{n:'API',x:300,y:100},{n:'Load',x:470,y:250}]
+  ];
+  // wires by [plane, part]; up = the flywheel, drawn ochre
+  var WIRES=[
+    {a:[0,'S3'],b:[1,'Drift']},
+    {a:[1,'Issue'],b:[2,'Train']},
+    {a:[2,'Deploy'],b:[0,'Lambda'],up:1},
+    {a:[2,'Deploy'],b:[3,'API']}
+  ];
+
+  var C30=Math.cos(Math.PI/6);
+  function iso(x,y,z){ return [(x-y)*C30,(x+y)*0.5-(z||0)]; }
+  function fp(p){ return p[0].toFixed(1)+','+p[1].toFixed(1); }
+  var PW=520, PD=300;
+
+  // one sheet, in local units centred on (0,0). o.parts → draw component boxes.
+  function sheet(pl,parts,o){
+    o=o||{}; var hw=PW/2, hd=PD/2, T=10, pts={}, s='', ts=o.ts||1;
+    var g=pl.ghost&&!o.solid, dash=g?' stroke-dasharray="5 5"':'', op=g?' fill-opacity=".4"':'';
+    var c=[[-hw,-hd],[hw,-hd],[hw,hd],[-hw,hd]].map(function(q){ return iso(q[0],q[1],0); });
+    var dn=function(p){ return [p[0],p[1]+T]; };
+    s+='<polygon points="'+[c[1],c[2],dn(c[2]),dn(c[1])].map(fp).join(' ')+'" fill="'+pl.fill+'" stroke="#0a0a0a" stroke-width="1"'+dash+op+' style="filter:brightness(.92)"/>';
+    s+='<polygon points="'+[c[2],c[3],dn(c[3]),dn(c[2])].map(fp).join(' ')+'" fill="'+pl.fill+'" stroke="#0a0a0a" stroke-width="1"'+dash+op+' style="filter:brightness(.85)"/>';
+    s+='<polygon points="'+c.map(fp).join(' ')+'" fill="'+pl.fill+'" stroke="#0a0a0a" stroke-width="1"'+dash+(g?' fill-opacity=".5"':'')+'/>';
+    if(parts) parts.forEach(function(pt){
+      var bx=pt.x*PW/560-hw, by=pt.y*PD/320-hd, bw=60, bh=pt.gate?18:32;
+      var sq=[[0,0],[bw,0],[bw,bw],[0,bw]];
+      var top=sq.map(function(q){ return iso(bx+q[0]-bw/2,by+q[1]-bw/2,bh); });
+      var base=sq.map(function(q){ return iso(bx+q[0]-bw/2,by+q[1]-bw/2,0); });
+      var fc=g?'rgba(255,255,255,.55)':'#fff', pd=g?' stroke-dasharray="3 3"':'';
+      s+='<polygon points="'+[top[1],top[2],base[2],base[1]].map(fp).join(' ')+'" fill="'+fc+'" stroke="#0a0a0a" stroke-width=".9"'+pd+' style="filter:brightness(.94)"/>';
+      s+='<polygon points="'+[top[2],top[3],base[3],base[2]].map(fp).join(' ')+'" fill="'+fc+'" stroke="#0a0a0a" stroke-width=".9"'+pd+' style="filter:brightness(.86)"/>';
+      s+='<polygon points="'+top.map(fp).join(' ')+'" fill="'+fc+'" stroke="#0a0a0a" stroke-width=".9"'+pd+'/>';
+      if(o.partLabels){ var lp=iso(bx,by,bh+bw/2+22);
+        s+='<text x="'+lp[0].toFixed(1)+'" y="'+lp[1].toFixed(1)+'" font-size="'+(12*ts)+'" font-weight="500" text-anchor="middle" fill="#0a0a0a">'+pt.n+'</text>'; }
+      pts[pt.n]={top:iso(bx,by,bh),base:iso(bx,by,0)};
+    });
+    pts.c=[0,0];
+    return {svg:s,pts:pts};
+  }
+
+  // a row of brand logos, centred at (cx,cy) in screen units, each a nested coloured svg
+  function logoRow(names,cx,cy,size,gap){
+    var tot=names.length*size+(names.length-1)*gap, x0=cx-tot/2, s='';
+    names.forEach(function(name,i){
+      var m=logoByPrefix(name); if(!m) return;
+      var x=x0+i*(size+gap), col=m.color||'#3a3a3a';
+      var svg=m.svg.replace('<svg ','<svg x="'+x.toFixed(1)+'" y="'+(cy-size/2).toFixed(1)+'" width="'+size.toFixed(1)+'" height="'+size.toFixed(1)+'" style="color:'+col+'" ');
+      s+='<g>'+svg+'</g>';
+    });
+    return s;
+  }
+
+  // place a built sheet at (X,Y) scaled by sc; returns a mapper from a local pt to screen
+  function placed(sh,X,Y,sc){ return {sh:sh,X:X,Y:Y,s:sc,at:function(name,key){ var p=sh.pts[name]; p=key?p[key]:p; return [X+sc*p[0],Y+sc*p[1]]; }}; }
+
+  function arrow(B,dir,ah,col,u){
+    return '<path d="M'+(B[0]-ah*Math.cos(dir-.5)).toFixed(1)+' '+(B[1]-ah*Math.sin(dir-.5)).toFixed(1)+
+      ' L'+B[0].toFixed(1)+' '+B[1].toFixed(1)+' L'+(B[0]-ah*Math.cos(dir+.5)).toFixed(1)+' '+(B[1]-ah*Math.sin(dir+.5)).toFixed(1)+
+      '" fill="none" stroke="'+col+'" stroke-width="'+(1.6*u).toFixed(2)+'" stroke-linecap="round" stroke-linejoin="round"/>';
+  }
+  // a straight wire between two screen points
+  function wire(A,B,o){
+    o=o||{}; var u=o.u||1, col=o.ochre?'#96600a':'#0a0a0a', op=o.op==null?1:o.op;
+    var dir=Math.atan2(B[1]-A[1],B[0]-A[0]), w=(o.ochre?2.4:1.5)*u, ah=(o.ochre?11:8)*u;
+    var s='<g opacity="'+op+'">';
+    s+='<path d="M'+A[0].toFixed(1)+' '+A[1].toFixed(1)+' L'+B[0].toFixed(1)+' '+B[1].toFixed(1)+'" fill="none" stroke="'+col+'" stroke-width="'+w.toFixed(2)+'"/>';
+    s+=arrow(B,dir,ah,col,u);
+    s+='<circle cx="'+A[0].toFixed(1)+'" cy="'+A[1].toFixed(1)+'" r="'+(3.4*u).toFixed(1)+'" fill="'+col+'"/>';
+    return s+'</g>';
+  }
+
+  function nameTag(name,cx,cy,fs,o){
+    o=o||{}; var col=o.ghost?'#6b6b6b':'#0a0a0a', anchor=o.anchor||'middle';
+    return '<text class="nm" x="'+cx.toFixed(1)+'" y="'+cy.toFixed(1)+'" font-size="'+fs.toFixed(1)+'" text-anchor="'+anchor+'" fill="'+col+'"'+(o.op!=null?' opacity="'+o.op+'"':'')+'>'+name+'</text>';
+  }
+  // a logo row whose RIGHT edge lands on xEnd (for labels that hang left of a sheet)
+  function logoRowEnd(names,xEnd,cy,size,gap){ var tot=names.length*size+(names.length-1)*gap; return logoRow(names,xEnd-tot/2,cy,size,gap); }
+
+  var CTA='<p class="hf-eyebrow">Behind the scenes</p>'+
+          '<h2 class="hf-title">Behind the Scenes</h2>'+
+          '<p class="hf-lead">From strokes to prediction.</p>'+
+          '<a class="hf-cta" href="#" onclick="return false">Explore the full architecture <span class="ar">&rarr;</span></a>';
+
+  function svgEl(vbW,vbH,inner){ return '<svg viewBox="0 0 '+vbW+' '+vbH+'" aria-hidden="true">'+inner+'</svg>'; }
+
+  /* =========================================================== the phone still
+     one shared, simple deck for every variant on a phone: the four sheets stacked
+     low under the copy, wires faint, flywheel ochre. */
+  function phoneDeck(){
+    var W=390,H=760, cx=W/2, cy=.63*H, k=.3, sep=135, u=W/1440*2.2;
+    var P=PLANES.map(function(pl,n){ return placed(sheet(pl,PARTS[n],{}),cx,cy+(n-1.5)*sep*k,k); });
+    var body='';
+    for(var m=3;m>=0;m--) body+='<g transform="translate('+P[m].X.toFixed(1)+','+P[m].Y.toFixed(1)+') scale('+P[m].s.toFixed(3)+')">'+P[m].sh.svg+'</g>';
+    var ws='';
+    WIRES.forEach(function(wr){
+      var A=P[wr.a[0]].at(wr.a[1],wr.up?'top':'base'), B=P[wr.b[0]].at(wr.b[1],wr.up?'base':'top');
+      ws+=wire(A,B,{u:u,ochre:wr.up,op:wr.up?.95:.4});
+    });
+    return svgEl(W,H,body+ws);
+  }
+
+  /* =========================================================== H1 — overview still */
+  function vOverview(phone){
+    if(phone) return CTA_WRAP(phoneDeck());
+    var W=1440,H=816, cx=985, cy=418, k=.6, sep=168;
+    var P=PLANES.map(function(pl,n){ return placed(sheet(pl,PARTS[n],{partLabels:true,ts:1.35}),cx,cy+(n-1.5)*sep*k,k); });
+    var body='';
+    for(var n=3;n>=0;n--) body+='<g transform="translate('+P[n].X.toFixed(1)+','+P[n].Y.toFixed(1)+') scale('+P[n].s.toFixed(3)+')">'+P[n].sh.svg+'</g>';
+    // plane name beside each sheet, to the right
+    PLANES.forEach(function(pl,n){ body+=nameTag(pl.name,P[n].X+340,P[n].Y+6,26,{ghost:pl.ghost}); });
+    var ws='';
+    WIRES.forEach(function(wr){
+      var A=P[wr.a[0]].at(wr.a[1],wr.up?'top':'base'), B=P[wr.b[0]].at(wr.b[1],wr.up?'base':'top');
+      ws+=wire(A,B,{u:1,ochre:wr.up,op:wr.up?1:.45});
+    });
+    return svgEl(W,H,body+ws)+'<div class="hf-copy">'+CTA+'</div>'+
+      '<div class="hf-legend">'+toolStrip()+'</div>';
+  }
+  // a single centred strip of every tool, below the drawing
+  function toolStrip(){
+    var all=['AWS Lambda','FastAPI','ONNX','Evidently','Prometheus','Grafana','Amazon S3','PyTorch','MLflow','Docker','GitHub Actions','Terraform','Amazon EKS'];
+    return '<span style="display:flex;gap:calc(22*var(--u));align-items:center;flex-wrap:wrap;justify-content:center">'+
+      all.map(function(name){ var m=logoByPrefix(name); if(!m) return '';
+        var col=m.color||'#3a3a3a';
+        var svg=m.svg.replace('<svg ','<svg width="calc(22*var(--u))" height="calc(22*var(--u))" style="color:'+col+';display:block" ');
+        return '<span title="'+name+'" style="line-height:0">'+svg+'</span>'; }).join('')+'</span>';
+  }
+  function CTA_WRAP(svg){ return svg+'<div class="hf-copy">'+CTA+'</div>'; }
+
+  /* =========================================================== H2 — exploded fan */
+  function vFan(phone){
+    if(phone) return CTA_WRAP(phoneDeck());
+    var W=1440,H=816, k=.4;
+    var xs=[250,560,885,1195], ys=[470,545,470,545];
+    var P=PLANES.map(function(pl,n){ return placed(sheet(pl,null,{}),xs[n],ys[n],k); });
+    var body='';
+    for(var n=0;n<4;n++) body+='<g transform="translate('+P[n].X.toFixed(1)+','+P[n].Y.toFixed(1)+') scale('+P[n].s.toFixed(3)+')">'+P[n].sh.svg+'</g>';
+    var ws='';
+    // forward wires 0->1->2->3 (centres), plus the ochre flywheel arcing back 2->0
+    [[0,1],[1,2],[2,3]].forEach(function(e){ ws+=wire(P[e[0]].at('c'),P[e[1]].at('c'),{u:1,op:.5}); });
+    // flywheel: an arc from ci back to serve, over the top
+    var A=P[2].at('c'), B=P[0].at('c'), midx=(A[0]+B[0])/2, topy=Math.min(A[1],B[1])-150;
+    ws+='<path d="M'+A[0]+' '+A[1]+' Q'+midx+' '+topy+' '+B[0]+' '+B[1]+'" fill="none" stroke="#96600a" stroke-width="2.4" opacity=".95"/>';
+    ws+=arrow(B,Math.atan2(B[1]-topy,B[0]-midx),11,'#96600a',1);
+    // name + logos under each sheet
+    var labels='';
+    PLANES.forEach(function(pl,n){ var ly=ys[n]+130;
+      labels+=nameTag(pl.name,xs[n],ly,24,{ghost:pl.ghost});
+      labels+=logoRow(pl.logos,xs[n],ly+28,22,16);
+    });
+    return svgEl(W,H,body+ws+labels)+'<div class="hf-copy">'+CTA_TOP()+'</div>';
+  }
+  function CTA_TOP(){ return '<p class="hf-eyebrow">Behind the scenes</p><h2 class="hf-title">Behind the Scenes</h2><p class="hf-lead">From strokes to prediction — the loop that keeps it honest.</p><a class="hf-cta" href="#" onclick="return false">Explore the full architecture <span class="ar">&rarr;</span></a>'; }
+
+  /* =========================================================== H3 — hero sheet */
+  function vHero(phone){
+    if(phone) return CTA_WRAP(phoneDeck());
+    var W=1440,H=816;
+    // serve big in front; the other three fan behind, up-right, receding
+    var front=placed(sheet(PLANES[0],PARTS[0],{partLabels:true,ts:1.2}),400,470,.74);
+    var backSpec=[{i:1,x:690,y:330,k:.42,op:.62},{i:2,x:820,y:272,k:.37,op:.5},{i:3,x:935,y:224,k:.33,op:.4}];
+    var body='';
+    // paint back-to-front: farthest (k8s) first
+    backSpec.slice().reverse().forEach(function(b){ var pl=PLANES[b.i];
+      var P=placed(sheet(pl,null,{}),b.x,b.y,b.k);
+      body+='<g opacity="'+b.op+'" transform="translate('+b.x+','+b.y+') scale('+b.k+')">'+P.sh.svg+'</g>';
+      body+=nameTag(pl.name,b.x,b.y-b.k*230,18,{ghost:pl.ghost,op:b.op});
+    });
+    body+='<g transform="translate('+front.X+','+front.Y+') scale('+front.s+')">'+front.sh.svg+'</g>';
+    body+=nameTag(PLANES[0].name,front.X,front.Y-200,32);
+    body+=logoRow(PLANES[0].logos,front.X,front.Y+230,26,24);
+    return svgEl(W,H,body)+'<div class="hf-copy">'+CTA_HERO()+'</div>';
+  }
+  function CTA_HERO(){ return '<p class="hf-eyebrow">Behind the scenes</p><h2 class="hf-title">Behind the Scenes</h2><p class="hf-lead">Serving is the door you touch. Four planes sit behind it.</p><a class="hf-cta" href="#" onclick="return false">Explore the full architecture <span class="ar">&rarr;</span></a>'; }
+
+  /* =========================================================== H4 — loop is hero */
+  function vLoop(phone){
+    if(phone) return CTA_WRAP(phoneDeck());
+    var W=1440,H=816, k=.4;
+    // the diamond: serve top, mon right, ci bottom, k8s left (the ring's old stops)
+    var pos=[[720,180],[1066,420],[720,628],[374,420]];
+    var P=PLANES.map(function(pl,n){ return placed(sheet(pl,null,{}),pos[n][0],pos[n][1],k); });
+    var body='';
+    // paint far (top) to near (bottom) so overlaps read
+    [0,1,3,2].forEach(function(n){ body+='<g transform="translate('+P[n].X+','+P[n].Y+') scale('+k+')">'+P[n].sh.svg+'</g>'; });
+    // the ochre loop: a closed path through the four centres, drawn bold, arrow mid-edge
+    var c=P.map(function(p){ return p.at('c'); });
+    var loop='';
+    for(var n=0;n<4;n++){ var A=c[n], B=c[(n+1)%4];
+      var dir=Math.atan2(B[1]-A[1],B[0]-A[0]), mx=lerp(A[0],B[0],.62), my=lerp(A[1],B[1],.62);
+      loop+='<path d="M'+A[0]+' '+A[1]+' L'+B[0]+' '+B[1]+'" fill="none" stroke="#96600a" stroke-width="2.6"/>';
+      loop+=arrow([mx,my],dir,13,'#96600a',1);
+    }
+    // name + logos outside each sheet (above the top one, below the rest)
+    var labels='';
+    PLANES.forEach(function(pl,n){ var up=(n===0), dy=up?-150:150;
+      labels+=nameTag(pl.name,pos[n][0],pos[n][1]+dy,22,{ghost:pl.ghost});
+      labels+=logoRow(pl.logos,pos[n][0],pos[n][1]+(up?-120:178),20,14);
+    });
+    return svgEl(W,H,loop+body+labels)+'<div class="hf-copy">'+CTA+'</div>';
+  }
+  var lerp=function(a,b,t){ return a+(b-a)*t; };
+
+  /* =========================================================== H5 / H6 — the staircase
+     H1's overview, stepped down-right. Title/subtitle stay top-left (as §3 keeps them),
+     a cta-strong link sits bottom-right (like Journey's "Read the journey"), and on a
+     phone both fall back to the inner page's portrait stack. */
+  function stairCopy(){ return '<h2 class="hf-title up">Behind the Scenes</h2><p class="hf-lead">From strokes to prediction</p>'; }
+  var STAIR_LINK='<a class="hf-cta" href="#" onclick="return false">Explore the full architecture <span class="ar">&rarr;</span></a>';
+  function logoSpans(size){
+    var all=['AWS Lambda','FastAPI','ONNX','Evidently','Prometheus','Grafana','Amazon S3','PyTorch','MLflow','Docker','GitHub Actions','Terraform','Amazon EKS'];
+    return all.map(function(name){ var m=logoByPrefix(name); if(!m) return '';
+      var col=m.color||'#3a3a3a';
+      var svg=m.svg.replace('<svg ','<svg width="calc('+size+'*var(--u))" height="calc('+size+'*var(--u))" style="color:'+col+';display:block" ');
+      return '<span title="'+name+'">'+svg+'</span>'; }).join('');
+  }
+  function vStair(wired,phone){
+    if(phone) return phoneDeck()+'<div class="hf-copy">'+stairCopy()+'</div><div class="hf-botlink">'+STAIR_LINK+'</div>';
+    var W=1440,H=816, k=.42, dx=232, dy=118, x0=452, y0=302, half=355*k;
+    var pos=PLANES.map(function(_,n){ return [x0+n*dx, y0+n*dy]; });
+    var P=PLANES.map(function(pl,n){ return placed(sheet(pl,PARTS[n],{partLabels:wired,ts:1.1}),pos[n][0],pos[n][1],k); });
+    var body='';
+    // down-right, so the lower-right sheet is nearest: paint 0 (top) first, 3 (K8s) last
+    for(var n=0;n<4;n++) body+='<g transform="translate('+pos[n][0]+','+pos[n][1]+') scale('+k+')">'+P[n].sh.svg+'</g>';
+    if(wired) WIRES.forEach(function(wr){
+      var A=P[wr.a[0]].at(wr.a[1],wr.up?'top':'base'), B=P[wr.b[0]].at(wr.b[1],wr.up?'base':'top');
+      body+=wire(A,B,{u:1,ochre:wr.up,op:wr.up?1:.42});
+    });
+    // each plane's name (and, in the clean version, its logos) hangs to the LEFT of its sheet
+    var labels='';
+    PLANES.forEach(function(pl,n){
+      var xEnd=pos[n][0]-half-16, cy=pos[n][1];
+      labels+=nameTag(pl.name,xEnd,cy+(wired?6:-4),wired?20:22,{ghost:pl.ghost,anchor:'end'});
+      if(!wired) labels+=logoRowEnd(pl.logos,xEnd,cy+20,20,12);
+    });
+    var overlays='<div class="hf-copy">'+stairCopy()+'</div>';
+    if(wired) overlays+='<div class="hf-botbar"><div class="tools">'+logoSpans(21)+'</div>'+STAIR_LINK+'</div>';
+    else overlays+='<div class="hf-botlink">'+STAIR_LINK+'</div>';
+    return svgEl(W,H,body+labels)+overlays;
+  }
+
+  /* =========================================================== H7 — split
+     H1's deck on the left; title one line top-left (Home's scheme); on the right a plane
+     key (swatch · name · tools) with the link beneath it. */
+  function planeLogoSpans(pl,size){
+    return pl.logos.map(function(name){ var m=logoByPrefix(name); if(!m) return '';
+      var col=m.color||'#3a3a3a';
+      var svg=m.svg.replace('<svg ','<svg width="calc('+size+'*var(--u))" height="calc('+size+'*var(--u))" style="color:'+col+';display:block" ');
+      return '<span title="'+name+'">'+svg+'</span>'; }).join('');
+  }
+  function vSplit(phone){
+    if(phone) return phoneDeck()+'<div class="hf-copy">'+stairCopy()+'</div><div class="hf-botlink">'+STAIR_LINK+'</div>';
+    var W=1440,H=816, cx=468, cy=486, k=.56, sep=165;
+    var P=PLANES.map(function(pl,n){ return placed(sheet(pl,PARTS[n],{partLabels:true,ts:1.3}),cx,cy+(n-1.5)*sep*k,k); });
+    var body='';
+    for(var n=3;n>=0;n--) body+='<g transform="translate('+P[n].X.toFixed(1)+','+P[n].Y.toFixed(1)+') scale('+P[n].s.toFixed(3)+')">'+P[n].sh.svg+'</g>';
+    WIRES.forEach(function(wr){
+      var A=P[wr.a[0]].at(wr.a[1],wr.up?'top':'base'), B=P[wr.b[0]].at(wr.b[1],wr.up?'base':'top');
+      body+=wire(A,B,{u:1,ochre:wr.up,op:wr.up?1:.45});
+    });
+    var key=PLANES.map(function(pl){
+      return '<div class="kr"><b style="background:'+pl.fill+'"></b><span class="kn'+(pl.ghost?' g':'')+'">'+pl.name+'</span><span class="kl">'+planeLogoSpans(pl,20)+'</span></div>';
+    }).join('');
+    var side='<div class="hf-side"><div class="hf-key">'+key+'</div>'+STAIR_LINK+'</div>';
+    return svgEl(W,H,body)+'<div class="hf-copy">'+stairCopy()+'</div>'+side;
+  }
+
+  /* =========================================================== H8–H11 — shared deck
+     All four reuse one stacked deck and one wire painter; they differ only in motion
+     and interaction, which is the inner page's own signature. */
+  function deckStack(C,opts){ return PLANES.map(function(pl,n){ return placed(sheet(pl,PARTS[n],opts||{}),C.cx,C.cy+(n-1.5)*C.sep*C.k,C.k); }); }
+  function deckBody(P){ var b=''; for(var n=3;n>=0;n--) b+='<g class="dk-pl" data-i="'+n+'" transform="translate('+P[n].X.toFixed(1)+','+P[n].Y.toFixed(1)+') scale('+P[n].s.toFixed(3)+')">'+P[n].sh.svg+'</g>'; return b; }
+  // wires for a given focus: -1 = overview (flywheel ochre, rest faint); n = plane n lit
+  function wiresFor(P,focus){
+    var s=''; WIRES.forEach(function(wr){
+      var A=P[wr.a[0]].at(wr.a[1],wr.up?'top':'base'), B=P[wr.b[0]].at(wr.b[1],wr.up?'base':'top');
+      var touch=(focus>=0)&&(wr.a[0]===focus||wr.b[0]===focus);
+      var op= focus<0 ? (wr.up?1:.42) : (touch?1:.1);
+      s+=wire(A,B,{u:1,ochre:wr.up||touch,op:op});
+    });
+    return s;
+  }
+  function phoneFallback(){ return phoneDeck()+'<div class="hf-copy">'+stairCopy()+'</div><div class="hf-botlink">'+STAIR_LINK+'</div>'; }
+  var SUBS=['always on · ~$0','every Monday','every merge','~30 min a month'];
+  var CYCAP=[
+    {k:'Plane 1 · always on',n:'Serving',s:'Lambda wakes from zero, runs the model, and logs every guess to S3.'},
+    {k:'Plane 2 · every week',n:'Monitoring',s:'The week’s logs are scored for drift; a breach opens a GitHub issue.'},
+    {k:'Plane 3 · every merge',n:'CI/CD',s:'Every run makes a challenger; it ships only if it clears the quality gate.'},
+    {k:'Plane 4 · ~30 min a month',n:'Ephemeral K8s',s:'The cluster comes up, is load-tested, then torn down to $0.'}
+  ];
+
+  /* ---- H8: assembles on arrival ---- */
+  function vLive(phone){
+    if(phone) return phoneFallback();
+    var C={cx:900,cy:444,k:.6,sep:168};
+    var P=deckStack(C,{partLabels:true,ts:1.3});
+    var body='';
+    for(var n=3;n>=0;n--){
+      var cyn=(C.cy+(n-1.5)*14).toFixed(1);   // collapsed y (near centre)
+      body+='<g class="h8-pl" data-i="'+n+'" data-x="'+P[n].X.toFixed(1)+'" data-cy="'+cyn+'" data-fy="'+P[n].Y.toFixed(1)+'" data-k="'+P[n].s.toFixed(3)+'" transform="translate('+P[n].X.toFixed(1)+','+cyn+') scale('+P[n].s.toFixed(3)+')" opacity="0">'+P[n].sh.svg+'</g>';
+    }
+    var A=P[2].at('Deploy','top'), B=P[0].at('Lambda','base'), dir=Math.atan2(B[1]-A[1],B[0]-A[0]);
+    var fly='<path class="h8-fly" d="M'+A[0].toFixed(1)+' '+A[1].toFixed(1)+' L'+B[0].toFixed(1)+' '+B[1].toFixed(1)+'" fill="none" stroke="#96600a" stroke-width="2.4" style="stroke-dasharray:2000;stroke-dashoffset:2000"/>';
+    var over='<g class="dk-wires">';
+    PLANES.forEach(function(pl,n){ over+=nameTag(pl.name,P[n].X+345,P[n].Y+6,24,{ghost:pl.ghost}); });
+    WIRES.forEach(function(wr){ if(wr.up) return;
+      var a=P[wr.a[0]].at(wr.a[1],'base'), b=P[wr.b[0]].at(wr.b[1],'top');
+      over+=wire(a,b,{u:1,op:.42});
+    });
+    over+=arrow(B,dir,11,'#96600a',1)+'<circle cx="'+A[0].toFixed(1)+'" cy="'+A[1].toFixed(1)+'" r="3.4" fill="#96600a"/></g>';
+    return svgEl(1440,816,body+fly+over)
+      +'<div class="hf-copy">'+stairCopy()+'</div>'
+      +'<div class="hf-botlink">'+STAIR_LINK+'</div>'
+      +'<button class="h8-replay" type="button">↻ Replay</button>';
+  }
+  function initH8(){
+    var frame=document.getElementById('hfLive'); if(!frame) return;
+    var sheets=[].slice.call(frame.querySelectorAll('.h8-pl'));
+    if(!sheets.length){ frame.classList.add('go'); return; }   // phone: static, reveal copy/link
+    var fly=frame.querySelector('.h8-fly');
+    var len=(fly&&fly.getTotalLength)?fly.getTotalLength():800;
+    if(fly){ fly.style.strokeDasharray=len; fly.style.strokeDashoffset=len; }
+    // sheets move via the SVG transform ATTRIBUTE (CSS transform on <g> wouldn't paint here);
+    // a timer drives it, so it also runs in a backgrounded tab, unlike requestAnimationFrame
+    function setSheet(g,p){
+      p=Math.max(0,Math.min(1,p)); var e=1-Math.pow(1-p,3);
+      var y=(+g.dataset.cy)+((+g.dataset.fy)-(+g.dataset.cy))*e;
+      g.setAttribute('transform','translate('+g.dataset.x+','+y.toFixed(1)+') scale('+g.dataset.k+')');
+      g.setAttribute('opacity',Math.min(1,p*1.6).toFixed(3));
+    }
+    function settle(){ frame.classList.add('go'); sheets.forEach(function(g){ setSheet(g,1); }); if(fly){ fly.style.transition='none'; fly.style.strokeDashoffset='0'; } }
+    if(matchMedia('(prefers-reduced-motion:reduce)').matches){ settle(); return; }
+    var timer=null;
+    function play(){
+      clearInterval(timer); frame.classList.remove('go');
+      sheets.forEach(function(g){ setSheet(g,0); });
+      if(fly){ fly.style.transition='none'; fly.style.strokeDashoffset=len; }
+      void frame.offsetWidth;
+      frame.classList.add('go');                       // reveals copy/link/wires (CSS, runs in bg)
+      if(fly){ fly.style.transition='stroke-dashoffset 1s var(--ease-out-expo) .5s'; fly.style.strokeDashoffset='0'; }
+      var t0=Date.now(), DUR=1150, STAG=130;
+      timer=setInterval(function(){
+        var el=Date.now()-t0;
+        sheets.forEach(function(g){ setSheet(g,(el-(+g.dataset.i)*STAG)/(DUR-3*STAG)); });
+        if(el>=DUR){ clearInterval(timer); sheets.forEach(function(g){ setSheet(g,1); }); }
+      },16);
+    }
+    frame.__play=play;
+    var rep=frame.querySelector('.h8-replay'); if(rep) rep.onclick=play;
+    sheets.forEach(function(g){ setSheet(g,0); });
+    if(frame.__io) frame.__io.disconnect();
+    var done=false;
+    frame.__io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting&&!done){ done=true; play(); } }); },{threshold:.25});
+    frame.__io.observe(frame);
+  }
+
+  /* ---- H9: trace on hover ---- */
+  var H9C={cx:980,cy:460,k:.58,sep:165};
+  function vFocusList(phone){
+    if(phone) return phoneFallback();
+    var P=deckStack(H9C,{partLabels:false});
+    var list=PLANES.map(function(pl,n){ return '<li class="fl-item" data-i="'+n+'" tabindex="0"><span class="fl-n">'+pl.name+'</span><span class="fl-s">'+SUBS[n]+'</span></li>'; }).join('');
+    return svgEl(1440,816,deckBody(P)+'<g class="dk-wires">'+wiresFor(P,-1)+'</g>')
+      +'<div class="hf-copy">'+stairCopy()+'</div>'
+      +'<ul class="fl-list">'+list+'</ul>'
+      +'<p class="fl-hint">Hover a plane to trace its wires</p>'
+      +'<div class="hf-botlink">'+STAIR_LINK+'</div>';
+  }
+  function initH9(){
+    var frame=document.getElementById('hfFocus'); if(!frame) return;
+    var items=[].slice.call(frame.querySelectorAll('.fl-item')); if(!items.length) return;
+    var P=deckStack(H9C,{partLabels:false});
+    var wg=frame.querySelector('.dk-wires'), sheets=[].slice.call(frame.querySelectorAll('.dk-pl'));
+    function setFocus(idx){
+      wg.innerHTML=wiresFor(P,idx);
+      sheets.forEach(function(g){ var n=+g.dataset.i; g.style.opacity= idx<0?'1':(n===idx?'1':'.3'); });
+      items.forEach(function(it){ it.classList.toggle('on',+it.dataset.i===idx); });
+    }
+    items.forEach(function(it){ var n=+it.dataset.i;
+      it.addEventListener('mouseenter',function(){ setFocus(n); });
+      it.addEventListener('mouseleave',function(){ setFocus(-1); });
+      it.addEventListener('focus',function(){ setFocus(n); });
+      it.addEventListener('blur',function(){ setFocus(-1); });
+    });
+    setFocus(-1);
+  }
+
+  /* ---- H10: auto-cycling camera ---- */
+  var H10C={cx:486,cy:452,k:.56,sep:162};
+  function vAutoCycle(phone){
+    if(phone) return phoneFallback();
+    var P=deckStack(H10C,{partLabels:false});
+    var dots=PLANES.map(function(_,n){ return '<b data-i="'+n+'"></b>'; }).join('');
+    var cap='<div class="cy-cap"><p class="cy-k"></p><h3 class="cy-n"></h3><p class="cy-s"></p><div class="cy-dots">'+dots+'</div>'+STAIR_LINK+'</div>';
+    return svgEl(1440,816,deckBody(P)+'<g class="dk-wires">'+wiresFor(P,0)+'</g>')
+      +'<div class="hf-copy">'+stairCopy()+'</div>'+cap;
+  }
+  function initH10(){
+    var frame=document.getElementById('hfCycle'); if(!frame) return;
+    var cap=frame.querySelector('.cy-cap'); if(!cap) return;
+    var P=deckStack(H10C,{partLabels:false});
+    var wg=frame.querySelector('.dk-wires'), sheets=[].slice.call(frame.querySelectorAll('.dk-pl'));
+    var kEl=cap.querySelector('.cy-k'), nEl=cap.querySelector('.cy-n'), sEl=cap.querySelector('.cy-s');
+    var dots=[].slice.call(cap.querySelectorAll('.cy-dots b'));
+    function show(idx){
+      wg.innerHTML=wiresFor(P,idx);
+      sheets.forEach(function(g){ var n=+g.dataset.i; g.style.opacity=(n===idx?'1':'.32'); });
+      kEl.textContent=CYCAP[idx].k; nEl.textContent=CYCAP[idx].n; sEl.textContent=CYCAP[idx].s;
+      dots.forEach(function(b){ b.classList.toggle('on',+b.dataset.i===idx); });
+    }
+    show(0);
+    clearInterval(frame.__t);
+    if(matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+    var i=0; frame.__t=setInterval(function(){ i=(i+1)%4; show(i); },2600);
+  }
+
+  /* ---- H11: the loop, turning ---- */
+  var H11C={cx:720,cy:452,k:.58,sep:165};
+  function vFlywheel(phone){
+    if(phone) return phoneFallback();
+    var P=deckStack(H11C,{partLabels:false});
+    return svgEl(1440,816,deckBody(P)+'<g class="dk-wires">'+wiresFor(P,-1)+'</g><circle class="fw-dot" r="6.5" fill="#96600a" opacity="0"/>')
+      +'<div class="hf-copy">'+stairCopy()+'</div>'
+      +'<p class="fw-hint">The retrain loop — always turning</p>'
+      +'<div class="hf-botlink">'+STAIR_LINK+'</div>';
+  }
+  function initH11(){
+    var frame=document.getElementById('hfFlywheel'); if(!frame) return;
+    var dot=frame.querySelector('.fw-dot'); if(!dot) return;
+    var P=deckStack(H11C,{partLabels:false});
+    var loop=[P[0].at('S3','base'),P[1].at('Drift','top'),P[1].at('Issue','base'),P[2].at('Train','top'),P[2].at('Deploy','top'),P[0].at('Lambda','base'),P[0].at('S3','base')];
+    var segs=[],tot=0; for(var j=1;j<loop.length;j++){ var d=Math.hypot(loop[j][0]-loop[j-1][0],loop[j][1]-loop[j-1][1]); segs.push(d); tot+=d; }
+    cancelAnimationFrame(frame.__raf);
+    if(matchMedia('(prefers-reduced-motion:reduce)').matches){ dot.setAttribute('opacity','0'); return; }
+    dot.setAttribute('opacity','1');
+    var T0=null, PERIOD=6200;
+    function tick(ts){
+      if(T0===null) T0=ts;
+      var q=(((ts-T0)%PERIOD)/PERIOD)*tot, pos=loop[0];
+      for(var j=0;j<segs.length;j++){ if(q<=segs[j]){ var t=segs[j]?q/segs[j]:0; pos=[loop[j][0]+(loop[j+1][0]-loop[j][0])*t, loop[j][1]+(loop[j+1][1]-loop[j][1])*t]; break; } q-=segs[j]; }
+      dot.setAttribute('cx',pos[0].toFixed(1)); dot.setAttribute('cy',pos[1].toFixed(1));
+      frame.__raf=requestAnimationFrame(tick);
+    }
+    frame.__raf=requestAnimationFrame(tick);
+  }
+
+  /* ---- H12: auto-cycling camera, tweened (the inner page's continuous interpolation,
+     driven by a timer instead of scroll) + prev/next arrows ---- */
+  var H12C={cx:486,cy:452,k:.56,sep:162};
+  function vCycleSmooth(phone){
+    if(phone) return phoneFallback();
+    var P=deckStack(H12C,{partLabels:false});
+    var dots=PLANES.map(function(_,n){ return '<b data-i="'+n+'"></b>'; }).join('');
+    var cap='<div class="cy-cap"><div class="cy-txt"><p class="cy-k"></p><h3 class="cy-n"></h3><p class="cy-s"></p></div><div class="cy-dots">'+dots+'</div>'+STAIR_LINK+'</div>';
+    var chevL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>';
+    var chevR='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>';
+    var nav='<button class="cy-arrow prev" type="button" aria-label="Previous plane">'+chevL+'</button><button class="cy-arrow next" type="button" aria-label="Next plane">'+chevR+'</button>';
+    return svgEl(1440,816,deckBody(P)+'<g class="dk-wires"></g>')
+      +'<div class="hf-copy">'+stairCopy()+'</div>'+cap+nav;
+  }
+  function initH12(){
+    var frame=document.getElementById('hfCycle2'); if(!frame) return;
+    var cap=frame.querySelector('.cy-cap'); if(!cap) return;
+    var C=H12C, P=deckStack(C,{partLabels:false});
+    var baseY=PLANES.map(function(_,n){ return C.cy+(n-1.5)*C.sep*C.k; });
+    var sheetsEl=[]; frame.querySelectorAll('.dk-pl').forEach(function(g){ sheetsEl[+g.dataset.i]=g; });
+    var wg=frame.querySelector('.dk-wires');
+    var txt=cap.querySelector('.cy-txt'), kEl=cap.querySelector('.cy-k'), nEl=cap.querySelector('.cy-n'), sEl=cap.querySelector('.cy-s');
+    var dots=[].slice.call(cap.querySelectorAll('.cy-dots b'));
+    function at(T,pi,part,key){ var lp=P[pi].sh.pts[part]; lp=key?lp[key]:lp; return [T[pi].X+T[pi].s*lp[0], T[pi].Y+T[pi].s*lp[1]]; }
+    function wiresTween(T,pf,pt,frac){
+      var s=''; WIRES.forEach(function(wr){
+        var A=at(T,wr.a[0],wr.a[1],wr.up?'top':'base'), B=at(T,wr.b[0],wr.b[1],wr.up?'base':'top');
+        var tf=(wr.a[0]===pf||wr.b[0]===pf)?1:.12, tt=(wr.a[0]===pt||wr.b[0]===pt)?1:.12;
+        var w=tf+(tt-tf)*frac;
+        s+=wire(A,B,{u:1,ochre:wr.up||w>.5,op:(0.12+0.88*w)});
+      });
+      return s;
+    }
+    var curText=-1;
+    function setText(idx){ kEl.textContent=CYCAP[idx].k; nEl.textContent=CYCAP[idx].n; sEl.textContent=CYCAP[idx].s; dots.forEach(function(b){ b.classList.toggle('on',+b.dataset.i===idx); }); }
+    function render(p){
+      var base=Math.floor(p), frac=p-base, pf=((base%4)+4)%4, pt=(((base+1)%4)+4)%4, T=[];
+      for(var n=0;n<4;n++){
+        var w=(n===pf?1:0)*(1-frac)+(n===pt?1:0)*frac;
+        var s=C.k*(1+0.1*w), X=C.cx+30*w, Y=baseY[n]-14*w;
+        T.push({X:X,Y:Y,s:s});
+        sheetsEl[n].setAttribute('transform','translate('+X.toFixed(1)+','+Y.toFixed(1)+') scale('+s.toFixed(3)+')');
+        sheetsEl[n].setAttribute('opacity',(0.28+0.72*w).toFixed(3));
+      }
+      wg.innerHTML=wiresTween(T,pf,pt,frac);
+      var showIdx=frac<.5?pf:pt;
+      if(showIdx!==curText){ setText(showIdx); curText=showIdx; }
+      var op=Math.abs(2*frac-1), sign=frac<.5?-1:1;
+      txt.style.opacity=op.toFixed(3);
+      txt.style.transform='translateY('+(sign*(1-op)*10).toFixed(1)+'px)';
+    }
+    frame.__render=render;
+    if(matchMedia('(prefers-reduced-motion:reduce)').matches){ render(0); return; }
+    var DT=950, DH=1500, p=0, pStart=0, pEnd=0, tStart=performance.now(), phase='hold';
+    render(0);
+    function retarget(toInt){ pStart=p; pEnd=toInt; tStart=performance.now(); phase='trans'; }
+    frame.__retarget=retarget;
+    function loop(now){
+      if(phase==='hold'){ if(now-tStart>=DH) retarget(Math.round(p)+1); }
+      else { var t=(now-tStart)/DT;
+        if(t>=1){ p=pEnd; phase='hold'; tStart=now; render(p); }
+        else { var e=t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2; p=pStart+(pEnd-pStart)*e; render(p); } }
+      frame.__raf=requestAnimationFrame(loop);
+    }
+    cancelAnimationFrame(frame.__raf); frame.__raf=requestAnimationFrame(loop);
+    var prev=frame.querySelector('.cy-arrow.prev'), next=frame.querySelector('.cy-arrow.next');
+    if(next) next.onclick=function(){ retarget(Math.round(p)+1); };
+    if(prev) prev.onclick=function(){ retarget(Math.round(p)-1); };
+  }
+
+  /* =========================================================== build + wire up */
+  var BUILD={hfOverview:vOverview,hfFan:vFan,hfHero:vHero,hfLoop:vLoop,
+    hfStair5:function(ph){ return vStair(true,ph); },
+    hfStair6:function(ph){ return vStair(false,ph); },
+    hfSplit:vSplit,hfLive:vLive,hfFocus:vFocusList,hfCycle:vAutoCycle,hfFlywheel:vFlywheel,hfCycle2:vCycleSmooth};
+  function buildAll(){
+    var phone=document.body.classList.contains('phone');
+    Object.keys(BUILD).forEach(function(id){
+      var el=document.getElementById(id); if(el) el.innerHTML=BUILD[id](phone);
+    });
+    initH8(); initH9(); initH10(); initH11(); initH12();
+  }
+  buildAll();
+  [].slice.call(document.querySelectorAll('.sizer button')).forEach(function(b){
+    b.addEventListener('click',function(){
+      document.body.classList.toggle('phone',b.dataset.size==='phone');
+      [].slice.call(document.querySelectorAll('.sizer button')).forEach(function(o){ o.setAttribute('aria-pressed',String(o===b)); });
+      buildAll();
+    });
+  });
+  if(/[?&]size=phone/.test(location.search)){ document.body.classList.add('phone');
+    [].slice.call(document.querySelectorAll('.sizer button')).forEach(function(o){ o.setAttribute('aria-pressed',String(o.dataset.size==='phone')); }); buildAll(); }
+  if(document.fonts) document.fonts.ready.then(buildAll);
+})();
+</script>
+</body>
+</html>
