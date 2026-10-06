@@ -595,8 +595,12 @@
      is more of this", not as a shared tool — the rule the other four crossings follow.
      It pops with the other five, through the shared .b-g rules below. */
   .wash-link{cursor:pointer;}
+  /* weight 380 to match §3's "Explore the full architecture" CTA (.link.cta-strong) — the two
+     "go deeper" teasers now read as siblings. The font-SIZE is set from JS (sizeSkillsLink) to
+     track that link's clamp(17px,1.7vw,20px) in real screen px, since SVG text is sized in
+     board units that would otherwise scale differently from the HTML CTA across widths. */
   .wash-link text{
-    font-family:"Outfit",sans-serif;font-weight:350;fill:var(--deep-ochre);
+    font-family:"Outfit",sans-serif;font-weight:380;fill:var(--deep-ochre);
     text-decoration:underline;text-decoration-thickness:.8px;
     transition:fill .18s var(--ease-out-expo);
   }
@@ -963,7 +967,11 @@
           <text class="b-shared" data-pair="ship front" data-stagger="6" x="961" y="559" font-size="18" text-anchor="middle">GitHub Actions</text>
           <g class="b-g" data-stagger="7">
             <a class="wash-link" href="sections-prototype.html#skills">
-              <path class="blob" fill="var(--w-ochre)" transform="translate(1135,525) scale(1.15) rotate(11 100 100)"
+              <!-- scale bumped 1.15 -> 1.45 so the (now larger, arch-matched) link text sits
+                   inside the blob: scale grows the shape right+down from its anchor, left/top
+                   stay put, so it extends rightward to cover the "→". Only the Front crossing
+                   remains (Watching sits clear above it, Shipping clear to the left). -->
+              <path class="blob" fill="var(--w-ochre)" transform="translate(1135,525) scale(1.45) rotate(11 100 100)"
                     d="M92 6 C146 0 178 34 186 80 C194 128 164 178 112 190 C66 200 20 174 10 128 C0 82 22 38 66 16 C74 12 84 8 92 6 Z"/>
               <text x="1275" y="652" font-size="22" text-anchor="middle">See all skills →</text>
             </a>
@@ -1017,9 +1025,12 @@
           <text class="b-shared" data-pair="ship watch" data-stagger="6" x="213" y="617" font-size="13" text-anchor="middle">k6</text>
           <g class="b-g" data-stagger="7">
             <a class="wash-link" href="sections-prototype.html#skills">
-              <path class="blob" fill="var(--w-ochre)" transform="translate(313,640) scale(0.78) rotate(11 100 100)"
+              <!-- enlarged 0.78 -> 0.95 and re-centred on the (larger) link text so it sits
+                   inside the blob here too; stays clear of Shipping on the left and the viewBox
+                   edge on the right, and keeps only the Watching crossing. -->
+              <path class="blob" fill="var(--w-ochre)" transform="translate(318,632) scale(0.95) rotate(11 100 100)"
                     d="M92 6 C146 0 178 34 186 80 C194 128 164 178 112 190 C66 200 20 174 10 128 C0 82 22 38 66 16 C74 12 84 8 92 6 Z"/>
-              <text x="398" y="742" font-size="18" text-anchor="middle">See all skills →</text>
+              <text x="411" y="730" font-size="18" text-anchor="middle">See all skills →</text>
             </a>
           </g>
         </svg>
@@ -1407,6 +1418,81 @@
     if(hit) hit.classList.toggle('lit');
   });
 
+  // ---- §5 the living wash: each blob's silhouette undulates AND swells/shrinks, forever ----
+  // The shapes rest where the composition places them (so the four crossings never move) while
+  // their outlines ripple and breathe. Each blob is sampled into N points about its centroid;
+  // every frame the outline is rebuilt as ONE closed Catmull-Rom spline with the radii rippling
+  // by angle and the whole blob breathing in size — rebuilding the loop (rather than nudging the
+  // authored bezier's control points) is what keeps it a clean closed curve with no cusps. Only
+  // the visible wash is sampled; it re-samples from the pristine authored path on a layout flip.
+  function closedSpline(p){
+    const n=p.length; let d='M'+p[0][0].toFixed(2)+' '+p[0][1].toFixed(2);
+    for(let i=0;i<n;i++){
+      const a=p[(i-1+n)%n], b=p[i], c=p[(i+1)%n], e=p[(i+2)%n];
+      const c1x=b[0]+(c[0]-a[0])/6, c1y=b[1]+(c[1]-a[1])/6;
+      const c2x=c[0]-(e[0]-b[0])/6, c2y=c[1]-(e[1]-b[1])/6;
+      d+=' C'+c1x.toFixed(2)+' '+c1y.toFixed(2)+' '+c2x.toFixed(2)+' '+c2y.toFixed(2)+' '+c[0].toFixed(2)+' '+c[1].toFixed(2);
+    }
+    return d+'Z';
+  }
+  const SK_PORTRAIT=window.matchMedia('(max-aspect-ratio:9/10)');  // matches the wash CSS switch
+  const skOrigD=new Map();                                         // pristine authored "d" per blob
+  let skMorph=null;
+  function skMorphBuild(){
+    const key=SK_PORTRAIT.matches?'tall':'wide';
+    const wash=document.querySelector(key==='tall'?'.wash-tall':'.wash-wide');
+    skMorph=null;
+    if(!wash) return;
+    const N=56;
+    const items=[...wash.querySelectorAll('.b-g .blob')].map((el,i)=>{
+      if(!skOrigD.has(el)) skOrigD.set(el, el.getAttribute('d'));
+      else el.setAttribute('d', skOrigD.get(el));   // restore pristine before re-sampling
+      let len=0; try{ len=el.getTotalLength(); }catch(err){ len=0; }
+      if(!len) return null;
+      const pts=[]; for(let k=0;k<N;k++){ const pt=el.getPointAtLength(len*k/N); pts.push([pt.x,pt.y]); }
+      const cx=pts.reduce((s,p)=>s+p[0],0)/N, cy=pts.reduce((s,p)=>s+p[1],0)/N;
+      const polar=pts.map(p=>({ang:Math.atan2(p[1]-cy,p[0]-cx), r:Math.hypot(p[0]-cx,p[1]-cy)}));
+      return {el, cx, cy, polar, ph:i*1.3, amp:0.055+0.015*(i%3), bAmp:0.08+0.02*(i%2), bSpd:0.00072+0.00006*i, bPh:i*1.7};
+    }).filter(Boolean);
+    skMorph={key, items};
+  }
+  function applySkillsMorph(){
+    if(reduce) return;                               // reduced motion: leave the authored shapes
+    const r=skillsLayer.getBoundingClientRect();
+    if(r.bottom<0 || r.top>window.innerHeight) return;  // only while §5 overlaps the viewport
+    const key=SK_PORTRAIT.matches?'tall':'wide';
+    if(!skMorph || skMorph.key!==key) skMorphBuild();
+    if(!skMorph) return;
+    const t=performance.now();
+    for(const it of skMorph.items){
+      const g=it.el.closest('.b-g');
+      if(g && (g.classList.contains('lit') || g.matches(':hover'))) continue;  // hold still to read
+      const breath=1 + it.bAmp*Math.sin(t*it.bSpd + it.bPh);
+      const pts=it.polar.map(pp=>{
+        const wob=1 + it.amp*(0.7*Math.sin(t*0.0012 + it.ph + pp.ang*3) + 0.3*Math.sin(t*0.0018 - it.ph + pp.ang*2));
+        const rr=pp.r*wob*breath;
+        return [it.cx + Math.cos(pp.ang)*rr, it.cy + Math.sin(pp.ang)*rr];
+      });
+      it.el.setAttribute('d', closedSpline(pts));
+    }
+  }
+
+  // ---- size the "See all skills →" SVG text to match §3's HTML CTA in real screen px ----
+  // The CTA is clamp(17px,1.7vw,20px); SVG text is in board units, so divide by the wash's
+  // render scale to land the same pixel size. Runs on load + resize; skips the hidden wash.
+  function sizeSkillsLink(){
+    const px=Math.max(17, Math.min(20, 0.017*window.innerWidth));
+    document.querySelectorAll('.wash').forEach(wash=>{
+      const txt=wash.querySelector('.wash-link text'); if(!txt) return;
+      const vb=wash.viewBox.baseVal, rect=wash.getBoundingClientRect();
+      if(!rect.width || !rect.height || !vb.width) return;   // hidden wash => skip
+      const scale=Math.min(rect.width/vb.width, rect.height/vb.height);  // xMidYMid meet
+      txt.setAttribute('font-size', (px/scale).toFixed(2));
+    });
+  }
+  sizeSkillsLink();
+  window.addEventListener('resize',sizeSkillsLink);
+
   // ---- §4: the line stays fully drawn (a mid-draw state read as a gap); the dots
   //      and their entries just arrive in order as the section comes up ----
   function applyJourney(){
@@ -1544,6 +1630,7 @@
   function frame(){
     applyReveals();
     applyArch12();
+    applySkillsMorph();
     applyJourney();
     applyBars();
     applyChrome();

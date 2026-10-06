@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sketches — Home §5 Skills, made to move</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..700&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --background:#ffffff;
+    --foreground:#0a0a0a;
+    --muted-foreground:#6b6b6b;
+    --hair:#e8e8e8;
+    --warm:#c98a3a;
+    --warm-soft:#e8b87e;
+    --deep-ochre:#96600a;
+    --ground:#ffe8ee;                 /* §5's rose wash on Home */
+    /* the five desaturated wash fills — same tokens as the live section */
+    --w-rose:#fbd3dc;
+    --w-ochre:#f8dfc4;
+    --w-sage:#d8ecde;
+    --w-blue:#dee5f4;
+    --w-sand:#f1e7d0;
+    --ease-out-expo:cubic-bezier(.16,1,.3,1);
+    --ease-hover:cubic-bezier(.2,.7,.35,1);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;background:#fbf4f6;color:var(--foreground);
+    font-family:"Outfit",system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-weight:330;line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .display{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 96;font-weight:500;line-height:.92;letter-spacing:-.02em;
+  }
+  .micro{text-transform:uppercase;letter-spacing:.22em;font-size:11.5px;font-weight:500;color:var(--muted-foreground);}
+  .wrap{max-width:1180px;margin:0 auto;padding:clamp(56px,10vh,110px) clamp(16px,5vw,44px) clamp(60px,10vh,120px);}
+
+  /* ---------- sheet chrome (same language as the other sketch sheets) ---------- */
+  .sheet-head{margin-bottom:clamp(40px,7vh,72px);}
+  .sheet-head h1{font-size:clamp(38px,7vw,68px);text-transform:uppercase;margin:10px 0 0;}
+  .sheet-head p{margin:16px 0 0;max-width:66ch;font-size:15.5px;color:var(--muted-foreground);}
+  .sheet-head .facts{margin-top:22px;padding-top:16px;border-top:1px solid var(--foreground);max-width:70ch;font-size:14px;color:var(--muted-foreground);}
+  .sheet-head .facts b{color:var(--foreground);font-weight:500;}
+  .sk{padding:clamp(40px,7vh,76px) 0;border-top:1px solid var(--foreground);}
+  .sk-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;}
+  .sk-head h2{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
+    font-size:clamp(24px,4vw,38px);line-height:1.02;margin:0;
+  }
+  .sk-key{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--deep-ochre);letter-spacing:.1em;}
+  .sk-note{margin:12px 0 0;max-width:68ch;font-size:15px;color:var(--muted-foreground);}
+  .sk-note b{color:var(--foreground);font-weight:500;}
+  .stage{margin-top:clamp(26px,4.5vh,46px);}
+  code{font-family:ui-monospace,Menlo,monospace;font-size:.88em;}
+
+  /* a louder divider between the two families of sketch */
+  .sk-group{padding:clamp(48px,8vh,88px) 0 0;border-top:3px solid var(--foreground);}
+  .sk-group .micro{color:var(--deep-ochre);}
+  .sk-group h2{font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 88;
+    font-weight:500;letter-spacing:-.02em;font-size:clamp(30px,5.5vw,52px);line-height:1;margin:10px 0 0;}
+  .sk-group p{margin:14px 0 0;max-width:68ch;font-size:15.5px;color:var(--muted-foreground);}
+  .sk-group + .sk{border-top:0;}
+
+  .sizer{position:sticky;top:12px;z-index:50;display:flex;justify-content:flex-end;gap:10px;margin:-8px 0 0;pointer-events:none;}
+  .sizer-in{pointer-events:auto;display:flex;gap:4px;padding:5px 6px;background:#fff;border:1px solid var(--hair);border-radius:30px;box-shadow:0 8px 24px -16px rgba(10,10,10,.4);}
+  .sizer button{font:inherit;font-size:12.5px;color:var(--muted-foreground);background:none;border:0;border-radius:20px;padding:5px 13px;cursor:pointer;}
+  .sizer button[aria-pressed="true"]{color:#fff;background:var(--foreground);}
+  .sizer button:focus-visible{outline:2px solid var(--warm);outline-offset:2px;}
+
+  /* ---------- one Home §5, as a real section-sized screen ----------
+     --u is one CSS px of the 1440-wide board the frame stands for. */
+  .hf{
+    position:relative;container-type:inline-size;width:100%;aspect-ratio:1440/816;margin:0 auto;
+    background:var(--ground);overflow:hidden;border:1px solid var(--foreground);--u:calc(100cqw / 1440);
+  }
+  body.phone .hf{width:min(390px,100%);aspect-ratio:390/760;--u:calc(100cqw / 390);}
+  .hf > svg.wash{position:absolute;inset:0;width:100%;height:100%;display:block;overflow:visible;}
+
+  /* the reading corner: the section head, pinned top-left exactly as on Home */
+  .hf-copy{position:absolute;z-index:3;left:calc(96*var(--u));top:calc(74*var(--u));}
+  body.phone .hf-copy{left:calc(26*var(--u));top:calc(30*var(--u));}
+  .hf-title{font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 96;font-weight:500;letter-spacing:-.02em;line-height:.98;font-size:calc(58*var(--u));margin:0;}
+  .hf-lead{font-size:calc(19*var(--u));color:var(--muted-foreground);margin:calc(12*var(--u)) 0 0;line-height:1.4;}
+
+  /* ---------- the composition itself — the same shapes as the live section ---------- */
+  .b-g .blob{mix-blend-mode:multiply;opacity:.42;}
+  .b-g{transform-box:fill-box;transform-origin:center;}
+  .b-name{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 28;font-weight:500;letter-spacing:-.005em;fill:var(--foreground);
+  }
+  .b-tool{font-family:"Outfit",sans-serif;font-weight:350;fill:var(--muted-foreground);}
+  .b-shared{font-family:"Outfit",sans-serif;font-weight:500;fill:var(--foreground);
+    pointer-events:none;transform-box:fill-box;transform-origin:center;}
+  .wash-link{cursor:pointer;}
+  .wash-link text{font-family:"Outfit",sans-serif;font-weight:350;fill:var(--deep-ochre);
+    text-decoration:underline;text-decoration-thickness:.8px;transition:fill .45s var(--ease-out-expo);}
+  /* the way-out lights like the others (its blob to full colour, via .b-g.lit .blob) and
+     warms its arrow — it's driven by JS adding .lit on hover, see wireHover */
+  .b-g.wayout .blob{transition:opacity .5s var(--ease-out-expo);}
+  .b-g.wayout.lit .wash-link text{fill:var(--warm);}
+
+  /* smooth state changes. Carousel/tour transition everything (they only change state via
+     the .lit class). Morph (S7) gets the same soft hover EXCEPT shared-label opacity — that
+     one it drives per frame for the shimmer, so a transition there would smear it. The other
+     living variants are left snappy on purpose: they write opacity/fill/transform every frame,
+     and transitioning those would lag the ambient motion. */
+  .hf[data-anim="spotlight"] .b-g,
+  .hf[data-anim="tour"] .b-g,
+  .hf[data-anim="morph"] .b-g{transition:scale .5s var(--ease-out-expo);}
+  .hf[data-anim="spotlight"] .b-g .blob,
+  .hf[data-anim="tour"] .b-g .blob,
+  .hf[data-anim="morph"] .b-g .blob{transition:opacity .5s var(--ease-out-expo);}
+  .hf[data-anim="spotlight"] .b-name,.hf[data-anim="tour"] .b-name,.hf[data-anim="morph"] .b-name,
+  .hf[data-anim="spotlight"] .b-tool,.hf[data-anim="tour"] .b-tool,.hf[data-anim="morph"] .b-tool{transition:fill .45s var(--ease-out-expo);}
+  .hf[data-anim="spotlight"] .b-shared,.hf[data-anim="tour"] .b-shared{transition:scale .4s var(--ease-out-expo),fill .4s var(--ease-out-expo),opacity .4s var(--ease-out-expo);}
+  .hf[data-anim="morph"] .b-shared{transition:scale .45s var(--ease-out-expo),fill .45s var(--ease-out-expo);}
+
+  /* the lit look, driven by JS adding .lit to a group (and crossings via the wash rule) */
+  .b-g.lit .blob{opacity:1;}
+  .b-g.lit{scale:1.04;}
+  .b-g.lit .b-name{fill:var(--deep-ochre);}
+  .b-g.lit .b-tool{fill:var(--foreground);}
+  .b-shared.lit{scale:1.14;fill:var(--deep-ochre);}
+
+  /* carousel / tour controls, sized in board units so they ride the frame */
+  .ov-dots{position:absolute;z-index:4;left:50%;bottom:calc(30*var(--u));transform:translateX(-50%);display:flex;gap:calc(10*var(--u));}
+  .ov-dots b{width:calc(9*var(--u));height:calc(9*var(--u));border-radius:50%;background:rgba(10,10,10,.2);cursor:pointer;
+    transition:background .3s var(--ease-out-expo),transform .3s var(--ease-out-expo);}
+  .ov-dots b.on{background:var(--deep-ochre);transform:scale(1.3);}
+  .ov-arrow{position:absolute;z-index:4;top:50%;transform:translateY(-50%);width:calc(46*var(--u));height:calc(46*var(--u));
+    background:transparent;border:0;color:var(--foreground);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;
+    transition:color .2s var(--ease-hover),scale .2s var(--ease-hover);}
+  .ov-arrow svg{width:calc(22*var(--u));height:calc(22*var(--u));display:block;}
+  .ov-arrow:hover{color:var(--warm);scale:1.12;}
+  .ov-arrow.prev{left:calc(26*var(--u));}
+  .ov-arrow.next{right:calc(26*var(--u));}
+
+  /* the small replay affordance on the assemble variant */
+  .ov-replay{position:absolute;z-index:4;right:calc(26*var(--u));bottom:calc(26*var(--u));
+    display:inline-flex;align-items:center;gap:calc(8*var(--u));font-size:calc(13*var(--u));color:var(--muted-foreground);
+    background:rgba(255,255,255,.6);border:1px solid var(--hair);border-radius:calc(30*var(--u));padding:calc(7*var(--u)) calc(14*var(--u));cursor:pointer;
+    transition:color .2s var(--ease-hover),border-color .2s var(--ease-hover);}
+  .ov-replay:hover{color:var(--warm);border-color:var(--warm-soft);}
+  .ov-replay svg{width:calc(14*var(--u));height:calc(14*var(--u));}
+
+  /* a faint travelling marker for the pipeline tour */
+  .flow-dot{fill:var(--deep-ochre);}
+
+  @media (prefers-reduced-motion:reduce){
+    .ov-arrow,.ov-dots,.ov-replay{display:none;}
+  }
+
+  .foot{margin-top:60px;padding-top:24px;border-top:1px solid var(--foreground);font-size:13.5px;color:var(--muted-foreground);max-width:70ch;}
+</style>
+</head>
+<body>
+<div class="sizer"><div class="sizer-in">
+  <button id="szWide" aria-pressed="true">Desktop</button>
+  <button id="szPhone" aria-pressed="false">Phone</button>
+</div></div>
+
+<div class="wrap">
+  <header class="sheet-head">
+    <span class="micro">Sketches · Home §5 "Skills" — the same shapes, now in motion</span>
+    <h1 class="display">Ways to make the map move</h1>
+    <p>You liked the composition — five competencies as overlapping shapes, with a tool each pair shares written once out in the crossing. What's missing is life: it sits still until you hover it. Every sketch keeps the exact composition and the four measured crossings, and adds a different kind of motion. <b>S1–S5</b> are the first pass; <b>S6–S9</b> are the follow-up — the <i>Living wash</i> you liked, made unmistakable. Pick one and I'll build it into <code>transition-prototype.html</code>.</p>
+    <p class="facts">
+      <b>Unchanged in every sketch:</b> the five shapes, their colours, the four crossings
+      (S3, ONNX, k6, GitHub&nbsp;Actions), the "See all skills →" way-out, and the top-left / bottom-centre
+      kept clear for the head and the ↓ cue. <b>Try it:</b> hover any shape in any sketch — the live
+      hover still works and takes over from the animation.
+    </p>
+  </header>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">S1</span><h2>Living wash</h2></div>
+    <p class="sk-note">The lightest touch. Every shape drifts, breathes and rotates a hair on its own slow clock, so the whole field is gently alive — like paper shapes floating in water. As two shapes drift together their overlap deepens on its own (they multiply), and the tool in that crossing <b>fades up exactly when the overlap is deepest</b>. Nothing to click; it just never holds still.</p>
+    <div class="stage"><div class="hf" data-anim="living"></div></div>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">S2</span><h2>Auto-spotlight</h2></div>
+    <p class="sk-note">The direct cousin of §3's architecture deck. The field rests faded and a spotlight visits <b>one competency at a time</b> on a timer — it comes to full colour, its name turns ochre and its shared tools lift, holds a beat, then hands to the next. Dots and arrows let you steer it; hover takes over, same as the deck. Reads as "here is what I do, one thing at a time."</p>
+    <div class="stage"><div class="hf" data-anim="spotlight"></div></div>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">S3</span><h2>Metaball — the shapes fuse</h2></div>
+    <p class="sk-note">The most physical. The shapes become true liquid blobs: as they drift toward each other they <b>stretch, bridge and merge</b> through a gooey filter, then pull apart again. The shared tool blooms in only while its two blobs are actually fused. Boldest of the five — it stops being a diagram and becomes a lava-lamp of competencies.</p>
+    <div class="stage"><div class="hf" data-anim="metaball"></div></div>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">S4</span><h2>Assembles on arrival</h2></div>
+    <p class="sk-note">The motion is an <b>entrance</b>, not a loop. As the section comes into view each shape grows out of its own centre in sequence, and the instant a pair of shapes meets, its shared tool <b>snaps in with a little pop</b> — so you watch the crossings get built. It settles and holds. A quiet "↺ replay" lets you watch it assemble again.</p>
+    <div class="stage"><div class="hf" data-anim="assemble"></div></div>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">S5</span><h2>Pipeline tour</h2></div>
+    <p class="sk-note">Motion with a <b>story</b>. A travelling marker walks the real MLOps loop — Data → Training → Shipping → Watching → Front — lighting each shape as it arrives and <b>tracing the shared tool on the way</b> (S3 from data into training, ONNX into shipping, and so on). It reads as the pipeline flowing through the competencies, then loops. The most "it all connects" of the five.</p>
+    <div class="stage"><div class="hf" data-anim="tour"></div></div>
+  </section>
+
+  <section class="sk-group">
+    <span class="micro">Follow-up · the Living wash, louder</span>
+    <h2 class="display">More life in the wash</h2>
+    <p>You liked S1 but it was almost too quiet to be sure it was running. These four stay in the same family — ambient, always-on, nothing to click — but each makes the motion unmistakable a different way. S6 is literally S1 with the dial turned up; S7–S9 change <i>what</i> moves.</p>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">S6</span><h2>Living wash — turned up</h2></div>
+    <p class="sk-note">The exact S1 engine, louder: shapes drift <b>twice as far</b>, lean and breathe more, and the colour pulses on its own faster clock so a shape visibly <b>comes forward and recedes</b> — its name warming toward ochre as it does. Same idea you liked, now you can't miss it. The most "safe" step up from S1.</p>
+    <div class="stage"><div class="hf" data-anim="living2"></div></div>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">S7</span><h2>Morphing blobs</h2></div>
+    <p class="sk-note">Here the shapes barely travel — instead their <b>outlines undulate and each blob swells and shrinks</b>, a slow ripple running around it like a jellyfish or a lava lamp. Because the centres hold, the four crossings stay put while the overlaps deepen and ease as the shapes breathe. Reads as the most liquid of the family, and never drifts the composition out of balance.</p>
+    <div class="stage"><div class="hf" data-anim="morph"></div></div>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">S8</span><h2>The current</h2></div>
+    <p class="sk-note">The shapes sway <b>together</b>, on a slow tide whose direction itself drifts — but the front shapes swing further than the ones behind, so the overlaps genuinely open and close as the field leans. Coordinated motion catches the eye more than independent jitter: it reads as one living thing breathing, not five.</p>
+    <div class="stage"><div class="hf" data-anim="current"></div></div>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">S9</span><h2>Colour wave</h2></div>
+    <p class="sk-note">The shapes hold near-still; what moves is a soft <b>band of full colour sweeping across the field</b> left to right, lifting each competency — and the crossing it reaches — to full strength in turn, then letting it settle back. The thing you notice is the <i>hue</i> travelling, which the eye catches even at a glance. Closest to the site's quiet, editorial feel while being clearly alive.</p>
+    <div class="stage"><div class="hf" data-anim="colorwave"></div></div>
+  </section>
+
+  <p class="foot">All nine are the wide (desktop) composition; flip to Phone up top to see them on the portrait layout. Animation pauses whenever a frame scrolls out of view, and every sketch honours <code>prefers-reduced-motion</code> (it falls back to the static composition with one shape lit). Tell me the number — S1–S5 — and I'll wire it into the real §5.</p>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  const reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+  /* ---------- the one composition, authored once ----------
+     Geometry is lifted verbatim from the live §5 wide layout so the four crossings
+     stay exactly where they were measured. Three blob paths (A/B/C) are reused across
+     the shapes at different transforms. viewBox -182.5 -102.5 1825 1025. */
+  const PATH = {
+    A:"M104 10 C158 2 196 46 188 96 C182 138 200 160 172 180 C140 202 88 196 56 178 C22 158 2 122 10 84 C18 44 58 18 104 10 Z",
+    B:"M92 6 C146 0 178 34 186 80 C194 128 164 178 112 190 C66 200 20 174 10 128 C0 82 22 38 66 16 C74 12 84 8 92 6 Z",
+    C:"M60 14 C110 -4 176 16 190 64 C204 114 176 164 130 186 C86 206 32 190 14 148 C-2 110 10 56 44 26 C50 20 54 16 60 14 Z"
+  };
+  // home position for each shape, as [x,y] of the blob's own local centre (100,100) in board units
+  const WIDE = {
+    view:"-182.5 -102.5 1825 1025",
+    shapes:[
+      {id:'train', fill:'--w-sage', path:'A', t:[365,175], s:2.05, r:-9,
+        name:'Training models', nameAt:[579,378], nameSz:28,
+        tools:['Python · PyTorch','scikit-learn'], toolAt:[579,420], toolSz:19, toolStep:28},
+      {id:'data', fill:'--w-ochre', path:'B', t:[110,310], s:1.75, r:15,
+        name:'Keeping data honest', nameAt:[282,478], nameSz:28,
+        tools:['DVC · Pandera'], toolAt:[282,514], toolSz:19, toolStep:28},
+      {id:'ship', fill:'--w-rose', path:'C', t:[625,255], s:2.05, r:-4,
+        name:'Shipping it', nameAt:[852,455], nameSz:28,
+        tools:['Docker · Terraform','AWS Lambda'], toolAt:[845,497], toolSz:19, toolStep:28},
+      {id:'watch', fill:'--w-blue', path:'A', t:[905,125], s:1.70, r:8,
+        name:'Watching it run', nameAt:[1081,290], nameSz:28,
+        tools:['MLflow · Grafana · Evidently'], toolAt:[1081,328], toolSz:19, toolStep:28},
+      {id:'front', fill:'--w-sand', path:'B', t:[898,470], s:1.60, r:-16,
+        name:'Building the front', nameAt:[1054,622], nameSz:28,
+        tools:['Next.js · TypeScript'], toolAt:[1054,654], toolSz:19, toolStep:28}
+    ],
+    shared:[
+      {pair:'train data', t:'S3', at:[398,421], sz:18},
+      {pair:'train ship', t:'ONNX', at:[688,435], sz:18},
+      {pair:'ship watch', t:'k6', at:[969,368], sz:18},
+      {pair:'ship front', t:'GitHub Actions', at:[961,559], sz:18}
+    ],
+    wayout:{fill:'--w-ochre', path:'B', t:[1135,525], s:1.15, r:11, at:[1275,652], sz:22}
+  };
+  const TALL = {
+    view:"20 27 505 817",
+    shapes:[
+      {id:'data', fill:'--w-ochre', path:'B', t:[68,78], s:1.00, r:15,
+        name:'Keeping data honest', nameAt:[166,172], nameSz:19,
+        tools:['DVC · Pandera'], toolAt:[166,196], toolSz:13, toolStep:19},
+      {id:'train', fill:'--w-sage', path:'A', t:[152,186], s:1.28, r:-9,
+        name:'Training models', nameAt:[286,310], nameSz:19,
+        tools:['Python · PyTorch','scikit-learn'], toolAt:[286,338], toolSz:13, toolStep:19},
+      {id:'ship', fill:'--w-rose', path:'C', t:[55,380], s:1.30, r:-4,
+        name:'Shipping it', nameAt:[170,478], nameSz:19,
+        tools:['Docker · Terraform','AWS Lambda'], toolAt:[170,552], toolSz:13, toolStep:18},
+      {id:'front', fill:'--w-sand', path:'B', t:[272,424], s:0.86, r:-16,
+        name:'Building the front', nameAt:[366,468], nameSz:15,
+        tools:['Next.js · TypeScript'], toolAt:[366,488], toolSz:11.5, toolStep:17},
+      {id:'watch', fill:'--w-blue', path:'A', t:[140,580], s:1.00, r:8,
+        name:'Watching it run', nameAt:[244,678], nameSz:19,
+        tools:['MLflow · Grafana','Evidently'], toolAt:[244,702], toolSz:13, toolStep:18}
+    ],
+    shared:[
+      {pair:'train data', t:'S3', at:[214,244], sz:13},
+      {pair:'train ship', t:'ONNX', at:[239,415], sz:13},
+      {pair:'ship front', t:'GitHub Actions', at:[292,517], sz:13},
+      {pair:'ship watch', t:'k6', at:[213,617], sz:13}
+    ],
+    wayout:{fill:'--w-ochre', path:'B', t:[313,640], s:0.78, r:11, at:[398,742], sz:18}
+  };
+  // tour visiting order + the crossing (shared tool) traversed on the way to the next stop
+  const TOUR = ['data','train','ship','watch','front'];
+
+  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  function blobTf(sp){ return `translate(${sp.t[0]},${sp.t[1]}) scale(${sp.s}) rotate(${sp.r} 100 100)`; }
+
+  function buildSVG(spec, variant, uid){
+    let g = `<svg class="wash" viewBox="${spec.view}" preserveAspectRatio="xMidYMid meet" aria-hidden="true">`;
+    // optional goo filter for the metaball variant
+    if(variant==='metaball'){
+      g += `<defs><filter id="goo-${uid}"><feGaussianBlur in="SourceGraphic" stdDeviation="9" result="b"/>`+
+           `<feColorMatrix in="b" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -9" result="g"/>`+
+           `<feBlend in="SourceGraphic" in2="g"/></filter></defs>`;
+    }
+    // blob layer. metaball groups its blobs under the goo filter and drops multiply/labels blur
+    if(variant==='metaball'){
+      g += `<g class="blob-layer" filter="url(#goo-${uid})">`;
+      spec.shapes.forEach(sp=>{
+        g += `<g class="b-blob" data-skill="${sp.id}"><path d="${PATH[sp.path]}" transform="${blobTf(sp)}" fill="var(${sp.fill})" fill-opacity=".6"/></g>`;
+      });
+      g += `</g>`;
+    }
+    // the five competency groups (name + tools); metaball keeps the text groups but no blob inside
+    spec.shapes.forEach(sp=>{
+      g += `<g class="b-g" data-skill="${sp.id}">`;
+      if(variant!=='metaball'){
+        g += `<path class="blob" fill="var(${sp.fill})" transform="${blobTf(sp)}" d="${PATH[sp.path]}"/>`;
+      }
+      g += `<text class="b-name" x="${sp.nameAt[0]}" y="${sp.nameAt[1]}" font-size="${sp.nameSz}" text-anchor="middle">${sp.name}</text>`;
+      sp.tools.forEach((t,i)=>{
+        g += `<text class="b-tool" x="${sp.toolAt[0]}" y="${sp.toolAt[1]+i*sp.toolStep}" font-size="${sp.toolSz}" text-anchor="middle">${esc(t)}</text>`;
+      });
+      g += `</g>`;
+    });
+    // the four shared tools, sitting in the crossings
+    spec.shared.forEach(sh=>{
+      g += `<text class="b-shared" data-pair="${sh.pair}" x="${sh.at[0]}" y="${sh.at[1]}" font-size="${sh.sz}" text-anchor="middle">${esc(sh.t)}</text>`;
+    });
+    // the way out
+    const w = spec.wayout;
+    g += `<g class="b-g wayout"><a class="wash-link" href="#" onclick="return false">`+
+         `<path class="blob" fill="var(${w.fill})" transform="${blobTf(w)}" d="${PATH[w.path]}"/>`+
+         `<text x="${w.at[0]}" y="${w.at[1]}" font-size="${w.sz}" text-anchor="middle">See all skills →</text></a></g>`;
+    // a travelling marker for the tour
+    if(variant==='tour') g += `<circle class="flow-dot" r="0" cx="0" cy="0" opacity="0"/>`;
+    g += `</svg>`;
+    return g;
+  }
+
+  function headHTML(){
+    return `<div class="hf-copy"><h3 class="hf-title">Skills</h3><p class="hf-lead">What I build with</p></div>`;
+  }
+  const ARROW_L = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>`;
+  const ARROW_R = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>`;
+
+  /* ---------- hover takeover shared by every variant ----------
+     A pointer resting on a shape lights it (and its crossings) and tells the animator
+     to stand down; leaving hands control back. Mirrors the live section's behaviour. */
+  function wireHover(frame, state){
+    frame.querySelectorAll('.b-g:not(.wayout)').forEach(g=>{
+      const id = g.dataset.skill;
+      g.addEventListener('pointerenter', e=>{ if(e.pointerType==='mouse'){ state.hoverId=id; applyLit(frame,[id]); } });
+      // leaving must actively clear the lit class — the living-family animators don't
+      // re-assert it each frame, so without this the highlight would stick
+      g.addEventListener('pointerleave', e=>{ if(e.pointerType==='mouse'){ state.hoverId=null; applyLit(frame,[]); } });
+      // touch: tap to toggle a shape lit (tapping it again, or elsewhere, clears)
+      g.addEventListener('pointerup', e=>{ if(e.pointerType!=='mouse'){ state.hoverId = state.hoverId===id?null:id; applyLit(frame, state.hoverId?[state.hoverId]:[]); } });
+    });
+    // the way-out ("See all skills") is a link, not a competency, so it's outside applyLit's
+    // five groups — give it its own light: full-colour blob + the arrow warming to --warm
+    const wo=frame.querySelector('.b-g.wayout');
+    if(wo){
+      wo.addEventListener('pointerenter', e=>{ if(e.pointerType==='mouse') wo.classList.add('lit'); });
+      wo.addEventListener('pointerleave', e=>{ if(e.pointerType==='mouse') wo.classList.remove('lit'); });
+      wo.addEventListener('pointerup', e=>{ if(e.pointerType!=='mouse') wo.classList.toggle('lit'); });
+    }
+  }
+  // light exactly the groups whose ids are in `ids`, plus any crossing both of whose skills are lit
+  function applyLit(frame, ids){
+    const set = new Set(ids);
+    frame.querySelectorAll('.b-g:not(.wayout)').forEach(g=> g.classList.toggle('lit', set.has(g.dataset.skill)));
+    frame.querySelectorAll('.b-blob').forEach(g=> g.classList.toggle('lit', set.has(g.dataset.skill)));
+    frame.querySelectorAll('.b-shared').forEach(t=>{
+      const pair = t.dataset.pair.split(' ');
+      t.classList.toggle('lit', pair.some(p=>set.has(p)));
+    });
+  }
+
+  /* ================= the five animators ================= */
+  // Each returns {tick(dt), reset()} and reads state.hoverId to yield to the pointer.
+
+  // mix two #rrggbb colours — used to warm names/tools as a shape comes forward
+  function lerpColor(a,b,t){
+    const pa=[1,3,5].map(i=>parseInt(a.substr(i,2),16)), pb=[1,3,5].map(i=>parseInt(b.substr(i,2),16));
+    const c=pa.map((v,i)=>Math.round(v+(pb[i]-v)*t));
+    return `rgb(${c[0]},${c[1]},${c[2]})`;
+  }
+  // a smooth, guaranteed-closed cubic path through points, in order (Catmull-Rom -> Bezier,
+  // wrapped). Control points are symmetric about every anchor, so the loop has tangent
+  // continuity all the way round — no cusps or corners however the points move.
+  function closedSpline(p){
+    const n=p.length; let d=`M${p[0][0].toFixed(2)} ${p[0][1].toFixed(2)}`;
+    for(let i=0;i<n;i++){
+      const a=p[(i-1+n)%n], b=p[i], c=p[(i+1)%n], e=p[(i+2)%n];
+      const c1x=b[0]+(c[0]-a[0])/6, c1y=b[1]+(c[1]-a[1])/6;
+      const c2x=c[0]-(e[0]-b[0])/6, c2y=c[1]-(e[1]-b[1])/6;
+      d+=` C${c1x.toFixed(2)} ${c1y.toFixed(2)} ${c2x.toFixed(2)} ${c2y.toFixed(2)} ${c[0].toFixed(2)} ${c[1].toFixed(2)}`;
+    }
+    return d+'Z';
+  }
+
+  // S1 / S6 — living wash: per-shape sine drift + breathe; crossings fade with overlap depth.
+  // One engine, a cfg of amplitudes/speeds: the defaults are S1's whisper, a louder cfg is S6.
+  function makeLiving(frame, cfg){
+    cfg = cfg||{};
+    const AX=cfg.ax??14, AY=cfg.ay??12, AR=cfg.ar??1.6, ASC=cfg.asc??0.012,
+          OLO=cfg.olo??0.36, ORG=cfg.org??0.16, SP=cfg.sp??1, BSP=cfg.bsp??(cfg.sp??1), WARM=!!cfg.warm;
+    const groups = [...frame.querySelectorAll('.b-g:not(.wayout)')];
+    const blobs  = new Map(groups.map(g=>[g.dataset.skill, g.querySelector('.blob')]));
+    const names  = new Map(groups.map(g=>[g.dataset.skill, g.querySelector('.b-name')]));
+    const tools  = groups.flatMap(g=>[...g.querySelectorAll('.b-tool')].map(el=>({el,g})));
+    const shared = [...frame.querySelectorAll('.b-shared')];
+    const seeds = groups.map((g,i)=>({ g, id:g.dataset.skill,
+      // each shape gets its own slow frequencies + phase, so the field never syncs up.
+      // drift rides SP; the colour "breath" rides its own (faster) BSP so hue pulses while
+      // the float stays languid — the two together is what reads as alive.
+      fx:(0.00017+0.00003*i)*SP, fy:(0.00021+0.000025*i)*SP, fr:(0.00012+0.00002*i)*SP, fo:(0.00019+0.00002*i)*BSP,
+      px:i*1.7, py:i*2.3, pr:i*0.9, po:i*1.3 }));
+    const fwd = {};
+    function tick(t){
+      seeds.forEach(s=>{
+        const dx=Math.sin(t*s.fx+s.px)*AX, dy=Math.cos(t*s.fy+s.py)*AY, rot=Math.sin(t*s.fr+s.pr)*AR;
+        const breath=(Math.sin(t*s.fo+s.po)+1)/2;            // 0..1
+        fwd[s.id]=breath;
+        if(s.g.classList.contains('lit')) return;            // hovered: leave it to CSS
+        const sc=1+ASC*(2*breath-1);
+        s.g.style.transform=`translate(${dx}px,${dy}px) rotate(${rot}deg) scale(${sc.toFixed(3)})`;
+        const bl=blobs.get(s.id); if(bl) bl.style.opacity=(OLO+ORG*breath).toFixed(3);
+        if(WARM){ const nm=names.get(s.id); if(nm) nm.style.fill=lerpColor('0a0a0a','96600a', breath*0.72); }
+      });
+      if(WARM) tools.forEach(o=>{ if(o.g.classList.contains('lit')) return; o.el.style.fill=lerpColor('6b6b6b','262626', fwd[o.g.dataset.skill]||.5); });
+      shared.forEach(tx=>{
+        if(tx.classList.contains('lit')) return;
+        const [a,b]=tx.dataset.pair.split(' ');
+        const depth=((fwd[a]||.5)+(fwd[b]||.5))/2;           // both forward => crossing deepest
+        tx.style.opacity=(0.26+0.74*depth).toFixed(3);
+        tx.style.setProperty('scale', (0.94+0.14*depth).toFixed(3));
+        if(WARM) tx.style.fill=lerpColor('0a0a0a','96600a', depth*0.85);
+      });
+    }
+    function reset(){ seeds.forEach(s=>{ s.g.style.transform=''; const bl=blobs.get(s.id); if(bl) bl.style.opacity=''; const nm=names.get(s.id); if(nm) nm.style.fill=''; });
+      tools.forEach(o=>o.el.style.fill=''); shared.forEach(tx=>{ tx.style.opacity=''; tx.style.removeProperty('scale'); tx.style.fill=''; }); }
+    return {tick, reset, hoverResumes:true};
+  }
+
+  // S7 — morphing blobs: positions hold (so the crossings hold) but each silhouette undulates.
+  // Each blob is sampled into N points around its own centroid; every frame a smooth closed
+  // spline is rebuilt through them with the radii rippling by angle. Rebuilding the whole
+  // outline as one closed spline (rather than nudging the authored bezier's control points)
+  // is what keeps it a clean closed loop — the old approach broke tangents and left cusps.
+  function makeMorph(frame){
+    const N=56;
+    const items=[...frame.querySelectorAll('.b-g .blob')].map((el,i)=>{
+      const origD=el.getAttribute('d'), len=el.getTotalLength(), pts=[];
+      // getPointAtLength samples in the path's own coordinates (before its transform attr),
+      // which is exactly the space we write the new "d" back into
+      for(let k=0;k<N;k++){ const pt=el.getPointAtLength(len*k/N); pts.push([pt.x,pt.y]); }
+      const cx=pts.reduce((s,p)=>s+p[0],0)/N, cy=pts.reduce((s,p)=>s+p[1],0)/N;
+      const polar=pts.map(p=>({ang:Math.atan2(p[1]-cy,p[0]-cx), r:Math.hypot(p[0]-cx,p[1]-cy)}));
+      // amp = outline ripple; bAmp/bSpd/bPh = whole-blob size breath, on its own slower clock
+      // and per-blob phase so the field never swells in unison
+      return {el, origD, cx, cy, polar, ph:i*1.3, amp:0.055+0.015*(i%3),
+              bAmp:0.08+0.02*(i%2), bSpd:0.00072+0.00006*i, bPh:i*1.7};
+    });
+    const shared=[...frame.querySelectorAll('.b-shared')];
+    function shape(it,t){
+      // whole-blob size breath: one factor applied to every radius => the shape swells and
+      // shrinks about its own centroid while the outline keeps rippling
+      const breath=1 + it.bAmp*Math.sin(t*it.bSpd + it.bPh);
+      const pts=it.polar.map(pp=>{
+        // two superposed waves running round the perimeter by angle => organic undulation,
+        // smooth because the radius is a continuous function of angle
+        const wob=1 + it.amp*(0.7*Math.sin(t*0.0012 + it.ph + pp.ang*3) + 0.3*Math.sin(t*0.0018 - it.ph + pp.ang*2));
+        const r=pp.r*wob*breath;
+        return [it.cx + Math.cos(pp.ang)*r, it.cy + Math.sin(pp.ang)*r];
+      });
+      return closedSpline(pts);
+    }
+    function tick(t){
+      items.forEach(it=>{ const g=it.el.closest('.b-g'); if(g && g.classList.contains('lit')) return; it.el.setAttribute('d', shape(it,t)); });
+      // the shared tools shimmer gently so the field never looks frozen
+      shared.forEach((tx,i)=>{ if(tx.classList.contains('lit')) return;
+        const o=0.74+0.26*((Math.sin(t*0.0016+i*1.4)+1)/2); tx.style.opacity=o.toFixed(3); });
+    }
+    function reset(){ items.forEach(it=> it.el.setAttribute('d', it.origD)); shared.forEach(tx=>tx.style.opacity=''); }
+    return {tick, reset, hoverResumes:true};
+  }
+
+  // S8 — the current: the shapes sway together on a slow tide (shared, drifting direction),
+  // but foreground shapes swing further than background ones, so overlaps genuinely breathe.
+  function makeCurrent(frame){
+    const groups=[...frame.querySelectorAll('.b-g:not(.wayout)')];
+    const blobs=new Map(groups.map(g=>[g.dataset.skill, g.querySelector('.blob')]));
+    const seeds=groups.map((g,i)=>({ g, id:g.dataset.skill, depth:0.55+(i%3)*0.33, ph:i*0.8 }));
+    function tick(t){
+      const ang=Math.sin(t*0.00016)*0.7;                    // the current slowly changes heading
+      const dirx=Math.cos(ang), diry=Math.sin(ang);
+      const tide=Math.sin(t*0.00032);                       // -1..1 in and out
+      const pos={};
+      seeds.forEach(s=>{
+        const amp=34*s.depth;
+        const dx=dirx*amp*tide + Math.sin(t*0.0005+s.ph)*7;
+        const dy=diry*amp*tide + Math.cos(t*0.00055+s.ph)*7*s.depth;
+        pos[s.id]=[dx,dy];
+        if(s.g.classList.contains('lit')) return;
+        const rot=ang*7*s.depth, sc=1+0.025*Math.sin(t*0.0005+s.ph);
+        s.g.style.transform=`translate(${dx}px,${dy}px) rotate(${rot.toFixed(2)}deg) scale(${sc.toFixed(3)})`;
+        const bl=blobs.get(s.id); if(bl) bl.style.opacity=(0.40+0.12*(tide*s.depth*0.5+0.5)).toFixed(3);
+      });
+      frame.querySelectorAll('.b-shared').forEach(tx=>{
+        if(tx.classList.contains('lit')) return;
+        const [a,b]=tx.dataset.pair.split(' '), pa=pos[a], pb=pos[b];
+        if(!pa||!pb) return;
+        const d=Math.hypot(pa[0]-pb[0],pa[1]-pb[1]), close=Math.max(0,1-d/90);  // closer => deeper
+        tx.style.opacity=(0.34+0.66*close).toFixed(3);
+        tx.style.setProperty('scale',(0.94+0.14*close).toFixed(3));
+      });
+    }
+    function reset(){ seeds.forEach(s=>{ s.g.style.transform=''; const bl=blobs.get(s.id); if(bl) bl.style.opacity=''; });
+      frame.querySelectorAll('.b-shared').forEach(tx=>{ tx.style.opacity=''; tx.style.removeProperty('scale'); }); }
+    return {tick, reset, hoverResumes:true};
+  }
+
+  // S9 — colour wave: a soft band of full colour sweeps across the field left→right, lifting
+  // each shape (and the crossing it reaches) in turn. The thing you notice is the hue moving.
+  function makeColorWave(frame, spec){
+    const groups=[...frame.querySelectorAll('.b-g:not(.wayout)')];
+    const blobs=new Map(groups.map(g=>[g.dataset.skill, g.querySelector('.blob')]));
+    const names=new Map(groups.map(g=>[g.dataset.skill, g.querySelector('.b-name')]));
+    const tools=groups.flatMap(g=>[...g.querySelectorAll('.b-tool')].map(el=>({el,g})));
+    const cx={}; spec.shapes.forEach(sp=> cx[sp.id]=sp.t[0]+sp.s*100);
+    const xs=Object.values(cx), minx=Math.min(...xs), maxx=Math.max(...xs);
+    const norm=x=>(x-minx)/((maxx-minx)||1);
+    const wave=n=>{ const phase=NOW*0.00030; return (Math.cos(phase - n*3.6)+1)/2; };  // 0..1 forwardness
+    let NOW=0;
+    function tick(t){
+      NOW=t;
+      groups.forEach(g=>{
+        const id=g.dataset.skill, w=wave(norm(cx[id]));
+        if(g.classList.contains('lit')) return;
+        const dx=Math.sin(t*0.00022+norm(cx[id])*5)*9, dy=Math.cos(t*0.00026+norm(cx[id])*4)*8;
+        g.style.transform=`translate(${dx}px,${dy}px) scale(${(1+0.04*w).toFixed(3)})`;
+        const bl=blobs.get(id); if(bl) bl.style.opacity=(0.30+0.6*w).toFixed(3);
+        const nm=names.get(id); if(nm) nm.style.fill=lerpColor('0a0a0a','96600a', w*0.8);
+      });
+      tools.forEach(o=>{ if(o.g.classList.contains('lit')) return; o.el.style.fill=lerpColor('6b6b6b','1f1f1f', wave(norm(cx[o.g.dataset.skill]))); });
+      frame.querySelectorAll('.b-shared').forEach(tx=>{
+        if(tx.classList.contains('lit')) return;
+        const [a,b]=tx.dataset.pair.split(' '); const w=wave(norm((cx[a]+cx[b])/2));
+        tx.style.opacity=(0.30+0.70*w).toFixed(3);
+        tx.style.setProperty('scale',(0.94+0.16*w).toFixed(3));
+        tx.style.fill=lerpColor('0a0a0a','96600a', w*0.9);
+      });
+    }
+    function reset(){ groups.forEach(g=>{ g.style.transform=''; const bl=blobs.get(g.dataset.skill); if(bl) bl.style.opacity=''; const nm=names.get(g.dataset.skill); if(nm) nm.style.fill=''; });
+      tools.forEach(o=>o.el.style.fill=''); frame.querySelectorAll('.b-shared').forEach(tx=>{ tx.style.opacity=''; tx.style.removeProperty('scale'); tx.style.fill=''; }); }
+    return {tick, reset, hoverResumes:true};
+  }
+
+  // S2 — auto-spotlight: visit one shape at a time on a hold timer; dots + arrows steer
+  function makeSpotlight(frame, state){
+    const ids = [...frame.querySelectorAll('.b-g:not(.wayout)')].map(g=>g.dataset.skill);
+    let idx=0, acc=0; const HOLD=2300;
+    const dotsWrap=document.createElement('div'); dotsWrap.className='ov-dots';
+    ids.forEach((id,i)=>{ const b=document.createElement('b'); b.dataset.i=i; b.addEventListener('click',()=>{ idx=i; acc=0; show(); }); dotsWrap.appendChild(b); });
+    const prev=mkArrow('prev',ARROW_L,()=>{ idx=(idx-1+ids.length)%ids.length; acc=0; show(); });
+    const next=mkArrow('next',ARROW_R,()=>{ idx=(idx+1)%ids.length; acc=0; show(); });
+    frame.append(dotsWrap, prev, next);
+    function show(){ applyLit(frame,[ids[idx]]); dotsWrap.querySelectorAll('b').forEach((b,i)=>b.classList.toggle('on',i===idx)); }
+    show();
+    function tick(t,dt){
+      if(state.hoverId){ dotsWrap.querySelectorAll('b').forEach(b=>b.classList.remove('on')); return; }
+      acc+=dt; if(acc>=HOLD){ acc=0; idx=(idx+1)%ids.length; show(); }
+      else { // re-assert in case a hover just ended
+        const cur=frame.querySelector('.b-g.lit'); if(!cur||cur.dataset.skill!==ids[idx]) show();
+      }
+    }
+    function reset(){ idx=0; acc=0; show(); }
+    return {tick, reset, hoverResumes:true};
+  }
+
+  // S3 — metaball: drift the blobs on small orbits so neighbours fuse and part
+  function makeMetaball(frame){
+    const blobs=[...frame.querySelectorAll('.blob-layer .b-blob')];
+    const shared=[...frame.querySelectorAll('.b-shared')];
+    const byId={}; blobs.forEach(b=>byId[b.dataset.skill]=b);
+    const seeds=blobs.map((b,i)=>({ b, fx:0.00022+0.00004*i, fy:0.00026+0.00003*i, px:i*2.1, py:i*1.4,
+      rad:26+6*(i%3) }));
+    // which pairs genuinely swing into contact; label rides the pair's closeness
+    function tick(t){
+      const pos={};
+      seeds.forEach(s=>{
+        const dx=Math.sin(t*s.fx+s.px)*s.rad, dy=Math.cos(t*s.fy+s.py)*s.rad;
+        s.b.setAttribute('transform',`translate(${dx} ${dy})`);
+        pos[s.b.dataset.skill]=[dx,dy];
+      });
+      shared.forEach(tx=>{
+        if(tx.classList.contains('lit')) return;
+        const [a,b]=tx.dataset.pair.split(' '); const pa=pos[a], pb=pos[b];
+        if(!pa||!pb){ tx.style.opacity='.5'; return; }
+        // closer the two drifts, the more "fused" — fade the tool up as they close
+        const d=Math.hypot(pa[0]-pb[0],pa[1]-pb[1]);
+        const close=Math.max(0,1-d/70);
+        tx.style.opacity=(0.12+0.88*close).toFixed(3);
+      });
+    }
+    function reset(){ seeds.forEach(s=>s.b.setAttribute('transform','translate(0 0)')); shared.forEach(tx=>tx.style.opacity=''); }
+    return {tick, reset, hoverResumes:false};
+  }
+
+  // S4 — assemble on arrival: grow shapes from their centres in order; crossings pop as pairs meet
+  function makeAssemble(frame, spec){
+    const groups=new Map([...frame.querySelectorAll('.b-g:not(.wayout)')].map(g=>[g.dataset.skill,g]));
+    const wayout=frame.querySelector('.b-g.wayout');
+    const shared=[...frame.querySelectorAll('.b-shared')];
+    const order=spec.shapes.map(s=>s.id);          // grow in authored order
+    const STEP=170, GROW=620;                       // ms between shapes / per-shape grow time
+    let el=0, done=false;
+    // crossing pops once BOTH its shapes have finished growing
+    const sharedState=shared.map(tx=>({tx, pair:tx.dataset.pair.split(' '), popped:false}));
+    function setStatic(on){ // on=false => pre-entrance hidden state
+      groups.forEach(g=>{ g.style.opacity=on?'1':'0'; g.style.transform=on?'':'scale(.2)'; });
+      if(wayout){ wayout.style.opacity=on?'1':'0'; wayout.style.transform=on?'':'scale(.2)'; }
+      shared.forEach(tx=>{ tx.style.opacity=on?'1':'0'; tx.style.removeProperty('scale'); });
+    }
+    const grown=new Set();
+    function tick(t,dt){
+      if(done) return;
+      el+=dt;
+      order.forEach((id,i)=>{
+        const g=groups.get(id); const local=el-i*STEP;
+        if(local<=0){ g.style.opacity='0'; g.style.transform='scale(.2)'; return; }
+        const p=Math.min(1,local/GROW); const e=1-Math.pow(1-p,3);  // easeOutCubic
+        g.style.opacity=e.toFixed(3); g.style.transform=`scale(${(0.2+0.8*e).toFixed(3)})`;
+        if(p>=1) grown.add(id);
+      });
+      // the way out grows just after the last shape
+      const wl=el-order.length*STEP;
+      if(wayout){ if(wl<=0){ wayout.style.opacity='0'; wayout.style.transform='scale(.2)'; }
+        else { const p=Math.min(1,wl/GROW), e=1-Math.pow(1-p,3); wayout.style.opacity=e.toFixed(3); wayout.style.transform=`scale(${(0.2+0.8*e).toFixed(3)})`; } }
+      // pop each crossing when both its shapes are grown
+      sharedState.forEach(s=>{
+        if(s.popped) return;
+        if(s.pair.every(p=>grown.has(p))){ s.popped=true; popShared(s.tx); }
+      });
+      if(el>order.length*STEP+GROW+900){ done=true; }
+    }
+    function popShared(tx){
+      tx.style.transition='none'; tx.style.opacity='1'; tx.style.setProperty('scale','0.2');
+      requestAnimationFrame(()=>{ tx.style.transition='scale .5s cubic-bezier(.2,.9,.3,1.4), opacity .3s ease';
+        tx.style.setProperty('scale','1'); });
+    }
+    function reset(){ done=false; el=0; grown.clear(); sharedState.forEach(s=>{ s.popped=false; s.tx.style.transition=''; }); setStatic(false); }
+    reset();
+    return {tick, reset, hoverResumes:false, replay:true};
+  }
+
+  // S5 — pipeline tour: a marker walks the loop, lighting each stop and tracing its crossing
+  function makeTour(frame, spec){
+    const ids = TOUR.filter(id=>spec.shapes.some(s=>s.id===id));
+    // centre of each shape in board units (blob local centre 100,100 => transformed)
+    const centre={};
+    spec.shapes.forEach(sp=>{
+      const rad=sp.r*Math.PI/180, cx=100, cy=100;
+      // apply translate * scale * rotate(about 100,100) to the local centre (which is the rotate pivot) => just translate+scale*0 offset
+      centre[sp.id]=[sp.t[0]+sp.s*cx, sp.t[1]+sp.s*cy];
+    });
+    const dot=frame.querySelector('.flow-dot');
+    let idx=0, phase='hold', acc=0; const HOLD=1500, MOVE=1100;
+    function lightStop(i){ applyLit(frame,[ids[i]]); }
+    lightStop(0);
+    function tick(t,dt){
+      acc+=dt;
+      if(phase==='hold'){
+        if(dot) dot.setAttribute('opacity','0');
+        if(acc>=HOLD){ acc=0; phase='move'; }
+      } else {
+        const p=Math.min(1,acc/MOVE), e=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;
+        const from=centre[ids[idx]], to=centre[ids[(idx+1)%ids.length]];
+        if(dot&&from&&to){
+          dot.setAttribute('opacity',(Math.sin(p*Math.PI)).toFixed(3));
+          dot.setAttribute('r', (6+4*Math.sin(p*Math.PI)).toFixed(1));
+          dot.setAttribute('cx',(from[0]+(to[0]-from[0])*e).toFixed(1));
+          dot.setAttribute('cy',(from[1]+(to[1]-from[1])*e).toFixed(1));
+        }
+        // halfway, hand the light to the next stop and light the crossing between them
+        if(p>=0.5) { applyLit(frame,[ids[idx],ids[(idx+1)%ids.length]]); }
+        if(p>=1){ idx=(idx+1)%ids.length; acc=0; phase='hold'; lightStop(idx); if(dot) dot.setAttribute('opacity','0'); }
+      }
+    }
+    function reset(){ idx=0; acc=0; phase='hold'; lightStop(0); if(dot) dot.setAttribute('opacity','0'); }
+    return {tick, reset, hoverResumes:true};
+  }
+
+  function mkArrow(cls, svg, onClick){
+    const b=document.createElement('button'); b.className='ov-arrow '+cls; b.type='button';
+    b.setAttribute('aria-label', cls==='prev'?'Previous':'Next'); b.innerHTML=svg;
+    b.addEventListener('click', onClick); return b;
+  }
+
+  /* ---------- mount: build each frame for the current layout and run it ---------- */
+  const frames=[...document.querySelectorAll('.hf')];
+  const live=[];                  // active animators, driven by one rAF
+  let running=new Set();
+
+  function layout(){ return document.body.classList.contains('phone') ? TALL : WIDE; }
+
+  function mount(){
+    live.length=0;
+    frames.forEach((frame,i)=>{
+      const variant=frame.dataset.anim;
+      const spec=layout();
+      frame.innerHTML = buildSVG(spec, variant, 'f'+i) + headHTML();
+      const state={hoverId:null};
+      wireHover(frame, state);
+      let anim;
+      if(variant==='living') anim=makeLiving(frame);                 // S1 — the whisper (baseline)
+      else if(variant==='living2') anim=makeLiving(frame, {           // S6 — the same engine, louder
+        ax:32, ay:26, ar:4, asc:0.05, olo:0.30, org:0.36, sp:1.6, bsp:3.2, warm:true});
+      else if(variant==='morph') anim=makeMorph(frame);              // S7
+      else if(variant==='current') anim=makeCurrent(frame);          // S8
+      else if(variant==='colorwave') anim=makeColorWave(frame, spec);// S9
+      else if(variant==='spotlight') anim=makeSpotlight(frame, state);
+      else if(variant==='metaball') anim=makeMetaball(frame);
+      else if(variant==='assemble') anim=makeAssemble(frame, spec);
+      else if(variant==='tour') anim=makeTour(frame, spec);
+      // replay affordance for the assemble sketch
+      if(anim.replay){
+        const r=document.createElement('button'); r.className='ov-replay'; r.type='button';
+        r.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v4h4"/></svg> replay`;
+        r.addEventListener('click',()=>anim.reset());
+        frame.appendChild(r);
+      }
+      live.push({frame, variant, state, anim});
+    });
+    if(reduce){ // static fallback: living-family rests as the plain composition; the staged
+                // variants show one shape lit so the still frame still reads as intentional
+      const LIVING=new Set(['living','living2','morph','current','colorwave']);
+      live.forEach(l=>{ if(l.variant==='metaball') return; applyLit(l.frame, LIVING.has(l.variant)?[]:[layout().shapes[0].id]); });
+    }
+  }
+
+  // one rAF loop for every frame currently on screen
+  let last=performance.now();
+  function frameLoop(now){
+    // cap big gaps (tab refocus) instead of resetting — a steadily throttled frame
+    // rate must still advance the clock at close to real time, or timed animations crawl
+    let dt=now-last; last=now; if(dt<0) dt=16; else if(dt>100) dt=100;
+    if(!reduce){
+      live.forEach(l=>{ if(running.has(l.frame)) l.anim.tick(now, dt); });
+    }
+    requestAnimationFrame(frameLoop);
+  }
+
+  // only animate frames that are actually visible
+  const io=new IntersectionObserver(ents=>{
+    ents.forEach(e=>{ if(e.isIntersecting) running.add(e.target); else running.delete(e.target); });
+  }, {threshold:0.12});
+
+  mount();
+  frames.forEach(f=>io.observe(f));
+  requestAnimationFrame(frameLoop);
+
+  // desktop / phone toggle rebuilds every frame for that layout
+  const szWide=document.getElementById('szWide'), szPhone=document.getElementById('szPhone');
+  function setPhone(on){
+    document.body.classList.toggle('phone', on);
+    szPhone.setAttribute('aria-pressed', String(on)); szWide.setAttribute('aria-pressed', String(!on));
+    mount();
+  }
+  szWide.addEventListener('click',()=>setPhone(false));
+  szPhone.addEventListener('click',()=>setPhone(true));
+})();
+</script>
+</body>
+</html>
