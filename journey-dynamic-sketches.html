@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Journey §4 — dynamic proposals (J1–J7)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..700&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --background:#ffffff;--border:#e8e8e8;--foreground:#0a0a0a;--muted-foreground:#6b6b6b;
+    --warm:#c98a3a;--warm-soft:#e8b87e;--wash-ochre:#ffecdb;--deep-ochre:#96600a;
+    --hair:#e8e8e8;
+    --ease-out-expo:cubic-bezier(.16,1,.3,1);--ease-hover:cubic-bezier(.2,.7,.35,1);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:#efe7db;color:var(--foreground);font-family:"Outfit",system-ui,-apple-system,"Segoe UI",sans-serif;font-weight:330;line-height:1.6;-webkit-font-smoothing:antialiased;}
+  .display{font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 96;font-weight:500;line-height:.92;letter-spacing:-.02em;}
+  .micro{text-transform:uppercase;letter-spacing:.22em;font-size:11.5px;font-weight:500;color:var(--muted-foreground);}
+  .wrap{max-width:1120px;margin:0 auto;padding:clamp(40px,7vh,80px) clamp(16px,5vw,44px) clamp(80px,12vh,140px);}
+  .sheet-head{margin-bottom:clamp(24px,4vh,40px);}
+  .sheet-head h1{font-size:clamp(30px,5vw,50px);text-transform:uppercase;margin:10px 0 0;}
+  .sheet-head p{margin:14px 0 0;max-width:78ch;font-size:15px;color:var(--muted-foreground);}
+  .sheet-head b{color:var(--foreground);font-weight:500;}
+  .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:22px;}
+  .btn{font:inherit;font-size:12.5px;color:var(--muted-foreground);background:#fff;border:1px solid var(--hair);border-radius:30px;padding:7px 15px;cursor:pointer;transition:color .2s,border-color .2s;}
+  .btn:hover{color:var(--warm);border-color:var(--warm-soft);}
+  .btn[aria-pressed="true"]{color:#fff;background:var(--foreground);border-color:var(--foreground);}
+
+  .verlabel{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:clamp(42px,7vh,76px) 0 14px;padding-top:clamp(28px,5vh,52px);border-top:1px solid var(--foreground);}
+  .verlabel .k{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--deep-ochre);letter-spacing:.1em;}
+  .verlabel h2{font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;font-size:clamp(22px,3.5vw,32px);margin:0;}
+  .verlabel .note{font-size:14px;color:var(--muted-foreground);margin:0;flex:1 1 320px;}
+
+  /* ---- the Journey stage (mirrors §4 on the home scroll) ---- */
+  .stage{position:relative;background:var(--wash-ochre);border:1px solid var(--border);border-radius:12px;
+    padding:clamp(30px,4vw,52px) clamp(24px,4vw,56px) clamp(34px,5vw,60px);overflow:hidden;}
+  body.phone .stage{max-width:390px;margin:0 auto;}
+  .j-inner{max-width:760px;margin:0 auto;width:100%;}
+  .sec-head h3{font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;font-size:clamp(26px,4vw,40px);margin:0;}
+  .sec-head p{margin:4px 0 0;font-size:14px;color:var(--muted-foreground);font-style:italic;}
+  .j-path-wrap{position:relative;margin:clamp(10px,2vh,22px) auto 0;max-width:620px;}
+  body.phone .j-path-wrap{max-width:300px;}
+  .j-path-wrap svg{width:100%;height:auto;display:block;overflow:visible;}
+  .j-base{fill:none;stroke:var(--foreground);stroke-width:1.4;stroke-linecap:round;}
+  .j-dot{fill:var(--foreground);}
+  .j-entry{position:absolute;width:min(230px,40%);}
+  .j-entry.on-left,.j-cta.on-left{text-align:right;}
+  .j-entry.on-right,.j-cta.on-right{text-align:left;}
+  .j-cta{position:absolute;width:min(230px,40%);margin:0;}
+  .j-entry .d{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted-foreground);font-weight:500;}
+  .j-entry h4{font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 40;font-weight:500;letter-spacing:-.01em;font-size:clamp(16px,2.2vw,20px);margin:4px 0 3px;line-height:1.1;}
+  .j-entry p{margin:0;font-size:12.5px;color:var(--muted-foreground);line-height:1.45;}
+  .j-cta a{font-size:14px;color:var(--deep-ochre);text-decoration:none;border-bottom:1px solid rgba(150,96,10,.34);}
+  .j-cta a:hover{color:var(--warm);border-bottom-color:var(--warm);}
+
+  /* motion element base styles (per-variant JS drives them) */
+  .j-comet{fill:none;stroke:var(--deep-ochre);stroke-linecap:round;}
+  .j-flow{fill:none;stroke:var(--deep-ochre);stroke-linecap:round;}
+  .j-pkt{fill:var(--deep-ochre);}
+  .j-halo{fill:var(--deep-ochre);}
+  .j-ring{fill:none;stroke:var(--deep-ochre);}
+  .j-branch{fill:none;stroke:var(--deep-ochre);stroke-width:1.2;stroke-linecap:round;stroke-dasharray:3 5;}
+  .j-ghostdot{fill:var(--deep-ochre);}
+
+  .foot{margin-top:46px;font-size:13.5px;color:var(--muted-foreground);max-width:78ch;}
+  @media (prefers-reduced-motion:reduce){ .rm-note{display:inline;} }
+  .rm-note{display:none;color:var(--deep-ochre);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="sheet-head">
+    <span class="micro">Home · §4 The Journey — dynamic proposals</span>
+    <h1 class="display">Make the road move</h1>
+    <p>Today §4 <b>draws its serpentine in on scroll</b> and lifts a <b>hover-lens</b> under the block you point at — but once drawn it just sits there, while §3 (the living isometric scene) and §5 (the morphing wash) keep breathing. These seven proposals each keep the <b>exact serpentine + the three dated entries + “Read the journey →”</b>, and add one piece of <b>ambient, always-on motion</b> — quiet enough for an editorial page, in the section’s own ochre. Pick one (or mix two) and I’ll wire it into <code>transition-prototype.html</code>. <span class="rm-note">· Reduced-motion is on, so the roads are shown still.</span></p>
+    <div class="controls">
+      <button class="btn" id="szWide" aria-pressed="true">Desktop</button>
+      <button class="btn" id="szPhone" aria-pressed="false">Phone</button>
+    </div>
+  </header>
+
+  <div class="verlabel"><span class="k">★ J1+J7</span><h2>Traveling light + Roads not taken</h2><p class="note"><b style="color:var(--deep-ochre)">Combined sample #1.</b> The comet runs the road and lights each milestone as it passes, while faint forks branch off into the open and dissolve — the road you took, moving; the roads you didn’t, flickering past.</p></div>
+  <div class="stage" data-variant="combo"></div>
+
+  <div class="verlabel"><span class="k">★ J1+J6</span><h2>Traveling light + Milestone pulse</h2><p class="note"><b style="color:var(--deep-ochre)">Combined sample #2.</b> The comet runs the road, and each milestone <b>rings out the instant the light reaches it</b> — the pulse is caused by the comet, not a separate rhythm, so the two read as one gesture.</p></div>
+  <div class="stage" data-variant="combo2"></div>
+
+  <div class="verlabel"><span class="k">J1</span><h2>Traveling light</h2><p class="note">A soft comet runs the road on a slow loop, brightening each milestone as it passes — the journey, still in motion.</p></div>
+  <div class="stage" data-variant="comet"></div>
+
+  <div class="verlabel"><span class="k">J2</span><h2>Flowing current</h2><p class="note">A fine dashed stream slides along the whole line — momentum you read at a glance, the calmest option.</p></div>
+  <div class="stage" data-variant="flow"></div>
+
+  <div class="verlabel"><span class="k">J3</span><h2>Living road</h2><p class="note">The serpentine itself breathes — the crests drift a few pixels on long sine waves, the way §5’s shapes undulate. The dots ride the moving line.</p></div>
+  <div class="stage" data-variant="breathe"></div>
+
+  <div class="verlabel"><span class="k">J4</span><h2>Signal packets</h2><p class="note">Small marks travel start→end in a staggered train — commits / data moving through the pipeline this journey built.</p></div>
+  <div class="stage" data-variant="packets"></div>
+
+  <div class="verlabel"><span class="k">J5</span><h2>Sheen sweep</h2><p class="note">A wide, soft highlight catches the road every few seconds, then rests — the most restrained, premium read.</p></div>
+  <div class="stage" data-variant="sheen"></div>
+
+  <div class="verlabel"><span class="k">J6</span><h2>Milestone pulse</h2><p class="note">A ring blooms outward from each node in turn, a wave of emphasis that walks the phases top→bottom.</p></div>
+  <div class="stage" data-variant="pulse"></div>
+
+  <div class="verlabel"><span class="k">J7</span><h2>Roads not taken</h2><p class="note">Faint forks sprout from the line, reach into the open, and dissolve — literalizing the lead. The road you took stays solid.</p></div>
+  <div class="stage" data-variant="ghosts"></div>
+
+  <p class="foot">All seven respect <code>prefers-reduced-motion</code> (shown still) and only animate while on screen. Geometry, entries and the CTA are the live §4 content; the Desktop/Phone toggle shows both layouts (phone runs the road down the left as a wave, exactly as §4 adapts).</p>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  const reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  const SVGNS='http://www.w3.org/2000/svg';
+  const el=(n,a)=>{const e=document.createElementNS(SVGNS,n);for(const k in a)e.setAttribute(k,a[k]);return e;};
+  const easeIO=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+
+  const ENTRIES=[
+    {d:'10 Jun 2026 · Phase 2', h:'One bucket, three jobs', p:'DVC, MLflow and the case for a single S3 bucket.'},
+    {d:'02 Jul 2026 · Phase 2', h:'The gate that says no', p:'Letting CI block a worse model felt wrong — until it didn’t.'},
+    {d:'18 Jul 2026 · Phase 2', h:'Pandera at the door', p:'Validating data before it ever reaches training.'}
+  ];
+  const CTA='Read the journey →';
+  const NODES_WIDE=[{x:350,y:24,side:'left'},{x:450,y:139,side:'right'},{x:250,y:254,side:'left'},{x:450,y:369,side:'right'}];
+  const NODES_PHONE=[{x:76,y:40,side:'right'},{x:44,y:196,side:'right'},{x:76,y:352,side:'right'},{x:44,y:468,side:'right'}];
+
+  function pathD(nodes){
+    let d='M '+nodes[0].x+' '+nodes[0].y;
+    for(let i=1;i<nodes.length;i++){const a=nodes[i-1],b=nodes[i],m=(b.y-a.y)*0.5;d+=' C '+a.x+' '+(a.y+m)+', '+b.x+' '+(b.y-m)+', '+b.x+' '+b.y;}
+    return d;
+  }
+
+  const stages=[];   // {host, variant, update(t), visible}
+
+  function buildStage(host){
+    const variant=host.dataset.variant;
+    host.innerHTML='';
+    const phone=document.body.classList.contains('phone');
+    const NODES=phone?NODES_PHONE:NODES_WIDE;
+    const VBW=phone?360:700, VBBOX=phone?540:420, VBH=phone?540:404, lblOff=phone?14:22;
+
+    const inner=document.createElement('div'); inner.className='j-inner';
+    inner.innerHTML='<div class="sec-head"><h3>The Journey</h3><p>Roads not taken</p></div>';
+    const wrap=document.createElement('div'); wrap.className='j-path-wrap';
+    const svg=el('svg',{viewBox:'0 0 '+VBW+' '+VBBOX,fill:'none','aria-hidden':'true'});
+    const d=pathD(NODES);
+    const base=el('path',{class:'j-base',d:d});
+    svg.appendChild(base);
+
+    // motion layer (variant-specific nodes appended before the dots so dots stay on top)
+    const motion=el('g',{}); svg.appendChild(motion);
+
+    const dots=NODES.map(n=>{const c=el('circle',{class:'j-dot',cx:n.x,cy:n.y,r:5.5});svg.appendChild(c);return c;});
+    wrap.appendChild(svg);
+
+    // entries + CTA, positioned on the crests (same math as §4)
+    const labels=[];
+    const mk=(html,i)=>{const e=document.createElement('div');e.innerHTML=html;const node=e.firstElementChild;wrap.appendChild(node);return node;};
+    for(let i=0;i<3;i++){
+      const en=ENTRIES[i];
+      const node=document.createElement('div'); node.className='j-entry';
+      node.innerHTML='<div class="d">'+en.d+'</div><h4>'+en.h+'</h4><p>'+en.p+'</p>';
+      wrap.appendChild(node); labels.push(node);
+    }
+    const cta=document.createElement('p'); cta.className='j-cta';
+    cta.innerHTML='<a href="#" onclick="return false">'+CTA+'</a>';
+    wrap.appendChild(cta); labels.push(cta);
+
+    NODES.forEach((n,i)=>{
+      const e=labels[i], xPct=n.x/VBW*100, yPct=n.y/VBH*100, onLeft=n.side==='left';
+      e.classList.toggle('on-left',onLeft); e.classList.toggle('on-right',!onLeft);
+      e.style.top='calc('+yPct+'% - 12px)';
+      if(onLeft){ e.style.right='calc('+(100-xPct)+'% + '+lblOff+'px)'; e.style.left='auto'; }
+      else{ e.style.left='calc('+xPct+'% + '+lblOff+'px)'; e.style.right='auto'; }
+    });
+
+    inner.appendChild(wrap); host.appendChild(inner);
+
+    const len=base.getTotalLength();
+    // arc-fraction nearest each node (for wave timing)
+    const N=360, samp=[]; for(let k=0;k<=N;k++) samp.push(base.getPointAtLength(len*k/N));
+    const fracNear=(x,y)=>{let bi=0,bd=1e9;for(let k=0;k<=N;k++){const dx=samp[k].x-x,dy=samp[k].y-y,dd=dx*dx+dy*dy;if(dd<bd){bd=dd;bi=k;}}return bi/N;};
+    const jFr=NODES.map(n=>fracNear(n.x,n.y));
+
+    // ---- build the variant's motion + return its per-frame update ----
+    let update=()=>{};
+
+    if(variant==='combo'){
+      // --- J7 ghost forks (behind) ---
+      const B=[
+        {x:NODES[0].x,y:NODES[0].y, c1x:NODES[0].x+90,c1y:NODES[0].y+40, c2x:NODES[0].x+150,c2y:NODES[0].y+8, ex:NODES[0].x+190,ey:NODES[0].y+58},
+        {x:NODES[1].x,y:NODES[1].y, c1x:NODES[1].x-120,c1y:NODES[1].y+10, c2x:NODES[1].x-180,c2y:NODES[1].y+60, ex:NODES[1].x-150,ey:NODES[1].y+120},
+        {x:NODES[2].x,y:NODES[2].y, c1x:NODES[2].x+130,c1y:NODES[2].y-10, c2x:NODES[2].x+190,c2y:NODES[2].y+36, ex:NODES[2].x+176,ey:NODES[2].y+96}
+      ];
+      const branches=B.map(b=>{
+        const p=el('path',{class:'j-branch',d:'M '+b.x+' '+b.y+' C '+b.c1x+' '+b.c1y+', '+b.c2x+' '+b.c2y+', '+b.ex+' '+b.ey,opacity:0});
+        const gd=el('circle',{class:'j-ghostdot',cx:b.ex,cy:b.ey,r:3,opacity:0});
+        motion.appendChild(p); motion.appendChild(gd); return {p,gd};
+      });
+      const GT=4600;
+      // --- J1 comet (on top) ---
+      const tail=el('path',{class:'j-comet',d:d,'stroke-width':2.8}); motion.appendChild(tail);
+      const halo=el('circle',{class:'j-halo',r:9,opacity:.18});
+      const head=el('circle',{class:'j-halo',r:3.6}); motion.appendChild(halo); motion.appendChild(head);
+      const TAIL=Math.max(60,len*0.14);
+      tail.style.strokeDasharray=TAIL+' '+len;
+      update=t=>{
+        // ghosts
+        branches.forEach((br,i)=>{const gph=((t+i*1500)%GT)/GT;const a=gph<0.5?easeIO(gph/0.5):easeIO(1-(gph-0.5)/0.5);
+          br.p.setAttribute('opacity',(a*0.32).toFixed(3));br.gd.setAttribute('opacity',(a*0.4).toFixed(3));});
+        // comet
+        const ph=(t/5600)%1, s=ph*len;
+        tail.style.strokeDashoffset=(TAIL-s);
+        const fade=Math.min(1,ph/0.06,(1-ph)/0.06);
+        tail.style.opacity=(0.9*fade).toFixed(3);
+        const pt=base.getPointAtLength(s);
+        halo.setAttribute('cx',pt.x);halo.setAttribute('cy',pt.y);halo.setAttribute('opacity',(0.18*fade).toFixed(3));
+        head.setAttribute('cx',pt.x);head.setAttribute('cy',pt.y);head.setAttribute('opacity',fade.toFixed(3));
+        dots.forEach((dot,i)=>{const near=Math.max(0,1-Math.abs(ph-jFr[i])*9);dot.setAttribute('r',(5.5+near*3).toFixed(2));dot.setAttribute('fill',near>0.5?'var(--deep-ochre)':'var(--foreground)');});
+      };
+    }
+
+    else if(variant==='combo2'){
+      // rings per node (behind), then comet on top
+      const rings=NODES.map(n=>{const c=el('circle',{class:'j-ring',cx:n.x,cy:n.y,r:5.5,'stroke-width':1.6,opacity:0});motion.appendChild(c);return c;});
+      const tail=el('path',{class:'j-comet',d:d,'stroke-width':2.8}); motion.appendChild(tail);
+      const halo=el('circle',{class:'j-halo',r:9,opacity:.18});
+      const head=el('circle',{class:'j-halo',r:3.6}); motion.appendChild(halo); motion.appendChild(head);
+      const TAIL=Math.max(60,len*0.14), WIN=0.12;
+      tail.style.strokeDasharray=TAIL+' '+len;
+      update=t=>{
+        const ph=(t/5600)%1, s=ph*len;
+        tail.style.strokeDashoffset=(TAIL-s);
+        const fade=Math.min(1,ph/0.06,(1-ph)/0.06);
+        tail.style.opacity=(0.9*fade).toFixed(3);
+        const pt=base.getPointAtLength(s);
+        halo.setAttribute('cx',pt.x);halo.setAttribute('cy',pt.y);halo.setAttribute('opacity',(0.18*fade).toFixed(3));
+        head.setAttribute('cx',pt.x);head.setAttribute('cy',pt.y);head.setAttribute('opacity',fade.toFixed(3));
+        // each node rings out just after the comet passes it (bloom is a function of phase-since-pass)
+        NODES.forEach((n,i)=>{
+          const since=(((ph-jFr[i])%1)+1)%1;
+          const a=since<WIN?(1-since/WIN):0;
+          rings[i].setAttribute('r',(5.5+(1-a)*16).toFixed(2));
+          rings[i].setAttribute('opacity',(a*0.55).toFixed(3));
+          dots[i].setAttribute('r',(5.5+a*2.6).toFixed(2));
+          dots[i].setAttribute('fill',a>0.4?'var(--deep-ochre)':'var(--foreground)');
+        });
+      };
+    }
+
+    else if(variant==='comet'){
+      const tail=el('path',{class:'j-comet',d:d,'stroke-width':2.8}); motion.appendChild(tail);
+      const halo=el('circle',{class:'j-halo',r:9,opacity:.18});
+      const head=el('circle',{class:'j-halo',r:3.6}); motion.appendChild(halo); motion.appendChild(head);
+      const TAIL=Math.max(60,len*0.14);
+      tail.style.strokeDasharray=TAIL+' '+len;
+      update=t=>{
+        const ph=(t/5600)%1, s=ph*len;
+        tail.style.strokeDashoffset=(TAIL-s);
+        const fade=Math.min(1,ph/0.06,(1-ph)/0.06); // ease the loop seam
+        tail.style.opacity=(0.9*fade).toFixed(3);
+        const pt=base.getPointAtLength(s);
+        halo.setAttribute('cx',pt.x);halo.setAttribute('cy',pt.y);halo.setAttribute('opacity',(0.18*fade).toFixed(3));
+        head.setAttribute('cx',pt.x);head.setAttribute('cy',pt.y);head.setAttribute('opacity',fade.toFixed(3));
+        // brighten the milestone the head is on
+        dots.forEach((dot,i)=>{const near=Math.max(0,1-Math.abs(ph-jFr[i])*9);dot.setAttribute('r',(5.5+near*3).toFixed(2));dot.setAttribute('fill',near>0.5?'var(--deep-ochre)':'var(--foreground)');});
+      };
+    }
+
+    else if(variant==='flow'){
+      const flow=el('path',{class:'j-flow',d:d,'stroke-width':2,opacity:.72}); motion.appendChild(flow);
+      flow.style.strokeDasharray='2.5 13';
+      update=t=>{ flow.style.strokeDashoffset=(-(t/1000*34)%1000).toFixed(2); };
+    }
+
+    else if(variant==='breathe'){
+      update=t=>{
+        const nn=NODES.map((n,i)=>({x:n.x+Math.sin(t/1500+i*1.3)*6.5, y:n.y+Math.cos(t/1900+i*0.8)*3, side:n.side}));
+        const nd=pathD(nn); base.setAttribute('d',nd);
+        dots.forEach((dot,i)=>{dot.setAttribute('cx',nn[i].x.toFixed(2));dot.setAttribute('cy',nn[i].y.toFixed(2));});
+      };
+    }
+
+    else if(variant==='packets'){
+      const offs=[0,0.26,0.52,0.78];
+      const pk=offs.map(()=>{const c=el('circle',{class:'j-pkt',r:3});motion.appendChild(c);return c;});
+      update=t=>{
+        const b=t/5200;
+        offs.forEach((o,i)=>{const ph=(b+o)%1,s=ph*len,pt=base.getPointAtLength(s);
+          pk[i].setAttribute('cx',pt.x);pk[i].setAttribute('cy',pt.y);
+          pk[i].setAttribute('opacity',Math.min(1,ph/0.05,(1-ph)/0.05).toFixed(3));});
+      };
+    }
+
+    else if(variant==='sheen'){
+      const sh=el('path',{class:'j-comet',d:d,'stroke-width':4,stroke:'var(--warm-soft)'}); motion.appendChild(sh);
+      const TAIL=Math.max(140,len*0.34);
+      sh.style.strokeDasharray=TAIL+' '+len;
+      const T=6400, SWEEP=0.5;
+      update=t=>{
+        const ph=(t%T)/T;
+        if(ph<SWEEP){ const e=easeIO(ph/SWEEP), s=e*(len+TAIL)-TAIL+TAIL*0; const head=e*len;
+          sh.style.strokeDashoffset=(TAIL-head); sh.style.opacity=(0.75*Math.sin(Math.PI*(ph/SWEEP))).toFixed(3); }
+        else sh.style.opacity='0';
+      };
+    }
+
+    else if(variant==='pulse'){
+      const rings=NODES.map(n=>{const c=el('circle',{class:'j-ring',cx:n.x,cy:n.y,r:5.5,'stroke-width':1.6,opacity:0});motion.appendChild(c);return c;});
+      const T=4200;
+      update=t=>{
+        NODES.forEach((n,i)=>{
+          const ph=(((t%T)/T)-jFr[i]*0.72+1)%1;
+          const a=ph<0.26?(1-ph/0.26):0;
+          rings[i].setAttribute('r',(5.5+(1-a)*16).toFixed(2));  // expands as it fades
+          rings[i].setAttribute('opacity',(a*0.55).toFixed(3));
+          dots[i].setAttribute('r',(5.5+a*2.4).toFixed(2));
+        });
+      };
+    }
+
+    else if(variant==='ghosts'){
+      // forks reaching into open space, away from the entry text
+      const B=[
+        {x:NODES[0].x,y:NODES[0].y, c1x:NODES[0].x+90,c1y:NODES[0].y+40, c2x:NODES[0].x+150,c2y:NODES[0].y+8, ex:NODES[0].x+190,ey:NODES[0].y+58},
+        {x:NODES[1].x,y:NODES[1].y, c1x:NODES[1].x-120,c1y:NODES[1].y+10, c2x:NODES[1].x-180,c2y:NODES[1].y+60, ex:NODES[1].x-150,ey:NODES[1].y+120},
+        {x:NODES[2].x,y:NODES[2].y, c1x:NODES[2].x+130,c1y:NODES[2].y-10, c2x:NODES[2].x+190,c2y:NODES[2].y+36, ex:NODES[2].x+176,ey:NODES[2].y+96}
+      ];
+      const branches=B.map(b=>{
+        const p=el('path',{class:'j-branch',d:'M '+b.x+' '+b.y+' C '+b.c1x+' '+b.c1y+', '+b.c2x+' '+b.c2y+', '+b.ex+' '+b.ey,opacity:0});
+        const gd=el('circle',{class:'j-ghostdot',cx:b.ex,cy:b.ey,r:3,opacity:0});
+        motion.appendChild(p); motion.appendChild(gd); return {p,gd};
+      });
+      const T=4600;
+      update=t=>{
+        branches.forEach((br,i)=>{
+          const ph=((t+i*1500)%T)/T;
+          const a=ph<0.5?easeIO(ph/0.5):easeIO(1-(ph-0.5)/0.5);
+          br.p.setAttribute('opacity',(a*0.32).toFixed(3));
+          br.gd.setAttribute('opacity',(a*0.4).toFixed(3));
+        });
+      };
+    }
+
+    if(reduce){ update(1600); update=()=>{}; }   // settle once, then freeze
+    return {host, update, visible:true};
+  }
+
+  function buildAll(){
+    stages.length=0;
+    document.querySelectorAll('.stage').forEach(h=>stages.push(buildStage(h)));
+  }
+  buildAll();
+
+  // only animate stages on screen
+  if('IntersectionObserver' in window){
+    const io=new IntersectionObserver(es=>es.forEach(e=>{const st=stages.find(s=>s.host===e.target);if(st)st.visible=e.isIntersecting;}),{rootMargin:'80px'});
+    document.querySelectorAll('.stage').forEach(h=>io.observe(h));
+  }
+
+  if(!reduce){
+    const loop=now=>{ for(const s of stages){ if(s.visible) s.update(now); } requestAnimationFrame(loop); };
+    requestAnimationFrame(loop);
+  }
+
+  // Desktop / Phone toggle
+  const szWide=document.getElementById('szWide'), szPhone=document.getElementById('szPhone');
+  const setPhone=on=>{document.body.classList.toggle('phone',on);szPhone.setAttribute('aria-pressed',String(on));szWide.setAttribute('aria-pressed',String(!on));buildAll();};
+  szWide.onclick=()=>setPhone(false); szPhone.onclick=()=>setPhone(true);
+  let rt=null; window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(buildAll,180);});
+})();
+</script>
+</body>
+</html>

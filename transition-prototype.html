@@ -520,6 +520,12 @@
   .j-lens{fill:none;stroke:var(--foreground);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;}
   .j-dot{fill:var(--foreground);opacity:0;}
   .j-end{fill:none;stroke:var(--foreground);stroke-width:1.4;stroke-linecap:round;opacity:0;}
+  /* §4's ambient life (2026-10-07): a comet runs the fully-drawn road on a slow loop and
+     each milestone rings out the instant the light reaches it — the pulse is caused by the
+     comet, so the two read as one gesture. Driven by applyJourneyPulse(); off for reduced motion. */
+  .j-comet{fill:none;stroke:var(--deep-ochre);stroke-width:2.6;stroke-linecap:round;opacity:0;pointer-events:none;}
+  .j-halo{fill:var(--deep-ochre);pointer-events:none;}
+  .j-ring{fill:none;stroke:var(--deep-ochre);stroke-width:1.5;pointer-events:none;}
   .j-entry{position:absolute;width:min(240px,34%);opacity:0;}
   .j-entry.on-left,.j-cta.on-left{text-align:right;transform-origin:right center;}
   .j-entry.on-right,.j-cta.on-right{text-align:left;transform-origin:left center;}
@@ -886,10 +892,19 @@
             </defs>
             <path class="j-path" id="jPath" d="" mask="url(#jLensMask)"/>
             <path class="j-lens" id="jLensPath" d="" clip-path="url(#jLensClip)"/>
+            <!-- milestone rings (bloom as the comet reaches each node) — behind the dots -->
+            <circle class="j-ring" r="5.5" opacity="0"/>
+            <circle class="j-ring" r="5.5" opacity="0"/>
+            <circle class="j-ring" r="5.5" opacity="0"/>
+            <circle class="j-ring" r="5.5" opacity="0"/>
             <circle class="j-dot" r="5.5"/>
             <circle class="j-dot" r="5.5"/>
             <circle class="j-dot" r="5.5"/>
             <circle class="j-dot" r="5.5"/>
+            <!-- the traveling light: a lit segment that runs the road, head on top -->
+            <path class="j-comet" id="jComet" d=""/>
+            <circle class="j-halo" id="jHalo" r="9" opacity="0"/>
+            <circle class="j-halo" id="jHead" r="3.6" opacity="0"/>
           </svg>
           <div class="j-entry"><div class="d">10 Jun 2026 · Phase 2</div><h4>One bucket, three jobs</h4><p>DVC, MLflow and the case for a single S3 bucket.</p></div>
           <div class="j-entry"><div class="d">02 Jul 2026 · Phase 2</div><h4>The gate that says no</h4><p>Letting CI block a worse model felt wrong — until it didn't.</p></div>
@@ -1203,6 +1218,11 @@
   const jPath=document.getElementById('jPath');
   const jDots=[...document.querySelectorAll('.j-dot')];
   const jEntries=[...document.querySelectorAll('.j-entry')];
+  const jRings=[...document.querySelectorAll('.j-ring')];
+  const jComet=document.getElementById('jComet');
+  const jHalo=document.getElementById('jHalo');
+  const jHead=document.getElementById('jHead');
+  let cometTail=0;
   const skillsLayer=document.getElementById('skillsLayer');
   const afterLayer=document.getElementById('afterLayer');
   const washGs=[...document.querySelectorAll('.wash .b-g,.wash .b-shared')];
@@ -1282,6 +1302,7 @@
     jNodes.forEach((n,i)=>{
       jFr[i]=fracNear(n.x,n.y);
       jDots[i].setAttribute('cx',n.x); jDots[i].setAttribute('cy',n.y);
+      if(jRings[i]){ jRings[i].setAttribute('cx',n.x); jRings[i].setAttribute('cy',n.y); }
       const e=jLabelEls[i], xPct=n.x/VBW*100, yPct=n.y/VBH*100, onLeft=n.side==='left';
       e.classList.toggle('on-left',onLeft);
       e.classList.toggle('on-right',!onLeft);
@@ -1289,6 +1310,8 @@
       if(onLeft){ e.style.right='calc('+(100-xPct)+'% + '+lblOff+'px)'; e.style.left='auto'; }
       else{ e.style.left='calc('+xPct+'% + '+lblOff+'px)'; e.style.right='auto'; }
     });
+    // the comet runs a copy of the line's geometry; a short lit dash + a long gap = one head
+    if(jComet){ cometTail=Math.max(60,pathLen*0.14); jComet.setAttribute('d',d); jComet.style.strokeDasharray=cometTail+' '+pathLen; }
   }
   layoutPath();
   window.addEventListener('resize',layoutPath);
@@ -1505,6 +1528,32 @@
     }
   }
 
+  // §4 ambient: comet runs the road; each milestone rings out as the head reaches it (J1+J6).
+  // Independent of scroll — only gated to fade in with the section and sleep when offscreen.
+  const CM_LAP=5600, CM_WIN=0.12;   // lap length (ms); ring-bloom window as a fraction of a lap
+  function applyJourneyPulse(){
+    if(reduce||!pathLen||!jComet) return;
+    const r=journeyLayer.getBoundingClientRect(), vh=window.innerHeight;
+    if(r.bottom<0||r.top>vh){   // offscreen — rest
+      jComet.style.opacity='0'; jHalo.setAttribute('opacity','0'); jHead.setAttribute('opacity','0');
+      for(const rg of jRings) rg.setAttribute('opacity','0'); return;
+    }
+    const vis=clamp((vh*0.85-r.top)/(vh*0.70),0,1);       // == sectionProgress(journeyLayer)
+    const ph=(performance.now()/CM_LAP)%1, s=ph*pathLen;
+    jComet.style.strokeDashoffset=String((cometTail-s).toFixed(1));
+    const fade=Math.min(1,ph/0.06,(1-ph)/0.06)*vis;        // ease the loop seam + section arrival
+    jComet.style.opacity=(0.85*fade).toFixed(3);
+    const pt=jPath.getPointAtLength(s);
+    jHalo.setAttribute('cx',pt.x.toFixed(1)); jHalo.setAttribute('cy',pt.y.toFixed(1)); jHalo.setAttribute('opacity',(0.18*fade).toFixed(3));
+    jHead.setAttribute('cx',pt.x.toFixed(1)); jHead.setAttribute('cy',pt.y.toFixed(1)); jHead.setAttribute('opacity',fade.toFixed(3));
+    for(let i=0;i<jRings.length;i++){
+      const since=(((ph-jFr[i])%1)+1)%1;                   // phase since the head passed node i
+      const raw=since<CM_WIN?(1-since/CM_WIN):0;            // 1 at the pass → 0 at window end
+      jRings[i].setAttribute('r',(jDotBaseR[i]+(1-raw)*15).toFixed(2));   // tight at pass, expands as it fades
+      jRings[i].setAttribute('opacity',(raw*vis*0.5).toFixed(3));
+    }
+  }
+
   // ---- §2: the confidence bars stay a clocked payoff, not a scrub — structure
   //      reveals with the scroll, payoffs play at their designed tempo once seen ----
   let barsLive=false;
@@ -1632,6 +1681,7 @@
     applyArch12();
     applySkillsMorph();
     applyJourney();
+    applyJourneyPulse();
     applyBars();
     applyChrome();
     applyEdges();
