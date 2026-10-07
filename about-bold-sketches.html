@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sketches — About, with a signature (warm paper)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..700&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --background:#ffffff;--foreground:#0a0a0a;--muted-foreground:#6b6b6b;--border:#e8e8e8;--hair:#e8e8e8;
+    --warm:#c98a3a;--warm-soft:#e8b87e;--deep-ochre:#96600a;
+    --w-ochre:#f8dfc4;--w-sand:#f1e7d0;--w-rose:#fbd3dc;--w-sage:#d8ecde;
+    --paper:#f6efe3;                     /* the warm ivory you liked */
+    --ease-out-expo:cubic-bezier(.16,1,.3,1);--ease-hover:cubic-bezier(.2,.7,.35,1);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:#ece6db;color:var(--foreground);font-family:"Outfit",system-ui,-apple-system,"Segoe UI",sans-serif;font-weight:330;line-height:1.6;-webkit-font-smoothing:antialiased;}
+  .display{font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 96;font-weight:500;line-height:.92;letter-spacing:-.02em;}
+  .micro{text-transform:uppercase;letter-spacing:.22em;font-size:11.5px;font-weight:500;color:var(--muted-foreground);}
+  .wrap{max-width:1180px;margin:0 auto;padding:clamp(56px,10vh,110px) clamp(16px,5vw,44px) clamp(60px,10vh,120px);}
+
+  /* sheet chrome */
+  .sheet-head{margin-bottom:clamp(40px,7vh,72px);}
+  .sheet-head h1{font-size:clamp(38px,7vw,68px);text-transform:uppercase;margin:10px 0 0;}
+  .sheet-head p{margin:16px 0 0;max-width:68ch;font-size:15.5px;color:var(--muted-foreground);}
+  .sheet-head .facts{margin-top:22px;padding-top:16px;border-top:1px solid var(--foreground);max-width:72ch;font-size:14px;color:var(--muted-foreground);}
+  .sheet-head .facts b{color:var(--foreground);font-weight:500;}
+  .sk{padding:clamp(40px,7vh,70px) 0;border-top:1px solid var(--foreground);}
+  .sk-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;}
+  .sk-head h2{font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;font-size:clamp(24px,4vw,38px);line-height:1.02;margin:0;}
+  .sk-key{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--deep-ochre);letter-spacing:.1em;}
+  .sk-note{margin:12px 0 0;max-width:70ch;font-size:15px;color:var(--muted-foreground);}
+  .sk-note b{color:var(--foreground);font-weight:500;}
+  .stage{margin-top:clamp(24px,4vh,40px);}
+  code{font-family:ui-monospace,Menlo,monospace;font-size:.88em;}
+  .sizer{position:sticky;top:12px;z-index:50;display:flex;justify-content:flex-end;margin:-8px 0 0;pointer-events:none;}
+  .sizer-in{pointer-events:auto;display:flex;gap:4px;padding:5px 6px;background:#fff;border:1px solid var(--hair);border-radius:30px;box-shadow:0 8px 24px -16px rgba(10,10,10,.4);}
+  .sizer button{font:inherit;font-size:12.5px;color:var(--muted-foreground);background:none;border:0;border-radius:20px;padding:5px 13px;cursor:pointer;}
+  .sizer button[aria-pressed="true"]{color:#fff;background:var(--foreground);}
+
+  /* the page frame — every concept on the warm paper */
+  .pf{position:relative;border:1px solid var(--foreground);border-radius:4px;overflow:hidden;background:var(--paper);color:var(--foreground);}
+  body.phone .pf{max-width:390px;margin:0 auto;}
+  .pf-in{position:relative;z-index:2;max-width:1000px;margin:0 auto;padding:clamp(44px,5.5vw,76px) clamp(30px,6vw,80px);}
+
+  /* shared type bits */
+  .ab-email{background:none;border:0;padding:0;cursor:pointer;font:inherit;color:var(--deep-ochre);font-size:clamp(17px,2vw,22px);border-bottom:1px solid rgba(150,96,10,.34);transition:color .3s var(--ease-out-expo),border-color .3s var(--ease-out-expo);}
+  .ab-email:hover{color:var(--warm);border-bottom-color:var(--warm);}
+  .ab-links{margin-top:14px;display:flex;gap:22px;font-size:15px;}
+  .pf a{color:var(--deep-ochre);text-decoration:none;border-bottom:1px solid rgba(150,96,10,.32);transition:color .25s var(--ease-hover),border-color .25s var(--ease-hover);}
+  .pf a:hover{color:var(--warm);border-bottom-color:var(--warm);}
+  .pf .portrait-svg{width:78%;height:auto;}
+
+  /* ============================ B1 · EDITORIAL PROFILE ============================
+     A magazine opener: oversized Bodoni name, a drop-cap lead, the portrait crashing
+     into the headline, the CV set as two quiet ledgers. Voice is the device. */
+  .ed-eyebrow{margin:0 0 clamp(14px,2vh,22px);}
+  .ed-name{font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 96;font-weight:500;letter-spacing:-.025em;line-height:.84;font-size:clamp(50px,10.5vw,124px);margin:0;position:relative;z-index:1;}
+  .ed-name em{display:block;font-style:italic;font-weight:500;color:var(--deep-ochre);margin-left:.32em;}
+  .ed-portrait{position:absolute;top:clamp(10px,2vw,40px);right:0;width:clamp(150px,22vw,250px);aspect-ratio:4/5;background:#fff;border:1px solid var(--border);border-radius:4px;box-shadow:0 22px 48px -28px rgba(10,10,10,.45),0 2px 8px -4px rgba(10,10,10,.14);display:flex;align-items:flex-end;justify-content:center;overflow:hidden;z-index:3;color:var(--foreground);}
+  .ed-lead{margin:clamp(28px,5vh,56px) 0 0;max-width:64ch;}
+  .ed-lead p{margin:0 0 15px;font-size:clamp(15.5px,1.55vw,17px);}
+  .ed-drop::first-letter{font-family:"Bodoni Moda",Georgia,serif;font-weight:500;font-size:3.5em;line-height:.72;float:left;margin:.06em .1em 0 0;color:var(--deep-ochre);}
+  .ed-ph{font-size:12px;color:var(--muted-foreground);font-style:italic;}
+  .ed-cv{margin-top:clamp(30px,5vh,56px);display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,4vw,56px);border-top:1px solid var(--foreground);padding-top:clamp(20px,3vh,30px);}
+  .ed-cv h2{font-family:"Outfit",sans-serif;font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted-foreground);font-weight:600;margin:0 0 14px;}
+  .cv-row{display:grid;grid-template-columns:118px 1fr;gap:2px 18px;padding:12px 0;border-top:1px solid var(--border);}
+  .cv-row:first-of-type{border-top:0;}
+  .cv-range{grid-row:1/3;align-self:start;font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:var(--muted-foreground);letter-spacing:.02em;padding-top:3px;}
+  .cv-role{font-size:clamp(15px,1.6vw,17.5px);font-weight:450;}
+  .cv-what{font-size:13.5px;color:var(--muted-foreground);}
+  .ed-resume{margin:14px 0 0;font-size:14.5px;}
+  .ed-contact{margin-top:clamp(30px,5vh,52px);display:flex;flex-wrap:wrap;align-items:baseline;gap:8px clamp(20px,4vw,40px);}
+  .ed-say{font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;font-size:clamp(28px,4.5vw,52px);margin:0;}
+  body.phone .ed-portrait{position:static;margin:20px 0 0;width:min(190px,48vw);}
+  body.phone .ed-cv{grid-template-columns:1fr;gap:28px;}
+
+  /* ============================ B2 · CAREER TRACE ============================
+     The Work + Education history drawn as a serpentine — the Journey page's device,
+     turned on a life instead of a project. Stops hang off alternating sides. */
+  .tr-head{max-width:60ch;margin-bottom:clamp(28px,4vh,44px);}
+  .tr-title{font-size:clamp(44px,8vw,84px);margin:0;}
+  .tr-tag{margin:8px 0 0;font-size:clamp(16px,2vw,21px);color:var(--muted-foreground);}
+  .tr-bio{max-width:58ch;margin:clamp(20px,3vh,30px) 0 0;}
+  .tr-bio p{margin:0 0 12px;font-size:15.5px;}
+  .trace{position:relative;width:100%;max-width:720px;margin:clamp(30px,5vh,58px) auto 0;aspect-ratio:680/900;}
+  .trace svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;}
+  .tr-path{fill:none;stroke:var(--deep-ochre);stroke-width:2;stroke-linecap:round;}
+  .tr-node{fill:var(--paper);stroke:var(--foreground);stroke-width:2;}
+  .tr-node.cap{fill:var(--deep-ochre);stroke:var(--deep-ochre);}
+  .tr-stop{position:absolute;width:38%;}
+  .tr-stop.left{text-align:right;}
+  .tr-stop .tr-range{font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.04em;color:var(--muted-foreground);}
+  .tr-stop .tr-role{display:block;font-size:clamp(16px,1.9vw,20px);font-weight:450;margin:3px 0;line-height:1.15;}
+  .tr-stop .tr-what{display:block;font-size:13.5px;color:var(--muted-foreground);}
+  .tr-kind{display:inline-block;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--deep-ochre);font-weight:600;margin-bottom:4px;}
+  .tr-end{position:absolute;left:0;right:0;bottom:-4%;text-align:center;}
+  .tr-end .ed-say{font-size:clamp(26px,4vw,40px);}
+  /* phone: drop the serpentine, run a straight gutter line */
+  .trace.phone-list{display:none;}
+  body.phone .trace{display:none;}
+  body.phone .trace.phone-list{display:block;aspect-ratio:auto;max-width:none;position:relative;padding-left:26px;}
+  body.phone .trace.phone-list::before{content:"";position:absolute;left:4px;top:6px;bottom:30px;width:2px;background:var(--deep-ochre);}
+  body.phone .pl-stop{position:relative;margin-bottom:26px;}
+  body.phone .pl-stop::before{content:"";position:absolute;left:-26px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--foreground);}
+
+  /* ============================ B3 · BEHIND THE MACHINE ============================
+     A faint blueprint of the pipeline fills the page; the person stands in front of it.
+     Literal reading of "the person behind the machine". */
+  .pf[data-c="machine"]{background:var(--paper);}
+  .bm-bg{position:absolute;inset:0;z-index:1;width:100%;height:100%;overflow:visible;opacity:.9;}
+  .bm-bg .bm-box{fill:none;stroke:var(--deep-ochre);stroke-width:1.4;opacity:.26;}
+  .bm-bg .bm-wire{fill:none;stroke:var(--deep-ochre);stroke-width:1.4;opacity:.22;}
+  .bm-bg .bm-lab{fill:var(--deep-ochre);opacity:.5;font-family:ui-monospace,Menlo,monospace;font-size:13px;letter-spacing:.04em;}
+  .bm-bg .bm-sub{fill:var(--deep-ochre);opacity:.34;font-family:"Outfit",sans-serif;font-size:10px;letter-spacing:.14em;text-transform:uppercase;}
+  .bm-head{display:flex;gap:clamp(24px,4vw,48px);align-items:flex-start;flex-wrap:wrap;}
+  .bm-portrait{flex:0 0 auto;width:min(196px,38vw);aspect-ratio:4/5;background:#fffdf8;border:1px solid var(--border);border-radius:4px;box-shadow:0 20px 44px -26px rgba(10,10,10,.4);display:flex;align-items:flex-end;justify-content:center;overflow:hidden;}
+  .bm-copy{flex:1 1 320px;}
+  .bm-title{font-size:clamp(46px,8vw,92px);margin:0;}
+  .bm-tag{margin:6px 0 0;font-size:clamp(16px,2vw,21px);color:var(--muted-foreground);}
+  .bm-bio{margin:clamp(16px,2.5vh,24px) 0 0;max-width:52ch;}
+  .bm-bio p{margin:0 0 12px;font-size:15px;}
+  .bm-cv{margin-top:clamp(30px,5vh,56px);background:color-mix(in srgb,var(--paper) 86%,#fff);border:1px solid rgba(150,96,10,.2);border-radius:5px;padding:clamp(22px,3vw,34px);backdrop-filter:blur(1px);}
+  .bm-cv h2{font-family:"Outfit",sans-serif;font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted-foreground);font-weight:600;margin:0 0 12px;}
+  .bm-cols{display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,4vw,44px);}
+  .bm-contact{margin-top:clamp(26px,4vh,44px);}
+  .bm-contact .ed-say{font-size:clamp(26px,4vw,42px);margin:0 0 10px;}
+  body.phone .bm-cols{grid-template-columns:1fr;gap:22px;}
+
+  /* ============================ B4 · PORTRAIT IN THE WASH ============================
+     The Skills blob-wash brought to About: soft warm shapes, the portrait resting among
+     them, the story set calm alongside. */
+  .pw-wash{position:absolute;inset:0;z-index:1;width:100%;height:100%;}
+  .pw-wash .blob{mix-blend-mode:multiply;opacity:.9;}
+  .pw-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(24px,4vw,56px);align-items:center;min-height:clamp(320px,46vh,460px);}
+  .pw-portrait{justify-self:center;width:min(230px,52vw);aspect-ratio:1;border-radius:50%;background:#fffdf8;border:1px solid rgba(10,10,10,.08);box-shadow:0 26px 60px -34px rgba(10,10,10,.4);display:flex;align-items:flex-end;justify-content:center;overflow:hidden;position:relative;z-index:2;}
+  .pw-portrait .portrait-svg{width:66%;transform:translateY(8%);}
+  .pw-title{font-size:clamp(46px,8.5vw,104px);margin:0;}
+  .pw-tag{margin:8px 0 0;font-size:clamp(16px,2vw,22px);color:var(--muted-foreground);}
+  .pw-bio{margin:clamp(16px,2.5vh,24px) 0 0;max-width:46ch;}
+  .pw-bio p{margin:0 0 12px;font-size:15px;}
+  .pw-rest{margin-top:clamp(30px,5vh,58px);display:grid;grid-template-columns:1fr 1fr;gap:clamp(22px,4vw,48px);position:relative;z-index:2;}
+  .pw-rest h2{font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;font-size:clamp(22px,3vw,30px);margin:0 0 14px;}
+  .pw-stops{list-style:none;margin:0;padding:0;}
+  .pw-stop{margin:0 0 16px;}
+  .pw-stop .cv-range{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--muted-foreground);display:block;}
+  .pw-stop .cv-role{display:block;font-size:clamp(15px,1.7vw,18px);font-weight:450;margin:2px 0;}
+  .pw-stop .cv-what{display:block;font-size:13.5px;color:var(--muted-foreground);}
+  .pw-contact{grid-column:1/-1;margin-top:8px;padding-top:clamp(20px,3vh,30px);border-top:1px solid rgba(150,96,10,.25);}
+  .pw-contact .ed-say{font-size:clamp(26px,4vw,40px);margin:0 0 10px;}
+  body.phone .pw-grid{grid-template-columns:1fr;text-align:center;}
+  body.phone .pw-portrait{order:-1;}
+  body.phone .pw-bio{margin-left:auto;margin-right:auto;}
+  body.phone .pw-rest{grid-template-columns:1fr;}
+
+  .foot{margin-top:60px;padding-top:24px;border-top:1px solid var(--foreground);font-size:13.5px;color:var(--muted-foreground);max-width:72ch;}
+</style>
+</head>
+<body>
+<div class="sizer"><div class="sizer-in">
+  <button id="szWide" aria-pressed="true">Desktop</button>
+  <button id="szPhone" aria-pressed="false">Phone</button>
+</div></div>
+
+<div class="wrap">
+  <header class="sheet-head">
+    <span class="micro">Sketches · About — with a signature, on warm paper</span>
+    <h1 class="display">Not bland this time</h1>
+    <p>You liked the warm-paper ground but the nine layouts were too plain next to the Home scroll and the inner pages — each of those has a <b>signature device</b> (the isometric architecture deck, the drawn journey serpentine, the skills blob-wash) and a bolder editorial hand. These four give About its own signature, and keep the warm paper throughout. Same content as before.</p>
+    <p class="facts"><b>Same in every sketch:</b> name + "the person behind the machine", the two-paragraph bio, Work (3) + Education with the résumé link, and "Say hello" + email + GitHub / LinkedIn. <b>Try it:</b> Desktop / Phone toggle up top.</p>
+  </header>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">B1</span><h2>Editorial profile</h2></div>
+    <p class="sk-note">The device is <b>voice</b>. A magazine opener: the name set enormous in Bodoni (surname in ochre italic), the portrait crashing into the headline, a <b>drop-cap</b> lead, and the CV dropped to two quiet monospaced ledgers underneath. No illustration — just confident typography and composition, the way a good profile page carries itself.</p>
+    <div class="stage"><div class="pf" data-c="editorial"></div></div>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">B2</span><h2>Career trace</h2></div>
+    <p class="sk-note">Borrows the <b>Journey page's drawn serpentine</b> and turns it on a life: the Work and Education history is one ochre line winding down the page, each role a node with its card hanging off the alternating side. About and Journey end up speaking the same visual language. (The line can draw itself in on arrival, like Journey's does.)</p>
+    <div class="stage"><div class="pf" data-c="trace"></div></div>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">B3</span><h2>Behind the machine</h2></div>
+    <p class="sk-note">Takes the tagline literally. A faint <b>blueprint of the pipeline</b> — Data → Train → Ship → Serve → Monitor — is drawn across the whole page, and the person stands in front of it, the bio and CV lifted on a subtle paper panel. Ties straight back to the Architecture page; the most conceptual of the four.</p>
+    <div class="stage"><div class="pf" data-c="machine"></div></div>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">B4</span><h2>Portrait in the wash</h2></div>
+    <p class="sk-note">Brings the <b>Skills blob-wash</b> to About — soft warm shapes (ochre, sand, rose) multiplied on the paper, with the portrait resting among them and the story set calm alongside. Warmest and most organic; makes About feel like a sibling of the Skills screen.</p>
+    <div class="stage"><div class="pf" data-c="wash"></div></div>
+  </section>
+
+  <p class="foot">All four keep the warm paper. They're independent ideas, not a ladder — tell me which signature feels right (or mix: e.g. "B1's type with B2's trace for the CV"), and I'll develop it into the real About page in <code>sections-prototype.html</code>, with the arrival-line and reveal motion the inner pages use.</p>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  const A={
+    name:['Monish','Kamwal'], title:'About', tag:'The person behind the machine',
+    bio:[
+      "I’m Monish Kamwal. I build machine-learning systems end to end — and this site is one of them, the live front of a platform I’m growing from scratch.",
+      "My interest isn’t the model in isolation but everything around it: how data gets versioned, how a bad model gets stopped before it ships, how infrastructure can appear for a load test and vanish by morning."
+    ],
+    work:[
+      {range:'2024 — present', role:'ML / Platform Engineer · Self-directed', what:'Designing and building the MLOps platform this site fronts.'},
+      {range:'2022 — 2024', role:'Software Engineer · Placeholder Co.', what:'Backend services and data pipelines.'},
+      {range:'2021 — 2022', role:'Engineering Intern · Placeholder Co.', what:'First professional exposure to production systems.'}
+    ],
+    edu:[{range:'2017 — 2021', role:'B.Tech · Placeholder University', what:'Computer science foundations.'}],
+    email:'kallukalia01@outlook.com', links:['GitHub','LinkedIn']
+  };
+  const P='<svg class="portrait-svg" viewBox="0 0 100 125" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="50" cy="42" r="22"/><path d="M12 125 C 14 92, 34 76, 50 76 C 66 76, 86 92, 88 125" stroke-linecap="round"/></svg>';
+  const links = `<div class="ab-links">${A.links.map(l=>`<a href="#" onclick="return false">${l}</a>`).join('')}</div>`;
+  const email = `<button class="ab-email" type="button">${A.email}</button>`;
+  const cvRows = list => list.map(s=>`<div class="cv-row"><span class="cv-range">${s.range}</span><span class="cv-role">${s.role}</span><span class="cv-what">${s.what}</span></div>`).join('');
+  const bioP = cls => A.bio.map((p,i)=>`<p${i===0&&cls?` class="${cls}"`:''}>${p}</p>`).join('');
+
+  /* ---- B1 Editorial ---- */
+  function editorial(){
+    return `<div class="pf-in">
+      <p class="ed-eyebrow micro">About — ${A.tag.toLowerCase()}</p>
+      <h1 class="ed-name">${A.name[0]}<em>${A.name[1]}</em></h1>
+      <div class="ed-portrait">${P}</div>
+      <div class="ed-lead">${bioP('ed-drop')}<p class="ed-ph">Bio is placeholder — final copy at implementation.</p></div>
+      <div class="ed-cv">
+        <section><h2>Work</h2>${cvRows(A.work)}</section>
+        <section><h2>Education</h2>${cvRows(A.edu)}<p class="ed-resume"><a href="#" onclick="return false">Download résumé (PDF)</a></p></section>
+      </div>
+      <div class="ed-contact"><p class="ed-say">Say hello.</p>${email}${links}</div>
+    </div>`;
+  }
+
+  /* ---- B2 Career trace (serpentine) ---- */
+  function trace(){
+    // serpentine through four nodes; vertical-handle beziers like the Journey page
+    const N=[[505,66],[205,330],[505,588],[210,842]];
+    const m=(a,b)=>(b[1]-a[1])/2;
+    let d=`M${N[0][0]} ${N[0][1]}`;
+    for(let i=1;i<N.length;i++){const a=N[i-1],b=N[i],h=m(a,b);d+=` C${a[0]} ${a[1]+h} ${b[0]} ${b[1]-h} ${b[0]} ${b[1]}`;}
+    const nodes=N.map((p,i)=>`<circle class="tr-node${i===3?' cap':''}" cx="${p[0]}" cy="${p[1]}" r="8"/>`).join('');
+    const stops=[A.work[0],A.work[1],A.work[2],A.edu[0]];
+    const kind=['Work','','','Education'];
+    // label boxes beside each node, alternating side (nodes 0,2 right -> label left; 1,3 left -> label right)
+    const place=[
+      {side:'left', left:'2%',  top:'1.5%'},
+      {side:'right',left:'44%', top:'29%'},
+      {side:'left', left:'2%',  top:'58.5%'},
+      {side:'right',left:'44%', top:'88%'}
+    ];
+    const labels=stops.map((s,i)=>`<div class="tr-stop ${place[i].side}" style="left:${place[i].left};top:${place[i].top}">${kind[i]?`<span class="tr-kind">${kind[i]}</span>`:''}<span class="tr-range">${s.range}</span><span class="tr-role">${s.role}</span><span class="tr-what">${s.what}</span></div>`).join('');
+    const phoneList=`<div class="trace phone-list">${stops.map((s,i)=>`<div class="pl-stop">${kind[i]?`<span class="tr-kind">${kind[i]}</span>`:''}<span class="tr-range">${s.range}</span><span class="tr-role">${s.role}</span><span class="tr-what">${s.what}</span></div>`).join('')}</div>`;
+    return `<div class="pf-in">
+      <div class="tr-head"><h1 class="tr-title display">${A.title}</h1><p class="tr-tag">${A.tag}</p></div>
+      <div class="tr-bio">${bioP()}</div>
+      <div class="trace">
+        <svg viewBox="0 0 700 900" preserveAspectRatio="xMidYMid meet"><path class="tr-path" d="${d}"/>${nodes}</svg>
+        ${labels}
+        <div class="tr-end"><p class="ed-say display">Say hello.</p><div style="margin-top:8px">${email}</div></div>
+      </div>
+      ${phoneList}
+      <div style="text-align:center;margin-top:18px">${links}</div>
+    </div>`;
+  }
+
+  /* ---- B3 Behind the machine (blueprint backdrop) ---- */
+  function machine(){
+    // five pipeline nodes in a gentle arc across the page, faint
+    const stages=[['Data','ingest · version'],['Train','challenger'],['Ship','gate · deploy'],['Serve','lambda'],['Monitor','drift']];
+    const xs=[120,340,560,780,1000], ys=[120,250,160,300,180];
+    let boxes='',wires='';
+    stages.forEach((s,i)=>{
+      const x=xs[i],y=ys[i],w=150,h=66;
+      boxes+=`<rect class="bm-box" x="${x}" y="${y}" width="${w}" height="${h}" rx="6"/>`+
+             `<text class="bm-lab" x="${x+14}" y="${y+30}">${s[0]}</text>`+
+             `<text class="bm-sub" x="${x+14}" y="${y+50}">${s[1]}</text>`;
+      if(i>0){const px=xs[i-1]+150,py=ys[i-1]+33,cx=x,cy=y+33;
+        wires+=`<path class="bm-wire" d="M${px} ${py} C${(px+cx)/2} ${py} ${(px+cx)/2} ${cy} ${cx} ${cy}"/>`+
+               `<path class="bm-wire" d="M${cx-9} ${cy-5} L${cx} ${cy} L${cx-9} ${cy+5}"/>`;}
+    });
+    // monitor loops back to train (the retrain cycle)
+    wires+=`<path class="bm-wire" stroke-dasharray="5 5" d="M${xs[4]+75} ${ys[4]} C${xs[4]+75} 40 ${xs[1]+75} 40 ${xs[1]+75} ${ys[1]}"/>`;
+    return `<svg class="bm-bg" viewBox="0 0 1180 460" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${wires}${boxes}</svg>
+    <div class="pf-in">
+      <div class="bm-head">
+        <div class="bm-portrait">${P}</div>
+        <div class="bm-copy">
+          <h1 class="bm-title display">${A.title}</h1>
+          <p class="bm-tag">${A.tag}</p>
+          <div class="bm-bio">${bioP()}<p class="ed-ph">Bio is placeholder — final copy at implementation.</p></div>
+        </div>
+      </div>
+      <div class="bm-cv">
+        <div class="bm-cols">
+          <section><h2>Work</h2>${cvRows(A.work)}</section>
+          <section><h2>Education</h2>${cvRows(A.edu)}<p class="ed-resume"><a href="#" onclick="return false">Download résumé (PDF)</a></p></section>
+        </div>
+      </div>
+      <div class="bm-contact"><p class="ed-say display">Say hello.</p>${email}${links}</div>
+    </div>`;
+  }
+
+  /* ---- B4 Portrait in the wash (blobs) ---- */
+  function wash(){
+    const B="M104 10 C158 2 196 46 188 96 C182 138 200 160 172 180 C140 202 88 196 56 178 C22 158 2 122 10 84 C18 44 58 18 104 10 Z";
+    const B2="M92 6 C146 0 178 34 186 80 C194 128 164 178 112 190 C66 200 20 174 10 128 C0 82 22 38 66 16 C74 12 84 8 92 6 Z";
+    const blobs=`<svg class="pw-wash" viewBox="0 0 1000 560" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <path class="blob" fill="var(--w-ochre)" transform="translate(560,40) scale(1.9) rotate(-8 100 100)" d="${B}"/>
+      <path class="blob" fill="var(--w-sand)"  transform="translate(640,150) scale(1.7) rotate(12 100 100)" d="${B2}"/>
+      <path class="blob" fill="var(--w-rose)"  transform="translate(740,70) scale(1.35) rotate(-18 100 100)" d="${B}"/>
+    </svg>`;
+    return `${blobs}<div class="pf-in">
+      <div class="pw-grid">
+        <div class="pw-copy">
+          <h1 class="pw-title display">${A.title}</h1>
+          <p class="pw-tag">${A.tag}</p>
+          <div class="pw-bio">${bioP()}<p class="ed-ph">Bio is placeholder — final copy at implementation.</p></div>
+        </div>
+        <div class="pw-portrait">${P}</div>
+      </div>
+      <div class="pw-rest">
+        <section><h2>Work</h2><ol class="pw-stops">${A.work.map(s=>`<li class="pw-stop"><span class="cv-range">${s.range}</span><span class="cv-role">${s.role}</span><span class="cv-what">${s.what}</span></li>`).join('')}</ol></section>
+        <section><h2>Education</h2><ol class="pw-stops">${A.edu.map(s=>`<li class="pw-stop"><span class="cv-range">${s.range}</span><span class="cv-role">${s.role}</span><span class="cv-what">${s.what}</span></li>`).join('')}</ol><p class="ed-resume"><a href="#" onclick="return false">Download résumé (PDF)</a></p></section>
+        <div class="pw-contact"><p class="ed-say display">Say hello.</p>${email}${links}</div>
+      </div>
+    </div>`;
+  }
+
+  const R={editorial,trace,machine,wash};
+  document.querySelectorAll('.pf').forEach(pf=>{ pf.innerHTML = R[pf.dataset.c](); });
+
+  document.querySelectorAll('.ab-email').forEach(btn=>{
+    btn.addEventListener('click',()=>{const p=btn.textContent;navigator.clipboard&&navigator.clipboard.writeText(p).catch(()=>{});btn.textContent='Copied ✓';setTimeout(()=>btn.textContent=p,1300);});
+  });
+  const szWide=document.getElementById('szWide'),szPhone=document.getElementById('szPhone');
+  const setPhone=on=>{document.body.classList.toggle('phone',on);szPhone.setAttribute('aria-pressed',String(on));szWide.setAttribute('aria-pressed',String(!on));};
+  szWide.onclick=()=>setPhone(false);szPhone.onclick=()=>setPhone(true);
+})();
+</script>
+</body>
+</html>
