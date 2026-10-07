@@ -27,6 +27,8 @@
     --w-blue:#dee5f4;
     --w-sand:#f1e7d0;
     --ease-out-expo:cubic-bezier(.16,1,.3,1);
+    --ease-hover:cubic-bezier(.2,.7,.35,1);
+    --paper:#f6efe3;   /* About's warm ground (replaces the dusty blue) */
     --dur:.48s; /* the loose global motion value */
   }
   *{box-sizing:border-box;}
@@ -40,7 +42,7 @@
   body[data-page="journey"]{--ground:var(--wash-ochre);}
   body[data-page="architecture"]{--ground:var(--wash-sage);}
   body[data-page="skills"]{--ground:var(--wash-rose);}
-  body[data-page="about"]{--ground:var(--wash-blue);}
+  body[data-page="about"]{--ground:var(--paper);}
 
   .micro{
     text-transform:uppercase;letter-spacing:.22em;font-size:11.5px;
@@ -374,52 +376,100 @@
     .sk-box span{font-size:16px;}
   }
 
-  /* ================= ABOUT ================= */
-  .bio{display:flex;gap:clamp(24px,5vw,54px);align-items:flex-start;margin-bottom:clamp(36px,7vh,70px);flex-wrap:wrap;}
-  .portrait{
-    flex:0 0 auto;width:min(240px,40vw);aspect-ratio:4/5;background:#fff;
-    border:1px solid var(--border);border-radius:5px;
-    box-shadow:0 18px 40px -26px rgba(10,10,10,.35),0 2px 8px -4px rgba(10,10,10,.12);
-    display:flex;align-items:flex-end;justify-content:center;overflow:hidden;
+  /* ================= ABOUT — editorial hero + Skills-wash + static serpentine + photo uploader ================= */
+  /* V3 lives in its own max-width container so its cqw-based type scales to the page, not the viewport */
+  .ab-page{position:relative;max-width:1000px;margin:0 auto;
+    padding:clamp(84px,13vh,130px) clamp(26px,6vw,80px) clamp(44px,8vh,90px);
+    container-type:inline-size;}
+  .ab-page a{color:var(--deep-ochre);text-decoration:none;border-bottom:1px solid rgba(150,96,10,.32);transition:color .25s var(--ease-hover),border-color .25s var(--ease-hover);}
+  .ab-page a:hover{color:var(--warm);border-bottom-color:var(--warm);}
+
+  /* the wash — Home §5 Skills scheme (multiply .42, morphs via JS); right side, from behind the portrait down to the serpentine */
+  .ab-wash{position:absolute;z-index:0;overflow:visible;pointer-events:none;top:-1%;right:-5%;width:min(600px,56%);height:86%;}
+  .ab-wash .blob{mix-blend-mode:multiply;opacity:.42;transform-box:fill-box;transform-origin:center;}
+
+  /* hero */
+  .ab-hero{position:relative;}
+  .hero-in{position:relative;z-index:2;display:grid;
+    grid-template-columns:minmax(0,1fr) clamp(210px,29%,300px);
+    grid-template-areas:"eyebrow eyebrow" "name portrait" "lead portrait";
+    column-gap:clamp(20px,3vw,44px);align-items:start;}
+  .ab-eyebrow{grid-area:eyebrow;margin:0 0 clamp(14px,2vh,22px);}
+  .ab-name{grid-area:name;font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 96;font-weight:500;letter-spacing:-.025em;line-height:.84;font-size:clamp(40px,12cqw,120px);margin:0;}
+  .ab-name em{display:block;font-style:italic;font-weight:500;color:var(--deep-ochre);margin-left:.3em;}
+  .ab-lead{grid-area:lead;max-width:60ch;margin-top:clamp(22px,4vh,40px);}
+  .ab-lead p{margin:0 0 14px;font-size:clamp(15px,1.5vw,16.5px);}
+  .ab-drop::first-letter{font-family:"Bodoni Moda",Georgia,serif;font-weight:500;font-size:3.4em;line-height:.72;float:left;margin:.06em .1em 0 0;color:var(--deep-ochre);}
+  .ab-ph{font-size:12px;color:var(--muted-foreground);font-style:italic;}
+  .hero-photo{grid-area:portrait;align-self:start;display:flex;flex-direction:column;align-items:center;gap:clamp(14px,2vh,20px);}
+  .photo-resume{margin:0;text-align:center;font-size:14.5px;}
+
+  /* portrait (static silhouette + IG-style uploader) */
+  .portrait{width:min(290px,52vw);aspect-ratio:1;border-radius:50%;background:#fffdf8;border:1px solid rgba(10,10,10,.07);box-shadow:0 26px 60px -34px rgba(10,10,10,.42);display:flex;align-items:flex-end;justify-content:center;overflow:hidden;position:relative;}
+  .portrait .pt-sil{width:66%;height:auto;transform:translateY(8%);color:var(--foreground);}
+  .portrait.has-photo .pt-sil{display:none;}
+  .pt-edit{position:absolute;inset:auto 0 0 0;z-index:3;border:0;cursor:pointer;font:inherit;font-size:11px;letter-spacing:.04em;color:#fff;background:linear-gradient(to top,rgba(10,10,10,.6),rgba(10,10,10,0));padding:22px 0 10px;display:flex;align-items:center;justify-content:center;gap:5px;opacity:0;transition:opacity .2s var(--ease-hover);}
+  .portrait[data-upload]:hover .pt-edit,.portrait[data-upload]:focus-within .pt-edit{opacity:1;}
+  .portrait:not(.has-photo) .pt-edit{opacity:1;background:none;color:var(--deep-ochre);inset:auto 0 14% 0;padding:0;}
+  .pt-edit svg{width:13px;height:13px;}
+
+  /* IG-style crop modal (fixed overlay) */
+  .crop-scrim{position:fixed;inset:0;background:rgba(10,10,10,.42);z-index:90;opacity:0;pointer-events:none;transition:opacity .25s var(--ease-out-expo);}
+  .crop-scrim.open{opacity:1;pointer-events:auto;}
+  .crop-modal{position:fixed;z-index:91;left:50%;top:50%;transform:translate(-50%,-50%) scale(.95);opacity:0;pointer-events:none;width:min(360px,92vw);background:#fff;border-radius:14px;box-shadow:0 40px 90px -30px rgba(10,10,10,.55);padding:22px;transition:opacity .25s var(--ease-out-expo),transform .25s var(--ease-out-expo);}
+  .crop-modal.open{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1);}
+  .crop-title{margin:0 0 4px;font-size:15px;font-weight:500;color:var(--foreground);}
+  .crop-sub{margin:0 0 16px;font-size:12.5px;color:var(--muted-foreground);}
+  .crop-view{position:relative;width:260px;height:260px;max-width:100%;margin:0 auto;border-radius:50%;overflow:hidden;background:#f0ece4;background-repeat:no-repeat;cursor:grab;touch-action:none;box-shadow:inset 0 0 0 1px rgba(10,10,10,.08);}
+  .crop-view:active{cursor:grabbing;}
+  .crop-zoom{display:flex;align-items:center;gap:10px;margin:16px 2px 4px;color:var(--muted-foreground);}
+  .crop-zoom svg{width:15px;height:15px;flex:0 0 auto;}
+  .crop-zoom input{flex:1;accent-color:var(--deep-ochre);}
+  .crop-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px;}
+  .crop-actions button{font:inherit;font-size:13px;border-radius:30px;padding:8px 18px;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--muted-foreground);}
+  .crop-actions button.primary{background:var(--deep-ochre);border-color:var(--deep-ochre);color:#fff;}
+  .crop-actions button:hover{border-color:var(--warm-soft);}
+
+  /* contact */
+  .ab-email{background:none;border:0;padding:0;cursor:pointer;font:inherit;color:var(--deep-ochre);font-size:clamp(17px,2vw,22px);border-bottom:1px solid rgba(150,96,10,.34);transition:color .3s var(--ease-out-expo),border-color .3s var(--ease-out-expo);}
+  .ab-email:hover{color:var(--warm);border-bottom-color:var(--warm);}
+  .ab-email:focus-visible{outline:2px solid var(--warm);outline-offset:3px;}
+  .ab-links{margin-top:14px;display:flex;gap:22px;font-size:15px;}
+  .resume{font-size:14.5px;margin:0;}
+
+  /* Education (big "BSc." anchor) */
+  .cv2{margin-top:clamp(54px,10vh,104px);}
+  .cv2-h{font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 96;font-weight:500;letter-spacing:-.02em;font-size:clamp(30px,5.5cqw,56px);margin:0 0 clamp(16px,2.6vh,26px);line-height:.95;}
+  .cv2-item{display:grid;grid-template-columns:clamp(96px,14cqw,168px) 1fr;column-gap:clamp(18px,3vw,40px);align-items:baseline;padding:clamp(18px,3vh,30px) 0;border-top:1px solid var(--foreground);}
+  .cv2-year{font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.02em;font-size:clamp(40px,8cqw,86px);line-height:.9;color:var(--deep-ochre);}
+  .cv2-range{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;letter-spacing:.04em;color:var(--muted-foreground);}
+  .cv2-role{font-size:clamp(18px,2.4cqw,26px);font-weight:450;margin:4px 0 6px;line-height:1.12;letter-spacing:-.005em;}
+  .cv2-what{margin:0;font-size:14.5px;color:var(--muted-foreground);max-width:52ch;}
+
+  /* Work — static serpentine (rule under the title matches Education's) */
+  .work-h{margin-top:clamp(50px,9vh,96px);border-bottom:1px solid var(--foreground);padding-bottom:clamp(16px,2.6vh,26px);}
+  .work-h .cv2-h{margin:0;}
+  .trace{position:relative;width:100%;max-width:720px;margin:clamp(24px,4vh,46px) auto 0;aspect-ratio:700/660;}
+  .trace svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;}
+  .tr-path{fill:none;stroke:var(--deep-ochre);stroke-width:2.2;stroke-linecap:round;}
+  .tr-node{fill:var(--paper);stroke:var(--foreground);stroke-width:2;}
+  .tr-stop{position:absolute;width:38%;}
+  .tr-stop.left{text-align:right;}
+  .tr-range{font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.04em;color:var(--muted-foreground);}
+  .tr-role{display:block;font-size:clamp(16px,1.9vw,20px);font-weight:450;margin:3px 0;line-height:1.16;}
+  .tr-what{display:block;font-size:13.5px;color:var(--muted-foreground);}
+
+  /* centered "Say hello" */
+  .ab-outro{text-align:center;margin-top:clamp(28px,5vh,52px);padding-top:clamp(24px,4vh,36px);border-top:1px solid var(--border);}
+  .ab-outro .ab-say{font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;font-size:clamp(28px,4.5vw,48px);margin:0 0 12px;}
+  .ab-outro .ab-links{justify-content:center;}
+
+  @media (max-width:640px){
+    .hero-in{grid-template-columns:1fr;grid-template-areas:"eyebrow" "portrait" "name" "lead";justify-items:start;}
+    .hero-photo{justify-self:center;margin-bottom:18px;}
+    .cv2-item{grid-template-columns:1fr;row-gap:6px;}
+    .cv2-year{font-size:clamp(44px,20cqw,64px);}
   }
-  .portrait svg{width:78%;height:auto;}
-  .bio-text{flex:1 1 300px;}
-  .bio-text p{margin:0 0 14px;max-width:56ch;}
-  .cv-block{margin-top:clamp(30px,6vh,56px);}
-  .cv-block h2{
-    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
-    font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
-    font-size:clamp(24px,4vw,38px);margin:0 0 clamp(16px,3vh,26px);
-  }
-  .cv{position:relative;padding-left:34px;}
-  .cv-line{position:absolute;left:5px;top:6px;width:1.4px;background:var(--foreground);transform-origin:top;transform:scaleY(0);}
-  .cv-stop{position:relative;margin-bottom:clamp(22px,4vh,38px);opacity:0;}
-  .cv-stop::before{
-    content:"";position:absolute;left:-34px;top:6px;width:11px;height:11px;
-    border-radius:50%;background:var(--foreground);transform:translateX(0.5px);
-  }
-  .cv-stop .range{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted-foreground);font-weight:500;}
-  .cv-stop .role{font-size:clamp(17px,2.4vw,21px);font-weight:450;margin:2px 0 2px;}
-  .cv-stop .what{margin:0;font-size:14px;color:var(--muted-foreground);max-width:56ch;}
-  .resume{margin:clamp(10px,2vh,18px) 0 0;font-size:15px;}
-  .contact-block{
-    margin-top:clamp(40px,8vh,80px);padding-top:clamp(24px,4vh,36px);
-    border-top:1px solid var(--border);
-  }
-  .contact-block .say{
-    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
-    font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
-    font-size:clamp(22px,3.4vw,30px);margin:0 0 14px;
-  }
-  .copy-email{
-    background:none;border:0;padding:0;cursor:pointer;font:inherit;
-    color:var(--deep-ochre);font-size:clamp(18px,2.6vw,24px);
-    border-bottom:1px solid rgba(150,96,10,.32);transition:color .3s var(--ease-out-expo),border-color .3s var(--ease-out-expo);
-  }
-  .copy-email:hover{color:var(--warm);border-bottom-color:var(--warm);}
-  .copy-email:focus-visible{outline:2px solid var(--warm);outline-offset:3px;}
-  .copied{margin-left:10px;font-size:12px;color:var(--deep-ochre);opacity:0;transition:opacity .4s var(--ease-out-expo);}
-  .contact-links{margin-top:14px;display:flex;gap:22px;font-size:15px;}
 
   /* ================= paper card (Journey entry / Architecture stop) ================= */
   .card-scrim{
@@ -770,61 +820,100 @@
     </div>
   </section>
 
-  <!-- ================= ABOUT ================= -->
+  <!-- ================= ABOUT (editorial hero · Skills-wash · static serpentine · photo uploader) ================= -->
   <section class="page" data-page="about" data-arrival="line">
-    <div class="wrap">
-      <div class="page-head reveal">
-        <h1 class="page-title display">About</h1>
-        <p class="page-lead">The person behind the machine</p>
+    <div class="ab-page">
+
+      <!-- Skills §5 wash: hero cluster (3) + a vertical chain (4 → 3 overlaps) trailing down to the serpentine -->
+      <svg class="ab-wash" viewBox="0 0 560 1340" preserveAspectRatio="xMidYMin meet" aria-hidden="true">
+        <g class="b-g"><path class="blob" fill="var(--w-sand)"  transform="translate(70,50) scale(1.55) rotate(-8 100 100)"  d="M92 6 C146 0 178 34 186 80 C194 128 164 178 112 190 C66 200 20 174 10 128 C0 82 22 38 66 16 C74 12 84 8 92 6 Z"/></g>
+        <g class="b-g"><path class="blob" fill="var(--w-ochre)" transform="translate(240,120) scale(1.7) rotate(14 100 100)" d="M104 10 C158 2 196 46 188 96 C182 138 200 160 172 180 C140 202 88 196 56 178 C22 158 2 122 10 84 C18 44 58 18 104 10 Z"/></g>
+        <g class="b-g"><path class="blob" fill="var(--w-rose)"  transform="translate(300,300) scale(1.5) rotate(-12 100 100)" d="M104 10 C158 2 196 46 188 96 C182 138 200 160 172 180 C140 202 88 196 56 178 C22 158 2 122 10 84 C18 44 58 18 104 10 Z"/></g>
+        <g class="b-g"><path class="blob" fill="var(--w-sage)"  transform="translate(300,620) scale(1.55) rotate(10 100 100)" d="M92 6 C146 0 178 34 186 80 C194 128 164 178 112 190 C66 200 20 174 10 128 C0 82 22 38 66 16 C74 12 84 8 92 6 Z"/></g>
+        <g class="b-g"><path class="blob" fill="var(--w-ochre)" transform="translate(300,790) scale(1.55) rotate(-18 100 100)" d="M104 10 C158 2 196 46 188 96 C182 138 200 160 172 180 C140 202 88 196 56 178 C22 158 2 122 10 84 C18 44 58 18 104 10 Z"/></g>
+        <g class="b-g"><path class="blob" fill="var(--w-rose)"  transform="translate(300,960) scale(1.55) rotate(14 100 100)" d="M92 6 C146 0 178 34 186 80 C194 128 164 178 112 190 C66 200 20 174 10 128 C0 82 22 38 66 16 C74 12 84 8 92 6 Z"/></g>
+        <g class="b-g"><path class="blob" fill="var(--w-sand)"  transform="translate(300,1130) scale(1.6) rotate(-10 100 100)" d="M104 10 C158 2 196 46 188 96 C182 138 200 160 172 180 C140 202 88 196 56 178 C22 158 2 122 10 84 C18 44 58 18 104 10 Z"/></g>
+      </svg>
+
+      <!-- hero -->
+      <section class="ab-hero">
+        <div class="hero-in">
+          <p class="ab-eyebrow micro reveal">About — the person behind the machine</p>
+          <h1 class="ab-name reveal" data-dir="left">Monish<em>Kamwal</em></h1>
+          <div class="hero-photo">
+            <div class="portrait reveal" data-upload data-dir="right">
+              <svg class="pt-sil" viewBox="0 0 100 125" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="50" cy="42" r="22"/><path d="M12 125 C 14 92, 34 76, 50 76 C 66 76, 86 92, 88 125" stroke-linecap="round"/></svg>
+              <button class="pt-edit" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.4"/></svg><span>Add photo</span></button>
+              <input type="file" accept="image/*" class="pt-file" hidden>
+            </div>
+            <p class="resume photo-resume reveal"><a href="#" onclick="return false">Download résumé (PDF)</a></p>
+          </div>
+          <div class="ab-lead reveal" data-stagger="1">
+            <p class="ab-drop">I&rsquo;m Monish Kamwal. I build machine-learning systems end to end — and this site is one of them, the live front of a platform I&rsquo;m growing from scratch.</p>
+            <p>My interest isn&rsquo;t the model in isolation but everything around it: how data gets versioned, how a bad model gets stopped before it ships, how infrastructure can appear for a load test and vanish by morning.</p>
+            <p class="ab-ph">Bio is placeholder — Monish writes the final copy at implementation.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Education (big degree anchor) -->
+      <div class="cv2">
+        <section class="cv2-sec">
+          <h2 class="cv2-h reveal">Education</h2>
+          <article class="cv2-item reveal">
+            <div class="cv2-year">BSc.</div>
+            <div class="cv2-body">
+              <div class="cv2-range">2017 — 2021</div>
+              <h3 class="cv2-role">Computer Science · Placeholder University</h3>
+              <p class="cv2-what">Computer science foundations. (Content from Monish at implementation.)</p>
+            </div>
+          </article>
+        </section>
       </div>
 
-      <div class="bio reveal">
-        <div class="portrait" aria-label="Portrait placeholder">
-          <svg viewBox="0 0 100 125" fill="none" stroke="#0a0a0a" stroke-width="1.4">
-            <circle cx="50" cy="42" r="22"/>
-            <path d="M12 125 C 14 92, 34 76, 50 76 C 66 76, 86 92, 88 125" stroke-linecap="round"/>
+      <!-- Work (static serpentine) -->
+      <div class="work-group">
+        <div class="work-h"><h2 class="cv2-h reveal">Work</h2></div>
+        <div class="trace reveal" id="abTrace">
+          <svg viewBox="0 0 700 660" preserveAspectRatio="xMidYMid meet">
+            <path class="tr-path" d="M500 70 C500 200 205 200 205 330 C205 455 500 455 500 580"/>
+            <circle class="tr-node" cx="500" cy="70" r="8"/>
+            <circle class="tr-node" cx="205" cy="330" r="8"/>
+            <circle class="tr-node" cx="500" cy="580" r="8"/>
           </svg>
-        </div>
-        <div class="bio-text">
-          <p>I&rsquo;m Monish Kamwal. I build machine-learning systems end to end — and this site is one of them, the live front of a platform I&rsquo;m growing from scratch.</p>
-          <p>My interest isn&rsquo;t the model in isolation but everything around it: how data gets versioned, how a bad model gets stopped before it ships, how infrastructure can appear for a load test and vanish by morning. <span class="micro" style="letter-spacing:.1em">(bio is placeholder — Monish writes this at implementation)</span></p>
-        </div>
-      </div>
-
-      <div class="cv-block">
-        <h2 class="reveal">Work</h2>
-        <div class="cv" id="cvWork">
-          <div class="cv-line" data-line></div>
-          <div class="cv-stop"><div class="range">2024 — present</div><div class="role">ML / Platform Engineer · Self-directed</div><p class="what">Designing and building the MLOps platform this site fronts.</p></div>
-          <div class="cv-stop"><div class="range">2022 — 2024</div><div class="role">Software Engineer · Placeholder Co.</div><p class="what">Backend services and data pipelines. (Content from Monish at implementation.)</p></div>
-          <div class="cv-stop"><div class="range">2021 — 2022</div><div class="role">Engineering Intern · Placeholder Co.</div><p class="what">First professional exposure to production systems.</p></div>
+          <div class="tr-stop left" style="left:2%;top:1%"><span class="tr-range">2024 — present</span><span class="tr-role">ML / Platform Engineer · Self-directed</span><span class="tr-what">Designing and building the MLOps platform this site fronts.</span></div>
+          <div class="tr-stop right" style="left:44%;top:34%"><span class="tr-range">2022 — 2024</span><span class="tr-role">Software Engineer · Placeholder Co.</span><span class="tr-what">Backend services and data pipelines.</span></div>
+          <div class="tr-stop left" style="left:2%;top:67%"><span class="tr-range">2021 — 2022</span><span class="tr-role">Engineering Intern · Placeholder Co.</span><span class="tr-what">First professional exposure to production systems.</span></div>
         </div>
       </div>
 
-      <div class="cv-block">
-        <h2 class="reveal">Education</h2>
-        <div class="cv" id="cvEdu">
-          <div class="cv-line" data-line></div>
-          <div class="cv-stop"><div class="range">2017 — 2021</div><div class="role">B.Tech · Placeholder University</div><p class="what">Computer science foundations. (Content from Monish at implementation.)</p></div>
+      <!-- Say hello -->
+      <div class="ab-outro reveal">
+        <p class="ab-say">Say hello.</p>
+        <button class="ab-email" id="aboutMail" type="button">kallukalia01@outlook.com</button>
+        <div class="ab-links">
+          <a href="#" onclick="return false">GitHub</a>
+          <a href="#" onclick="return false">LinkedIn</a>
         </div>
-        <p class="resume reveal"><a class="link" href="#" onclick="return false">Download résumé (PDF)</a></p>
       </div>
 
-      <div class="contact-block reveal">
-        <p class="say display">Say hello.</p>
-        <div>
-          <button class="copy-email" id="aboutMail">kallukalia01@outlook.com</button>
-          <span class="copied" id="aboutCopied">Copied</span>
-        </div>
-        <div class="contact-links">
-          <a class="link" href="#" onclick="return false">GitHub</a>
-          <a class="link" href="#" onclick="return false">LinkedIn</a>
-        </div>
-      </div>
     </div>
   </section>
 
 </main>
+
+<!-- ================= About photo cropper (shared overlay) ================= -->
+<div class="crop-scrim" id="cropScrim"></div>
+<div class="crop-modal" id="cropModal" role="dialog" aria-modal="true" aria-label="Position your photo">
+  <p class="crop-title">Position &amp; size</p>
+  <p class="crop-sub">Drag to move · slider to zoom</p>
+  <div class="crop-view" id="cropView"></div>
+  <div class="crop-zoom">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M11 8v6M8 11h6M20 20l-3.5-3.5"/></svg>
+    <input type="range" id="cropZoom" min="1" max="3" step="0.01" value="1">
+  </div>
+  <div class="crop-actions"><button id="cropCancel">Cancel</button><button id="cropSet" class="primary">Set photo</button></div>
+</div>
 
 <!-- ================= paper card overlay (shared) ================= -->
 <div class="card-scrim" id="cardScrim"></div>
@@ -1420,7 +1509,7 @@
       setReveal(el,reduce?1:easeOut(revealProgress(el)),dir);
     }
     if(activeName==='journey') applyJourney();
-    if(activeName==='about'){ applyCV('cvWork'); applyCV('cvEdu'); }
+    if(activeName==='about') morphAbout();
     if(activeName==='skills') applySkills();
     if(activeName==='architecture') applyArch();
   }
@@ -1434,6 +1523,87 @@
     edgeBot.style.opacity=String(max<=0?0:clamp((max-y)/140,0,1));
   }
   function frame(){ applyReveals(); applyEdges(); requestAnimationFrame(frame); }
+
+  // ================= ABOUT: Skills-§5 wash morph (outline ripple + size breath) =================
+  // the .ab-wash blobs undulate & breathe (same S7 scheme as Home §5); built lazily once the
+  // About page is laid out (getTotalLength needs the blobs rendered), driven from applyReveals
+  function closedSpline(p){const n=p.length;let d='M'+p[0][0].toFixed(2)+' '+p[0][1].toFixed(2);for(let i=0;i<n;i++){const a=p[(i-1+n)%n],b=p[i],c=p[(i+1)%n],e=p[(i+2)%n];const c1x=b[0]+(c[0]-a[0])/6,c1y=b[1]+(c[1]-a[1])/6,c2x=c[0]-(e[0]-b[0])/6,c2y=c[1]-(e[1]-b[1])/6;d+=' C'+c1x.toFixed(2)+' '+c1y.toFixed(2)+' '+c2x.toFixed(2)+' '+c2y.toFixed(2)+' '+c[0].toFixed(2)+' '+c[1].toFixed(2);}return d+'Z';}
+  let abSkItems=null;
+  function buildAboutSk(){
+    const blobs=[...document.querySelectorAll('.ab-wash .blob')];
+    if(!blobs.length) return;
+    let len0=0; try{len0=blobs[0].getTotalLength();}catch(e){}
+    if(!len0) return;                       // not laid out yet — retry next frame
+    abSkItems=blobs.map((el,i)=>{
+      const N=56;let len=0;try{len=el.getTotalLength();}catch(e){}
+      const pts=[];for(let k=0;k<N;k++){const q=el.getPointAtLength(len*k/N);pts.push([q.x,q.y]);}
+      const cx=pts.reduce((s,p)=>s+p[0],0)/N,cy=pts.reduce((s,p)=>s+p[1],0)/N;
+      const polar=pts.map(p=>({ang:Math.atan2(p[1]-cy,p[0]-cx),r:Math.hypot(p[0]-cx,p[1]-cy)}));
+      return {el,polar,cx,cy,ph:i*1.3,amp:0.055+0.015*(i%3),bAmp:0.08+0.02*(i%2),bSpd:0.00072+0.00006*i,bPh:i*1.7};
+    });
+  }
+  function morphAbout(){
+    if(reduce) return;
+    if(!abSkItems){ buildAboutSk(); if(!abSkItems) return; }
+    const t=performance.now();
+    abSkItems.forEach(it=>{
+      const breath=1+it.bAmp*Math.sin(t*it.bSpd+it.bPh);
+      const pts=it.polar.map(pp=>{const wob=1+it.amp*(0.7*Math.sin(t*0.0012+it.ph+pp.ang*3)+0.3*Math.sin(t*0.0018-it.ph+pp.ang*2));const r=pp.r*wob*breath;return [it.cx+Math.cos(pp.ang)*r,it.cy+Math.sin(pp.ang)*r];});
+      it.el.setAttribute('d',closedSpline(pts));
+    });
+  }
+
+  // ---- IG-style photo uploader + cropper (crop stored as background-size + position %, so it's
+  //      resolution-independent — the modal circle and the portrait circle reproduce the same framing) ----
+  (function(){
+    const cScrim=document.getElementById('cropScrim'), cModal=document.getElementById('cropModal');
+    const cView=document.getElementById('cropView'), cZoom=document.getElementById('cropZoom');
+    if(!cScrim||!cModal||!cView||!cZoom) return;
+    let s={src:null,posX:50,posY:50,zoom:1,a:1};
+    function applyCropTo(el){
+      if(!s.src) return;
+      el.style.backgroundImage='url("'+s.src+'")';
+      el.style.backgroundRepeat='no-repeat';
+      el.style.backgroundSize = s.a>=1 ? 'auto '+(100*s.zoom).toFixed(1)+'%' : (100*s.zoom).toFixed(1)+'% auto';
+      el.style.backgroundPosition=s.posX.toFixed(1)+'% '+s.posY.toFixed(1)+'%';
+    }
+    const clampPos=()=>{ s.posX=Math.max(0,Math.min(100,s.posX)); s.posY=Math.max(0,Math.min(100,s.posY)); };
+    function openCropper(dataURL){
+      const im=new Image();
+      im.onload=()=>{ s={src:dataURL,posX:50,posY:50,zoom:1,a:(im.naturalWidth||1)/(im.naturalHeight||1)}; cZoom.value='1'; applyCropTo(cView); cScrim.classList.add('open'); cModal.classList.add('open'); };
+      im.src=dataURL;
+    }
+    function closeCropper(){ cScrim.classList.remove('open'); cModal.classList.remove('open'); }
+    cZoom.addEventListener('input',()=>{ s.zoom=parseFloat(cZoom.value); clampPos(); applyCropTo(cView); });
+    let drag=null;
+    cView.addEventListener('pointerdown',e=>{ drag={x:e.clientX,y:e.clientY}; cView.setPointerCapture(e.pointerId); });
+    cView.addEventListener('pointermove',e=>{
+      if(!drag) return;
+      const S=cView.getBoundingClientRect().width;
+      const Rw = s.a>=1 ? s.zoom*s.a*S : s.zoom*S;    // rendered image size inside the circle
+      const Rh = s.a>=1 ? s.zoom*S : s.zoom*S/s.a;
+      const ovX=Rw-S, ovY=Rh-S;                       // overflow on each axis (what we can pan)
+      if(ovX>0.5) s.posX -= (e.clientX-drag.x)/ovX*100;
+      if(ovY>0.5) s.posY -= (e.clientY-drag.y)/ovY*100;
+      clampPos(); drag={x:e.clientX,y:e.clientY}; applyCropTo(cView);
+    });
+    ['pointerup','pointercancel','pointerleave'].forEach(ev=>cView.addEventListener(ev,()=>drag=null));
+    document.getElementById('cropCancel').addEventListener('click',closeCropper);
+    cScrim.addEventListener('click',closeCropper);
+    document.getElementById('cropSet').addEventListener('click',()=>{ try{localStorage.setItem('aboutPhoto',JSON.stringify(s));}catch(e){} applyPhotoToAll(); closeCropper(); });
+    function applyPhotoToAll(){
+      document.querySelectorAll('.portrait[data-upload]').forEach(p=>{
+        if(s.src){ applyCropTo(p); p.classList.add('has-photo'); const sp=p.querySelector('.pt-edit span'); if(sp) sp.textContent='Change photo'; }
+      });
+    }
+    document.querySelectorAll('.portrait[data-upload]').forEach(p=>{
+      const file=p.querySelector('.pt-file'), edit=p.querySelector('.pt-edit');
+      if(!file||!edit) return;
+      edit.addEventListener('click',e=>{ e.stopPropagation(); file.click(); });
+      file.addEventListener('change',()=>{ const f=file.files&&file.files[0]; if(!f) return; const rd=new FileReader(); rd.onload=()=>openCropper(rd.result); rd.readAsDataURL(f); file.value=''; });
+    });
+    try{ const saved=localStorage.getItem('aboutPhoto'); if(saved){ const sv=JSON.parse(saved); if(sv&&sv.src){ s=Object.assign({posX:50,posY:50,zoom:1,a:1},sv); applyPhotoToAll(); } } }catch(e){}
+  })();
 
   // ---- page switching + the "line carries you" arrival ----
   let arrivalTimer=null;
@@ -1620,13 +1790,16 @@
     b.addEventListener('click',()=>{ setMenu(false); switchPage(b.dataset.goto); });
   });
 
-  // ---- click-to-copy email (About) ----
-  const aboutCopied=document.getElementById('aboutCopied');
-  document.getElementById('aboutMail').addEventListener('click',async()=>{
-    try{ await navigator.clipboard.writeText('kallukalia01@outlook.com'); }catch(e){}
-    aboutCopied.style.opacity='1';
-    setTimeout(()=>{ aboutCopied.style.opacity='0'; },1600);
-  });
+  // ---- click-to-copy email (About) — swaps its own label to "Copied ✓" ----
+  (function(){
+    const b=document.getElementById('aboutMail');
+    b.addEventListener('click',async()=>{
+      const p=b.textContent;
+      try{ await navigator.clipboard.writeText(p); }catch(e){}
+      b.textContent='Copied ✓';
+      setTimeout(()=>{ b.textContent=p; },1400);
+    });
+  })();
 
   // ---- deep-link on load: #page or #page/cardId ----
   function bootFromHash(){

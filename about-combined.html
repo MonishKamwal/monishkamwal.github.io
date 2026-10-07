@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>About — combined · V1–V4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..700&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --foreground:#0a0a0a;--muted-foreground:#6b6b6b;--border:#e8e8e8;--hair:#e8e8e8;
+    --warm:#c98a3a;--warm-soft:#e8b87e;--deep-ochre:#96600a;
+    --w-ochre:#f4e0c8;--w-sand:#f1e9d7;--w-rose:#f7d9df;--w-clay:#f0ddc8;
+    /* Skills-section wash palette (transition-prototype §5), used by V3 */
+    --sk-rose:#fbd3dc;--sk-ochre:#f8dfc4;--sk-sage:#d8ecde;--sk-blue:#dee5f4;--sk-sand:#f1e7d0;
+    --paper:#f6efe3;
+    --ease-out-expo:cubic-bezier(.16,1,.3,1);--ease-hover:cubic-bezier(.2,.7,.35,1);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:#ece6db;color:var(--foreground);font-family:"Outfit",system-ui,-apple-system,"Segoe UI",sans-serif;font-weight:330;line-height:1.6;-webkit-font-smoothing:antialiased;}
+  .display{font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 96;font-weight:500;line-height:.92;letter-spacing:-.02em;}
+  .micro{text-transform:uppercase;letter-spacing:.22em;font-size:11.5px;font-weight:500;color:var(--muted-foreground);}
+  .wrap{max-width:1180px;margin:0 auto;padding:clamp(40px,7vh,80px) clamp(16px,5vw,44px) clamp(60px,10vh,120px);}
+  .sheet-head{margin-bottom:clamp(24px,4vh,40px);}
+  .sheet-head h1{font-size:clamp(30px,5vw,50px);text-transform:uppercase;margin:10px 0 0;}
+  .sheet-head p{margin:14px 0 0;max-width:74ch;font-size:15px;color:var(--muted-foreground);}
+  .sheet-head b{color:var(--foreground);font-weight:500;}
+  .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:20px;}
+  .btn{font:inherit;font-size:12.5px;color:var(--muted-foreground);background:#fff;border:1px solid var(--hair);border-radius:30px;padding:7px 15px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:color .2s,border-color .2s;}
+  .btn:hover{color:var(--warm);border-color:var(--warm-soft);}
+  .btn[aria-pressed="true"]{color:#fff;background:var(--foreground);border-color:var(--foreground);}
+  .btn svg{width:13px;height:13px;}
+  code{font-family:ui-monospace,Menlo,monospace;font-size:.9em;}
+  .verlabel{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:clamp(40px,7vh,72px) 0 16px;padding-top:clamp(28px,5vh,52px);border-top:1px solid var(--foreground);}
+  .verlabel .k{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--deep-ochre);letter-spacing:.1em;}
+  .verlabel h2{font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;font-size:clamp(22px,3.5vw,34px);margin:0;}
+  .verlabel .note{font-size:14px;color:var(--muted-foreground);margin:0;}
+
+  /* ---------- page frame ---------- */
+  .pf{position:relative;border:1px solid var(--foreground);border-radius:4px;overflow:hidden;background:var(--paper);container-type:inline-size;}
+  body.phone .pf{max-width:390px;margin:0 auto;}
+  .page{position:relative;max-width:1000px;margin:0 auto;padding:clamp(48px,6vw,92px) clamp(30px,6vw,80px) clamp(44px,6vw,76px);}
+
+  /* ============================ SHARED HERO ============================ */
+  .hero{position:relative;}
+  .wash{position:absolute;z-index:1;overflow:visible;pointer-events:none;}
+  .wash .blob,.wash-flow .blob{mix-blend-mode:multiply;transform-box:fill-box;transform-origin:center;}
+  .wash-flow{position:absolute;z-index:0;overflow:visible;pointer-events:none;}   /* V4: sits behind the whole page */
+  /* V3 wash: Skills-section scheme — multiply washes at .42 that morph (JS), on the right, trailing down to the serpentine */
+  .wash-sk{position:absolute;z-index:0;overflow:visible;pointer-events:none;}
+  .wash-sk .blob{mix-blend-mode:multiply;opacity:.42;transform-box:fill-box;transform-origin:center;}
+  .hero-in{position:relative;z-index:2;display:grid;grid-template-columns:minmax(0,1fr) clamp(210px,29%,300px);grid-template-areas:"eyebrow eyebrow" "name portrait" "lead portrait";column-gap:clamp(20px,3vw,44px);align-items:start;}
+  .eyebrow{grid-area:eyebrow;margin:0 0 clamp(14px,2vh,22px);}
+  .name{grid-area:name;font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 96;font-weight:500;letter-spacing:-.025em;line-height:.84;font-size:clamp(40px,12cqw,120px);margin:0;}
+  .name em{display:block;font-style:italic;font-weight:500;color:var(--deep-ochre);margin-left:.3em;}
+  .lead{grid-area:lead;max-width:60ch;margin-top:clamp(22px,4vh,40px);}
+  .lead p{margin:0 0 14px;font-size:clamp(15px,1.5vw,16.5px);}
+  .drop::first-letter{font-family:"Bodoni Moda",Georgia,serif;font-weight:500;font-size:3.4em;line-height:.72;float:left;margin:.06em .1em 0 0;color:var(--deep-ochre);}
+  .ph{font-size:12px;color:var(--muted-foreground);font-style:italic;}
+  body.phone .hero-in{grid-template-columns:1fr;grid-template-areas:"eyebrow" "portrait" "name" "lead";justify-items:start;}
+  body.phone .portrait{justify-self:center;margin-bottom:18px;}
+  /* portrait + (optional) résumé beneath it, in the portrait column, top-aligned with the name */
+  .hero-photo{grid-area:portrait;align-self:start;display:flex;flex-direction:column;align-items:center;gap:clamp(14px,2vh,20px);}
+  .hero-photo .portrait{align-self:center;}
+  .photo-resume{margin:0;text-align:center;font-size:14.5px;}
+  body.phone .hero-photo{justify-self:center;margin-bottom:18px;}
+
+  /* ---------- portrait (static + uploadable) ---------- */
+  .portrait{grid-area:portrait;align-self:start;justify-self:center;width:min(290px,52vw);aspect-ratio:1;border-radius:50%;background:#fffdf8;border:1px solid rgba(10,10,10,.07);box-shadow:0 26px 60px -34px rgba(10,10,10,.42);display:flex;align-items:flex-end;justify-content:center;overflow:hidden;position:relative;}
+  .portrait .pt-sil{width:66%;height:auto;transform:translateY(8%);color:var(--foreground);}
+  .portrait.has-photo .pt-sil{display:none;}
+  .pt-edit{position:absolute;inset:auto 0 0 0;z-index:3;border:0;cursor:pointer;font:inherit;font-size:11px;letter-spacing:.04em;
+    color:#fff;background:linear-gradient(to top,rgba(10,10,10,.6),rgba(10,10,10,0));padding:22px 0 10px;display:flex;align-items:center;justify-content:center;gap:5px;
+    opacity:0;transition:opacity .2s var(--ease-hover);}
+  .portrait[data-upload]:hover .pt-edit,.portrait[data-upload]:focus-within .pt-edit{opacity:1;}
+  .portrait:not(.has-photo) .pt-edit{opacity:1;background:none;color:var(--deep-ochre);inset:auto 0 14% 0;padding:0;}
+  .pt-edit svg{width:13px;height:13px;}
+
+  /* ---------- IG-style crop modal ---------- */
+  .crop-scrim{position:fixed;inset:0;background:rgba(10,10,10,.42);z-index:90;opacity:0;pointer-events:none;transition:opacity .25s var(--ease-out-expo);}
+  .crop-scrim.open{opacity:1;pointer-events:auto;}
+  .crop-modal{position:fixed;z-index:91;left:50%;top:50%;transform:translate(-50%,-50%) scale(.95);opacity:0;pointer-events:none;
+    width:min(360px,92vw);background:#fff;border-radius:14px;box-shadow:0 40px 90px -30px rgba(10,10,10,.55);padding:22px;transition:opacity .25s var(--ease-out-expo),transform .25s var(--ease-out-expo);}
+  .crop-modal.open{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1);}
+  .crop-title{margin:0 0 4px;font-size:15px;font-weight:500;color:var(--foreground);}
+  .crop-sub{margin:0 0 16px;font-size:12.5px;color:var(--muted-foreground);}
+  .crop-view{position:relative;width:260px;height:260px;max-width:100%;margin:0 auto;border-radius:50%;overflow:hidden;background:#f0ece4;cursor:grab;touch-action:none;box-shadow:inset 0 0 0 1px rgba(10,10,10,.08);}
+  .crop-view:active{cursor:grabbing;}
+  .crop-view{background-repeat:no-repeat;}
+  .crop-zoom{display:flex;align-items:center;gap:10px;margin:16px 2px 4px;color:var(--muted-foreground);}
+  .crop-zoom svg{width:15px;height:15px;flex:0 0 auto;}
+  .crop-zoom input{flex:1;accent-color:var(--deep-ochre);}
+  .crop-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px;}
+  .crop-actions button{font:inherit;font-size:13px;border-radius:30px;padding:8px 18px;cursor:pointer;border:1px solid var(--hair);background:#fff;color:var(--muted-foreground);}
+  .crop-actions button.primary{background:var(--deep-ochre);border-color:var(--deep-ochre);color:#fff;}
+  .crop-actions button:hover{border-color:var(--warm-soft);}
+
+  .email{background:none;border:0;padding:0;cursor:pointer;font:inherit;color:var(--deep-ochre);font-size:clamp(17px,2vw,22px);border-bottom:1px solid rgba(150,96,10,.34);transition:color .3s var(--ease-out-expo),border-color .3s var(--ease-out-expo);}
+  .email:hover{color:var(--warm);border-bottom-color:var(--warm);}
+  .links{margin-top:14px;display:flex;gap:22px;font-size:15px;}
+  .page a,.resume a{color:var(--deep-ochre);text-decoration:none;border-bottom:1px solid rgba(150,96,10,.32);transition:color .25s var(--ease-hover),border-color .25s var(--ease-hover);}
+  .page a:hover{color:var(--warm);border-bottom-color:var(--warm);}
+  .resume{font-size:14.5px;}
+
+  /* ============================ serpentine (V1 draw-in · V3/V4 static) ============================ */
+  .v1 .wash{top:clamp(-30px,-3vw,-10px);right:clamp(-40px,-5vw,-20px);width:min(560px,56%);aspect-ratio:1/.92;}
+  .trace-h,.work-h{margin-top:clamp(50px,9vh,96px);}
+  .trace-h h2,.work-h .cv2-h{margin:0;}
+  /* V3: rule under the Work title to match the one under Education */
+  .v3full .work-h{border-bottom:1px solid var(--foreground);padding-bottom:clamp(16px,2.6vh,26px);}
+  .trace-h p{margin:6px 0 0;font-size:15px;color:var(--muted-foreground);}
+  .trace-h h2{font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;font-size:clamp(26px,4vw,42px);}
+  .trace{position:relative;width:100%;max-width:720px;margin:clamp(24px,4vh,46px) auto 0;}
+  .trace.draw{aspect-ratio:700/900;} .trace.static{aspect-ratio:700/660;}
+  .trace svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;}
+  .tr-path{fill:none;stroke:var(--deep-ochre);stroke-width:2.2;stroke-linecap:round;}
+  .tr-node{fill:var(--paper);stroke:var(--foreground);stroke-width:2;transform-box:fill-box;transform-origin:center;}
+  .tr-node.cap{fill:var(--deep-ochre);stroke:var(--deep-ochre);}
+  .tr-stop{position:absolute;width:38%;}
+  .tr-stop.left{text-align:right;}
+  .tr-kind{display:inline-block;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--deep-ochre);font-weight:600;margin-bottom:4px;}
+  .tr-range{font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.04em;color:var(--muted-foreground);}
+  .tr-role{display:block;font-size:clamp(16px,1.9vw,20px);font-weight:450;margin:3px 0;line-height:1.16;}
+  .tr-what{display:block;font-size:13.5px;color:var(--muted-foreground);}
+  .outro{text-align:center;margin-top:clamp(14px,2.5vh,28px);}
+  .outro .say{font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;font-size:clamp(28px,4.5vw,48px);margin:0 0 12px;}
+  .outro .links{justify-content:center;} .outro .resume{margin-top:14px;text-align:center;}
+
+  /* ============================ cv2 (V2 + V3/V4 Education) ============================ */
+  .cv2{margin-top:clamp(54px,10vh,104px);}
+  .cv2-sec + .cv2-sec{margin-top:clamp(40px,7vh,72px);}
+  .cv2-h{font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 96;font-weight:500;letter-spacing:-.02em;font-size:clamp(30px,5.5cqw,56px);margin:0 0 clamp(16px,2.6vh,26px);line-height:.95;}
+  .cv2-item{display:grid;grid-template-columns:clamp(96px,14cqw,168px) 1fr;column-gap:clamp(18px,3vw,40px);align-items:baseline;padding:clamp(18px,3vh,30px) 0;border-top:1px solid rgba(10,10,10,.14);}
+  .cv2-item:first-of-type{border-top:1px solid var(--foreground);}
+  .cv2-year{font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.02em;font-size:clamp(40px,8cqw,86px);line-height:.9;color:var(--deep-ochre);}
+  .cv2-range{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;letter-spacing:.04em;color:var(--muted-foreground);}
+  .cv2-role{font-size:clamp(18px,2.4cqw,26px);font-weight:450;margin:4px 0 6px;line-height:1.12;letter-spacing:-.005em;}
+  .cv2-what{margin:0;font-size:14.5px;color:var(--muted-foreground);max-width:52ch;}
+  .cv2 .resume{margin-top:clamp(16px,2.6vh,24px);}
+  .outro2{margin-top:clamp(48px,8vh,88px);padding-top:clamp(24px,4vh,36px);border-top:1px solid var(--foreground);display:flex;flex-wrap:wrap;align-items:baseline;gap:10px clamp(20px,4vw,44px);}
+  .outro2 .say{font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 96;font-weight:500;letter-spacing:-.02em;font-size:clamp(40px,8cqw,92px);margin:0;line-height:.9;}
+  .outro2 .c-right{display:flex;flex-direction:column;gap:6px;}
+  body.phone .cv2-item{grid-template-columns:1fr;row-gap:6px;}
+  body.phone .cv2-year{font-size:clamp(44px,20cqw,64px);}
+
+  /* V2 right-cluster wash */
+  .v2 .wash{top:clamp(-40px,-4vw,-16px);right:clamp(-46px,-5vw,-24px);width:min(640px,60%);aspect-ratio:1/1.18;}
+  /* V3 wash lives at page level on the right, from behind the portrait down to the serpentine */
+  .v3full .wash-sk{top:-2%;right:-5%;width:min(600px,56%);height:86%;}
+  /* V4 flow wash lives at page level on the right, trailing down behind Education */
+
+  /* ============================ MOTION ============================ */
+  .reveal{opacity:0;transform:translateY(16px);transition:opacity .7s var(--ease-out-expo),transform .7s var(--ease-out-expo);}
+  .hero.in .reveal{opacity:1;transform:none;}
+  .portrait.reveal{transform:translateY(16px) scale(.94);}
+  .hero.in .portrait.reveal{transform:none;}
+  .trace.draw .tr-node{opacity:0;transform:scale(0);transition:opacity .4s var(--ease-out-expo),transform .5s var(--ease-out-expo);}
+  .trace.draw .tr-stop{opacity:0;transform:translateY(12px);transition:opacity .55s var(--ease-out-expo),transform .6s var(--ease-out-expo);}
+  .trace.draw.go .tr-node.on,.trace.draw.go .tr-stop.on{opacity:1;transform:none;}
+  .outro{opacity:0;transform:translateY(12px);transition:opacity .6s var(--ease-out-expo),transform .6s var(--ease-out-expo);}
+  .outro.on{opacity:1;transform:none;}
+  .r2{opacity:0;transform:translateY(20px);transition:opacity .7s var(--ease-out-expo),transform .7s var(--ease-out-expo);}
+  .r2.on{opacity:1;transform:none;}
+  @media (prefers-reduced-motion:reduce){
+    .reveal,.tr-node,.tr-stop,.outro,.r2{opacity:1!important;transform:none!important;transition:none!important;}
+    .wash,.wash-flow{display:none;}
+  }
+  .foot{margin-top:40px;font-size:13.5px;color:var(--muted-foreground);max-width:74ch;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="sheet-head">
+    <span class="micro">About · combined — V3 &amp; V4 (new), V2 &amp; V1 kept below</span>
+    <h1 class="display">Two washes, a photo uploader, split CV</h1>
+    <p>Both new versions share the ask: an <b>IG-style photo uploader</b> in the portrait (click it, crop, done — persists in your browser), <b>Education before Work</b> with a big <b>“BSc.” anchor</b>, the <b>Work serpentine</b> after it, then Say hello. They differ in the wash: <b>V3</b> keeps it off the text — around the portrait and trailing down the right to the Work serpentine — in the <b>Skills section’s colours + morph</b> (multiply washes at .42 that undulate &amp; breathe); <b>V4</b> lets a softer drifting wash flow down behind Education. The serpentine is static (no draw-in).</p>
+    <div class="controls">
+      <button class="btn" id="szWide" aria-pressed="true">Desktop</button>
+      <button class="btn" id="szPhone" aria-pressed="false">Phone</button>
+      <button class="btn" id="replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v4h4"/></svg> Replay motion</button>
+    </div>
+  </header>
+
+  <div class="verlabel"><span class="k">V3</span><h2>Right wash → serpentine</h2><p class="note">— Skills-section colours + morph; off the text, around the portrait, trailing down to the Work serpentine</p></div>
+  <div class="pf"><div class="page v3full" id="page3"></div></div>
+
+  <div class="verlabel"><span class="k">V4</span><h2>Wash flows past the hero</h2><p class="note">— wash trails down behind Education toward the serpentine · same uploader &amp; order</p></div>
+  <div class="pf"><div class="page v3flow" id="page4"></div></div>
+
+  <div class="verlabel"><span class="k">V2</span><h2>Earlier — big-year CV</h2><p class="note">— kept for comparison</p></div>
+  <div class="pf"><div class="page v2" id="page2"></div></div>
+
+  <div class="verlabel"><span class="k">V1</span><h2>First attempt — serpentine</h2><p class="note">— kept for comparison</p></div>
+  <div class="pf"><div class="page v1" id="page1"></div></div>
+
+  <p class="foot">Tell me what to tune on V3/V4 — wash spread/colours, year anchor, spacing, the cropper — or pick one and I’ll build it into the real About page in <code>sections-prototype.html</code>.</p>
+</div>
+
+<!-- crop modal (shared) -->
+<div class="crop-scrim" id="cropScrim"></div>
+<div class="crop-modal" id="cropModal" role="dialog" aria-modal="true" aria-label="Position your photo">
+  <p class="crop-title">Position &amp; size</p>
+  <p class="crop-sub">Drag to move · slider to zoom</p>
+  <div class="crop-view" id="cropView"></div>
+  <div class="crop-zoom">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M11 8v6M8 11h6M20 20l-3.5-3.5"/></svg>
+    <input type="range" id="cropZoom" min="1" max="3" step="0.01" value="1">
+  </div>
+  <div class="crop-actions"><button id="cropCancel">Cancel</button><button id="cropSet" class="primary">Set photo</button></div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  const reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  const A={
+    name:['Monish','Kamwal'], tag:'The person behind the machine',
+    bio:[
+      "I’m Monish Kamwal. I build machine-learning systems end to end — and this site is one of them, the live front of a platform I’m growing from scratch.",
+      "My interest isn’t the model in isolation but everything around it: how data gets versioned, how a bad model gets stopped before it ships, how infrastructure can appear for a load test and vanish by morning."
+    ],
+    work:[
+      {range:'2024 — present', yr:'2024', role:'ML / Platform Engineer · Self-directed', what:'Designing and building the MLOps platform this site fronts.'},
+      {range:'2022 — 2024', yr:'2022', role:'Software Engineer · Placeholder Co.', what:'Backend services and data pipelines.'},
+      {range:'2021 — 2022', yr:'2021', role:'Engineering Intern · Placeholder Co.', what:'First professional exposure to production systems.'}
+    ],
+    edu:[{range:'2017 — 2021', yr:'2017', role:'B.Tech · Placeholder University', what:'Computer science foundations.'}],
+    email:'kallukalia01@outlook.com', links:['GitHub','LinkedIn']
+  };
+  const SIL='<svg class="pt-sil" viewBox="0 0 100 125" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="50" cy="42" r="22"/><path d="M12 125 C 14 92, 34 76, 50 76 C 66 76, 86 92, 88 125" stroke-linecap="round"/></svg>';
+  const CAM='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.4"/></svg>';
+  const BL="M104 10 C158 2 196 46 188 96 C182 138 200 160 172 180 C140 202 88 196 56 178 C22 158 2 122 10 84 C18 44 58 18 104 10 Z";
+  const BL2="M92 6 C146 0 178 34 186 80 C194 128 164 178 112 190 C66 200 20 174 10 128 C0 82 22 38 66 16 C74 12 84 8 92 6 Z";
+  const blobSvg=b=>`<g class="b-g"><path class="blob" fill="var(${b.f})" transform="translate(${b.t[0]},${b.t[1]}) scale(${b.s}) rotate(${b.r} 100 100)" d="${b.p===2?BL2:BL}"/></g>`;
+  const linksHTML=`<div class="links">${A.links.map(l=>`<a href="#" onclick="return false">${l}</a>`).join('')}</div>`;
+  const email=`<button class="email" type="button">${A.email}</button>`;
+  const portraitStatic=`<div class="portrait reveal">${SIL}</div>`;
+  const portraitUpload=`<div class="portrait reveal" data-upload>${SIL}<button class="pt-edit" type="button">${CAM}<span>Add photo</span></button><input type="file" accept="image/*" class="pt-file" hidden></div>`;
+  const heroInner=(portrait,withResume)=>`
+    <p class="eyebrow micro reveal">About — the person behind the machine</p>
+    <h1 class="name reveal">${A.name[0]}<em>${A.name[1]}</em></h1>
+    <div class="hero-photo">${portrait}${withResume?`<p class="resume photo-resume reveal"><a href="#" onclick="return false">Download résumé (PDF)</a></p>`:''}</div>
+    <div class="lead reveal"><p class="drop">${A.bio[0]}</p><p>${A.bio[1]}</p><p class="ph">Bio is placeholder — final copy at implementation.</p></div>`;
+  const cv2Item=(anchor,s)=>`<article class="cv2-item r2"><div class="cv2-year">${anchor}</div><div class="cv2-body"><div class="cv2-range">${s.range}</div><h3 class="cv2-role">${s.role}</h3><p class="cv2-what">${s.what}</p></div></article>`;
+  const eduSection=(anchor,withResume=true)=>`<div class="cv2 rgroup"><section class="cv2-sec"><h2 class="cv2-h r2">Education</h2>${cv2Item(anchor,A.edu[0])}${withResume?`<p class="resume r2"><a href="#" onclick="return false">Download résumé (PDF)</a></p>`:''}</section></div>`;
+
+  // a 3-node (Work-only) serpentine, static
+  function workTrace(uid){
+    const N=[[500,70],[205,330],[500,580]];
+    let d=`M${N[0][0]} ${N[0][1]}`;
+    for(let i=1;i<N.length;i++){const a=N[i-1],b=N[i],h=(b[1]-a[1])/2;d+=` C${a[0]} ${a[1]+h} ${b[0]} ${b[1]-h} ${b[0]} ${b[1]}`;}
+    const place=[{side:'left',left:'2%',top:'1%'},{side:'right',left:'44%',top:'34%'},{side:'left',left:'2%',top:'67%'}];
+    const stops=A.work.map((s,i)=>`<div class="tr-stop ${place[i].side}" style="left:${place[i].left};top:${place[i].top}"><span class="tr-range">${s.range}</span><span class="tr-role">${s.role}</span><span class="tr-what">${s.what}</span></div>`).join('');
+    return `<div class="work-group rgroup r2">
+      <div class="work-h"><h2 class="cv2-h">Work</h2></div>
+      <div class="trace static" id="${uid}">
+        <svg viewBox="0 0 700 660" preserveAspectRatio="xMidYMid meet"><path class="tr-path" d="${d}"/>${N.map((p,i)=>`<circle class="tr-node${i===2?'':''}" cx="${p[0]}" cy="${p[1]}" r="8"/>`).join('')}</svg>
+        ${stops}
+      </div></div>`;
+  }
+  const sayHello=`<div class="outro2 rgroup r2"><p class="say">Say hello.</p><div class="c-right">${email}${linksHTML}</div></div>`;
+
+  /* ---------- V1 (kept) — serpentine with draw-in ---------- */
+  function buildV1(){
+    const stops=[{...A.work[0],kind:'Work'},{...A.work[1],kind:''},{...A.work[2],kind:''},{...A.edu[0],kind:'Education'}];
+    const N=[[505,66],[205,320],[505,574],[210,820]];
+    let d=`M${N[0][0]} ${N[0][1]}`;
+    for(let i=1;i<N.length;i++){const a=N[i-1],b=N[i],h=(b[1]-a[1])/2;d+=` C${a[0]} ${a[1]+h} ${b[0]} ${b[1]-h} ${b[0]} ${b[1]}`;}
+    const place=[{side:'left',left:'2%',top:'1%'},{side:'right',left:'44%',top:'30%'},{side:'left',left:'2%',top:'58%'},{side:'right',left:'44%',top:'85%'}];
+    const washes=[{f:'--w-ochre',t:[110,70],s:1.75,r:-8,p:1},{f:'--w-sand',t:[230,150],s:1.5,r:14,p:2},{f:'--w-rose',t:[40,180],s:1.25,r:-16,p:1}];
+    return `
+    <section class="hero" id="hero1"><svg class="wash" viewBox="0 0 520 480" preserveAspectRatio="xMidYMid meet" aria-hidden="true">${washes.map(blobSvg).join('')}</svg><div class="hero-in">${heroInner(portraitStatic)}</div></section>
+    <div class="trace-h"><h2>The road here</h2><p>Work &amp; education, the way it actually ran.</p></div>
+    <div class="trace draw" id="trace1"><svg viewBox="0 0 700 900" preserveAspectRatio="xMidYMid meet"><path class="tr-path" d="${d}"/>${N.map((p,i)=>`<circle class="tr-node${i===3?' cap':''}" cx="${p[0]}" cy="${p[1]}" r="8"/>`).join('')}</svg>
+      ${stops.map((s,i)=>`<div class="tr-stop ${place[i].side}" style="left:${place[i].left};top:${place[i].top}">${s.kind?`<span class="tr-kind">${s.kind}</span>`:''}<span class="tr-range">${s.range}</span><span class="tr-role">${s.role}</span><span class="tr-what">${s.what}</span></div>`).join('')}</div>
+    <div class="outro" id="outro1"><p class="say">Say hello.</p>${email}${linksHTML}<p class="resume"><a href="#" onclick="return false">Download résumé (PDF)</a></p></div>`;
+  }
+
+  /* ---------- V2 (kept) — big-year CV ---------- */
+  function buildV2(){
+    const washes=[{f:'--w-ochre',t:[150,10],s:2.05,r:-10,p:1},{f:'--w-clay',t:[30,110],s:1.7,r:16,p:2},{f:'--w-rose',t:[120,250],s:1.85,r:-6,p:1},{f:'--w-sand',t:[250,330],s:1.75,r:22,p:2}];
+    return `
+    <section class="hero" id="hero2"><svg class="wash" viewBox="0 0 560 640" preserveAspectRatio="xMidYMid meet" aria-hidden="true">${washes.map(blobSvg).join('')}</svg><div class="hero-in">${heroInner(portraitStatic)}</div></section>
+    <div class="cv2">
+      <section class="cv2-sec rgroup"><h2 class="cv2-h r2">Work</h2>${A.work.map(s=>cv2Item(s.yr,s)).join('')}</section>
+      <section class="cv2-sec rgroup"><h2 class="cv2-h r2">Education</h2>${cv2Item(A.edu[0].yr,A.edu[0])}<p class="resume r2"><a href="#" onclick="return false">Download résumé (PDF)</a></p></section>
+    </div>${sayHello}`;
+  }
+
+  /* ---------- V3 / V4 (new) ---------- */
+  function buildV3(washType, uid){
+    const hero=`<section class="hero" id="${uid}h"><div class="hero-in">${heroInner(portraitUpload, washType==='full')}</div></section>`;
+    let pageWash='';
+    if(washType==='full'){
+      // Skills palette (multiply .42, morphs); right side only — clustered around the portrait, then trailing down to the serpentine
+      // viewBox mapping: Education heading ≈ y691, Work ≈ y1052, serpentine ≈ y1198
+      const washes=[
+        // hero cluster around the portrait (above Education)
+        {f:'--sk-sand',t:[70,50],s:1.55,r:-8,p:2},{f:'--sk-ochre',t:[240,120],s:1.7,r:14,p:1},{f:'--sk-rose',t:[300,300],s:1.5,r:-12,p:1},
+        // right chain through Education→Work→serpentine — 4 blobs => exactly 3 overlaps in that stretch
+        {f:'--sk-sage',t:[300,620],s:1.55,r:10,p:2},{f:'--sk-ochre',t:[300,790],s:1.55,r:-18,p:1},{f:'--sk-rose',t:[300,960],s:1.55,r:14,p:2},{f:'--sk-sand',t:[300,1130],s:1.6,r:-10,p:1}];
+      pageWash=`<svg class="wash-sk" viewBox="0 0 560 1340" preserveAspectRatio="xMidYMin meet" aria-hidden="true">${washes.map(blobSvg).join('')}</svg>`;
+    }else if(washType==='flow'){
+      const washes=[
+        {f:'--w-ochre',t:[190,10],s:1.95,r:-8,p:1},{f:'--w-clay',t:[40,170],s:1.65,r:14,p:2},
+        {f:'--w-rose',t:[210,330],s:1.85,r:-6,p:1},{f:'--w-sand',t:[60,510],s:1.6,r:20,p:2},
+        {f:'--w-ochre',t:[200,680],s:1.7,r:-14,p:1}];
+      pageWash=`<svg class="wash-flow" style="top:-3%;right:-5%;width:min(560px,56%);height:92%;" viewBox="0 0 560 1000" preserveAspectRatio="xMidYMid meet" aria-hidden="true">${washes.map(blobSvg).join('')}</svg>`;
+    }
+    // V3 uses V1's centered "Say hello" + links; V4 keeps the big left-aligned outro2
+    const outro = washType==='full'
+      ? `<div class="outro rgroup r2"><p class="say">Say hello.</p>${email}${linksHTML}</div>`
+      : sayHello;
+    return `${pageWash}${hero}${eduSection('BSc.', washType!=='full')}${workTrace(uid+'t')}${outro}`;
+  }
+
+  document.getElementById('page1').innerHTML=buildV1();
+  document.getElementById('page2').innerHTML=buildV2();
+  document.getElementById('page3').innerHTML=buildV3('full','v3');
+  document.getElementById('page4').innerHTML=buildV3('flow','v4');
+
+  // email copy
+  document.querySelectorAll('.email').forEach(b=>b.addEventListener('click',()=>{const p=b.textContent;navigator.clipboard&&navigator.clipboard.writeText(p).catch(()=>{});b.textContent='Copied ✓';setTimeout(()=>b.textContent=p,1300);}));
+
+  /* ================= PHOTO UPLOADER + CROPPER ================= */
+  const scrim=document.getElementById('cropScrim'), modal=document.getElementById('cropModal');
+  const cview=document.getElementById('cropView'), czoom=document.getElementById('cropZoom');
+  // crop stored as background-size + background-position %, so it's resolution-independent
+  // (the modal circle and the portrait circle reproduce the exact same framing) and pans at any zoom
+  let st={src:null,posX:50,posY:50,zoom:1,a:1};
+  function applyCropTo(el){
+    if(!st.src) return;
+    el.style.backgroundImage=`url("${st.src}")`;
+    el.style.backgroundRepeat='no-repeat';
+    el.style.backgroundSize = st.a>=1 ? `auto ${(100*st.zoom).toFixed(1)}%` : `${(100*st.zoom).toFixed(1)}% auto`;
+    el.style.backgroundPosition=`${st.posX.toFixed(1)}% ${st.posY.toFixed(1)}%`;
+  }
+  const clampPos=()=>{ st.posX=Math.max(0,Math.min(100,st.posX)); st.posY=Math.max(0,Math.min(100,st.posY)); };
+  function openCropper(dataURL){
+    const im=new Image();
+    im.onload=()=>{ st={src:dataURL,posX:50,posY:50,zoom:1,a:(im.naturalWidth||1)/(im.naturalHeight||1)}; czoom.value='1'; applyCropTo(cview); scrim.classList.add('open'); modal.classList.add('open'); };
+    im.src=dataURL;
+  }
+  function closeCropper(){ scrim.classList.remove('open'); modal.classList.remove('open'); }
+  czoom.addEventListener('input',()=>{ st.zoom=parseFloat(czoom.value); clampPos(); applyCropTo(cview); });
+  // drag to reposition — 1:1 with the pointer; works at the base zoom too (pans the cover-overflow)
+  let drag=null;
+  cview.addEventListener('pointerdown',e=>{ drag={x:e.clientX,y:e.clientY}; cview.setPointerCapture(e.pointerId); });
+  cview.addEventListener('pointermove',e=>{
+    if(!drag) return;
+    const S=cview.getBoundingClientRect().width;
+    const Rw = st.a>=1 ? st.zoom*st.a*S : st.zoom*S;      // rendered image size inside the circle
+    const Rh = st.a>=1 ? st.zoom*S : st.zoom*S/st.a;
+    const ovX=Rw-S, ovY=Rh-S;                              // how much overflows each axis
+    if(ovX>0.5) st.posX -= (e.clientX-drag.x)/ovX*100;     // drag the image, not the window
+    if(ovY>0.5) st.posY -= (e.clientY-drag.y)/ovY*100;
+    clampPos(); drag={x:e.clientX,y:e.clientY}; applyCropTo(cview);
+  });
+  ['pointerup','pointercancel','pointerleave'].forEach(ev=>cview.addEventListener(ev,()=>drag=null));
+  document.getElementById('cropCancel').addEventListener('click',closeCropper);
+  scrim.addEventListener('click',closeCropper);
+  document.getElementById('cropSet').addEventListener('click',()=>{ try{localStorage.setItem('aboutPhoto',JSON.stringify(st));}catch(e){} applyPhotoToAll(); closeCropper(); });
+
+  function applyPhotoToAll(){
+    document.querySelectorAll('.portrait[data-upload]').forEach(p=>{
+      if(st.src){ applyCropTo(p); p.classList.add('has-photo'); const s=p.querySelector('.pt-edit span'); if(s) s.textContent='Change photo'; }
+    });
+  }
+  // wire upload triggers
+  document.querySelectorAll('.portrait[data-upload]').forEach(p=>{
+    const file=p.querySelector('.pt-file'), edit=p.querySelector('.pt-edit');
+    edit.addEventListener('click',e=>{ e.stopPropagation(); file.click(); });
+    file.addEventListener('change',()=>{ const f=file.files&&file.files[0]; if(!f) return; const rd=new FileReader(); rd.onload=()=>openCropper(rd.result); rd.readAsDataURL(f); file.value=''; });
+  });
+  // restore saved photo
+  try{ const saved=localStorage.getItem('aboutPhoto'); if(saved){ const s=JSON.parse(saved); if(s&&s.src){ st=Object.assign({posX:50,posY:50,zoom:1,a:1},s); applyPhotoToAll(); } } }catch(e){}
+
+  /* ================= MOTION ================= */
+  // hero reveals
+  const heroes=[...document.querySelectorAll('.hero')];
+  heroes.forEach(h=>{ [...h.querySelectorAll('.reveal')].forEach((el,i)=>el.style.transitionDelay=(0.08*i)+'s'); });
+  const playHero=h=>{ h.classList.remove('in'); void h.offsetWidth; h.classList.add('in'); };
+  // generic reveal groups (V2/V3/V4 rows, Work group, outro)
+  const playGroup=g=>{ const els=[...g.querySelectorAll('.r2')]; if(g.classList.contains('r2')) els.push(g); els.forEach((el,i)=>{el.style.transitionDelay=(0.09*i)+'s'; el.classList.add('on');}); };
+  // V1 serpentine draw-in
+  const t1=document.getElementById('trace1'), p1=t1.querySelector('.tr-path'), L1=p1.getTotalLength();
+  const n1=[...t1.querySelectorAll('.tr-node')], s1=[...t1.querySelectorAll('.tr-stop')], o1=document.getElementById('outro1');
+  const DRAW=1900, frac=[0,0.34,0.68,1];
+  function armV1(){ p1.style.transition='none'; p1.style.strokeDasharray=L1; p1.style.strokeDashoffset=L1; t1.classList.remove('go'); n1.forEach(n=>n.classList.remove('on')); s1.forEach(s=>s.classList.remove('on')); o1.classList.remove('on'); }
+  function playV1(){ if(reduce){t1.classList.add('go');n1.forEach(n=>n.classList.add('on'));s1.forEach(s=>s.classList.add('on'));o1.classList.add('on');p1.style.strokeDashoffset='0';return;} armV1(); void p1.getBoundingClientRect(); p1.style.transition='stroke-dashoffset '+DRAW+'ms var(--ease-out-expo)'; p1.style.strokeDashoffset='0'; t1.classList.add('go'); n1.forEach((n,i)=>{n.style.transitionDelay=(frac[i]*DRAW/1000)+'s';n.classList.add('on');}); s1.forEach((s,i)=>{s.style.transitionDelay=(frac[i]*DRAW/1000+0.05)+'s';s.classList.add('on');}); o1.style.transitionDelay=(DRAW/1000)+'s'; o1.classList.add('on'); }
+
+  // V3 — Skills-section morph (outline ripple + size breath) for .wash-sk blobs
+  function closedSpline(p){const n=p.length;let d='M'+p[0][0].toFixed(2)+' '+p[0][1].toFixed(2);for(let i=0;i<n;i++){const a=p[(i-1+n)%n],b=p[i],c=p[(i+1)%n],e=p[(i+2)%n];const c1x=b[0]+(c[0]-a[0])/6,c1y=b[1]+(c[1]-a[1])/6,c2x=c[0]-(e[0]-b[0])/6,c2y=c[1]-(e[1]-b[1])/6;d+=' C'+c1x.toFixed(2)+' '+c1y.toFixed(2)+' '+c2x.toFixed(2)+' '+c2y.toFixed(2)+' '+c[0].toFixed(2)+' '+c[1].toFixed(2);}return d+'Z';}
+  const skItems=[...document.querySelectorAll('.wash-sk .blob')].map((el,i)=>{const N=56;let len=0;try{len=el.getTotalLength();}catch(e){}const pts=[];for(let k=0;k<N;k++){const q=el.getPointAtLength(len*k/N);pts.push([q.x,q.y]);}const cx=pts.reduce((s,p)=>s+p[0],0)/N,cy=pts.reduce((s,p)=>s+p[1],0)/N;const polar=pts.map(p=>({ang:Math.atan2(p[1]-cy,p[0]-cx),r:Math.hypot(p[0]-cx,p[1]-cy)}));return {el,polar,cx,cy,ph:i*1.3,amp:0.055+0.015*(i%3),bAmp:0.08+0.02*(i%2),bSpd:0.00072+0.00006*i,bPh:i*1.7};});
+  function morphSk(t){ skItems.forEach(it=>{ const breath=1+it.bAmp*Math.sin(t*it.bSpd+it.bPh); const pts=it.polar.map(pp=>{const wob=1+it.amp*(0.7*Math.sin(t*0.0012+it.ph+pp.ang*3)+0.3*Math.sin(t*0.0018-it.ph+pp.ang*2));const r=pp.r*wob*breath;return [it.cx+Math.cos(pp.ang)*r,it.cy+Math.sin(pp.ang)*r];}); it.el.setAttribute('d',closedSpline(pts)); }); }
+
+  // drift + breathe for the other washes (V1/V2/V4); V3's .wash-sk is morphed above, not drifted
+  const seeds=[...document.querySelectorAll('.wash .b-g,.wash-flow .b-g')].map((g,i)=>({g,blob:g.querySelector('.blob'),
+    fx:0.00017+0.00003*(i%5),fy:0.00021+0.000025*(i%5),fr:0.00013+0.00002*(i%5),fo:0.0002+0.00002*(i%5),px:i*1.7,py:i*2.3,pr:i*1.05,po:i*1.3}));
+  function loop(now){ const t=now; if(!reduce){ seeds.forEach(s=>{ const dx=Math.sin(t*s.fx+s.px)*16,dy=Math.cos(t*s.fy+s.py)*13,rot=Math.sin(t*s.fr+s.pr)*2.2,br=(Math.sin(t*s.fo+s.po)+1)/2;
+      s.g.style.transform=`translate(${dx}px,${dy}px) rotate(${rot.toFixed(2)}deg) scale(${(1+0.03*Math.sin(t*s.fo+s.po)).toFixed(3)})`; if(s.blob) s.blob.style.opacity=(0.6+0.26*br).toFixed(3); }); morphSk(t); } requestAnimationFrame(loop); }
+  requestAnimationFrame(loop);
+
+  if(reduce){ heroes.forEach(h=>h.classList.add('in')); playV1(); document.querySelectorAll('.rgroup').forEach(playGroup); }
+  else{
+    armV1();
+    const hObs=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting) playHero(e.target); }),{threshold:.2});
+    heroes.forEach(h=>hObs.observe(h));
+    let v1done=false;
+    new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting&&!v1done){v1done=true;playV1();} }),{threshold:.25}).observe(t1);
+    const gdone=new Set();
+    const gObs=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting&&!gdone.has(e.target)){gdone.add(e.target);playGroup(e.target);} }),{threshold:.15});
+    document.querySelectorAll('.rgroup').forEach(g=>gObs.observe(g));
+  }
+
+  // controls
+  const szWide=document.getElementById('szWide'),szPhone=document.getElementById('szPhone'),replay=document.getElementById('replay');
+  const setPhone=on=>{document.body.classList.toggle('phone',on);szPhone.setAttribute('aria-pressed',String(on));szWide.setAttribute('aria-pressed',String(!on));};
+  szWide.onclick=()=>setPhone(false); szPhone.onclick=()=>setPhone(true);
+  replay.onclick=()=>{ heroes.forEach(playHero); document.querySelectorAll('.r2').forEach(el=>el.classList.remove('on')); document.querySelectorAll('.rgroup').forEach(playGroup); if(!reduce){ armV1(); setTimeout(playV1,80); } };
+})();
+</script>
+</body>
+</html>

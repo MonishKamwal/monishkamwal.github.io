@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sketches — About page, nine grounds (no blue)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..700&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --background:#ffffff;
+    --foreground:#0a0a0a;
+    --muted-foreground:#6b6b6b;
+    --border:#e8e8e8;
+    --hair:#e8e8e8;
+    --warm:#c98a3a;
+    --warm-soft:#e8b87e;
+    --deep-ochre:#96600a;
+    /* the site's section washes, for the on-palette grounds */
+    --wash-sage:#e0f7e7;
+    --wash-ochre:#ffecdb;
+    --wash-rose:#ffe8ee;
+    --ease-out-expo:cubic-bezier(.16,1,.3,1);
+    --ease-hover:cubic-bezier(.2,.7,.35,1);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;background:#f2efe9;color:var(--foreground);
+    font-family:"Outfit",system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-weight:330;line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .display{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 96;font-weight:500;line-height:.92;letter-spacing:-.02em;
+  }
+  .micro{text-transform:uppercase;letter-spacing:.22em;font-size:11.5px;font-weight:500;color:var(--muted-foreground);}
+  .wrap{max-width:1180px;margin:0 auto;padding:clamp(56px,10vh,110px) clamp(16px,5vw,44px) clamp(60px,10vh,120px);}
+
+  /* ---------- sheet chrome (same language as the other sketch sheets) ---------- */
+  .sheet-head{margin-bottom:clamp(40px,7vh,72px);}
+  .sheet-head h1{font-size:clamp(38px,7vw,68px);text-transform:uppercase;margin:10px 0 0;}
+  .sheet-head p{margin:16px 0 0;max-width:68ch;font-size:15.5px;color:var(--muted-foreground);}
+  .sheet-head .facts{margin-top:22px;padding-top:16px;border-top:1px solid var(--foreground);max-width:72ch;font-size:14px;color:var(--muted-foreground);}
+  .sheet-head .facts b{color:var(--foreground);font-weight:500;}
+  .sk{padding:clamp(40px,7vh,70px) 0;border-top:1px solid var(--foreground);}
+  .sk-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;}
+  .sk-head h2{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
+    font-size:clamp(24px,4vw,38px);line-height:1.02;margin:0;
+  }
+  .sk-key{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--deep-ochre);letter-spacing:.1em;}
+  .sk-note{margin:12px 0 0;max-width:70ch;font-size:15px;color:var(--muted-foreground);}
+  .sk-note b{color:var(--foreground);font-weight:500;}
+  .stage{margin-top:clamp(24px,4vh,40px);}
+  code{font-family:ui-monospace,Menlo,monospace;font-size:.88em;}
+
+  .sizer{position:sticky;top:12px;z-index:50;display:flex;justify-content:flex-end;margin:-8px 0 0;pointer-events:none;}
+  .sizer-in{pointer-events:auto;display:flex;gap:4px;padding:5px 6px;background:#fff;border:1px solid var(--hair);border-radius:30px;box-shadow:0 8px 24px -16px rgba(10,10,10,.4);}
+  .sizer button{font:inherit;font-size:12.5px;color:var(--muted-foreground);background:none;border:0;border-radius:20px;padding:5px 13px;cursor:pointer;}
+  .sizer button[aria-pressed="true"]{color:#fff;background:var(--foreground);}
+  .sizer button:focus-visible{outline:2px solid var(--warm);outline-offset:2px;}
+
+  /* ===================================================================
+     THE PAGE FRAME — each variant is a full About page sample on its own
+     ground. .pf is the bordered "page"; .pf-inner is the content column.
+     Colours route through --ink / --mut / --line / --accent so a dark
+     ground only has to flip those four. =================================== */
+  .pf{
+    position:relative;border:1px solid var(--foreground);border-radius:4px;overflow:hidden;
+    background:var(--pg,#fff);
+    --ink:var(--foreground);--mut:var(--muted-foreground);--line:var(--border);--accent:var(--deep-ochre);
+    color:var(--ink);
+  }
+  body.phone .pf{max-width:390px;margin:0 auto;}
+  .pf-inner{
+    display:grid;gap:clamp(18px,2.6vw,28px) clamp(28px,4vw,52px);
+    grid-template-columns:minmax(0,auto) minmax(0,1fr);
+    grid-template-areas:
+      "head head"
+      "portrait bio"
+      "work work"
+      "edu edu"
+      "contact contact";
+    max-width:940px;margin:0 auto;padding:clamp(40px,6vw,80px) clamp(28px,6vw,76px);
+  }
+  body.phone .pf-inner{grid-template-columns:1fr;grid-template-areas:"head" "portrait" "bio" "work" "edu" "contact";padding:40px 26px;}
+
+  .ab-head{grid-area:head;}
+  .ab-portrait{grid-area:portrait;align-self:start;}
+  .ab-biotext{grid-area:bio;}
+  .ab-cv.work{grid-area:work;}
+  .ab-cv.edu{grid-area:edu;}
+  .ab-contact{grid-area:contact;}
+
+  .ab-title{font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 96;font-weight:500;letter-spacing:-.02em;line-height:.95;font-size:clamp(44px,8vw,86px);margin:0;}
+  .ab-tag{margin:10px 0 0;font-size:clamp(16px,2vw,21px);color:var(--mut);}
+  .ab-portrait{width:min(220px,40vw);aspect-ratio:4/5;background:#fff;border:1px solid var(--line);border-radius:5px;
+    box-shadow:0 18px 40px -26px rgba(10,10,10,.35),0 2px 8px -4px rgba(10,10,10,.12);
+    display:flex;align-items:flex-end;justify-content:center;overflow:hidden;color:var(--ink);}
+  .ab-portrait svg{width:78%;height:auto;}
+  .ab-biotext p{margin:0 0 14px;max-width:56ch;font-size:clamp(15px,1.5vw,16.5px);}
+  .ab-ph{font-size:12px!important;color:var(--mut);letter-spacing:.04em;font-style:italic;}
+
+  .ab-cv h2{font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;font-size:clamp(22px,3.4vw,34px);margin:0 0 clamp(14px,2.4vh,22px);}
+  /* default CV: a vertical ink line with dots */
+  .ab-stops{list-style:none;margin:0;padding:0 0 0 30px;position:relative;}
+  .ab-stops::before{content:"";position:absolute;left:4px;top:8px;bottom:14px;width:1.4px;background:var(--ink);}
+  .ab-stop{position:relative;margin:0 0 clamp(16px,2.6vh,26px);}
+  .ab-stop:last-child{margin-bottom:0;}
+  .ab-stop::before{content:"";position:absolute;left:-30px;top:7px;width:10px;height:10px;border-radius:50%;background:var(--ink);}
+  .ab-range{display:block;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--mut);font-weight:500;}
+  .ab-role{display:block;font-size:clamp(16px,1.9vw,20px);font-weight:450;margin:3px 0;}
+  .ab-what{display:block;font-size:14px;color:var(--mut);max-width:56ch;}
+  .ab-resume{margin:16px 0 0;font-size:15px;}
+
+  .ab-contact{margin-top:clamp(18px,3vh,30px);padding-top:clamp(22px,3.4vh,34px);border-top:1px solid var(--line);}
+  .ab-say{font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;font-size:clamp(22px,3.2vw,30px);margin:0 0 12px;}
+  .ab-email{background:none;border:0;padding:0;cursor:pointer;font:inherit;color:var(--accent);font-size:clamp(17px,2.2vw,23px);
+    border-bottom:1px solid color-mix(in srgb,var(--accent) 34%,transparent);transition:color .3s var(--ease-out-expo),border-color .3s var(--ease-out-expo);}
+  .ab-email:hover{color:var(--warm);border-bottom-color:var(--warm);}
+  .ab-links{margin-top:14px;display:flex;gap:22px;font-size:15px;}
+
+  /* links */
+  .pf a,.ab-resume a{color:var(--accent);text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--accent) 32%,transparent);transition:color .25s var(--ease-hover),border-color .25s var(--ease-hover);}
+  .pf a:hover{color:var(--warm);border-bottom-color:var(--warm);}
+
+  /* ===================== PER-VARIANT GROUNDS & TREATMENTS ===================== */
+
+  /* A1 — Warm Paper: the blue just swapped for warm ivory, everything else close */
+  .pf[data-v="warm"]{--pg:#f6efe3;--accent:var(--deep-ochre);}
+
+  /* A2 — Editorial White: no wash; oversized Bodoni; the CV as a ruled ledger */
+  .pf[data-v="white"]{--pg:#ffffff;}
+  .pf[data-v="white"] .ab-title{font-size:clamp(56px,11vw,120px);}
+  .pf[data-v="white"] .ab-head{border-bottom:1px solid var(--ink);padding-bottom:clamp(16px,2.4vh,24px);}
+  .pf[data-v="white"] .ab-stops{padding-left:0;}
+  .pf[data-v="white"] .ab-stops::before{display:none;}
+  .pf[data-v="white"] .ab-stop{display:grid;grid-template-columns:150px 1fr;gap:2px 24px;padding:16px 0;border-top:1px solid var(--line);margin:0;}
+  .pf[data-v="white"] .ab-stop::before{display:none;}
+  .pf[data-v="white"] .ab-range{grid-row:1/3;align-self:start;}
+  .pf[data-v="white"] .ab-role{margin:0;}
+
+  /* A3 — Sage Study: the site's sage, calm; a round portrait, a quiet dotted CV */
+  .pf[data-v="sage"]{--pg:#e8f3ea;}
+  .pf[data-v="sage"] .ab-portrait{aspect-ratio:1;border-radius:50%;width:min(200px,40vw);background:#f3faf4;}
+  .pf[data-v="sage"] .ab-portrait svg{width:70%;transform:translateY(8%);}
+  .pf[data-v="sage"] .ab-stops::before{background:color-mix(in srgb,var(--ink) 22%,transparent);}
+  .pf[data-v="sage"] .ab-stop::before{background:var(--accent);}
+
+  /* A4 — Blush: Skills' rose softened; warm and personal, head sits large */
+  .pf[data-v="rose"]{--pg:#ffeef1;}
+  .pf[data-v="rose"] .ab-portrait{background:#fff6f8;}
+  .pf[data-v="rose"] .ab-stop::before{background:var(--accent);}
+  .pf[data-v="rose"] .ab-stops::before{background:color-mix(in srgb,var(--ink) 20%,transparent);}
+
+  /* A5 — Split Panel: a solid colour panel holds portrait + name + hello; the open side the story */
+  .pf[data-v="split"] .pf-inner{display:block;max-width:none;padding:0;}
+  .pf[data-v="split"] .ab-split{display:grid;grid-template-columns:minmax(260px,36%) 1fr;min-height:100%;}
+  .pf[data-v="split"] .ab-panel{background:#5f3f12;color:#f5ecdd;padding:clamp(40px,5vw,66px) clamp(28px,4vw,52px);display:flex;flex-direction:column;gap:clamp(22px,4vh,40px);
+    --ink:#f5ecdd;--mut:#cdbda0;--line:rgba(245,236,221,.22);--accent:#f0cf9a;}
+  .pf[data-v="split"] .ab-open{padding:clamp(40px,5vw,66px) clamp(28px,5vw,64px);background:#faf6f0;}
+  .pf[data-v="split"] .ab-panel .ab-portrait{width:min(190px,44vw);background:rgba(255,255,255,.08);border-color:rgba(245,236,221,.25);box-shadow:none;}
+  .pf[data-v="split"] .ab-panel .ab-title{font-size:clamp(44px,6vw,74px);}
+  .pf[data-v="split"] .ab-contact{border-top-color:var(--line);margin:0;}
+  .pf[data-v="split"] .ab-open .ab-cv:first-child{margin-top:0;}
+  .pf[data-v="split"] .ab-open .ab-cv{margin-top:clamp(26px,4vh,44px);}
+  body.phone .pf[data-v="split"] .ab-split{grid-template-columns:1fr;}
+
+  /* A6 — Charcoal: lights off, ochre accents, portrait in a lit frame */
+  .pf[data-v="dark"]{--pg:#151311;--ink:#f3efe8;--mut:#9f988c;--line:#34302a;--accent:var(--warm-soft);}
+  .pf[data-v="dark"] .ab-portrait{background:#201d19;border-color:#3a352e;box-shadow:0 0 0 1px #3a352e,0 24px 60px -30px rgba(0,0,0,.8),inset 0 0 60px -20px rgba(240,207,154,.2);}
+  .pf[data-v="dark"] .ab-email{border-bottom-color:color-mix(in srgb,var(--accent) 40%,transparent);}
+
+  /* A7 — Warm Gradient: cream→blush, the CV steps across as a horizontal timeline */
+  .pf[data-v="gradient"]{background:linear-gradient(165deg,#fcf4ea 0%,#fdeee9 46%,#ffe7ee 100%);}
+  .pf[data-v="gradient"] .ab-stops{display:flex;gap:clamp(16px,2.5vw,30px);padding:26px 0 0;}
+  .pf[data-v="gradient"] .ab-stops::before{left:2px;right:2px;top:6px;bottom:auto;width:auto;height:1.4px;background:color-mix(in srgb,var(--ink) 28%,transparent);}
+  .pf[data-v="gradient"] .ab-stop{flex:1;margin:0;padding-top:20px;}
+  .pf[data-v="gradient"] .ab-stop::before{left:0;top:1px;}
+  .pf[data-v="gradient"] .ab-cv.edu .ab-stops{display:block;}       /* one edu stop reads better stacked */
+  .pf[data-v="gradient"] .ab-cv.edu .ab-stops::before{display:none;}
+  .pf[data-v="gradient"] .ab-cv.edu .ab-stop{padding:0 0 0 30px;}
+  .pf[data-v="gradient"] .ab-cv.edu .ab-stop::before{left:0;top:7px;}
+  body.phone .pf[data-v="gradient"] .ab-stops{display:block;padding-left:30px;}
+  body.phone .pf[data-v="gradient"] .ab-stops::before{left:4px;right:auto;top:8px;bottom:14px;width:1.4px;height:auto;}
+  body.phone .pf[data-v="gradient"] .ab-stop{padding:0 0 0 0;margin-bottom:22px;}
+  body.phone .pf[data-v="gradient"] .ab-stop::before{left:-30px;top:7px;}
+
+  /* A8 — Ledger: the CV as a real document; monospaced dates, ruled rows, technical register */
+  .pf[data-v="ledger"]{--pg:#f4efe5;}
+  .pf[data-v="ledger"] .ab-title{letter-spacing:-.01em;}
+  .pf[data-v="ledger"] .ab-cv h2{font-family:"Outfit",sans-serif;font-size:12px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--mut);border-bottom:1px solid var(--ink);padding-bottom:8px;}
+  .pf[data-v="ledger"] .ab-stops{padding:0;}
+  .pf[data-v="ledger"] .ab-stops::before{display:none;}
+  .pf[data-v="ledger"] .ab-stop{display:grid;grid-template-columns:130px 1fr;gap:3px 22px;padding:15px 0;border-bottom:1px solid var(--line);margin:0;}
+  .pf[data-v="ledger"] .ab-stop::before{display:none;}
+  .pf[data-v="ledger"] .ab-range{grid-row:1/3;align-self:start;font-family:ui-monospace,Menlo,monospace;letter-spacing:.02em;font-size:12px;text-transform:none;}
+  .pf[data-v="ledger"] .ab-role{margin:0;font-size:clamp(15px,1.7vw,18px);}
+
+  /* A9 — Minimal Centred: maximum air, a circular portrait, a quiet centred list */
+  .pf[data-v="center"]{--pg:#f7f3ec;}
+  .pf[data-v="center"] .pf-inner{display:block;max-width:660px;text-align:center;}
+  .pf[data-v="center"] .ab-portrait{margin:0 auto clamp(22px,4vh,38px);width:132px;aspect-ratio:1;border-radius:50%;background:#fdfbf6;}
+  .pf[data-v="center"] .ab-portrait svg{width:66%;transform:translateY(8%);}
+  .pf[data-v="center"] .ab-biotext{margin:clamp(20px,3vh,30px) auto 0;}
+  .pf[data-v="center"] .ab-biotext p{margin-left:auto;margin-right:auto;}
+  .pf[data-v="center"] .ab-cv{margin-top:clamp(30px,5vh,54px);}
+  .pf[data-v="center"] .ab-stops{padding:0;}
+  .pf[data-v="center"] .ab-stops::before{display:none;}
+  .pf[data-v="center"] .ab-stop{margin:0 0 20px;}
+  .pf[data-v="center"] .ab-stop::before{display:none;}
+  .pf[data-v="center"] .ab-what{margin:0 auto;}
+  .pf[data-v="center"] .ab-contact{border-top:0;}
+  .pf[data-v="center"] .ab-links{justify-content:center;}
+
+  .foot{margin-top:60px;padding-top:24px;border-top:1px solid var(--foreground);font-size:13.5px;color:var(--muted-foreground);max-width:72ch;}
+</style>
+</head>
+<body>
+<div class="sizer"><div class="sizer-in">
+  <button id="szWide" aria-pressed="true">Desktop</button>
+  <button id="szPhone" aria-pressed="false">Phone</button>
+</div></div>
+
+<div class="wrap">
+  <header class="sheet-head">
+    <span class="micro">Sketches · About page — nine grounds, no blue</span>
+    <h1 class="display">Who are you, without the blue</h1>
+    <p>The current About page sits on a dusty-blue wash. Every sketch below drops it. They keep the same content — the bio, the Work and Education timeline, and "Say hello" — and each tries a different ground, layout and way of setting the CV. Pick one (ground and layout can be mixed) and I'll build it into the real About page.</p>
+    <p class="facts">
+      <b>Same in every sketch:</b> the portrait, the two-paragraph bio (still placeholder), Work (3 roles) + Education with the résumé link, and the click-to-copy email + GitHub / LinkedIn. <b>Try it:</b> toggle Desktop / Phone up top — each design reflows.
+    </p>
+  </header>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">A1</span><h2>Warm paper</h2></div>
+    <p class="sk-note">The smallest change: the blue swapped for a warm ivory, everything else kept close to the current page — so you can judge the <b>palette</b> in isolation before changing anything structural. Portrait card, vertical ink timeline, ochre links.</p>
+    <div class="stage"><div class="pf" data-v="warm"></div></div>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">A2</span><h2>Editorial white</h2></div>
+    <p class="sk-note">No wash at all. An <b>oversized Bodoni "About"</b> over a rule, a clean two-column feel, and the CV set as a ruled ledger of dated rows. Reads like a well-set page in a book — the most restrained, most "print" option.</p>
+    <div class="stage"><div class="pf" data-v="white"></div></div>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">A3</span><h2>Sage study</h2></div>
+    <p class="sk-note">Borrows <b>Architecture's sage</b> so About still belongs to the site's family of grounds — just green instead of blue. A round portrait softens it; the timeline keeps a faint line with ochre dots. Calm and natural.</p>
+    <div class="stage"><div class="pf" data-v="sage"></div></div>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">A4</span><h2>Blush</h2></div>
+    <p class="sk-note">Borrows <b>Skills' rose</b>, softened. The warmest, most personal of the on-palette grounds — fitting for the one page that's actually about a person rather than a system.</p>
+    <div class="stage"><div class="pf" data-v="rose"></div></div>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">A5</span><h2>Split panel</h2></div>
+    <p class="sk-note">A magazine split: a <b>solid colour panel</b> on the left carries the portrait, the name and "Say hello"; the open paper side carries the bio and CV. The most editorial, most "cover + spread" layout. (Panel colour is a placeholder deep ochre — easy to retune.)</p>
+    <div class="stage"><div class="pf" data-v="split"></div></div>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">A6</span><h2>Charcoal</h2></div>
+    <p class="sk-note">Lights off. A near-black ground with warm ochre accents and the portrait in a lit frame — "<b>the person behind the machine</b>" read as a late-night workbench. The boldest departure; dramatic, and a strong contrast to the bright Home scroll.</p>
+    <div class="stage"><div class="pf" data-v="dark"></div></div>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">A7</span><h2>Warm gradient</h2></div>
+    <p class="sk-note">A soft <b>cream-to-blush gradient</b> rather than a flat wash — subtle motion in the ground itself — with the Work history stepping across as a <b>horizontal timeline</b> instead of running down. Modern and warm. (Collapses back to a vertical list on phone.)</p>
+    <div class="stage"><div class="pf" data-v="gradient"></div></div>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">A8</span><h2>Ledger</h2></div>
+    <p class="sk-note">The CV as a <b>real document</b>: monospaced dates, ruled rows, section labels set in small caps. A technical register that suits someone who builds systems — the résumé <i>is</i> the design. Warm off-white keeps it from feeling cold.</p>
+    <div class="stage"><div class="pf" data-v="ledger"></div></div>
+  </section>
+
+  <section class="sk">
+    <div class="sk-head"><span class="sk-key">A9</span><h2>Minimal centred</h2></div>
+    <p class="sk-note">Maximum air. Everything <b>centred</b> on a warm off-white, a small circular portrait up top, the timeline reduced to a quiet centred list. Lets the words carry it — the calmest, most confident option.</p>
+    <div class="stage"><div class="pf" data-v="center"></div></div>
+  </section>
+
+  <p class="foot">Nine grounds, all blue-free. The ground, the layout and the CV treatment are independent — e.g. "warm paper ground with A8's ledger CV", or "A5's split with a charcoal panel" — so tell me a combination, not just a number, if you'd like to mix. Then I'll wire the chosen look into the real About page in <code>sections-prototype.html</code>.</p>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  // ---- the About content, authored once (lifted from the live page) ----
+  const ABOUT={
+    title:'About',
+    tag:'The person behind the machine',
+    bio:[
+      "I’m Monish Kamwal. I build machine-learning systems end to end — and this site is one of them, the live front of a platform I’m growing from scratch.",
+      "My interest isn’t the model in isolation but everything around it: how data gets versioned, how a bad model gets stopped before it ships, how infrastructure can appear for a load test and vanish by morning."
+    ],
+    work:[
+      {range:'2024 — present', role:'ML / Platform Engineer · Self-directed', what:'Designing and building the MLOps platform this site fronts.'},
+      {range:'2022 — 2024', role:'Software Engineer · Placeholder Co.', what:'Backend services and data pipelines.'},
+      {range:'2021 — 2022', role:'Engineering Intern · Placeholder Co.', what:'First professional exposure to production systems.'}
+    ],
+    edu:[
+      {range:'2017 — 2021', role:'B.Tech · Placeholder University', what:'Computer science foundations.'}
+    ],
+    email:'kallukalia01@outlook.com',
+    links:['GitHub','LinkedIn']
+  };
+  const PORTRAIT='<svg viewBox="0 0 100 125" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="50" cy="42" r="22"/><path d="M12 125 C 14 92, 34 76, 50 76 C 66 76, 86 92, 88 125" stroke-linecap="round"/></svg>';
+
+  const stops = list => list.map(s=>
+    `<li class="ab-stop"><span class="ab-range">${s.range}</span><span class="ab-role">${s.role}</span><span class="ab-what">${s.what}</span></li>`).join('');
+  const portrait = `<div class="ab-portrait" aria-label="Portrait placeholder">${PORTRAIT}</div>`;
+  const head = a => `<header class="ab-head"><h1 class="ab-title">${a.title}</h1><p class="ab-tag">${a.tag}</p></header>`;
+  const bio = a => `<div class="ab-biotext">${a.bio.map(p=>`<p>${p}</p>`).join('')}<p class="ab-ph">Bio is placeholder — final copy at implementation.</p></div>`;
+  const work = a => `<section class="ab-cv work"><h2>Work</h2><ol class="ab-stops">${stops(a.work)}</ol></section>`;
+  const edu  = a => `<section class="ab-cv edu"><h2>Education</h2><ol class="ab-stops">${stops(a.edu)}</ol><p class="ab-resume"><a href="#" onclick="return false">Download résumé (PDF)</a></p></section>`;
+  const contact = a => `<section class="ab-contact"><p class="ab-say">Say hello.</p><button class="ab-email" type="button">${a.email}</button><div class="ab-links">${a.links.map(l=>`<a href="#" onclick="return false">${l}</a>`).join('')}</div></section>`;
+
+  function renderStacked(a){ return head(a)+portrait+bio(a)+work(a)+edu(a)+contact(a); }
+  // the split panel groups portrait+name+hello on the colour side, bio+CV on the open side
+  function renderSplit(a){
+    return `<div class="ab-split">`+
+      `<div class="ab-panel">${portrait}${head(a)}${contact(a)}</div>`+
+      `<div class="ab-open">${bio(a)}${work(a)}${edu(a)}</div>`+
+      `</div>`;
+  }
+
+  document.querySelectorAll('.pf').forEach(pf=>{
+    const inner=document.createElement('div');
+    inner.className='pf-inner';
+    inner.innerHTML = pf.dataset.v==='split' ? renderSplit(ABOUT) : renderStacked(ABOUT);
+    pf.appendChild(inner);
+  });
+
+  // click-to-copy email, like the real page (per sketch, just flashes "Copied")
+  document.querySelectorAll('.ab-email').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const prev=btn.textContent;
+      navigator.clipboard&&navigator.clipboard.writeText(prev).catch(()=>{});
+      btn.textContent='Copied ✓';
+      setTimeout(()=>btn.textContent=prev,1300);
+    });
+  });
+
+  // Desktop / Phone toggle
+  const szWide=document.getElementById('szWide'), szPhone=document.getElementById('szPhone');
+  function setPhone(on){
+    document.body.classList.toggle('phone', on);
+    szPhone.setAttribute('aria-pressed', String(on)); szWide.setAttribute('aria-pressed', String(!on));
+  }
+  szWide.addEventListener('click',()=>setPhone(false));
+  szPhone.addEventListener('click',()=>setPhone(true));
+})();
+</script>
+</body>
+</html>
