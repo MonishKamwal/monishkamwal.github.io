@@ -114,7 +114,11 @@
   .menu-link{
     font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
     font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
-    text-transform:uppercase;font-size:clamp(28px,4.5vw,38px);line-height:1.05;
+    /* the 7.6vw cap only bites below ~368px wide: there the nav is too narrow for the 28px
+       floor, and "Architecture" was cut by the nav's overflow-x:hidden at rest (4px at 320)
+       and by 22px once it grew on a tap or focus. The cap leaves room for the 5px focus outline
+       too. menuclip.js measures it. */
+    text-transform:uppercase;font-size:min(clamp(28px,4.5vw,38px),7.6vw);line-height:1.05;
     color:var(--foreground);text-decoration:none;width:fit-content;
     transform-origin:left center;
     opacity:0;transform:translate(30px,10px);

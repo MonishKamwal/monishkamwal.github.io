@@ -1122,6 +1122,44 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-10-08** — **The Data pages get the one hover, and every chart answers mouse and
+  touch** (`data-prototype-white.html`). Monish asked for a check of the hover effects on
+  Quality, Monitoring and Performance. `datahover.js` (in `.browser-tools`) measured the
+  pages before and after the change.
+  - **The controls use the Home rule.** The tokens are the same: `--hover-scale` (1.08),
+    `--hover-dur` (.18s) and `--ease-hover`. Before, the growth was none, 1.06, 1.07, 1.09
+    or 1.12. The tray tabs went to ink and the chips went to deep ochre. Now every control
+    goes to bright ochre and grows by 1.08. This includes "← Home", the menu, the tray tabs,
+    the `data` chips and the links. "← Home" keeps the nudge of its arrow to the left.
+    Keyboard focus gets the same look and the outline. Touch gets the look on `:active`.
+  - **The current tray tab does not answer hover.** It is the page that you are on, and a
+    click on it does nothing. Before, it grew like the other tabs. It keeps the focus
+    outline.
+  - **Touch now shows the chart tooltips.** Before, a tap on a chart showed nothing on all
+    twelve charts. The charts listened for `pointermove` only, and a tap does not move.
+    `hoverLayer()` now handles each input. A mouse or a trackpad shows the tooltip while
+    the pointer is on the target. A tap shows it until the next tap or a scroll. Touch
+    ignores `pointerleave`, because it fires when the finger lifts.
+  - **Every chart marks the hovered position.** Before, only the line charts did this, with
+    the crosshair. Now a histogram bin and a row of the dot plot or the dumbbell get a band
+    in the grid colour. A heatmap cell gets an ink ring. The band goes behind every line,
+    so the macro-F1 anchor and the grid stay visible. The marks never use a series colour.
+    The gate chart has one target and no mark. The whole instrument is the mark.
+  - **The menu links are capped at 7.6vw**, the same as on Home. The cap changes only
+    screens narrower than about 368px.
+  - **A false alarm, on record.** The first run reported tooltips that stayed after the
+    pointer left. The test had moved the pointer onto another chart under the top bar.
+    The page was correct. The test now moves the pointer to the empty left margin.
+  - **Checks.** On all three pages, the controls give the same colour, growth and outline on
+    hover and on focus. All twelve charts show the tooltip and the mark on hover and on a
+    tap, and hide both after. `chipcheck.js`, `dockcheck.js` and `menuclip.js` pass, with no
+    page errors. The harness sends real touch taps. It cannot hold a finger down, so
+    `:active` was not tested.
+  - **Open.** The chart marks have no keyboard path. The `data` table is the keyboard path,
+    as the Data-mode rule says: "tooltips enhance, tables guarantee". On a 390px phone,
+    some panel titles wrap to one word for each line beside their chips, for example "What
+    people actually draw". This is not a hover fault.
+
 - **2026-10-08** — **Home gets one hover for the whole page** (`transition-prototype.html`).
   Monish asked for a consistent hover effect on Home. Before this change, the controls grew by
   6, 7, 9, 10 or 12 percent. They used two easing curves and durations from .17s to .25s.
@@ -1175,6 +1213,17 @@ Newest first. Each entry: what was decided and why.
     harness cannot hold a finger down, so `:active` was not tested. `homecheck.js` and
     `homenav.js` pass. The `homenav.js --reduce` script stops on a removed element. It
     stops on the old page too, so this change did not cause it.
+  - **The menu.** The menu button, the close button and the menu links already use the one
+    hover. `menuclip.js` (in `.browser-tools`) measures each grown link against the edge of
+    the nav, which clips with `overflow-x:hidden`. At 320px wide, "Architecture" was clipped
+    by 4px at rest and by 22px when it grew. "Performance" was clipped by 13px when it grew.
+    The link size is now `min(clamp(28px,4.5vw,38px),7.6vw)`. The cap changes only screens
+    narrower than about 368px. At 320px, the closest link has 9px of space, which is enough
+    for the 5px focus outline.
+  - **Open.** Seven menu links have a `title` attribute, for example "Data mode lives in the
+    data prototype". The browser shows it as a grey tooltip after about one second of
+    hover. This tooltip is not part of the one hover. These notes are for the prototype
+    only.
   - **Add a new control to the three selector lists** in "one hover for the whole page", at
     the end of the styles.
 

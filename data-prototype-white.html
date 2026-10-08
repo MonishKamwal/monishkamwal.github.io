@@ -18,6 +18,11 @@
     --deep-ochre:#96600a;
     --ease-out-expo:cubic-bezier(.16,1,.3,1);
     --dur:.48s; /* the loose global motion value */
+    /* the one hover (2026-10-08), the same values as Home — see "one hover" before the
+       reduced-motion block at the end of the styles */
+    --ease-hover:cubic-bezier(.2,.7,.35,1);
+    --hover-dur:.18s;
+    --hover-scale:1.08;
 
     /* ---- Data-mode instrument instance — WHITE / LIFTED-PAPER VARIANT ----
        Flip of the tinted-ground scheme: the page grounds on white and the cards
@@ -56,10 +61,9 @@
   .link{
     color:var(--deep-ochre);text-decoration:none;
     border-bottom:1px solid rgba(150,96,10,.32);display:inline-block;
-    transition:color .18s var(--ease-out-expo),border-color .18s var(--ease-out-expo),scale .18s var(--ease-out-expo);
+    transform-origin:left center;
+    transition:color var(--hover-dur) var(--ease-hover),border-color var(--hover-dur) var(--ease-hover),scale var(--hover-dur) var(--ease-hover);
   }
-  .link:hover{color:var(--warm);border-bottom-color:var(--warm);scale:1.06;}
-  .link:focus-visible{outline:2px solid var(--warm);outline-offset:3px;border-radius:2px;}
 
   /* ---------- top bar ---------- */
   .topbar{
@@ -71,19 +75,15 @@
     display:inline-flex;align-items:center;gap:7px;pointer-events:auto;
     font-size:12px;letter-spacing:.14em;text-transform:uppercase;
     color:var(--foreground);text-decoration:none;
-    transition:color .18s var(--ease-out-expo);
+    transform-origin:left center;
+    transition:color var(--hover-dur) var(--ease-hover),scale var(--hover-dur) var(--ease-hover);
   }
-  .home-link svg{transition:transform .18s var(--ease-out-expo);}
-  .home-link:hover{color:var(--warm);}
-  .home-link:hover svg{transform:translateX(-3px);}
-  .home-link:focus-visible{outline:2px solid var(--warm);outline-offset:3px;border-radius:3px;}
+  .home-link svg{transition:transform var(--hover-dur) var(--ease-hover);}
   .menu-btn{
     background:none;border:0;cursor:pointer;padding:6px;color:var(--foreground);
     display:inline-flex;line-height:0;pointer-events:auto;
-    transition:color .18s var(--ease-out-expo),scale .18s var(--ease-out-expo);
+    transition:color var(--hover-dur) var(--ease-hover),scale var(--hover-dur) var(--ease-hover);
   }
-  .menu-btn:hover{color:var(--warm);scale:1.12;}
-  .menu-btn:focus-visible{outline:2px solid var(--warm);outline-offset:2px;border-radius:3px;}
 
   /* ---------- slide-in menu — the global bridge (only link between modes) ---------- */
   .m-scrim{
@@ -106,15 +106,15 @@
   .menu-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:38px;}
   .m-close{
     background:none;border:0;cursor:pointer;padding:6px;color:var(--foreground);
-    display:inline-flex;line-height:0;transition:color .18s var(--ease-out-expo),scale .18s var(--ease-out-expo);
+    display:inline-flex;line-height:0;transition:color var(--hover-dur) var(--ease-hover),scale var(--hover-dur) var(--ease-hover);
   }
-  .m-close:hover{color:var(--warm);scale:1.12;}
-  .m-close:focus-visible{outline:2px solid var(--warm);outline-offset:2px;border-radius:3px;}
   .menu-panel nav{display:flex;flex-direction:column;gap:18px;flex:1;overflow-y:auto;overflow-x:hidden;}
   .menu-link{
     font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
     font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
-    text-transform:uppercase;font-size:clamp(28px,4.5vw,38px);line-height:1.05;
+    /* capped at 7.6vw below ~368px wide, as on Home: the nav there is too narrow for the 28px
+       floor, so "Architecture" was cut by overflow-x:hidden at rest and more once it grew */
+    text-transform:uppercase;font-size:min(clamp(28px,4.5vw,38px),7.6vw);line-height:1.05;
     color:var(--foreground);text-decoration:none;width:fit-content;cursor:pointer;
     background:none;border:0;text-align:left;padding:0;transform-origin:left center;
     opacity:0;transform:translate(30px,10px);
@@ -122,11 +122,9 @@
     transition:
       opacity var(--dur) var(--ease-out-expo) var(--stagger,0s),
       transform var(--dur) var(--ease-out-expo) var(--stagger,0s),
-      scale .18s var(--ease-out-expo),
-      color .18s var(--ease-out-expo);
+      scale var(--hover-dur) var(--ease-hover),
+      color var(--hover-dur) var(--ease-hover);
   }
-  .menu-link:hover,.menu-link:focus-visible{color:var(--warm);scale:1.09;}
-  .menu-link:focus-visible{outline:2px solid var(--warm);outline-offset:4px;}
   /* all menu items read the same — no mode-based muting (the highlighting was
      just prototype scaffolding for cross-file links) */
   .menu-panel.open .menu-link{opacity:1;transform:none;}
@@ -263,11 +261,9 @@
   .chip-btn{
     font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--muted-foreground);
     background:none;border:1px solid var(--border);border-radius:20px;padding:3px 9px;cursor:pointer;
-    transition:border-color .18s var(--ease-out-expo),color .18s var(--ease-out-expo),scale .18s var(--ease-out-expo);
+    transition:border-color var(--hover-dur) var(--ease-hover),color var(--hover-dur) var(--ease-hover),scale var(--hover-dur) var(--ease-hover);
   }
-  .chip-btn:hover{border-color:var(--warm);color:var(--deep-ochre);scale:1.07;}
   .chip-btn.active,.chip-btn[aria-pressed="true"]{border-color:var(--warm);color:var(--deep-ochre);background:#f4cc9e38;}
-  .chip-btn:focus-visible{outline:2px solid var(--warm);outline-offset:2px;}
   .tview{display:none;}
   .panel.show-table .tview{display:block;}
   .panel.show-table .chart,.panel.show-table .lg{display:none;}
@@ -285,6 +281,11 @@
   .viz-tip .tt-k{width:12px;height:2px;border-radius:2px;flex:0 0 auto;}
   .viz-tip .tt-v{font-weight:550;font-variant-numeric:tabular-nums;}
   .viz-tip .tt-l{color:var(--muted-foreground);}
+  /* the chart's hover mark — where the pointer is: the crosshair on a line chart, a band
+     behind a histogram bin or a row, a ring round a heatmap cell. Recessive (grid/axis/ink),
+     never a series colour, and on the same --hover-dur as the controls. See hoverLayer(). */
+  .hov{opacity:0;pointer-events:none;transition:opacity var(--hover-dur) var(--ease-hover);}
+  .hov.hov-on{opacity:1;}
 
   /* page footer links */
   .page-foot{
@@ -338,11 +339,9 @@
   .switch-dock .sw{
     font-family:"Outfit",sans-serif;font-size:12.5px;color:var(--muted-foreground);
     background:none;border:0;border-radius:20px;padding:6px 14px;cursor:pointer;
-    transition:color .18s var(--ease-out-expo),background .18s var(--ease-out-expo),scale .18s var(--ease-out-expo);
+    transition:color var(--hover-dur) var(--ease-hover),background var(--hover-dur) var(--ease-hover),scale var(--hover-dur) var(--ease-hover);
   }
-  .switch-dock .sw:hover{color:var(--foreground);scale:1.07;}
   .switch-dock .sw.active{color:#fff;background:var(--foreground);}
-  .switch-dock .sw:focus-visible{outline:2px solid var(--warm);outline-offset:2px;}
 
   @media(max-width:880px){
     .grid12{grid-template-columns:1fr;}
@@ -352,6 +351,28 @@
     .switch-dock{bottom:70px;}
     .tile-row{gap:14px;}
   }
+  /* ---------- one hover (2026-10-08) — the same rule as Home ----------
+     Every control warms to ochre and grows by --hover-scale over --hover-dur on --ease-hover.
+     Ink, grey and deep-ochre text all go to bright ochre; a chip's border warms with its label.
+     "← Home" also nudges its arrow left, the site's back gesture.
+     - Mouse and trackpad: :hover, only inside (hover:hover) and (pointer:fine), so a phone
+       does not keep the look after a tap.
+     - Keyboard: :focus-visible, the same look plus the ochre outline.
+     - Touch: :active, while the finger is down (iOS needs the empty touchstart listener in
+       the script).
+     The tray's current tab does not answer: it is the page you are on, and a click on it does
+     nothing. It keeps the outline on focus. Add a new control to the selector lists here. */
+  @media (hover:hover) and (pointer:fine){
+    :is(.home-link,.menu-btn,.m-close,.menu-link,.chip-btn,.link,.switch-dock .sw:not(.active)):hover{color:var(--warm);border-color:var(--warm);scale:var(--hover-scale);}
+    .home-link:hover svg{transform:translateX(-3px);}
+  }
+  :is(.home-link,.menu-btn,.m-close,.menu-link,.chip-btn,.link,.switch-dock .sw:not(.active)):is(:focus-visible,:active){color:var(--warm);border-color:var(--warm);scale:var(--hover-scale);}
+  .home-link:is(:focus-visible,:active) svg{transform:translateX(-3px);}
+  :is(.home-link,.menu-btn,.m-close,.menu-link,.chip-btn,.link,.switch-dock .sw:not(.active),.switch-dock .sw.active):focus-visible{outline:2px solid var(--warm);outline-offset:3px;}
+  :is(.home-link,.menu-btn,.m-close):focus-visible{border-radius:3px;}
+  :is(.chip-btn,.switch-dock .sw):focus-visible{border-radius:20px;}
+  .link:focus-visible{border-radius:2px;}
+
   @media (prefers-reduced-motion:reduce){
     *{animation:none!important;transition:none!important;}
     .reveal{opacity:1!important;}
@@ -774,6 +795,27 @@ function tipMove(evt){
 }
 function tipHide(){ tip.style.opacity='0'; tip.setAttribute('aria-hidden','true'); }
 
+/* ---- one hover layer for every chart (2026-10-08) ----
+   show(e) puts up the tooltip and the chart's mark; hide() takes both down.
+   - Mouse and trackpad: while the pointer is over the target, as before.
+   - Touch: a tap shows them and they stay until the next tap anywhere, or a scroll. Before
+     this, a tap showed nothing at all: the charts listened for pointermove only, and a tap
+     does not move. pointerleave also fires the moment a finger lifts, so touch ignores it.
+   - Keyboard: the table twin (the `data` chip) is the keyboard path, as the Data-mode rule
+     says — "tooltips enhance, tables guarantee". */
+let tapHide=null;
+function tapClear(){ if(tapHide){ tapHide(); tapHide=null; } }
+document.addEventListener('pointerdown',e=>{ if(e.pointerType==='touch') tapClear(); },true);  // before the target's own handler
+window.addEventListener('scroll',tapClear,{passive:true});
+document.addEventListener('touchstart',()=>{},{passive:true});  // lets iOS apply :active (the one hover's touch state)
+// a band goes to the very back of its chart, so every grid line, anchor and mark stays on top
+function under(el){ el.parentNode.insertBefore(el,el.parentNode.firstChild); return el; }
+function hoverLayer(el,show,hide){
+  el.addEventListener('pointermove',e=>{ if(e.pointerType!=='touch') show(e); });
+  el.addEventListener('pointerleave',e=>{ if(e.pointerType!=='touch') hide(); });
+  el.addEventListener('pointerdown',e=>{ if(e.pointerType==='touch'){ show(e); tapHide=hide; } });
+}
+
 function legend(elId,items){
   const el=document.getElementById(elId); if(!el) return;
   el.textContent='';
@@ -854,18 +896,17 @@ function lineChart(id,cfg){
     }
   });
   // crosshair + shared tooltip
-  const cross=S('line',{x1:0,x2:0,y1:M.t,y2:M.t+ph,stroke:C.axis,'stroke-width':1,opacity:0},svg);
+  const cross=S('line',{x1:0,x2:0,y1:M.t,y2:M.t+ph,stroke:C.axis,'stroke-width':1,class:'hov'},svg);
   const hit=S('rect',{x:M.l,y:M.t,width:pw,height:ph,fill:'transparent'},svg);
-  hit.addEventListener('pointermove',e=>{
+  hoverLayer(hit,e=>{
     const r=svg.getBoundingClientRect();
     const mx=(e.clientX-r.left)*(w/r.width);
     let bi=0,bd=1e9;
     xs.forEach((v,i)=>{const d=Math.abs(X(v)-mx);if(d<bd){bd=d;bi=i;}});
     cross.setAttribute('x1',X(xs[bi])); cross.setAttribute('x2',X(xs[bi]));
-    cross.setAttribute('opacity',1);
+    cross.classList.add('hov-on');
     tipShow(e,cfg.x.fmt(xs[bi]),cfg.series.map(s=>[s.color,cfg.y.fmt(s.pts[bi][1]),s.name]));
-  });
-  hit.addEventListener('pointerleave',()=>{cross.setAttribute('opacity',0);tipHide();});
+  },()=>{cross.classList.remove('hov-on');tipHide();});
 }
 
 /* ================= paired histogram: reference (context) vs current ================= */
@@ -888,15 +929,15 @@ function histPair(id,cfg){
   });
   for(let i=0;i<nB;i++){
     const x=M.l+i*bw;
+    const band=under(S('rect',{x,y:M.t,width:bw,height:ph,fill:C.grid,class:'hov'},svg));
     if(refS[i]>0) S('rect',{x:x+1,y:Y(refS[i]),width:Math.max(1,bw-2),height:M.t+ph-Y(refS[i]),fill:C.ref,rx:1.5},svg);
     if(curS[i]>0) S('rect',{x:x+bw*0.26,y:Y(curS[i]),width:Math.max(1,bw*0.48),height:M.t+ph-Y(curS[i]),fill:C.primary,rx:1.5},svg);
     const hit=S('rect',{x,y:M.t,width:bw,height:ph,fill:'transparent'},svg);
     const lo=cfg.edges[i],hi=cfg.edges[i+1];
-    hit.addEventListener('pointermove',e=>tipShow(e,lo.toFixed(2)+' – '+hi.toFixed(2),[
+    hoverLayer(hit,e=>{ band.classList.add('hov-on'); tipShow(e,lo.toFixed(2)+' – '+hi.toFixed(2),[
       [C.primary,fmtPct(curS[i]),'current ('+cfg.cur[i]+' of '+curN+')'],
       [C.ref,fmtPct(refS[i]),'reference'],
-    ]));
-    hit.addEventListener('pointerleave',tipHide);
+    ]); },()=>{ band.classList.remove('hov-on'); tipHide(); });
   }
   // mean markers
   [[cfg.refMean,C.ref,'ref '+cfg.refMean.toFixed(3)],[cfg.curMean,C.primary,'now '+cfg.curMean.toFixed(3)]].forEach(([m,col,lab],i)=>{
@@ -923,19 +964,19 @@ function dotPlot(id,cfg){
   S('text',{x:mx,y:M.t-10,'text-anchor':'middle',class:'dlab mut'},svg).textContent='macro-F1 '+cfg.mean.toFixed(3);
   rows.forEach((r,i)=>{
     const y=M.t+i*rh+rh/2;
+    const band=under(S('rect',{x:0,y:M.t+i*rh,width:w,height:rh,fill:C.grid,class:'hov'},svg));
     S('text',{x:M.l-10,y:y+4,'text-anchor':'end',class:'ax',fill:C.ink,style:'fill:#0a0a0a;font-size:12px'},svg).textContent=r.cls;
     S('line',{x1:M.l,x2:M.l+pw,y1:y,y2:y,stroke:C.grid,'stroke-width':1},svg);
     S('circle',{cx:X(r.f1),cy:y,r:4.5,fill:C.primary,stroke:C.card,'stroke-width':2},svg);
     if(i===0) S('text',{x:X(r.f1)-10,y:y+4,'text-anchor':'end',class:'dlab'},svg).textContent=r.f1.toFixed(3);
     if(i===rows.length-1) S('text',{x:X(r.f1)+10,y:y+4,class:'dlab'},svg).textContent=r.f1.toFixed(3);
     const hit=S('rect',{x:0,y:M.t+i*rh,width:w,height:rh,fill:'transparent'},svg);
-    hit.addEventListener('pointermove',e=>tipShow(e,r.cls,[
+    hoverLayer(hit,e=>{ band.classList.add('hov-on'); tipShow(e,r.cls,[
       [C.primary,r.f1.toFixed(3),'F1'],
       [null,r.precision.toFixed(3),'precision'],
       [null,r.recall.toFixed(3),'recall'],
       [null,fmtComma(r.support),'test doodles'],
-    ]));
-    hit.addEventListener('pointerleave',tipHide);
+    ]); },()=>{ band.classList.remove('hov-on'); tipHide(); });
   });
 }
 
@@ -953,6 +994,7 @@ function dumbbell(id,cfg){
   });
   rows.forEach((r,i)=>{
     const y=M.t+i*rh+rh/2;
+    const band=under(S('rect',{x:0,y:M.t+i*rh,width:w,height:rh,fill:C.grid,class:'hov'},svg));
     S('text',{x:M.l-10,y:y+4,'text-anchor':'end',style:'fill:#0a0a0a;font-size:12px',class:'ax'},svg).textContent=r.label;
     S('line',{x1:X(r.ref),x2:X(r.cur),y1:y,y2:y,stroke:C.axis,'stroke-width':1.4},svg);
     S('circle',{cx:X(r.ref),cy:y,r:4,fill:C.ref,stroke:C.card,'stroke-width':2},svg);
@@ -961,12 +1003,11 @@ function dumbbell(id,cfg){
       S('text',{x:Math.max(X(r.cur),X(r.ref))+10,y:y+4,class:'dlab'},svg).textContent=(r.cur*100).toFixed(1)+'%';
     }
     const hit=S('rect',{x:0,y:M.t+i*rh,width:w,height:rh,fill:'transparent'},svg);
-    hit.addEventListener('pointermove',e=>tipShow(e,r.label,[
+    hoverLayer(hit,e=>{ band.classList.add('hov-on'); tipShow(e,r.label,[
       [C.primary,fmtPct(r.cur),'current window'],
       [C.ref,fmtPct(r.ref),'reference'],
       [null,(r.cur-r.ref>=0?'+':'')+((r.cur-r.ref)*100).toFixed(1)+' pp','shift'],
-    ]));
-    hit.addEventListener('pointerleave',tipHide);
+    ]); },()=>{ band.classList.remove('hov-on'); tipHide(); });
   });
 }
 
@@ -992,13 +1033,16 @@ function heatmap(id,capId,cfg){
       const r=S('rect',{x,y,width:cell,height:cell,rx:2.5,
         fill:v===0?C.card:ramp(Math.min(1,share/CAP)),
         stroke:v===0?C.grid:'none','stroke-width':v===0?1:0},svg);
-      r.addEventListener('pointermove',e=>tipShow(e,'true '+cfg.labels[i]+' → predicted '+cfg.labels[j],[
+      hoverLayer(r,e=>{ ring.setAttribute('x',x-1); ring.setAttribute('y',y-1); ring.classList.add('hov-on');
+        tipShow(e,'true '+cfg.labels[i]+' → predicted '+cfg.labels[j],[
         [i===j?C.seq[12]:C.primary,fmtComma(v),'doodles'],
         [null,fmtPct(share),'of true '+cfg.labels[i]],
-      ]));
-      r.addEventListener('pointerleave',tipHide);
+      ]); },()=>{ ring.classList.remove('hov-on'); tipHide(); });
     }
   });
+  // the hover ring sits above every cell; it is created after them, and the cell handlers
+  // above only reach it when the pointer arrives, by which time it exists
+  const ring=S('rect',{x:0,y:0,width:cell+2,height:cell+2,rx:3.5,fill:'none',stroke:C.ink,'stroke-width':1.5,class:'hov'},svg);
   // legend: capped gradient
   const lw=150,lx=labelCol,ly=topM+n*(cell+2)+16;
   for(let k=0;k<C.seq.length;k++){
@@ -1041,12 +1085,12 @@ function gateLine(id,cfg){
   S('circle',{cx:X(cfg.chall),cy:laneLa,r:5.5,fill:C.primary,stroke:C.card,'stroke-width':2},svg);
   S('text',{x:X(cfg.chall)-12,y:laneLa+4,'text-anchor':'end',class:'dlab'},svg).textContent='challenger v'+cfg.challV+' · '+fmt4(cfg.chall);
   const hit=S('rect',{x:0,y:0,width:w,height:h,fill:'transparent'},svg);
-  hit.addEventListener('pointermove',e=>tipShow(e,'the gate, this deploy',[
+  // one reading, one target: the whole instrument is the mark, so it has no hover mark
+  hoverLayer(hit,e=>tipShow(e,'the gate, this deploy',[
     [C.ink,fmt4(cfg.champ),'champion v'+cfg.champV],
     [C.primary,fmt4(cfg.chall),'challenger v'+cfg.challV],
     [null,'≥ '+cfg.floor.toFixed(2)+' and within ε '+cfg.eps,'rule'],
-  ]));
-  hit.addEventListener('pointerleave',tipHide);
+  ]),tipHide);
 }
 
 /* ================= status chips & fills ================= */
