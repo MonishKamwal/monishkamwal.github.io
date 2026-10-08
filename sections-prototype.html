@@ -28,6 +28,10 @@
     --w-sand:#f1e7d0;
     --ease-out-expo:cubic-bezier(.16,1,.3,1);
     --ease-hover:cubic-bezier(.2,.7,.35,1);
+    /* the one hover (2026-10-08), the same values as Home and the Data pages. Used on About
+       (links + the Work path) and on the Architecture and Skills links. */
+    --hover-dur:.18s;
+    --hover-scale:1.08;
     --paper:#f6efe3;   /* About's warm ground (replaces the dusty blue) */
     --dur:.48s; /* the loose global motion value */
   }
@@ -60,6 +64,20 @@
   }
   .link:hover{color:var(--warm);border-bottom-color:var(--warm);}
   .link:focus-visible{outline:2px solid var(--warm);outline-offset:3px;border-radius:2px;}
+  /* Architecture, Skills and Journey: links on the one hover (2026-10-08), the rule on Home,
+     the Data pages and About — bright ochre and ×--hover-scale over --hover-dur. Mouse and
+     trackpad on :hover where the device really hovers; keyboard on :focus-visible; touch on
+     :active. Scoped by the open page (Journey has links only in its cards). inline-block,
+     because an inline link cannot scale; grows from the left, the side the text starts on. */
+  body:is([data-page="architecture"],[data-page="skills"],[data-page="journey"]) .link{display:inline-block;transform-origin:left center;
+    transition:color var(--hover-dur) var(--ease-hover),border-color var(--hover-dur) var(--ease-hover),scale var(--hover-dur) var(--ease-hover);}
+  /* a card link stretched to the full card width (a flex column), so it could not grow
+     without crossing the card's edge; it now hugs its text, as every other link does */
+  body:is([data-page="architecture"],[data-page="skills"],[data-page="journey"]) .card-ev .link{align-self:flex-start;}
+  @media (hover:hover) and (pointer:fine){
+    body:is([data-page="architecture"],[data-page="skills"],[data-page="journey"]) .link:hover{color:var(--warm);border-color:var(--warm);scale:var(--hover-scale);}
+  }
+  body:is([data-page="architecture"],[data-page="skills"],[data-page="journey"]) .link:is(:focus-visible,:active){color:var(--warm);border-color:var(--warm);scale:var(--hover-scale);}
 
   /* ---------- top bar: "← Home" (left) + menu (right) ---------- */
   .topbar{
@@ -188,6 +206,14 @@
   .edge-blur.top::after{content:"";position:absolute;inset:0;
     background:linear-gradient(to top,transparent,color-mix(in srgb,var(--ground) 72%,transparent));}
   .wrap{max-width:900px;margin:0 auto;padding:clamp(96px,15vh,150px) clamp(24px,5vw,40px) clamp(60px,10vh,110px);}
+  /* Journey's intro at the left edge, with the same padding as the Architecture and Skills
+     title blocks (.ax-block.head / .sk-block.head), so the three Story pages open on the same
+     spot. The path stays in the centred column below it. (2026-10-08) */
+  .j-intro{padding:clamp(96px,15vh,150px) clamp(24px,6vw,86px) 0;}
+  .j-body{padding-top:0;}
+  /* the card hint follows the subtitle directly, as it does on Architecture: the head's own
+     bottom margin made room for the summary line, which is gone (2026-10-08) */
+  .j-intro .page-head{margin-bottom:0;}
   .page-head{margin-bottom:clamp(30px,6vh,60px);}
   .page-title{font-size:clamp(46px,9vw,96px);text-transform:uppercase;margin:0;}
   .page-lead{margin:12px 0 0;font-size:clamp(16px,2vw,21px);color:var(--muted-foreground);}
@@ -196,14 +222,25 @@
   .reveal{opacity:0;}
 
   /* ================= JOURNEY ================= */
-  .j-summary{margin:0 0 6px;font-size:14px;color:var(--muted-foreground);}
+  /* the card hint (2026-10-08): Architecture parts and Journey entries open a paper card, and
+     nothing said so — the cards were easy to miss. One line under each page's lead, the first
+     thing read on arrival. Deep ochre, not muted grey: it is an instruction, and deep ochre is
+     the site's colour for small text that must be read. The mark is a point to press, in the
+     thin-line grammar. The verb follows the input: "Click" where the device really hovers,
+     "Tap" on a touch screen. */
+  .card-hint{display:flex;width:fit-content;align-items:center;gap:9px;margin:16px 0 0;color:var(--deep-ochre);}
+  .card-hint svg{width:15px;height:15px;flex:0 0 auto;}
+  .card-hint .on-touch{display:none;}
+  @media (hover:none),(pointer:coarse){
+    .card-hint .on-fine{display:none;}
+    .card-hint .on-touch{display:inline;}
+  }
   .j-path-wrap{position:relative;margin:clamp(20px,4vh,44px) auto 0;max-width:760px;}
   .j-path-wrap svg{width:100%;height:auto;display:block;overflow:visible;}
   .j-path{fill:none;stroke:var(--foreground);stroke-width:1.4;stroke-linecap:round;}
   /* the hover lens — the stretch of line under the block you're hovering, thickened */
   .j-lens{fill:none;stroke:var(--foreground);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;}
-  .j-dot{fill:var(--foreground);opacity:0;cursor:pointer;transition:fill .25s var(--ease-out-expo);}
-  .j-dot:hover{fill:var(--warm);}
+  .j-dot{fill:var(--foreground);opacity:0;cursor:pointer;transition:fill var(--hover-dur) var(--ease-hover);}
   .j-end{fill:none;stroke:var(--foreground);stroke-width:1.4;stroke-linecap:round;opacity:0;}
   .phase-head{position:absolute;left:0;right:0;transform:translateY(-50%);text-align:center;opacity:0;pointer-events:none;z-index:2;}
   /* the chip is the hover target (the head itself spans the full width) and the thing
@@ -215,6 +252,7 @@
     font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
     font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
     text-transform:uppercase;font-size:clamp(25px,4.6vw,42px);line-height:1;color:var(--foreground);
+    transition:color var(--hover-dur) var(--ease-hover);
   }
   /* starts dead; the reveal turns pointer-events on once the card is actually there */
   .j-entry{position:absolute;width:min(200px,30%);opacity:0;cursor:pointer;pointer-events:none;}
@@ -226,9 +264,19 @@
     font-variation-settings:"opsz" 40;font-weight:500;letter-spacing:-.01em;
     font-size:clamp(17px,2.4vw,22px);margin:4px 0 3px;line-height:1.12;
   }
-  .j-entry h3 a{color:inherit;text-decoration:none;cursor:pointer;transition:color .25s var(--ease-out-expo);}
-  /* the whole card is the target, same as the lift — the title warms wherever you are on it */
-  .j-entry:hover h3 a{color:var(--warm);}
+  .j-entry h3 a{color:inherit;text-decoration:none;cursor:pointer;transition:color var(--hover-dur) var(--ease-hover);}
+  /* the Home §4 hover (2026-10-08). magnify() sets .hot on the lifted block (or chip) and on
+     its dot for as long as it is lifted: the title goes deep ochre, the dot bright ochre — the
+     token-pass split, text you read in deep ochre and marks in bright. A block and its dot are
+     one target, so the pointer on either lifts both. The :hover rules repeat the colours
+     without the motion, for reduced motion, where magnify() is off but the entries still open
+     a card on a click. Both only where the device really hovers, so a tap leaves nothing lit. */
+  .j-entry.hot h3 a,.phase-head .chip.hot .ph{color:var(--deep-ochre);}
+  .j-dot.hot{fill:var(--warm);}
+  @media (hover:hover) and (pointer:fine){
+    .j-entry:hover h3 a{color:var(--deep-ochre);}
+    .j-dot:hover{fill:var(--warm);}
+  }
   .j-entry p{margin:0;font-size:12.5px;color:var(--muted-foreground);line-height:1.45;}
   .j-tail{margin-top:8px;text-align:center;font-size:12px;color:var(--muted-foreground);font-style:italic;opacity:0;}
 
@@ -287,6 +335,12 @@
     .ax-plate{display:block;position:absolute;left:0;right:0;top:0;height:53%;background:linear-gradient(180deg,var(--ground) 0,var(--ground) 90%,transparent);}
     .ax-block{min-height:0;justify-content:flex-start;padding:0 clamp(24px,6vw,40px) 34vh;}
     .ax-block.head{min-height:86vh;padding:clamp(96px,15vh,150px) clamp(24px,6vw,40px) 0;position:relative;z-index:3;}
+    .j-intro{padding:clamp(96px,15vh,150px) clamp(24px,6vw,40px) 0;}
+    /* the card hint, portrait: the drawing holds the top 53% of the screen (the plate above)
+       and already runs under the title and lead here, so the hint does not join them. It sits
+       just under the drawing's zone, in the space the first screen leaves empty. */
+    .ax-block.head .card-hint{position:absolute;top:calc(53vh + 12px);top:calc(53svh + 12px);
+      left:clamp(24px,6vw,40px);right:clamp(24px,6vw,40px);margin:0;}
     .ax-block.end{padding-bottom:40vh;}
     .ax-h{font-size:28px;}
     .ax-p{font-size:14.5px;}
@@ -369,6 +423,14 @@
     /* tall enough that the first block rises from the bottom over ~a third of a screen,
        which is the runway the camera needs to leave the overview */
     .sk-block.head{min-height:92vh;padding:clamp(96px,15vh,150px) clamp(24px,6vw,40px) 0;position:relative;z-index:3;}
+    /* the card hint, portrait — as on Architecture: the map holds the top 66% (the plate) and
+       rises into the head on short screens (measured at 320x568: the hint sat on five labels),
+       so the hint sits just under the map's zone, in the space the first screen leaves empty.
+       It carries no .reveal: that window ends at 60% of the screen, so down here it rested at
+       .74-.80 forever — the bug this page's own note warns about. It takes its strength from
+       the head block, which the camera drives. */
+    .sk-block.head .card-hint{position:absolute;top:calc(66vh + 12px);top:calc(66svh + 12px);
+      left:clamp(24px,6vw,40px);right:clamp(24px,6vw,40px);margin:0;}
     .sk-block.end{padding-bottom:40vh;}
     .sk-name,.sk-tool{font-size:30px;}
     .sk-line{font-size:15px;margin:8px 0 16px;}
@@ -381,8 +443,19 @@
   .ab-page{position:relative;max-width:1000px;margin:0 auto;
     padding:clamp(84px,13vh,130px) clamp(26px,6vw,80px) clamp(44px,8vh,90px);
     container-type:inline-size;}
-  .ab-page a{color:var(--deep-ochre);text-decoration:none;border-bottom:1px solid rgba(150,96,10,.32);transition:color .25s var(--ease-hover),border-color .25s var(--ease-hover);}
-  .ab-page a:hover{color:var(--warm);border-bottom-color:var(--warm);}
+  .ab-page a{color:var(--deep-ochre);text-decoration:none;border-bottom:1px solid rgba(150,96,10,.32);}
+  /* About's links and the email button take the one hover (2026-10-08), the rule on Home and
+     the Data pages: bright ochre, ×--hover-scale, --hover-dur on --ease-hover. Mouse and
+     trackpad on :hover where the device really hovers; keyboard on :focus-visible, plus the
+     outline; touch on :active while the finger is down. inline-block, because a plain inline
+     link cannot scale. They grow from their centre: most of them sit in centred blocks. */
+  .ab-page a,.ab-email{display:inline-block;transform-origin:center;
+    transition:color var(--hover-dur) var(--ease-hover),border-color var(--hover-dur) var(--ease-hover),scale var(--hover-dur) var(--ease-hover);}
+  @media (hover:hover) and (pointer:fine){
+    .ab-page :is(a,.ab-email):hover{color:var(--warm);border-color:var(--warm);scale:var(--hover-scale);}
+  }
+  .ab-page :is(a,.ab-email):is(:focus-visible,:active){color:var(--warm);border-color:var(--warm);scale:var(--hover-scale);}
+  .ab-page :is(a,.ab-email):focus-visible{outline:2px solid var(--warm);outline-offset:3px;border-radius:2px;}
 
   /* the wash — Home §5 Skills scheme (multiply .42, morphs via JS); right side, from behind the portrait down to the serpentine */
   .ab-wash{position:absolute;z-index:0;overflow:visible;pointer-events:none;top:-1%;right:-5%;width:min(600px,56%);height:86%;}
@@ -431,9 +504,7 @@
   .crop-actions button:hover{border-color:var(--warm-soft);}
 
   /* contact */
-  .ab-email{background:none;border:0;padding:0;cursor:pointer;font:inherit;color:var(--deep-ochre);font-size:clamp(17px,2vw,22px);border-bottom:1px solid rgba(150,96,10,.34);transition:color .3s var(--ease-out-expo),border-color .3s var(--ease-out-expo);}
-  .ab-email:hover{color:var(--warm);border-bottom-color:var(--warm);}
-  .ab-email:focus-visible{outline:2px solid var(--warm);outline-offset:3px;}
+  .ab-email{background:none;border:0;padding:0;cursor:pointer;font:inherit;color:var(--deep-ochre);font-size:clamp(17px,2vw,22px);border-bottom:1px solid rgba(150,96,10,.34);}
   .ab-links{margin-top:14px;display:flex;gap:22px;font-size:15px;}
   .resume{font-size:14.5px;margin:0;}
 
@@ -452,9 +523,18 @@
   .trace{position:relative;width:100%;max-width:720px;margin:clamp(24px,4vh,46px) auto 0;aspect-ratio:700/660;}
   .trace svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;}
   .tr-path{fill:none;stroke:var(--deep-ochre);stroke-width:2.2;stroke-linecap:round;}
-  .tr-node{fill:var(--paper);stroke:var(--foreground);stroke-width:2;}
-  .tr-stop{position:absolute;width:38%;}
-  .tr-stop.left{text-align:right;}
+  .tr-node{fill:var(--paper);stroke:var(--foreground);stroke-width:2;transition:fill var(--hover-dur) var(--ease-hover),stroke var(--hover-dur) var(--ease-hover);}
+  .tr-stop{position:absolute;width:38%;transform-origin:left center;}
+  .tr-stop.left{text-align:right;transform-origin:right center;}
+  /* the Home §4 Journey hover, on the Work path (2026-10-08): hover a stop and it grows by
+     --hover-scale, its node swells and goes ochre, its role goes deep ochre, and the lens — a
+     copy of the path at a bolder stroke, clipped to a circle, with the base path masked out
+     under it — slides along the path to that stop. Driven by applyTrace(); mouse and trackpad
+     only, off for reduced motion, exactly as on Home. */
+  .tr-lens{fill:none;stroke:var(--deep-ochre);stroke-width:4.7;stroke-linecap:round;pointer-events:none;}
+  .tr-role{transition:color var(--hover-dur) var(--ease-hover);}
+  .tr-stop.hot .tr-role{color:var(--deep-ochre);}
+  .tr-node.hot{fill:var(--warm);stroke:var(--warm);}
   .tr-range{font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.04em;color:var(--muted-foreground);}
   .tr-role{display:block;font-size:clamp(16px,1.9vw,20px);font-weight:450;margin:3px 0;line-height:1.16;}
   .tr-what{display:block;font-size:13.5px;color:var(--muted-foreground);}
@@ -486,13 +566,24 @@
     transform:translate(-50%,-50%) scale(.6);opacity:0;transform-origin:var(--ox,50%) var(--oy,50%);
     transition:transform var(--dur) var(--ease-out-expo),opacity calc(var(--dur)*.7) var(--ease-out-expo);
   }
-  .paper-card.open{transform:translate(-50%,-50%) scale(1);opacity:1;}
+  .paper-card.open{transform:translate(-50%,-50%) scale(1);opacity:1;pointer-events:auto;}
+  /* closed, the card is invisible but was still in the way: a 408x88 box at the screen centre
+     caught the pointer on every Story page, so a link scrolled under it could not be hovered or
+     clicked (measured on Skills, 2026-10-08). It answers the pointer only while it is open. */
+  .paper-card:not(.open){pointer-events:none;}
   .card-x{
     position:absolute;top:16px;right:16px;background:none;border:0;cursor:pointer;
     padding:6px;color:var(--foreground);line-height:0;transition:color .3s var(--ease-out-expo);
   }
   .card-x:hover{color:var(--warm);}
   .card-x:focus-visible{outline:2px solid var(--warm);outline-offset:2px;border-radius:3px;}
+  /* a Journey card's close button on the one hover (2026-10-08). Scoped to Journey: the same
+     card opens on Architecture and Skills, where only the links were asked to change. */
+  body[data-page="journey"] .card-x{transition:color var(--hover-dur) var(--ease-hover),scale var(--hover-dur) var(--ease-hover);}
+  @media (hover:hover) and (pointer:fine){
+    body[data-page="journey"] .card-x:hover{scale:var(--hover-scale);}
+  }
+  body[data-page="journey"] .card-x:is(:focus-visible,:active){color:var(--warm);scale:var(--hover-scale);}
   .card-meta{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted-foreground);font-weight:500;}
   .card-title{
     font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
@@ -581,12 +672,16 @@
 
   <!-- ================= JOURNEY ================= -->
   <section class="page active" data-page="journey" data-arrival="line">
-    <div class="wrap">
+    <!-- the intro sits at the left edge, where Architecture and Skills put their title block;
+         the path below keeps the centred column (2026-10-08) -->
+    <div class="j-intro">
       <div class="page-head reveal">
         <h1 class="page-title display">The Journey</h1>
         <p class="page-lead">Roads not taken</p>
       </div>
-      <p class="j-summary reveal">Every decision, in the order it happened — scroll is the walk from the first commit to today.</p>
+      <p class="card-hint micro reveal"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="1.8" fill="currentColor" stroke="none"/></svg><span><span class="on-fine">Click</span><span class="on-touch">Tap</span> any entry to read the full story</span></p>
+    </div>
+    <div class="wrap j-body">
 
       <div class="j-path-wrap" id="jWrap">
         <svg id="jSvg" viewBox="0 0 700 1500" fill="none" aria-hidden="true">
@@ -623,6 +718,7 @@
       <div class="ax-block head" data-k="head">
         <h1 class="page-title display reveal">Architecture</h1>
         <p class="page-lead reveal" data-stagger="1">The machine behind the doodle</p>
+        <p class="card-hint micro reveal" data-stagger="2"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="1.8" fill="currentColor" stroke="none"/></svg><span><span class="on-fine">Click</span><span class="on-touch">Tap</span> any part of the drawing to read about it</span></p>
       </div>
       <div class="ax-block" data-k="ov">
         <p class="micro ax-k">System overview</p>
@@ -740,6 +836,7 @@
       <div class="sk-block head" data-stop="head">
         <h1 class="page-title display reveal">Skills</h1>
         <p class="page-lead reveal" data-stagger="1">What I build with</p>
+        <p class="card-hint micro"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="1.8" fill="currentColor" stroke="none"/></svg><span><span class="on-fine">Click</span><span class="on-touch">Tap</span> a link under any tool to see the evidence</span></p>
       </div>
       <div class="sk-block" data-stop="data">
         <p class="micro sk-k">1 of 5</p>
@@ -876,7 +973,12 @@
         <div class="work-h"><h2 class="cv2-h reveal">Work</h2></div>
         <div class="trace reveal" id="abTrace">
           <svg viewBox="0 0 700 660" preserveAspectRatio="xMidYMid meet">
-            <path class="tr-path" d="M500 70 C500 200 205 200 205 330 C205 455 500 455 500 580"/>
+            <defs>
+              <clipPath id="abLensClip"><circle id="abLensCircle" cx="0" cy="0" r="0"/></clipPath>
+              <mask id="abLensMask" maskUnits="userSpaceOnUse"><rect x="-100" y="-100" width="900" height="860" fill="#fff"/><circle id="abLensHole" cx="0" cy="0" r="0" fill="#000"/></mask>
+            </defs>
+            <path class="tr-path" id="abPath" d="M500 70 C500 200 205 200 205 330 C205 455 500 455 500 580" mask="url(#abLensMask)"/>
+            <path class="tr-lens" d="M500 70 C500 200 205 200 205 330 C205 455 500 455 500 580" clip-path="url(#abLensClip)"/>
             <circle class="tr-node" cx="500" cy="70" r="8"/>
             <circle class="tr-node" cx="205" cy="330" r="8"/>
             <circle class="tr-node" cx="500" cy="580" r="8"/>
@@ -1075,7 +1177,12 @@
   const jLensPath=document.getElementById('jLensPath');
   const jLensCircle=document.getElementById('jLensCircle');
   const jLensHole=document.getElementById('jLensHole');
-  const LENS_R=60, LENS_S=1.4;   // lens radius (SVG units), text/dot zoom
+  // the Home §4 values (2026-10-08): the lens radius Home and About use, and the page's one
+  // hover growth for the text/dot zoom (was ×1.4), read from --hover-scale
+  const LENS_R=52, LENS_S=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hover-scale'))||1.08;
+  // mouse and trackpad only, as on Home: a phone sends mouseenter on a tap and no mouseleave
+  // after it, so the tapped block stayed lifted (measured: ×1.4 after its card was closed)
+  const J_FINE=window.matchMedia('(hover:hover) and (pointer:fine)');
   // A hovered block lifts above .edge-blur (z-index 25) so the thing you are pointing at
   // stays crisp — inside those bands it was being blurred and washed toward --ground while
   // scaled up, which read as a rendering fault rather than an edge treatment. Still below
@@ -1085,6 +1192,7 @@
   let jFocus=[];                 // one per hoverable block: {hit,scaleEl,dot,frac,cur}
   let focusTarget=0, focusCur=0, lensOn=0, hoverIdx=-1, offTimer=null;
   function focusOn(i){
+    if(!J_FINE.matches) return;
     clearTimeout(offTimer);
     if(lensOn<0.05) focusCur=jFocus[i].frac;   // cold start: the lens grows in place, it doesn't fly in
     hoverIdx=i; focusTarget=jFocus[i].frac;
@@ -1108,6 +1216,8 @@
       // no reveal check here — applyJourney() only gives a block pointer-events once it's there
       f.hit.addEventListener('mouseenter',()=>focusOn(i));
       f.hit.addEventListener('mouseleave',focusOff);
+      // the dot is the same target as its block: it opens the same card, so it lifts the same
+      if(f.dot){ f.dot.addEventListener('mouseenter',()=>focusOn(i)); f.dot.addEventListener('mouseleave',focusOff); }
     });
   }
   function magnify(){
@@ -1120,6 +1230,8 @@
       f.scaleEl.style.scale=f.cur<0.001?'':s.toFixed(3);
       f.liftEl.style.zIndex=f.cur<0.001?'':LIFT_Z;   // clears the edge blur while lifted
       if(f.dot) f.dot.setAttribute('r',(6*s).toFixed(2));
+      f.scaleEl.classList.toggle('hot',i===hoverIdx);       // title deep ochre, dot bright ochre
+      if(f.dot) f.dot.classList.toggle('hot',i===hoverIdx);
     });
     if(lensOn<0.01){ for(const el of [jLensCircle,jLensHole]) el.setAttribute('r',0); return; }
     const pt=jPath.getPointAtLength(Math.max(0,Math.min(1,focusCur))*jLen);
@@ -1514,7 +1626,7 @@
       setReveal(el,reduce?1:easeOut(revealProgress(el)),dir);
     }
     if(activeName==='journey') applyJourney();
-    if(activeName==='about') morphAbout();
+    if(activeName==='about'){ morphAbout(); applyTrace(); }
     if(activeName==='skills') applySkills();
     if(activeName==='architecture') applyArch();
   }
@@ -1557,6 +1669,63 @@
       it.el.setAttribute('d',closedSpline(pts));
     });
   }
+
+  // ================= ABOUT: the Work path takes the Home §4 Journey hover (2026-10-08) =================
+  // Hover a stop and it grows by --hover-scale, its node swells and goes ochre (.hot), its role
+  // goes deep ochre, and the lens slides along the path to that stop's node. The same model and
+  // the same constants as Home's magnifier: each value eases 18% of the way per frame (the lens
+  // position 30%), and a 90ms grace keeps the lens up while the pointer crosses from one stop
+  // to the next. Mouse and trackpad only — a phone sends mouseenter on a tap and no mouseleave
+  // after it, so a tapped stop would stay grown. Off for reduced motion. Built on first use,
+  // because the path has no length while About is display:none.
+  const TR_FINE=window.matchMedia('(hover:hover) and (pointer:fine)');
+  const TR_LENS_R=52;
+  let tr=null;
+  function buildTrace(){
+    const wrap=document.getElementById('abTrace'), path=document.getElementById('abPath');
+    if(!wrap||!path) return null;
+    const len=path.getTotalLength(); if(!len) return null;
+    const N=240, samp=[]; for(let k=0;k<=N;k++) samp.push(path.getPointAtLength(len*k/N));
+    const fracNear=(x,y)=>{let bi=0,bd=1e9;samp.forEach((p,k)=>{const d=(p.x-x)**2+(p.y-y)**2;if(d<bd){bd=d;bi=k;}});return bi/N;};
+    const nodes=[...wrap.querySelectorAll('.tr-node')], stops=[...wrap.querySelectorAll('.tr-stop')];
+    const t={wrap,path,len,stops,nodes,
+      frac:nodes.map(n=>fracNear(+n.getAttribute('cx'),+n.getAttribute('cy'))),
+      baseR:nodes.map(n=>parseFloat(n.getAttribute('r'))||8),
+      cur:stops.map(()=>0), circle:document.getElementById('abLensCircle'), hole:document.getElementById('abLensHole'),
+      S:parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hover-scale'))||1.08,
+      hover:-1, target:0, focus:0, lensOn:0, off:null};
+    if(!reduce) stops.forEach((el,i)=>{
+      el.addEventListener('mouseenter',()=>{
+        if(!TR_FINE.matches) return;
+        if(parseFloat(wrap.style.opacity||0)<=0.6) return;      // the path hasn't arrived yet
+        clearTimeout(t.off);
+        if(t.lensOn<0.05) t.focus=t.frac[i];                     // cold start: grow in place, don't fly in
+        t.hover=i; t.target=t.frac[i];
+      });
+      el.addEventListener('mouseleave',()=>{ clearTimeout(t.off); t.off=setTimeout(()=>{ t.hover=-1; },90); });
+    });
+    return t;
+  }
+  function applyTrace(){
+    if(reduce) return;
+    if(!tr){ tr=buildTrace(); if(!tr) return; }
+    tr.lensOn+=((tr.hover>=0?1:0)-tr.lensOn)*0.18;
+    tr.focus+=(tr.target-tr.focus)*0.30;
+    tr.stops.forEach((el,i)=>{
+      tr.cur[i]+=((i===tr.hover?1:0)-tr.cur[i])*0.18;
+      const s=1+(tr.S-1)*tr.cur[i];
+      el.style.scale=tr.cur[i]<0.001?'':s.toFixed(3);
+      tr.nodes[i].setAttribute('r',(tr.baseR[i]*s).toFixed(2));
+      el.classList.toggle('hot',i===tr.hover);
+      tr.nodes[i].classList.toggle('hot',i===tr.hover);
+    });
+    if(tr.lensOn<0.01){ tr.circle.setAttribute('r',0); tr.hole.setAttribute('r',0); return; }
+    const pt=tr.path.getPointAtLength(Math.max(0,Math.min(1,tr.focus))*tr.len);
+    const r=(TR_LENS_R*tr.lensOn).toFixed(1);
+    for(const el of [tr.circle,tr.hole]){ el.setAttribute('cx',pt.x.toFixed(1)); el.setAttribute('cy',pt.y.toFixed(1)); el.setAttribute('r',r); }
+  }
+  // iOS applies :active (the one hover's touch state) only when the page listens for touchstart
+  document.addEventListener('touchstart',()=>{},{passive:true});
 
   // ---- IG-style photo uploader + cropper (crop stored as background-size + position %, so it's
   //      resolution-independent — the modal circle and the portrait circle reproduce the same framing) ----

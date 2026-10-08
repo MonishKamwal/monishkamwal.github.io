@@ -1122,6 +1122,253 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-10-08** — **Skills gets a note too: "Click a link under any tool to see the
+  evidence"** (`sections-prototype.html`). Monish asked for this so that the three Story pages
+  agree. The receipt links carry the point of the page, "skills with receipts", so the note
+  is about them. It uses the same style and the same place as the notes on Architecture and
+  Journey, under the subtitle. It says "Tap" on a touch screen.
+  - **Portrait layout.** The map holds the top 66% of the screen. On short screens it rises
+    into the head. At 320×568, the note sat on five map labels. As on Architecture, the
+    note sits just under the map's zone in the portrait layout.
+  - **No `.reveal` on this note.** At 66% of the screen, the shared reveal stopped at an
+    opacity of .74–.80. Its window ends at 60% of the screen. This is the fault that the
+    Skills entry of 2026-10-02 warns about. The note takes its strength from the head
+    block, which the camera drives.
+  - **Checks** (`skhint.js` in `.browser-tools`). The note is at full opacity on the first
+    screen at seven sizes from 320×568 to 1920×1080. In the portrait layout, it is clear of
+    every shape and label, and above the tray. `skillspage.js` passes, with no page errors.
+  - **Accepted.** At 1280×720, the end of the note goes across the pale edge of the
+    "Training models" shape (19% of the note). The note stays legible. At 1440 and 1920 wide,
+    it is clear.
+
+- **2026-10-08** — **The Journey title block moves to the left edge, as on Architecture and
+  Skills** (`sections-prototype.html`). Monish saw that the Journey title and subtitle were
+  centred, and the other two Story pages put them at the left.
+  - **What was different.** The Journey intro was in the centred 900px column (`.wrap`). On a
+    wide screen its left edge was at 230–550px. On the other two pages it was at
+    `clamp(24px,6vw,86px)`. The vertical positions were the same, and on a phone all three
+    pages were already at 24px.
+  - **The change.** The intro is in its own block, `.j-intro`. This is the title, the
+    subtitle, the summary line and the card hint. It has the padding of `.ax-block.head`
+    and `.sk-block.head` (`clamp(24px,6vw,40px)` at the sides in the portrait layout). The
+    summary and the hint move with the title, so that the intro stays one group. The path
+    stays in the centred column, as the drawing and the map do on the other two pages.
+  - **Checks** (`headalign.js` in `.browser-tools`). At 1280×720, 1440×900, 1920×1080 and
+    390×844, the title and the subtitle of Journey are at the same position as on
+    Architecture and Skills. `journeyhover.js` and `dockcheck.js` pass, with no page errors.
+  - **The summary line is removed**, at Monish's request: "Every decision, in the order it
+    happened — scroll is the walk from the first commit to today." Its `.j-summary` rule is
+    removed too. The head's bottom margin made space for that line, so it is now 0 in
+    `.j-intro`. The card hint is now 16px under the subtitle, as on Architecture. On wide
+    screens, the hint is at the same position on the two pages. On a phone, the Architecture
+    hint is lower on purpose, under the drawing.
+
+- **2026-10-08** — **Architecture and Journey tell the visitor that the cards exist**
+  (`sections-prototype.html`). Monish said that the paper cards are easy to miss, because
+  nothing on the page says that a click opens them.
+  - **The note.** One line under the lead of each page, which is the first thing a visitor
+    reads. Architecture: "Click any part of the drawing to read about it." Journey: "Click
+    any entry to read the full story." The note uses the site's micro-label style, in deep
+    ochre, with a thin-line mark of a point to press. It is deep ochre, not muted grey,
+    because it is an instruction. Deep ochre is the colour for small text that must be read.
+  - **The verb follows the input.** The note says "Click" on a device that really hovers. It
+    says "Tap" on a touch screen (`(hover:none),(pointer:coarse)`).
+  - **Architecture on a phone.** The drawing holds the top 53% of the screen, and it already
+    runs under the title and the lead. This was so before this change. The note does not
+    join them. In the portrait layout, it sits just under the drawing's zone, in the space
+    that the first screen leaves empty.
+  - **Checks** (`hintcheck.js` and `axhintphone.js` in `.browser-tools`). At 1440×900,
+    1280×720 and 390×844, the note is on the first screen at full opacity and shows the
+    correct verb. From 320×568 to 768×1024, the Architecture note is clear of the drawing and
+    above the tray. `archpage.js` (the head still fits above the tray), `dockcheck.js` and
+    `journeyhover.js` pass, with no page errors.
+  - **Open.** On a phone, the Architecture drawing runs under the title and the lead. This
+    is an earlier layout fault, and this change does not fix it.
+
+- **2026-10-08** — **The inner Journey page gets the Home §4 hover** (`sections-prototype.html`).
+  Monish asked for an update of the hovers on the inner Journey page. `journeyhover.js` (in
+  `.browser-tools`) measured the page before and after the change.
+  - **The magnifier.** A block grew by ×1.4. It now grows by `--hover-scale` (1.08), and
+    the script reads the token. The lens radius is 52, from 60, which is the value on Home
+    and About. A phase chip uses the same growth.
+  - **The colours.** The lit title goes to deep ochre, and the lit dot goes to bright ochre.
+    Before, the title went to bright ochre, and the dot changed only when the pointer was on
+    the dot. `magnify()` now sets `.hot` on the lifted block or chip and on its dot. A
+    lifted phase chip sets its title in deep ochre too.
+  - **The dot and its block are one target.** A click on either opens the same card. Before,
+    the pointer on a dot changed the dot only. Now it lifts the block and the lens too.
+  - **Touch fix (measured).** A tap on an entry opens its card. The block stayed at ×1.4 in
+    ochre, with the lens, after the card closed. The magnifier now starts only on a mouse or
+    a trackpad, as on Home.
+  - **Reduced motion.** `magnify()` is off, but an entry still opens a card on a click. So
+    the title and the dot keep their colours on `:hover`, with no growth. As with every hover
+    rule, this applies only where the device really hovers.
+  - **The Journey card.** The rule for the card links on Architecture and Skills now
+    includes Journey. A link goes to bright ochre and grows by 1.08, and it has the width of
+    its text, not 574px. The close button gets the one hover on Journey only. On Architecture
+    and Skills it still only changes colour, because Monish asked for the links only there.
+  - **Checks.** With a mouse, an entry, its dot and a chip each lift with the Home values,
+    and they come back to rest. A tap leaves nothing lifted. The card links and the close
+    button give the same look on hover and on focus. `dockcheck.js`, `archpage.js`,
+    `skillspage.js`, `abouthover.js`, `storylinks.js` and `cardstate.js` pass, with no page
+    errors.
+  - **Open.** The close button of a card looks different on Journey than on Architecture and
+    Skills. The entries cannot take keyboard focus. Their title `<a>` has no `href`, so a
+    keyboard cannot reach a card.
+
+- **2026-10-08** — **The Architecture and Skills links get the one hover**
+  (`sections-prototype.html`). Monish asked for a change to the links only. These pages
+  have no other item with a hover effect.
+  - **The links.** There are 2 links on Architecture, 17 receipt links on Skills, and the
+    evidence links in a paper card. They now go to bright ochre and grow by `--hover-scale`
+    (1.08). Before, they only changed colour, in .3s. Keyboard focus gets the same look and
+    the outline. Touch gets the look on `:active`. The rule is scoped with
+    `body[data-page]`, so the Journey page and its cards do not change.
+  - **A card link now fits its text.** A card puts its links in a flex column, so each
+    link was as wide as the card: 574px for 61–156px of text. Its underline went across the
+    full card, and an 8% growth would go 46px past the edge of the card. On Architecture
+    and Skills, a card link now has the width of its text, as every other link has.
+  - **Bug fix: the closed paper card caught the pointer.** A closed card has opacity 0 but
+    kept `pointer-events:auto`. It was a 408×88px box at the centre of the screen on every
+    Story page. 5 of the 17 Skills links were under it when they scrolled to the centre, and
+    the pointer could not hover or click them. A card now answers the pointer only while it
+    is open. This change also applies to the Journey page.
+  - **Checks** (`storylinks.js`, `skhit.js` and `cardstate.js` in `.browser-tools`). All 21
+    links give the same colour, growth and outline on hover and on focus, and each has room
+    to grow. The pointer reaches all 17 Skills links. A Journey card link does not change.
+    `archpage.js` (a card opens from a part click and from a deep link), `skillspage.js`,
+    `dockcheck.js` and `abouthover.js` pass, with no page errors.
+
+- **2026-10-08** — **About: the links get the one hover, and the Work path gets the Home §4
+  hover** (`sections-prototype.html`). Monish gave three instructions. Do not change the
+  shapes. Give the links the one hover. Give the Work path the hover of the Home Journey.
+  - **The shapes do not change.** They do not answer the pointer (`pointer-events:none`).
+  - **The links.** "Download résumé", the email button, GitHub and LinkedIn now use the one
+    hover. They go to bright ochre and grow by `--hover-scale` (1.08). Before, they only
+    changed colour, in .25s or .3s. Keyboard focus gets the same look and the outline. Touch
+    gets the look on `:active`. A link is now `inline-block`, because an inline link cannot
+    scale. The links grow from their centre, because most of them are in centred blocks.
+    This file now has `--hover-dur` and `--hover-scale`.
+  - **The Work path.** A stop grows by `--hover-scale`, and its role goes to deep ochre. Its
+    node swells and fills with bright ochre. The lens moves along the path to the node. The
+    lens is a copy of the path with a thicker stroke (4.7, from 2.2), clipped to a circle,
+    and the base path is masked under it. `applyTrace()` uses the constants of the Home
+    magnifier: 18% for each frame, 30% for the lens position, and a 90ms grace between
+    stops. It operates only with a mouse or a trackpad, and it is off for reduced motion.
+  - **Checks** (`abouthover.js` in `.browser-tools`). The four links give the same colour,
+    growth and outline on hover and on focus. With a mouse, each stop, node and lens goes
+    to its hover state and comes back to rest. A tap on a phone does not grow a stop. With
+    reduced motion, the stops do not grow. `dockcheck.js`, `skillspage.js` and
+    `archpage.js` pass, with no page errors.
+  - **Not changed.** The "Add photo" button and the crop window buttons. The rest of this
+    file is not on the one hover yet: the menu, the Story tray, the Journey and Skills
+    pages, and the paper cards. The inner Journey page still magnifies by ×1.4.
+
+- **2026-10-08** — **The Data pages get the one hover, and every chart answers mouse and
+  touch** (`data-prototype-white.html`). Monish asked for a check of the hover effects on
+  Quality, Monitoring and Performance. `datahover.js` (in `.browser-tools`) measured the
+  pages before and after the change.
+  - **The controls use the Home rule.** The tokens are the same: `--hover-scale` (1.08),
+    `--hover-dur` (.18s) and `--ease-hover`. Before, the growth was none, 1.06, 1.07, 1.09
+    or 1.12. The tray tabs went to ink and the chips went to deep ochre. Now every control
+    goes to bright ochre and grows by 1.08. This includes "← Home", the menu, the tray tabs,
+    the `data` chips and the links. "← Home" keeps the nudge of its arrow to the left.
+    Keyboard focus gets the same look and the outline. Touch gets the look on `:active`.
+  - **The current tray tab does not answer hover.** It is the page that you are on, and a
+    click on it does nothing. Before, it grew like the other tabs. It keeps the focus
+    outline.
+  - **Touch now shows the chart tooltips.** Before, a tap on a chart showed nothing on all
+    twelve charts. The charts listened for `pointermove` only, and a tap does not move.
+    `hoverLayer()` now handles each input. A mouse or a trackpad shows the tooltip while
+    the pointer is on the target. A tap shows it until the next tap or a scroll. Touch
+    ignores `pointerleave`, because it fires when the finger lifts.
+  - **Every chart marks the hovered position.** Before, only the line charts did this, with
+    the crosshair. Now a histogram bin and a row of the dot plot or the dumbbell get a band
+    in the grid colour. A heatmap cell gets an ink ring. The band goes behind every line,
+    so the macro-F1 anchor and the grid stay visible. The marks never use a series colour.
+    The gate chart has one target and no mark. The whole instrument is the mark.
+  - **The menu links are capped at 7.6vw**, the same as on Home. The cap changes only
+    screens narrower than about 368px.
+  - **A false alarm, on record.** The first run reported tooltips that stayed after the
+    pointer left. The test had moved the pointer onto another chart under the top bar.
+    The page was correct. The test now moves the pointer to the empty left margin.
+  - **Checks.** On all three pages, the controls give the same colour, growth and outline on
+    hover and on focus. All twelve charts show the tooltip and the mark on hover and on a
+    tap, and hide both after. `chipcheck.js`, `dockcheck.js` and `menuclip.js` pass, with no
+    page errors. The harness sends real touch taps. It cannot hold a finger down, so
+    `:active` was not tested.
+  - **Open.** The chart marks have no keyboard path. The `data` table is the keyboard path,
+    as the Data-mode rule says: "tooltips enhance, tables guarantee". On a 390px phone,
+    some panel titles wrap to one word for each line beside their chips, for example "What
+    people actually draw". This is not a hover fault.
+
+- **2026-10-08** — **Home gets one hover for the whole page** (`transition-prototype.html`).
+  Monish asked for a consistent hover effect on Home. Before this change, the controls grew by
+  6, 7, 9, 10 or 12 percent. They used two easing curves and durations from .17s to .25s.
+  Some ended on bright ochre and some on deep ochre.
+  - **The look.** A control turns to bright ochre `--warm` and grows by `--hover-scale` (1.08).
+    The change takes `--hover-dur` (.18s) on `--ease-hover`. Ink and deep-ochre text both go
+    to bright ochre. A pill's border turns ochre with its label. The ↓ cues are ochre at
+    rest, so they only grow.
+  - **One rule, three inputs.** Mouse and trackpad get the look on `:hover`, inside
+    `(hover:hover) and (pointer:fine)`. Keyboard focus gets the same look, plus the ochre
+    outline. Touch gets the look on `:active`, while the finger is down. An empty
+    `touchstart` listener makes iOS apply `:active`.
+  - **What changed for keyboard users.** Before, only the menu links showed the hover look on
+    focus. The three ochre text links had no focus style, so the browser default showed.
+  - **The Home §4 text blocks use the same growth.** The magnifier zoom was ×1.4. It is now
+    `--hover-scale`, and the script reads the token. The dot grows with its block. The
+    thicker line under the block does not change. The "Read the journey" link does not grow
+    a second time inside its magnified block.
+  - **Home §5: the shared tool labels use the same growth, and the shapes do not.** A shared
+    tool label grew by 1.12. It now grows by `--hover-scale`. A shape grows by 1.03, as
+    before. Monish tried the shapes at 1.08 and said that it felt too much.
+  - **A §5 shape grows at the speed of a §4 block**, at Monish's request. A §4 block moves 18%
+    of the remaining distance on each frame. At 60Hz, this is `--ease-out-expo` over .58s,
+    to within about 1% of the growth. The shape's `scale` uses that transition. Its colour
+    and opacity stay on `--hover-dur`. `growspeed.js` (in `.browser-tools`) samples both
+    curves frame by frame. At 100ms, both are at 0.70 to 0.71 of their growth. At 300ms,
+    both are at 0.95 to 0.98. With the old .18s, the shape was at 0.96 at 100ms. The §4
+    speed changes with the refresh rate of the screen, and a 120Hz screen doubles it. The
+    §5 speed does not change, so the two match only at 60Hz.
+  - **A §5 shape no longer snaps back when the pointer leaves it.** Monish saw the snap. The
+    CSS shrink was correct, at .58s. The fault was in the morph loop. It froze a hovered
+    blob's outline, but the blob read the page clock, and that clock did not stop. The first
+    frame after the pointer left jumped the outline forward. `shrinkspeed.js` (in
+    `.browser-tools`) measured a change of 20–26% of the drawn area in one frame. Each blob
+    now has its own clock. The clock slows to a stop while the shape is hovered or lit, and
+    it starts again from the same point. The rate eases with an 84ms time constant, which
+    is the time constant of the §4 magnifier. After the change, the largest change in one
+    frame is less than 0.75%, which is the normal breathing.
+  - **The shapes at 1.08 did not cover their crossings.** An earlier note said that they
+    would. The screenshots showed that each shared tool label stayed in its crossing.
+    `skillshover.js` (in `.browser-tools`) hovers each shape and measures where it lands.
+    Monish rejected 1.08 by how it felt, not because of a layout fault.
+  - **Colour of lit text.** Text that you read while it is lit goes to deep ochre. This is a
+    §4 title or a §5 name. A §4 dot goes to bright ochre, as the token pass specified.
+  - **Touch fix (measured).** A tap on a §4 block used to magnify it, and the block stayed
+    magnified. The magnifier now starts only on a mouse or trackpad.
+  - **Checks** (`hovercheck.js` and `hoverfeatures.js` in `.browser-tools`). Thirteen
+    controls give the same colour, growth and outline on hover and on keyboard focus. After a
+    tap, no control stays lit. The test browser did not keep `:hover` after a tap on the old
+    page either, so the sticky-hover fix for real phones is reasoned, not measured. The
+    harness cannot hold a finger down, so `:active` was not tested. `homecheck.js` and
+    `homenav.js` pass. The `homenav.js --reduce` script stops on a removed element. It
+    stops on the old page too, so this change did not cause it.
+  - **The menu.** The menu button, the close button and the menu links already use the one
+    hover. `menuclip.js` (in `.browser-tools`) measures each grown link against the edge of
+    the nav, which clips with `overflow-x:hidden`. At 320px wide, "Architecture" was clipped
+    by 4px at rest and by 22px when it grew. "Performance" was clipped by 13px when it grew.
+    The link size is now `min(clamp(28px,4.5vw,38px),7.6vw)`. The cap changes only screens
+    narrower than about 368px. At 320px, the closest link has 9px of space, which is enough
+    for the 5px focus outline.
+  - **Open.** Seven menu links have a `title` attribute, for example "Data mode lives in the
+    data prototype". The browser shows it as a grey tooltip after about one second of
+    hover. This tooltip is not part of the one hover. These notes are for the prototype
+    only.
+  - **Add a new control to the three selector lists** in "one hover for the whole page", at
+    the end of the styles.
+
 - **2026-10-02** — **The Architecture page becomes "Pulled apart, crossings are stops"**
   (`sections-prototype.html`). Monish chose it over three sketch sheets:
   `arch-page-sketches.html` (four page ideas; he chose C, the exploded drawing),
