@@ -888,7 +888,7 @@
       </div>
 
       <!-- Say hello -->
-      <div class="ab-outro reveal">
+      <div class="ab-outro reveal" data-reveal="foot">
         <p class="ab-say">Say hello.</p>
         <button class="ab-email" id="aboutMail" type="button">kallukalia01@outlook.com</button>
         <div class="ab-links">
@@ -958,6 +958,11 @@
   function revealProgress(el){
     const r=el.getBoundingClientRect();
     const vh=window.innerHeight;
+    // page-foot blocks (the "Say hello" outro) sit at the very bottom, so their top can
+    // never rise past the shared 0.60vh window end — they'd rest at partial opacity and
+    // read grey. Anchor their reveal to their OWN height instead: full once the whole
+    // block is on screen, which it always is at rest. Viewport-height independent.
+    if(el.dataset.reveal==='foot') return clamp((vh*0.98-r.top)/r.height,0,1);
     const st=parseFloat(el.dataset.stagger||0);
     const start=vh*0.88 - st*vh*0.045;
     const end=vh*0.60 - st*vh*0.045;
