@@ -28,6 +28,10 @@
     --w-sand:#f1e7d0;
     --ease-out-expo:cubic-bezier(.16,1,.3,1);
     --ease-hover:cubic-bezier(.2,.7,.35,1);
+    /* the one hover (2026-10-08), the same values as Home and the Data pages. Used on About
+       so far (links + the Work path); the rest of this file has not been moved onto it yet. */
+    --hover-dur:.18s;
+    --hover-scale:1.08;
     --paper:#f6efe3;   /* About's warm ground (replaces the dusty blue) */
     --dur:.48s; /* the loose global motion value */
   }
@@ -381,8 +385,19 @@
   .ab-page{position:relative;max-width:1000px;margin:0 auto;
     padding:clamp(84px,13vh,130px) clamp(26px,6vw,80px) clamp(44px,8vh,90px);
     container-type:inline-size;}
-  .ab-page a{color:var(--deep-ochre);text-decoration:none;border-bottom:1px solid rgba(150,96,10,.32);transition:color .25s var(--ease-hover),border-color .25s var(--ease-hover);}
-  .ab-page a:hover{color:var(--warm);border-bottom-color:var(--warm);}
+  .ab-page a{color:var(--deep-ochre);text-decoration:none;border-bottom:1px solid rgba(150,96,10,.32);}
+  /* About's links and the email button take the one hover (2026-10-08), the rule on Home and
+     the Data pages: bright ochre, ×--hover-scale, --hover-dur on --ease-hover. Mouse and
+     trackpad on :hover where the device really hovers; keyboard on :focus-visible, plus the
+     outline; touch on :active while the finger is down. inline-block, because a plain inline
+     link cannot scale. They grow from their centre: most of them sit in centred blocks. */
+  .ab-page a,.ab-email{display:inline-block;transform-origin:center;
+    transition:color var(--hover-dur) var(--ease-hover),border-color var(--hover-dur) var(--ease-hover),scale var(--hover-dur) var(--ease-hover);}
+  @media (hover:hover) and (pointer:fine){
+    .ab-page :is(a,.ab-email):hover{color:var(--warm);border-color:var(--warm);scale:var(--hover-scale);}
+  }
+  .ab-page :is(a,.ab-email):is(:focus-visible,:active){color:var(--warm);border-color:var(--warm);scale:var(--hover-scale);}
+  .ab-page :is(a,.ab-email):focus-visible{outline:2px solid var(--warm);outline-offset:3px;border-radius:2px;}
 
   /* the wash — Home §5 Skills scheme (multiply .42, morphs via JS); right side, from behind the portrait down to the serpentine */
   .ab-wash{position:absolute;z-index:0;overflow:visible;pointer-events:none;top:-1%;right:-5%;width:min(600px,56%);height:86%;}
@@ -431,9 +446,7 @@
   .crop-actions button:hover{border-color:var(--warm-soft);}
 
   /* contact */
-  .ab-email{background:none;border:0;padding:0;cursor:pointer;font:inherit;color:var(--deep-ochre);font-size:clamp(17px,2vw,22px);border-bottom:1px solid rgba(150,96,10,.34);transition:color .3s var(--ease-out-expo),border-color .3s var(--ease-out-expo);}
-  .ab-email:hover{color:var(--warm);border-bottom-color:var(--warm);}
-  .ab-email:focus-visible{outline:2px solid var(--warm);outline-offset:3px;}
+  .ab-email{background:none;border:0;padding:0;cursor:pointer;font:inherit;color:var(--deep-ochre);font-size:clamp(17px,2vw,22px);border-bottom:1px solid rgba(150,96,10,.34);}
   .ab-links{margin-top:14px;display:flex;gap:22px;font-size:15px;}
   .resume{font-size:14.5px;margin:0;}
 
@@ -452,9 +465,18 @@
   .trace{position:relative;width:100%;max-width:720px;margin:clamp(24px,4vh,46px) auto 0;aspect-ratio:700/660;}
   .trace svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;}
   .tr-path{fill:none;stroke:var(--deep-ochre);stroke-width:2.2;stroke-linecap:round;}
-  .tr-node{fill:var(--paper);stroke:var(--foreground);stroke-width:2;}
-  .tr-stop{position:absolute;width:38%;}
-  .tr-stop.left{text-align:right;}
+  .tr-node{fill:var(--paper);stroke:var(--foreground);stroke-width:2;transition:fill var(--hover-dur) var(--ease-hover),stroke var(--hover-dur) var(--ease-hover);}
+  .tr-stop{position:absolute;width:38%;transform-origin:left center;}
+  .tr-stop.left{text-align:right;transform-origin:right center;}
+  /* the Home §4 Journey hover, on the Work path (2026-10-08): hover a stop and it grows by
+     --hover-scale, its node swells and goes ochre, its role goes deep ochre, and the lens — a
+     copy of the path at a bolder stroke, clipped to a circle, with the base path masked out
+     under it — slides along the path to that stop. Driven by applyTrace(); mouse and trackpad
+     only, off for reduced motion, exactly as on Home. */
+  .tr-lens{fill:none;stroke:var(--deep-ochre);stroke-width:4.7;stroke-linecap:round;pointer-events:none;}
+  .tr-role{transition:color var(--hover-dur) var(--ease-hover);}
+  .tr-stop.hot .tr-role{color:var(--deep-ochre);}
+  .tr-node.hot{fill:var(--warm);stroke:var(--warm);}
   .tr-range{font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.04em;color:var(--muted-foreground);}
   .tr-role{display:block;font-size:clamp(16px,1.9vw,20px);font-weight:450;margin:3px 0;line-height:1.16;}
   .tr-what{display:block;font-size:13.5px;color:var(--muted-foreground);}
@@ -876,7 +898,12 @@
         <div class="work-h"><h2 class="cv2-h reveal">Work</h2></div>
         <div class="trace reveal" id="abTrace">
           <svg viewBox="0 0 700 660" preserveAspectRatio="xMidYMid meet">
-            <path class="tr-path" d="M500 70 C500 200 205 200 205 330 C205 455 500 455 500 580"/>
+            <defs>
+              <clipPath id="abLensClip"><circle id="abLensCircle" cx="0" cy="0" r="0"/></clipPath>
+              <mask id="abLensMask" maskUnits="userSpaceOnUse"><rect x="-100" y="-100" width="900" height="860" fill="#fff"/><circle id="abLensHole" cx="0" cy="0" r="0" fill="#000"/></mask>
+            </defs>
+            <path class="tr-path" id="abPath" d="M500 70 C500 200 205 200 205 330 C205 455 500 455 500 580" mask="url(#abLensMask)"/>
+            <path class="tr-lens" d="M500 70 C500 200 205 200 205 330 C205 455 500 455 500 580" clip-path="url(#abLensClip)"/>
             <circle class="tr-node" cx="500" cy="70" r="8"/>
             <circle class="tr-node" cx="205" cy="330" r="8"/>
             <circle class="tr-node" cx="500" cy="580" r="8"/>
@@ -1514,7 +1541,7 @@
       setReveal(el,reduce?1:easeOut(revealProgress(el)),dir);
     }
     if(activeName==='journey') applyJourney();
-    if(activeName==='about') morphAbout();
+    if(activeName==='about'){ morphAbout(); applyTrace(); }
     if(activeName==='skills') applySkills();
     if(activeName==='architecture') applyArch();
   }
@@ -1557,6 +1584,63 @@
       it.el.setAttribute('d',closedSpline(pts));
     });
   }
+
+  // ================= ABOUT: the Work path takes the Home §4 Journey hover (2026-10-08) =================
+  // Hover a stop and it grows by --hover-scale, its node swells and goes ochre (.hot), its role
+  // goes deep ochre, and the lens slides along the path to that stop's node. The same model and
+  // the same constants as Home's magnifier: each value eases 18% of the way per frame (the lens
+  // position 30%), and a 90ms grace keeps the lens up while the pointer crosses from one stop
+  // to the next. Mouse and trackpad only — a phone sends mouseenter on a tap and no mouseleave
+  // after it, so a tapped stop would stay grown. Off for reduced motion. Built on first use,
+  // because the path has no length while About is display:none.
+  const TR_FINE=window.matchMedia('(hover:hover) and (pointer:fine)');
+  const TR_LENS_R=52;
+  let tr=null;
+  function buildTrace(){
+    const wrap=document.getElementById('abTrace'), path=document.getElementById('abPath');
+    if(!wrap||!path) return null;
+    const len=path.getTotalLength(); if(!len) return null;
+    const N=240, samp=[]; for(let k=0;k<=N;k++) samp.push(path.getPointAtLength(len*k/N));
+    const fracNear=(x,y)=>{let bi=0,bd=1e9;samp.forEach((p,k)=>{const d=(p.x-x)**2+(p.y-y)**2;if(d<bd){bd=d;bi=k;}});return bi/N;};
+    const nodes=[...wrap.querySelectorAll('.tr-node')], stops=[...wrap.querySelectorAll('.tr-stop')];
+    const t={wrap,path,len,stops,nodes,
+      frac:nodes.map(n=>fracNear(+n.getAttribute('cx'),+n.getAttribute('cy'))),
+      baseR:nodes.map(n=>parseFloat(n.getAttribute('r'))||8),
+      cur:stops.map(()=>0), circle:document.getElementById('abLensCircle'), hole:document.getElementById('abLensHole'),
+      S:parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hover-scale'))||1.08,
+      hover:-1, target:0, focus:0, lensOn:0, off:null};
+    if(!reduce) stops.forEach((el,i)=>{
+      el.addEventListener('mouseenter',()=>{
+        if(!TR_FINE.matches) return;
+        if(parseFloat(wrap.style.opacity||0)<=0.6) return;      // the path hasn't arrived yet
+        clearTimeout(t.off);
+        if(t.lensOn<0.05) t.focus=t.frac[i];                     // cold start: grow in place, don't fly in
+        t.hover=i; t.target=t.frac[i];
+      });
+      el.addEventListener('mouseleave',()=>{ clearTimeout(t.off); t.off=setTimeout(()=>{ t.hover=-1; },90); });
+    });
+    return t;
+  }
+  function applyTrace(){
+    if(reduce) return;
+    if(!tr){ tr=buildTrace(); if(!tr) return; }
+    tr.lensOn+=((tr.hover>=0?1:0)-tr.lensOn)*0.18;
+    tr.focus+=(tr.target-tr.focus)*0.30;
+    tr.stops.forEach((el,i)=>{
+      tr.cur[i]+=((i===tr.hover?1:0)-tr.cur[i])*0.18;
+      const s=1+(tr.S-1)*tr.cur[i];
+      el.style.scale=tr.cur[i]<0.001?'':s.toFixed(3);
+      tr.nodes[i].setAttribute('r',(tr.baseR[i]*s).toFixed(2));
+      el.classList.toggle('hot',i===tr.hover);
+      tr.nodes[i].classList.toggle('hot',i===tr.hover);
+    });
+    if(tr.lensOn<0.01){ tr.circle.setAttribute('r',0); tr.hole.setAttribute('r',0); return; }
+    const pt=tr.path.getPointAtLength(Math.max(0,Math.min(1,tr.focus))*tr.len);
+    const r=(TR_LENS_R*tr.lensOn).toFixed(1);
+    for(const el of [tr.circle,tr.hole]){ el.setAttribute('cx',pt.x.toFixed(1)); el.setAttribute('cy',pt.y.toFixed(1)); el.setAttribute('r',r); }
+  }
+  // iOS applies :active (the one hover's touch state) only when the page listens for touchstart
+  document.addEventListener('touchstart',()=>{},{passive:true});
 
   // ---- IG-style photo uploader + cropper (crop stored as background-size + position %, so it's
   //      resolution-independent — the modal circle and the portrait circle reproduce the same framing) ----

@@ -1122,6 +1122,31 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-10-08** — **About: the links get the one hover, and the Work path gets the Home §4
+  hover** (`sections-prototype.html`). Monish gave three instructions. Do not change the
+  shapes. Give the links the one hover. Give the Work path the hover of the Home Journey.
+  - **The shapes do not change.** They do not answer the pointer (`pointer-events:none`).
+  - **The links.** "Download résumé", the email button, GitHub and LinkedIn now use the one
+    hover. They go to bright ochre and grow by `--hover-scale` (1.08). Before, they only
+    changed colour, in .25s or .3s. Keyboard focus gets the same look and the outline. Touch
+    gets the look on `:active`. A link is now `inline-block`, because an inline link cannot
+    scale. The links grow from their centre, because most of them are in centred blocks.
+    This file now has `--hover-dur` and `--hover-scale`.
+  - **The Work path.** A stop grows by `--hover-scale`, and its role goes to deep ochre. Its
+    node swells and fills with bright ochre. The lens moves along the path to the node. The
+    lens is a copy of the path with a thicker stroke (4.7, from 2.2), clipped to a circle,
+    and the base path is masked under it. `applyTrace()` uses the constants of the Home
+    magnifier: 18% for each frame, 30% for the lens position, and a 90ms grace between
+    stops. It operates only with a mouse or a trackpad, and it is off for reduced motion.
+  - **Checks** (`abouthover.js` in `.browser-tools`). The four links give the same colour,
+    growth and outline on hover and on focus. With a mouse, each stop, node and lens goes
+    to its hover state and comes back to rest. A tap on a phone does not grow a stop. With
+    reduced motion, the stops do not grow. `dockcheck.js`, `skillspage.js` and
+    `archpage.js` pass, with no page errors.
+  - **Not changed.** The "Add photo" button and the crop window buttons. The rest of this
+    file is not on the one hover yet: the menu, the Story tray, the Journey and Skills
+    pages, and the paper cards. The inner Journey page still magnifies by ×1.4.
+
 - **2026-10-08** — **The Data pages get the one hover, and every chart answers mouse and
   touch** (`data-prototype-white.html`). Monish asked for a check of the hover effects on
   Quality, Monitoring and Performance. `datahover.js` (in `.browser-tools`) measured the
