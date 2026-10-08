@@ -1122,6 +1122,62 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-10-08** — **Home gets one hover for the whole page** (`transition-prototype.html`).
+  Monish asked for a consistent hover effect on Home. Before this change, the controls grew by
+  6, 7, 9, 10 or 12 percent. They used two easing curves and durations from .17s to .25s.
+  Some ended on bright ochre and some on deep ochre.
+  - **The look.** A control turns to bright ochre `--warm` and grows by `--hover-scale` (1.08).
+    The change takes `--hover-dur` (.18s) on `--ease-hover`. Ink and deep-ochre text both go
+    to bright ochre. A pill's border turns ochre with its label. The ↓ cues are ochre at
+    rest, so they only grow.
+  - **One rule, three inputs.** Mouse and trackpad get the look on `:hover`, inside
+    `(hover:hover) and (pointer:fine)`. Keyboard focus gets the same look, plus the ochre
+    outline. Touch gets the look on `:active`, while the finger is down. An empty
+    `touchstart` listener makes iOS apply `:active`.
+  - **What changed for keyboard users.** Before, only the menu links showed the hover look on
+    focus. The three ochre text links had no focus style, so the browser default showed.
+  - **The Home §4 text blocks use the same growth.** The magnifier zoom was ×1.4. It is now
+    `--hover-scale`, and the script reads the token. The dot grows with its block. The
+    thicker line under the block does not change. The "Read the journey" link does not grow
+    a second time inside its magnified block.
+  - **Home §5: the shared tool labels use the same growth, and the shapes do not.** A shared
+    tool label grew by 1.12. It now grows by `--hover-scale`. A shape grows by 1.03, as
+    before. Monish tried the shapes at 1.08 and said that it felt too much.
+  - **A §5 shape grows at the speed of a §4 block**, at Monish's request. A §4 block moves 18%
+    of the remaining distance on each frame. At 60Hz, this is `--ease-out-expo` over .58s,
+    to within about 1% of the growth. The shape's `scale` uses that transition. Its colour
+    and opacity stay on `--hover-dur`. `growspeed.js` (in `.browser-tools`) samples both
+    curves frame by frame. At 100ms, both are at 0.70 to 0.71 of their growth. At 300ms,
+    both are at 0.95 to 0.98. With the old .18s, the shape was at 0.96 at 100ms. The §4
+    speed changes with the refresh rate of the screen, and a 120Hz screen doubles it. The
+    §5 speed does not change, so the two match only at 60Hz.
+  - **A §5 shape no longer snaps back when the pointer leaves it.** Monish saw the snap. The
+    CSS shrink was correct, at .58s. The fault was in the morph loop. It froze a hovered
+    blob's outline, but the blob read the page clock, and that clock did not stop. The first
+    frame after the pointer left jumped the outline forward. `shrinkspeed.js` (in
+    `.browser-tools`) measured a change of 20–26% of the drawn area in one frame. Each blob
+    now has its own clock. The clock slows to a stop while the shape is hovered or lit, and
+    it starts again from the same point. The rate eases with an 84ms time constant, which
+    is the time constant of the §4 magnifier. After the change, the largest change in one
+    frame is less than 0.75%, which is the normal breathing.
+  - **The shapes at 1.08 did not cover their crossings.** An earlier note said that they
+    would. The screenshots showed that each shared tool label stayed in its crossing.
+    `skillshover.js` (in `.browser-tools`) hovers each shape and measures where it lands.
+    Monish rejected 1.08 by how it felt, not because of a layout fault.
+  - **Colour of lit text.** Text that you read while it is lit goes to deep ochre. This is a
+    §4 title or a §5 name. A §4 dot goes to bright ochre, as the token pass specified.
+  - **Touch fix (measured).** A tap on a §4 block used to magnify it, and the block stayed
+    magnified. The magnifier now starts only on a mouse or trackpad.
+  - **Checks** (`hovercheck.js` and `hoverfeatures.js` in `.browser-tools`). Thirteen
+    controls give the same colour, growth and outline on hover and on keyboard focus. After a
+    tap, no control stays lit. The test browser did not keep `:hover` after a tap on the old
+    page either, so the sticky-hover fix for real phones is reasoned, not measured. The
+    harness cannot hold a finger down, so `:active` was not tested. `homecheck.js` and
+    `homenav.js` pass. The `homenav.js --reduce` script stops on a removed element. It
+    stops on the old page too, so this change did not cause it.
+  - **Add a new control to the three selector lists** in "one hover for the whole page", at
+    the end of the styles.
+
 - **2026-10-02** — **The Architecture page becomes "Pulled apart, crossings are stops"**
   (`sections-prototype.html`). Monish chose it over three sketch sheets:
   `arch-page-sketches.html` (four page ideas; he chose C, the exploded drawing),
