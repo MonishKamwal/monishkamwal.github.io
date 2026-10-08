@@ -1122,6 +1122,69 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-10-08** — **Skills gets a note too: "Click a link under any tool to see the
+  evidence"** (`sections-prototype.html`). Monish asked for this so that the three Story pages
+  agree. The receipt links carry the point of the page, "skills with receipts", so the note
+  is about them. It uses the same style and the same place as the notes on Architecture and
+  Journey, under the subtitle. It says "Tap" on a touch screen.
+  - **Portrait layout.** The map holds the top 66% of the screen. On short screens it rises
+    into the head. At 320×568, the note sat on five map labels. As on Architecture, the
+    note sits just under the map's zone in the portrait layout.
+  - **No `.reveal` on this note.** At 66% of the screen, the shared reveal stopped at an
+    opacity of .74–.80. Its window ends at 60% of the screen. This is the fault that the
+    Skills entry of 2026-10-02 warns about. The note takes its strength from the head
+    block, which the camera drives.
+  - **Checks** (`skhint.js` in `.browser-tools`). The note is at full opacity on the first
+    screen at seven sizes from 320×568 to 1920×1080. In the portrait layout, it is clear of
+    every shape and label, and above the tray. `skillspage.js` passes, with no page errors.
+  - **Accepted.** At 1280×720, the end of the note goes across the pale edge of the
+    "Training models" shape (19% of the note). The note stays legible. At 1440 and 1920 wide,
+    it is clear.
+
+- **2026-10-08** — **The Journey title block moves to the left edge, as on Architecture and
+  Skills** (`sections-prototype.html`). Monish saw that the Journey title and subtitle were
+  centred, and the other two Story pages put them at the left.
+  - **What was different.** The Journey intro was in the centred 900px column (`.wrap`). On a
+    wide screen its left edge was at 230–550px. On the other two pages it was at
+    `clamp(24px,6vw,86px)`. The vertical positions were the same, and on a phone all three
+    pages were already at 24px.
+  - **The change.** The intro is in its own block, `.j-intro`. This is the title, the
+    subtitle, the summary line and the card hint. It has the padding of `.ax-block.head`
+    and `.sk-block.head` (`clamp(24px,6vw,40px)` at the sides in the portrait layout). The
+    summary and the hint move with the title, so that the intro stays one group. The path
+    stays in the centred column, as the drawing and the map do on the other two pages.
+  - **Checks** (`headalign.js` in `.browser-tools`). At 1280×720, 1440×900, 1920×1080 and
+    390×844, the title and the subtitle of Journey are at the same position as on
+    Architecture and Skills. `journeyhover.js` and `dockcheck.js` pass, with no page errors.
+  - **The summary line is removed**, at Monish's request: "Every decision, in the order it
+    happened — scroll is the walk from the first commit to today." Its `.j-summary` rule is
+    removed too. The head's bottom margin made space for that line, so it is now 0 in
+    `.j-intro`. The card hint is now 16px under the subtitle, as on Architecture. On wide
+    screens, the hint is at the same position on the two pages. On a phone, the Architecture
+    hint is lower on purpose, under the drawing.
+
+- **2026-10-08** — **Architecture and Journey tell the visitor that the cards exist**
+  (`sections-prototype.html`). Monish said that the paper cards are easy to miss, because
+  nothing on the page says that a click opens them.
+  - **The note.** One line under the lead of each page, which is the first thing a visitor
+    reads. Architecture: "Click any part of the drawing to read about it." Journey: "Click
+    any entry to read the full story." The note uses the site's micro-label style, in deep
+    ochre, with a thin-line mark of a point to press. It is deep ochre, not muted grey,
+    because it is an instruction. Deep ochre is the colour for small text that must be read.
+  - **The verb follows the input.** The note says "Click" on a device that really hovers. It
+    says "Tap" on a touch screen (`(hover:none),(pointer:coarse)`).
+  - **Architecture on a phone.** The drawing holds the top 53% of the screen, and it already
+    runs under the title and the lead. This was so before this change. The note does not
+    join them. In the portrait layout, it sits just under the drawing's zone, in the space
+    that the first screen leaves empty.
+  - **Checks** (`hintcheck.js` and `axhintphone.js` in `.browser-tools`). At 1440×900,
+    1280×720 and 390×844, the note is on the first screen at full opacity and shows the
+    correct verb. From 320×568 to 768×1024, the Architecture note is clear of the drawing and
+    above the tray. `archpage.js` (the head still fits above the tray), `dockcheck.js` and
+    `journeyhover.js` pass, with no page errors.
+  - **Open.** On a phone, the Architecture drawing runs under the title and the lead. This
+    is an earlier layout fault, and this change does not fix it.
+
 - **2026-10-08** — **The inner Journey page gets the Home §4 hover** (`sections-prototype.html`).
   Monish asked for an update of the hovers on the inner Journey page. `journeyhover.js` (in
   `.browser-tools`) measured the page before and after the change.
