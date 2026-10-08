@@ -29,7 +29,7 @@
     --ease-out-expo:cubic-bezier(.16,1,.3,1);
     --ease-hover:cubic-bezier(.2,.7,.35,1);
     /* the one hover (2026-10-08), the same values as Home and the Data pages. Used on About
-       so far (links + the Work path); the rest of this file has not been moved onto it yet. */
+       (links + the Work path) and on the Architecture and Skills links. */
     --hover-dur:.18s;
     --hover-scale:1.08;
     --paper:#f6efe3;   /* About's warm ground (replaces the dusty blue) */
@@ -64,6 +64,20 @@
   }
   .link:hover{color:var(--warm);border-bottom-color:var(--warm);}
   .link:focus-visible{outline:2px solid var(--warm);outline-offset:3px;border-radius:2px;}
+  /* Architecture, Skills and Journey: links on the one hover (2026-10-08), the rule on Home,
+     the Data pages and About — bright ochre and ×--hover-scale over --hover-dur. Mouse and
+     trackpad on :hover where the device really hovers; keyboard on :focus-visible; touch on
+     :active. Scoped by the open page (Journey has links only in its cards). inline-block,
+     because an inline link cannot scale; grows from the left, the side the text starts on. */
+  body:is([data-page="architecture"],[data-page="skills"],[data-page="journey"]) .link{display:inline-block;transform-origin:left center;
+    transition:color var(--hover-dur) var(--ease-hover),border-color var(--hover-dur) var(--ease-hover),scale var(--hover-dur) var(--ease-hover);}
+  /* a card link stretched to the full card width (a flex column), so it could not grow
+     without crossing the card's edge; it now hugs its text, as every other link does */
+  body:is([data-page="architecture"],[data-page="skills"],[data-page="journey"]) .card-ev .link{align-self:flex-start;}
+  @media (hover:hover) and (pointer:fine){
+    body:is([data-page="architecture"],[data-page="skills"],[data-page="journey"]) .link:hover{color:var(--warm);border-color:var(--warm);scale:var(--hover-scale);}
+  }
+  body:is([data-page="architecture"],[data-page="skills"],[data-page="journey"]) .link:is(:focus-visible,:active){color:var(--warm);border-color:var(--warm);scale:var(--hover-scale);}
 
   /* ---------- top bar: "← Home" (left) + menu (right) ---------- */
   .topbar{
@@ -206,8 +220,7 @@
   .j-path{fill:none;stroke:var(--foreground);stroke-width:1.4;stroke-linecap:round;}
   /* the hover lens — the stretch of line under the block you're hovering, thickened */
   .j-lens{fill:none;stroke:var(--foreground);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;}
-  .j-dot{fill:var(--foreground);opacity:0;cursor:pointer;transition:fill .25s var(--ease-out-expo);}
-  .j-dot:hover{fill:var(--warm);}
+  .j-dot{fill:var(--foreground);opacity:0;cursor:pointer;transition:fill var(--hover-dur) var(--ease-hover);}
   .j-end{fill:none;stroke:var(--foreground);stroke-width:1.4;stroke-linecap:round;opacity:0;}
   .phase-head{position:absolute;left:0;right:0;transform:translateY(-50%);text-align:center;opacity:0;pointer-events:none;z-index:2;}
   /* the chip is the hover target (the head itself spans the full width) and the thing
@@ -219,6 +232,7 @@
     font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
     font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
     text-transform:uppercase;font-size:clamp(25px,4.6vw,42px);line-height:1;color:var(--foreground);
+    transition:color var(--hover-dur) var(--ease-hover);
   }
   /* starts dead; the reveal turns pointer-events on once the card is actually there */
   .j-entry{position:absolute;width:min(200px,30%);opacity:0;cursor:pointer;pointer-events:none;}
@@ -230,9 +244,19 @@
     font-variation-settings:"opsz" 40;font-weight:500;letter-spacing:-.01em;
     font-size:clamp(17px,2.4vw,22px);margin:4px 0 3px;line-height:1.12;
   }
-  .j-entry h3 a{color:inherit;text-decoration:none;cursor:pointer;transition:color .25s var(--ease-out-expo);}
-  /* the whole card is the target, same as the lift — the title warms wherever you are on it */
-  .j-entry:hover h3 a{color:var(--warm);}
+  .j-entry h3 a{color:inherit;text-decoration:none;cursor:pointer;transition:color var(--hover-dur) var(--ease-hover);}
+  /* the Home §4 hover (2026-10-08). magnify() sets .hot on the lifted block (or chip) and on
+     its dot for as long as it is lifted: the title goes deep ochre, the dot bright ochre — the
+     token-pass split, text you read in deep ochre and marks in bright. A block and its dot are
+     one target, so the pointer on either lifts both. The :hover rules repeat the colours
+     without the motion, for reduced motion, where magnify() is off but the entries still open
+     a card on a click. Both only where the device really hovers, so a tap leaves nothing lit. */
+  .j-entry.hot h3 a,.phase-head .chip.hot .ph{color:var(--deep-ochre);}
+  .j-dot.hot{fill:var(--warm);}
+  @media (hover:hover) and (pointer:fine){
+    .j-entry:hover h3 a{color:var(--deep-ochre);}
+    .j-dot:hover{fill:var(--warm);}
+  }
   .j-entry p{margin:0;font-size:12.5px;color:var(--muted-foreground);line-height:1.45;}
   .j-tail{margin-top:8px;text-align:center;font-size:12px;color:var(--muted-foreground);font-style:italic;opacity:0;}
 
@@ -508,13 +532,24 @@
     transform:translate(-50%,-50%) scale(.6);opacity:0;transform-origin:var(--ox,50%) var(--oy,50%);
     transition:transform var(--dur) var(--ease-out-expo),opacity calc(var(--dur)*.7) var(--ease-out-expo);
   }
-  .paper-card.open{transform:translate(-50%,-50%) scale(1);opacity:1;}
+  .paper-card.open{transform:translate(-50%,-50%) scale(1);opacity:1;pointer-events:auto;}
+  /* closed, the card is invisible but was still in the way: a 408x88 box at the screen centre
+     caught the pointer on every Story page, so a link scrolled under it could not be hovered or
+     clicked (measured on Skills, 2026-10-08). It answers the pointer only while it is open. */
+  .paper-card:not(.open){pointer-events:none;}
   .card-x{
     position:absolute;top:16px;right:16px;background:none;border:0;cursor:pointer;
     padding:6px;color:var(--foreground);line-height:0;transition:color .3s var(--ease-out-expo);
   }
   .card-x:hover{color:var(--warm);}
   .card-x:focus-visible{outline:2px solid var(--warm);outline-offset:2px;border-radius:3px;}
+  /* a Journey card's close button on the one hover (2026-10-08). Scoped to Journey: the same
+     card opens on Architecture and Skills, where only the links were asked to change. */
+  body[data-page="journey"] .card-x{transition:color var(--hover-dur) var(--ease-hover),scale var(--hover-dur) var(--ease-hover);}
+  @media (hover:hover) and (pointer:fine){
+    body[data-page="journey"] .card-x:hover{scale:var(--hover-scale);}
+  }
+  body[data-page="journey"] .card-x:is(:focus-visible,:active){color:var(--warm);scale:var(--hover-scale);}
   .card-meta{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted-foreground);font-weight:500;}
   .card-title{
     font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
@@ -1102,7 +1137,12 @@
   const jLensPath=document.getElementById('jLensPath');
   const jLensCircle=document.getElementById('jLensCircle');
   const jLensHole=document.getElementById('jLensHole');
-  const LENS_R=60, LENS_S=1.4;   // lens radius (SVG units), text/dot zoom
+  // the Home §4 values (2026-10-08): the lens radius Home and About use, and the page's one
+  // hover growth for the text/dot zoom (was ×1.4), read from --hover-scale
+  const LENS_R=52, LENS_S=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hover-scale'))||1.08;
+  // mouse and trackpad only, as on Home: a phone sends mouseenter on a tap and no mouseleave
+  // after it, so the tapped block stayed lifted (measured: ×1.4 after its card was closed)
+  const J_FINE=window.matchMedia('(hover:hover) and (pointer:fine)');
   // A hovered block lifts above .edge-blur (z-index 25) so the thing you are pointing at
   // stays crisp — inside those bands it was being blurred and washed toward --ground while
   // scaled up, which read as a rendering fault rather than an edge treatment. Still below
@@ -1112,6 +1152,7 @@
   let jFocus=[];                 // one per hoverable block: {hit,scaleEl,dot,frac,cur}
   let focusTarget=0, focusCur=0, lensOn=0, hoverIdx=-1, offTimer=null;
   function focusOn(i){
+    if(!J_FINE.matches) return;
     clearTimeout(offTimer);
     if(lensOn<0.05) focusCur=jFocus[i].frac;   // cold start: the lens grows in place, it doesn't fly in
     hoverIdx=i; focusTarget=jFocus[i].frac;
@@ -1135,6 +1176,8 @@
       // no reveal check here — applyJourney() only gives a block pointer-events once it's there
       f.hit.addEventListener('mouseenter',()=>focusOn(i));
       f.hit.addEventListener('mouseleave',focusOff);
+      // the dot is the same target as its block: it opens the same card, so it lifts the same
+      if(f.dot){ f.dot.addEventListener('mouseenter',()=>focusOn(i)); f.dot.addEventListener('mouseleave',focusOff); }
     });
   }
   function magnify(){
@@ -1147,6 +1190,8 @@
       f.scaleEl.style.scale=f.cur<0.001?'':s.toFixed(3);
       f.liftEl.style.zIndex=f.cur<0.001?'':LIFT_Z;   // clears the edge blur while lifted
       if(f.dot) f.dot.setAttribute('r',(6*s).toFixed(2));
+      f.scaleEl.classList.toggle('hot',i===hoverIdx);       // title deep ochre, dot bright ochre
+      if(f.dot) f.dot.classList.toggle('hot',i===hoverIdx);
     });
     if(lensOn<0.01){ for(const el of [jLensCircle,jLensHole]) el.setAttribute('r',0); return; }
     const pt=jPath.getPointAtLength(Math.max(0,Math.min(1,focusCur))*jLen);

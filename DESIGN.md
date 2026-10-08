@@ -1122,6 +1122,60 @@ schemes were built and compared; **`data-prototype-white.html` is the settled re
 
 Newest first. Each entry: what was decided and why.
 
+- **2026-10-08** — **The inner Journey page gets the Home §4 hover** (`sections-prototype.html`).
+  Monish asked for an update of the hovers on the inner Journey page. `journeyhover.js` (in
+  `.browser-tools`) measured the page before and after the change.
+  - **The magnifier.** A block grew by ×1.4. It now grows by `--hover-scale` (1.08), and
+    the script reads the token. The lens radius is 52, from 60, which is the value on Home
+    and About. A phase chip uses the same growth.
+  - **The colours.** The lit title goes to deep ochre, and the lit dot goes to bright ochre.
+    Before, the title went to bright ochre, and the dot changed only when the pointer was on
+    the dot. `magnify()` now sets `.hot` on the lifted block or chip and on its dot. A
+    lifted phase chip sets its title in deep ochre too.
+  - **The dot and its block are one target.** A click on either opens the same card. Before,
+    the pointer on a dot changed the dot only. Now it lifts the block and the lens too.
+  - **Touch fix (measured).** A tap on an entry opens its card. The block stayed at ×1.4 in
+    ochre, with the lens, after the card closed. The magnifier now starts only on a mouse or
+    a trackpad, as on Home.
+  - **Reduced motion.** `magnify()` is off, but an entry still opens a card on a click. So
+    the title and the dot keep their colours on `:hover`, with no growth. As with every hover
+    rule, this applies only where the device really hovers.
+  - **The Journey card.** The rule for the card links on Architecture and Skills now
+    includes Journey. A link goes to bright ochre and grows by 1.08, and it has the width of
+    its text, not 574px. The close button gets the one hover on Journey only. On Architecture
+    and Skills it still only changes colour, because Monish asked for the links only there.
+  - **Checks.** With a mouse, an entry, its dot and a chip each lift with the Home values,
+    and they come back to rest. A tap leaves nothing lifted. The card links and the close
+    button give the same look on hover and on focus. `dockcheck.js`, `archpage.js`,
+    `skillspage.js`, `abouthover.js`, `storylinks.js` and `cardstate.js` pass, with no page
+    errors.
+  - **Open.** The close button of a card looks different on Journey than on Architecture and
+    Skills. The entries cannot take keyboard focus. Their title `<a>` has no `href`, so a
+    keyboard cannot reach a card.
+
+- **2026-10-08** — **The Architecture and Skills links get the one hover**
+  (`sections-prototype.html`). Monish asked for a change to the links only. These pages
+  have no other item with a hover effect.
+  - **The links.** There are 2 links on Architecture, 17 receipt links on Skills, and the
+    evidence links in a paper card. They now go to bright ochre and grow by `--hover-scale`
+    (1.08). Before, they only changed colour, in .3s. Keyboard focus gets the same look and
+    the outline. Touch gets the look on `:active`. The rule is scoped with
+    `body[data-page]`, so the Journey page and its cards do not change.
+  - **A card link now fits its text.** A card puts its links in a flex column, so each
+    link was as wide as the card: 574px for 61–156px of text. Its underline went across the
+    full card, and an 8% growth would go 46px past the edge of the card. On Architecture
+    and Skills, a card link now has the width of its text, as every other link has.
+  - **Bug fix: the closed paper card caught the pointer.** A closed card has opacity 0 but
+    kept `pointer-events:auto`. It was a 408×88px box at the centre of the screen on every
+    Story page. 5 of the 17 Skills links were under it when they scrolled to the centre, and
+    the pointer could not hover or click them. A card now answers the pointer only while it
+    is open. This change also applies to the Journey page.
+  - **Checks** (`storylinks.js`, `skhit.js` and `cardstate.js` in `.browser-tools`). All 21
+    links give the same colour, growth and outline on hover and on focus, and each has room
+    to grow. The pointer reaches all 17 Skills links. A Journey card link does not change.
+    `archpage.js` (a card opens from a part click and from a deep link), `skillspage.js`,
+    `dockcheck.js` and `abouthover.js` pass, with no page errors.
+
 - **2026-10-08** — **About: the links get the one hover, and the Work path gets the Home §4
   hover** (`sections-prototype.html`). Monish gave three instructions. Do not change the
   shapes. Give the links the one hover. Give the Work path the hover of the Home Journey.
