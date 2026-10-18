@@ -108,12 +108,12 @@
     background:none;border:0;cursor:pointer;padding:6px;color:var(--foreground);
     display:inline-flex;line-height:0;transition:color var(--hover-dur) var(--ease-hover),scale var(--hover-dur) var(--ease-hover);
   }
-  .menu-panel nav{display:flex;flex-direction:column;gap:30px;flex:1;overflow-y:auto;overflow-x:hidden;}
+  .menu-panel nav{display:flex;flex-direction:column;gap:36px;flex:1;overflow-y:auto;overflow-x:hidden;}
   /* the nav is grouped into categories; each group fades up as a unit. The old
      per-link staircase moved onto the group (links are no longer nav siblings,
      so a global nth-child staircase can't reach across the group wrappers). */
   .menu-group{
-    display:flex;flex-direction:column;gap:12px;
+    display:flex;flex-direction:column;gap:9px;
     opacity:0;transform:translate(30px,10px);
     transition:
       opacity var(--dur) var(--ease-out-expo) var(--stagger,0s),
@@ -124,13 +124,14 @@
   .menu-panel.open .menu-group:nth-child(2){--stagger:calc(var(--dur)*.32)}
   .menu-panel.open .menu-group:nth-child(3){--stagger:calc(var(--dur)*.44)}
   .menu-panel.open .menu-group:nth-child(4){--stagger:calc(var(--dur)*.56)}
-  .menu-cat{padding-left:2px;}
+  .menu-cat{margin-bottom:3px;opacity:.7;}
   .menu-link{
     font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
-    font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
-    /* capped at 7.6vw below ~368px wide, as on Home: the nav there is too narrow for the 28px
-       floor, so "Architecture" was cut by overflow-x:hidden at rest and more once it grew */
-    text-transform:uppercase;font-size:min(clamp(26px,4.2vw,34px),7.2vw);line-height:1.05;
+    /* mixed case at a light weight — emphasis by scale, not caps or weight (the house
+       editorial voice). Caps on caps read heavy; Bodoni's lowercase is the cleaner form.
+       Mixed case is also narrower than caps, so the old 7.x vw overflow cap is relaxed. */
+    font-variation-settings:"opsz" 72;font-weight:400;letter-spacing:0;
+    font-size:min(clamp(29px,4.6vw,38px),8vw);line-height:1.1;
     color:var(--foreground);text-decoration:none;width:fit-content;cursor:pointer;
     background:none;border:0;text-align:left;padding:0;transform-origin:left center;
     /* all menu items read the same — no mode-based muting (the highlighting was

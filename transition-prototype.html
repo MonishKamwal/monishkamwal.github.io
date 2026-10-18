@@ -110,40 +110,37 @@
     background:none;border:0;cursor:pointer;padding:6px;color:var(--foreground);
     display:inline-flex;line-height:0;transition:color var(--hover-dur) var(--ease-hover),scale var(--hover-dur) var(--ease-hover);
   }
-  .menu-panel nav{display:flex;flex-direction:column;gap:18px;flex:1;overflow-y:auto;overflow-x:hidden;}
-  .menu-link{
-    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
-    font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
-    /* the 7.6vw cap only bites below ~368px wide: there the nav is too narrow for the 28px
-       floor, and "Architecture" was cut by the nav's overflow-x:hidden at rest (4px at 320)
-       and by 22px once it grew on a tap or focus. The cap leaves room for the 5px focus outline
-       too. menuclip.js measures it. */
-    text-transform:uppercase;font-size:min(clamp(28px,4.5vw,38px),7.6vw);line-height:1.05;
-    color:var(--foreground);text-decoration:none;width:fit-content;
-    transform-origin:left center;
+  .menu-panel nav{display:flex;flex-direction:column;gap:36px;flex:1;overflow-y:auto;overflow-x:hidden;}
+  /* the nav is grouped into 4 categories; each group fades up as a unit. The old
+     per-link staircase moved onto the group (links are no longer nav siblings, so a
+     global nth-child staircase can't reach across the group wrappers). */
+  .menu-group{
+    display:flex;flex-direction:column;gap:9px;
     opacity:0;transform:translate(30px,10px);
-    /* the per-item stagger rides on --stagger and applies ONLY to the entrance
-       (opacity+transform); hover (scale+color) is undelayed, so it reacts at once.
-       Hover growth uses the independent `scale` property to avoid clashing with the
-       entrance `transform:translate`. */
     transition:
       opacity var(--dur) var(--ease-out-expo) var(--stagger,0s),
-      transform var(--dur) var(--ease-out-expo) var(--stagger,0s),
+      transform var(--dur) var(--ease-out-expo) var(--stagger,0s);
+  }
+  .menu-panel.open .menu-group{opacity:1;transform:none;}
+  .menu-panel.open .menu-group:nth-child(1){--stagger:calc(var(--dur)*.2)}
+  .menu-panel.open .menu-group:nth-child(2){--stagger:calc(var(--dur)*.32)}
+  .menu-panel.open .menu-group:nth-child(3){--stagger:calc(var(--dur)*.44)}
+  .menu-panel.open .menu-group:nth-child(4){--stagger:calc(var(--dur)*.56)}
+  .menu-cat{margin-bottom:3px;opacity:.7;}
+  .menu-link{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    /* mixed case at a light weight — emphasis by scale, not caps or weight (the house
+       editorial voice). Caps on caps read heavy; Bodoni's lowercase is the cleaner form.
+       Mixed case is also narrower than caps, so the old 7.x vw overflow cap is relaxed. */
+    font-variation-settings:"opsz" 72;font-weight:400;letter-spacing:0;
+    font-size:min(clamp(29px,4.6vw,38px),8vw);line-height:1.1;
+    color:var(--foreground);text-decoration:none;width:fit-content;
+    transform-origin:left center;
+    /* entrance lives on the group; the link only reacts to hover (scale+color). */
+    transition:
       scale var(--hover-dur) var(--ease-hover),
       color var(--hover-dur) var(--ease-hover);
   }
-  .menu-panel.open .menu-link{opacity:1;transform:none;}
-  /* staircase stagger: ~10% of --dur per item, after the panel lands.
-     nth-child (not nth-of-type) so a future <button> in the nav can't scramble it. */
-  .menu-panel.open .menu-link:nth-child(1){--stagger:calc(var(--dur)*.2)}
-  .menu-panel.open .menu-link:nth-child(2){--stagger:calc(var(--dur)*.3)}
-  .menu-panel.open .menu-link:nth-child(3){--stagger:calc(var(--dur)*.4)}
-  .menu-panel.open .menu-link:nth-child(4){--stagger:calc(var(--dur)*.5)}
-  .menu-panel.open .menu-link:nth-child(5){--stagger:calc(var(--dur)*.6)}
-  .menu-panel.open .menu-link:nth-child(6){--stagger:calc(var(--dur)*.7)}
-  .menu-panel.open .menu-link:nth-child(7){--stagger:calc(var(--dur)*.8)}
-  .menu-panel.open .menu-link:nth-child(8){--stagger:calc(var(--dur)*.9)}
-  .menu-panel.open .menu-link:nth-child(9){--stagger:calc(var(--dur)*1)}
 
   /* ---------- the six sections: plain blocks in normal document flow ----------
      Was: a 500vh runway with one sticky viewport, holding six absolutely-positioned
@@ -811,15 +808,27 @@
     </button>
   </div>
   <nav>
-    <a class="menu-link" href="#" id="mHome">Home</a>
-    <a class="menu-link" href="data-prototype-white.html#quality" title="Data mode lives in the data prototype">Quality</a>
-    <a class="menu-link" href="data-prototype-white.html#monitoring" title="Data mode lives in the data prototype">Monitoring</a>
-    <a class="menu-link" href="data-prototype-white.html#performance" title="Data mode lives in the data prototype">Performance</a>
-    <a class="menu-link" href="sections-prototype.html#architecture" title="Story mode lives in the sections prototype">Architecture</a>
-    <a class="menu-link" href="sections-prototype.html#journey" title="Story mode lives in the sections prototype">Journey</a>
-    <a class="menu-link" href="sections-prototype.html#skills" title="Story mode lives in the sections prototype">Skills</a>
-    <a class="menu-link" href="sections-prototype.html#about" title="About lives in the sections prototype">About</a>
-    <a class="menu-link" href="#" id="mContact">Contact</a>
+    <div class="menu-group">
+      <span class="menu-cat micro">Start</span>
+      <a class="menu-link" href="#" id="mHome">Home</a>
+    </div>
+    <div class="menu-group">
+      <span class="menu-cat micro">The Data</span>
+      <a class="menu-link" href="data-prototype-white.html#quality" title="Data mode lives in the data prototype">Quality</a>
+      <a class="menu-link" href="data-prototype-white.html#performance" title="Data mode lives in the data prototype">Performance</a>
+      <a class="menu-link" href="data-prototype-white.html#monitoring" title="Data mode lives in the data prototype">Monitoring</a>
+    </div>
+    <div class="menu-group">
+      <span class="menu-cat micro">The Story</span>
+      <a class="menu-link" href="sections-prototype.html#architecture" title="Story mode lives in the sections prototype">Architecture</a>
+      <a class="menu-link" href="sections-prototype.html#journey" title="Story mode lives in the sections prototype">Journey</a>
+      <a class="menu-link" href="sections-prototype.html#skills" title="Story mode lives in the sections prototype">Skills</a>
+    </div>
+    <div class="menu-group">
+      <span class="menu-cat micro">More</span>
+      <a class="menu-link" href="sections-prototype.html#about" title="About lives in the sections prototype">About</a>
+      <a class="menu-link" href="#" id="mContact">Contact</a>
+    </div>
   </nav>
 </aside>
 

@@ -128,12 +128,12 @@
   }
   .m-close:hover{color:var(--warm);scale:1.12;}
   .m-close:focus-visible{outline:2px solid var(--warm);outline-offset:2px;border-radius:3px;}
-  .menu-panel nav{display:flex;flex-direction:column;gap:30px;flex:1;overflow-y:auto;overflow-x:hidden;}
+  .menu-panel nav{display:flex;flex-direction:column;gap:36px;flex:1;overflow-y:auto;overflow-x:hidden;}
   /* the nav is grouped into categories; each group fades up as a unit. The old
      per-link staircase moved onto the group (links are no longer nav siblings,
      so a global nth-child staircase can't reach across the group wrappers). */
   .menu-group{
-    display:flex;flex-direction:column;gap:12px;
+    display:flex;flex-direction:column;gap:9px;
     opacity:0;transform:translate(30px,10px);
     transition:opacity var(--dur) var(--ease-out-expo) var(--stagger,0s),transform var(--dur) var(--ease-out-expo) var(--stagger,0s);
   }
@@ -142,15 +142,16 @@
   .menu-panel.open .menu-group:nth-child(2){--stagger:calc(var(--dur)*.32)}
   .menu-panel.open .menu-group:nth-child(3){--stagger:calc(var(--dur)*.44)}
   .menu-panel.open .menu-group:nth-child(4){--stagger:calc(var(--dur)*.56)}
-  .menu-cat{padding-left:2px;}
+  .menu-cat{margin-bottom:3px;opacity:.7;}
   .menu-link{
     font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
-    font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
-    text-transform:uppercase;font-size:clamp(26px,4.2vw,34px);line-height:1.05;
+    /* mixed case at a light weight — emphasis by scale, not caps or weight (the house
+       editorial voice). Caps on caps read heavy and shouty; Bodoni's lowercase is the
+       cleaner, calmer form. */
+    font-variation-settings:"opsz" 72;font-weight:400;letter-spacing:0;
+    font-size:clamp(29px,4.6vw,38px);line-height:1.1;
     color:var(--foreground);text-decoration:none;width:fit-content;cursor:pointer;
     background:none;border:0;text-align:left;padding:0;transform-origin:left center;
-    /* all menu items read the same — no mode-based muting. Entrance now lives on the
-       group; the link only reacts to hover via the independent `scale` property. */
     transition:scale .18s var(--ease-out-expo),color .18s var(--ease-out-expo);
   }
   .menu-link:hover,.menu-link:focus-visible{color:var(--warm);scale:1.09;}
@@ -285,6 +286,9 @@
      pattern): on a wire stop only the two sheets it joins stay lit. Chosen from
      arch-connections-sketches.html (A3), after arch-page-sketches.html (C) and
      arch-exploded-sketches.html (A). The scroll is never taken over. */
+  /* wraps the sticky stage + its scrolly flow (Architecture & Skills) so the pin is bounded
+     by the flow, not the whole section — the reading-foot below then sits clear of it */
+  .stage-scroll{position:relative;}
   .ax-stage{position:sticky;top:0;height:100vh;height:100svh;z-index:0;}
   .ax-stage > svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;}
   .ax-stage text{font-family:"Outfit",sans-serif;}
@@ -780,6 +784,10 @@
        placeholder. The blocks' order is the camera's order (AX_PH in the script):
        overview, then each plane followed by the wire that leaves it. -->
   <section class="page" data-page="architecture" data-arrival="line">
+    <!-- the sticky stage + scrolly flow live in their own wrapper so the pin releases at
+         the end of the flow, not at the end of the whole section — otherwise the diagram
+         stays pinned over the reading-foot below it (overlap + frozen-while-text-scrolls) -->
+    <div class="stage-scroll">
     <div class="ax-stage"><div class="ax-plate"></div><svg id="axSvg" aria-hidden="true"></svg></div>
     <div class="ax-flow">
       <div class="ax-block head" data-k="head">
@@ -849,6 +857,7 @@
         </div>
       </div>
     </div>
+    </div>
     <nav class="read-next reveal" aria-label="Continue reading">
       <button class="rn-link" type="button" data-goto="journey">
         <span class="rn-cue">Next</span>
@@ -865,6 +874,9 @@
        The map below must match Home §5's wide composition in transition-prototype.html:
        a change there is a change here. -->
   <section class="page" data-page="skills" data-arrival="line">
+    <!-- sticky stage + scrolly flow wrapped so the pin releases at the end of the flow,
+         not the end of the section — keeps the map from overlapping the reading-foot -->
+    <div class="stage-scroll">
     <div class="sk-stage">
       <div class="sk-plate"></div>
       <svg class="sk-map" id="skMap" viewBox="-182.5 -102.5 1825 1025" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
@@ -988,6 +1000,7 @@
         <p class="micro sk-k">Also in the toolbox</p>
         <div class="sk-box"><span>FastAPI</span><span>SQL</span><span>Kubernetes</span><span>CloudWatch</span><span>pandas</span><span>NumPy</span><span>pytest</span><span>Bash</span><span>Git</span><span>Tailwind</span></div>
       </div>
+    </div>
     </div>
     <nav class="read-next reveal" aria-label="Continue reading">
       <button class="rn-link" type="button" data-goto="about">
