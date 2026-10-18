@@ -128,35 +128,33 @@
   }
   .m-close:hover{color:var(--warm);scale:1.12;}
   .m-close:focus-visible{outline:2px solid var(--warm);outline-offset:2px;border-radius:3px;}
-  .menu-panel nav{display:flex;flex-direction:column;gap:18px;flex:1;overflow-y:auto;overflow-x:hidden;}
+  .menu-panel nav{display:flex;flex-direction:column;gap:30px;flex:1;overflow-y:auto;overflow-x:hidden;}
+  /* the nav is grouped into categories; each group fades up as a unit. The old
+     per-link staircase moved onto the group (links are no longer nav siblings,
+     so a global nth-child staircase can't reach across the group wrappers). */
+  .menu-group{
+    display:flex;flex-direction:column;gap:12px;
+    opacity:0;transform:translate(30px,10px);
+    transition:opacity var(--dur) var(--ease-out-expo) var(--stagger,0s),transform var(--dur) var(--ease-out-expo) var(--stagger,0s);
+  }
+  .menu-panel.open .menu-group{opacity:1;transform:none;}
+  .menu-panel.open .menu-group:nth-child(1){--stagger:calc(var(--dur)*.2)}
+  .menu-panel.open .menu-group:nth-child(2){--stagger:calc(var(--dur)*.32)}
+  .menu-panel.open .menu-group:nth-child(3){--stagger:calc(var(--dur)*.44)}
+  .menu-panel.open .menu-group:nth-child(4){--stagger:calc(var(--dur)*.56)}
+  .menu-cat{padding-left:2px;}
   .menu-link{
     font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
     font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
-    text-transform:uppercase;font-size:clamp(28px,4.5vw,38px);line-height:1.05;
+    text-transform:uppercase;font-size:clamp(26px,4.2vw,34px);line-height:1.05;
     color:var(--foreground);text-decoration:none;width:fit-content;cursor:pointer;
     background:none;border:0;text-align:left;padding:0;transform-origin:left center;
-    opacity:0;transform:translate(30px,10px);
-    /* hover lift rides the independent `scale` property (not transform:scale) so it
-       doesn't clash with the entrance transform:translate — same split as the Home
-       prototype. The entrance opacity+transform keep --dur; scale+color react at once. */
-    transition:opacity var(--dur) var(--ease-out-expo),transform var(--dur) var(--ease-out-expo),scale .18s var(--ease-out-expo),color .18s var(--ease-out-expo);
+    /* all menu items read the same — no mode-based muting. Entrance now lives on the
+       group; the link only reacts to hover via the independent `scale` property. */
+    transition:scale .18s var(--ease-out-expo),color .18s var(--ease-out-expo);
   }
   .menu-link:hover,.menu-link:focus-visible{color:var(--warm);scale:1.09;}
   .menu-link:focus-visible{outline:2px solid var(--warm);outline-offset:4px;}
-  /* all menu items read the same — no mode-based muting (the highlighting was
-     just prototype scaffolding for cross-file links) */
-  .menu-panel.open .menu-link{opacity:1;transform:none;}
-  /* nth-child (not nth-of-type): the nav mixes <a> and <button>, so type-counting
-     would scramble the staircase. Extended to the 9-item global bridge. */
-  .menu-panel.open .menu-link:nth-child(1){transition-delay:calc(var(--dur)*.2)}
-  .menu-panel.open .menu-link:nth-child(2){transition-delay:calc(var(--dur)*.3)}
-  .menu-panel.open .menu-link:nth-child(3){transition-delay:calc(var(--dur)*.4)}
-  .menu-panel.open .menu-link:nth-child(4){transition-delay:calc(var(--dur)*.5)}
-  .menu-panel.open .menu-link:nth-child(5){transition-delay:calc(var(--dur)*.6)}
-  .menu-panel.open .menu-link:nth-child(6){transition-delay:calc(var(--dur)*.7)}
-  .menu-panel.open .menu-link:nth-child(7){transition-delay:calc(var(--dur)*.8)}
-  .menu-panel.open .menu-link:nth-child(8){transition-delay:calc(var(--dur)*.9)}
-  .menu-panel.open .menu-link:nth-child(9){transition-delay:calc(var(--dur)*1)}
 
   /* ---------- the arrival line — "the line carries you" ---------- */
   .arrival-wrap{
@@ -539,10 +537,60 @@
   .tr-role{display:block;font-size:clamp(16px,1.9vw,20px);font-weight:450;margin:3px 0;line-height:1.16;}
   .tr-what{display:block;font-size:13.5px;color:var(--muted-foreground);}
 
+  /* --- Education / Work / Projects entries open a paper card (2026-10-18). Each entry pops on
+     hover — the big year warms and grows a touch, the role goes ochre, a "Read more" cue slides
+     in — and opens its card on click. Keyboard-reachable; the mouse-pop is off on touch, where a
+     tap just opens the card. Same fillCard() the Journey/Architecture cards use. --- */
+  .cv2-item[data-ab-card]{cursor:pointer;}
+  .cv2-item[data-ab-card] .cv2-year{transform-origin:left center;transition:color var(--hover-dur) var(--ease-hover),scale var(--hover-dur) var(--ease-hover);}
+  .cv2-item[data-ab-card] .cv2-role{transition:color var(--hover-dur) var(--ease-hover);}
+  .cv2-more{display:inline-block;margin-top:10px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:500;color:var(--deep-ochre);opacity:0;transform:translateX(-5px);transition:opacity var(--hover-dur) var(--ease-hover),transform var(--hover-dur) var(--ease-hover);}
+  @media (hover:hover) and (pointer:fine){
+    .cv2-item[data-ab-card]:hover .cv2-year{color:var(--warm);scale:1.06;}
+    .cv2-item[data-ab-card]:hover .cv2-role{color:var(--deep-ochre);}
+    .cv2-item[data-ab-card]:hover .cv2-more{opacity:1;transform:none;}
+  }
+  .cv2-item[data-ab-card]:is(:focus-visible,:active) .cv2-year{color:var(--warm);scale:1.06;}
+  .cv2-item[data-ab-card]:is(:focus-visible,:active) .cv2-role{color:var(--deep-ochre);}
+  .cv2-item[data-ab-card]:is(:focus-visible,:active) .cv2-more{opacity:1;transform:none;}
+  .cv2-item[data-ab-card]:focus-visible{outline:2px solid var(--warm);outline-offset:6px;border-radius:4px;}
+  /* the serpentine stops become clickable too — the existing hover-grow + lens already signal life */
+  .tr-stop{cursor:pointer;}
+  .tr-more{display:block;margin-top:5px;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;font-weight:500;color:var(--deep-ochre);opacity:0;transition:opacity var(--hover-dur) var(--ease-hover);}
+  .tr-stop.hot .tr-more{opacity:1;}
+  .tr-stop:focus-visible{outline:2px solid var(--warm);outline-offset:6px;border-radius:5px;}
+
   /* centered "Say hello" */
   .ab-outro{text-align:center;margin-top:clamp(28px,5vh,52px);padding-top:clamp(24px,4vh,36px);border-top:1px solid var(--border);}
   .ab-outro .ab-say{font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;font-size:clamp(28px,4.5vw,48px);margin:0 0 12px;}
   .ab-outro .ab-links{justify-content:center;}
+
+  /* ---------- reading foot: the forward handoff — the mirror of ← HOME ----------
+     The last thing on each inner page: it hands the reader to the next page in menu order.
+     The next page's NAME is the hero (Bodoni, emphasis by scale not weight); the arrow
+     mirrors this file's HOME arrow and slides right on hover, the whole link warming to
+     ochre. It carries its own centred column so it aligns whatever layout sits above it. */
+  .read-next{max-width:900px;margin:clamp(44px,8vh,88px) auto 0;padding:clamp(24px,3.6vh,36px) clamp(24px,5vw,40px) clamp(60px,10vh,110px);border-top:1px solid var(--foreground);}
+  .rn-link{
+    display:inline-flex;flex-direction:column;gap:7px;width:fit-content;max-width:100%;
+    text-decoration:none;color:var(--foreground);cursor:pointer;
+    background:none;border:0;padding:0;text-align:left;font:inherit;transform-origin:left center;
+    transition:color .3s var(--ease-out-expo);
+  }
+  .rn-cue{text-transform:uppercase;letter-spacing:.22em;font-size:11.5px;font-weight:500;color:var(--muted-foreground);}
+  .rn-row{display:flex;align-items:center;gap:.42em;}
+  .rn-name{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 72;
+    font-weight:500;letter-spacing:-.01em;text-transform:uppercase;line-height:1;
+    font-size:clamp(34px,6vw,54px);color:inherit;
+  }
+  .rn-arrow{flex:0 0 auto;width:clamp(26px,3.8vw,36px);height:auto;transition:transform .3s var(--ease-out-expo);}
+  .rn-peek{font-size:14.5px;color:var(--muted-foreground);max-width:52ch;}
+  .rn-link:hover{color:var(--warm);}
+  .rn-link:hover .rn-arrow{transform:translateX(4px);}
+  .rn-link:is(:focus-visible,:active){color:var(--warm);}
+  .rn-link:is(:focus-visible,:active) .rn-arrow{transform:translateX(4px);}
+  .rn-link:focus-visible{outline:2px solid var(--warm);outline-offset:4px;border-radius:3px;}
 
   @media (max-width:640px){
     .hero-in{grid-template-columns:1fr;grid-template-areas:"eyebrow" "portrait" "name" "lead";justify-items:start;}
@@ -647,15 +695,27 @@
   <!-- the global bridge (IA rework): Home · [Data] · [Story] · About · Contact.
        Story pages navigate in-page; everything else links to its own prototype. -->
   <nav>
-    <a class="menu-link elsewhere" href="transition-prototype.html" title="Home lives in the Home-scroll prototype">Home</a>
-    <a class="menu-link elsewhere" href="data-prototype-white.html#quality" title="Data mode lives in the data prototype">Quality</a>
-    <a class="menu-link elsewhere" href="data-prototype-white.html#monitoring" title="Data mode lives in the data prototype">Monitoring</a>
-    <a class="menu-link elsewhere" href="data-prototype-white.html#performance" title="Data mode lives in the data prototype">Performance</a>
-    <button class="menu-link" data-goto="architecture">Architecture</button>
-    <button class="menu-link" data-goto="journey">Journey</button>
-    <button class="menu-link" data-goto="skills">Skills</button>
-    <button class="menu-link" data-goto="about">About</button>
-    <a class="menu-link elsewhere" href="transition-prototype.html#contact" title="Contact is the Home bookend">Contact</a>
+    <div class="menu-group">
+      <span class="menu-cat micro">Start</span>
+      <a class="menu-link elsewhere" href="transition-prototype.html" title="Home lives in the Home-scroll prototype">Home</a>
+    </div>
+    <div class="menu-group">
+      <span class="menu-cat micro">The Data</span>
+      <a class="menu-link elsewhere" href="data-prototype-white.html#quality" title="Data mode lives in the data prototype">Quality</a>
+      <a class="menu-link elsewhere" href="data-prototype-white.html#performance" title="Data mode lives in the data prototype">Performance</a>
+      <a class="menu-link elsewhere" href="data-prototype-white.html#monitoring" title="Data mode lives in the data prototype">Monitoring</a>
+    </div>
+    <div class="menu-group">
+      <span class="menu-cat micro">The Story</span>
+      <button class="menu-link" data-goto="architecture">Architecture</button>
+      <button class="menu-link" data-goto="journey">Journey</button>
+      <button class="menu-link" data-goto="skills">Skills</button>
+    </div>
+    <div class="menu-group">
+      <span class="menu-cat micro">More</span>
+      <button class="menu-link" data-goto="about">About</button>
+      <a class="menu-link elsewhere" href="transition-prototype.html#contact" title="Contact is the Home bookend">Contact</a>
+    </div>
   </nav>
 </aside>
 
@@ -704,6 +764,13 @@
       </div>
       <p class="j-tail" id="jTail">the path runs on — the project is still going</p>
     </div>
+    <nav class="read-next reveal" aria-label="Continue reading">
+      <button class="rn-link" type="button" data-goto="skills">
+        <span class="rn-cue">Next</span>
+        <span class="rn-row"><span class="rn-name">Skills</span><svg class="rn-arrow" viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M1 6h15M11 1l5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="rn-peek">What I build with</span>
+      </button>
+    </nav>
   </section>
 
   <!-- ================= ARCHITECTURE — pulled apart, crossings are stops =================
@@ -782,6 +849,13 @@
         </div>
       </div>
     </div>
+    <nav class="read-next reveal" aria-label="Continue reading">
+      <button class="rn-link" type="button" data-goto="journey">
+        <span class="rn-cue">Next</span>
+        <span class="rn-row"><span class="rn-name">Journey</span><svg class="rn-arrow" viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M1 6h15M11 1l5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="rn-peek">Roads not taken</span>
+      </button>
+    </nav>
   </section>
 
   <!-- ================= SKILLS — into the map =================
@@ -915,6 +989,13 @@
         <div class="sk-box"><span>FastAPI</span><span>SQL</span><span>Kubernetes</span><span>CloudWatch</span><span>pandas</span><span>NumPy</span><span>pytest</span><span>Bash</span><span>Git</span><span>Tailwind</span></div>
       </div>
     </div>
+    <nav class="read-next reveal" aria-label="Continue reading">
+      <button class="rn-link" type="button" data-goto="about">
+        <span class="rn-cue">Next</span>
+        <span class="rn-row"><span class="rn-name">About</span><svg class="rn-arrow" viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M1 6h15M11 1l5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="rn-peek">The person behind the machine</span>
+      </button>
+    </nav>
   </section>
 
   <!-- ================= ABOUT (editorial hero · Skills-wash · static serpentine · photo uploader) ================= -->
@@ -957,12 +1038,14 @@
       <div class="cv2">
         <section class="cv2-sec">
           <h2 class="cv2-h reveal">Education</h2>
-          <article class="cv2-item reveal">
+          <p class="card-hint micro reveal"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="1.8" fill="currentColor" stroke="none"/></svg><span><span class="on-fine">Click</span><span class="on-touch">Tap</span> the entry for details</span></p>
+          <article class="cv2-item reveal" role="button" tabindex="0" data-ab-card="edu-bsc" aria-label="Open details: BSc Computer Science">
             <div class="cv2-year">BSc.</div>
             <div class="cv2-body">
               <div class="cv2-range">2017 — 2021</div>
               <h3 class="cv2-role">Computer Science · Placeholder University</h3>
               <p class="cv2-what">Computer science foundations. (Content from Monish at implementation.)</p>
+              <span class="cv2-more">Read more →</span>
             </div>
           </article>
         </section>
@@ -971,6 +1054,7 @@
       <!-- Work (static serpentine) -->
       <div class="work-group">
         <div class="work-h"><h2 class="cv2-h reveal">Work</h2></div>
+        <p class="card-hint micro reveal"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="1.8" fill="currentColor" stroke="none"/></svg><span><span class="on-fine">Click</span><span class="on-touch">Tap</span> any role for the full story</span></p>
         <div class="trace reveal" id="abTrace">
           <svg viewBox="0 0 700 660" preserveAspectRatio="xMidYMid meet">
             <defs>
@@ -983,23 +1067,55 @@
             <circle class="tr-node" cx="205" cy="330" r="8"/>
             <circle class="tr-node" cx="500" cy="580" r="8"/>
           </svg>
-          <div class="tr-stop left" style="left:2%;top:1%"><span class="tr-range">2024 — present</span><span class="tr-role">ML / Platform Engineer · Self-directed</span><span class="tr-what">Designing and building the MLOps platform this site fronts.</span></div>
-          <div class="tr-stop right" style="left:44%;top:34%"><span class="tr-range">2022 — 2024</span><span class="tr-role">Software Engineer · Placeholder Co.</span><span class="tr-what">Backend services and data pipelines.</span></div>
-          <div class="tr-stop left" style="left:2%;top:67%"><span class="tr-range">2021 — 2022</span><span class="tr-role">Engineering Intern · Placeholder Co.</span><span class="tr-what">First professional exposure to production systems.</span></div>
+          <div class="tr-stop left" style="left:2%;top:1%" role="button" tabindex="0" data-ab-card="work-current" aria-label="Open role: ML / Platform Engineer"><span class="tr-range">2024 — present</span><span class="tr-role">ML / Platform Engineer · Self-directed</span><span class="tr-what">Designing and building the MLOps platform this site fronts.</span><span class="tr-more">Read more →</span></div>
+          <div class="tr-stop right" style="left:44%;top:34%" role="button" tabindex="0" data-ab-card="work-swe" aria-label="Open role: Software Engineer"><span class="tr-range">2022 — 2024</span><span class="tr-role">Software Engineer · Placeholder Co.</span><span class="tr-what">Backend services and data pipelines.</span><span class="tr-more">Read more →</span></div>
+          <div class="tr-stop left" style="left:2%;top:67%" role="button" tabindex="0" data-ab-card="work-intern" aria-label="Open role: Engineering Intern"><span class="tr-range">2021 — 2022</span><span class="tr-role">Engineering Intern · Placeholder Co.</span><span class="tr-what">First professional exposure to production systems.</span><span class="tr-more">Read more →</span></div>
         </div>
       </div>
 
-      <!-- Say hello -->
-      <div class="ab-outro reveal" data-reveal="foot">
-        <p class="ab-say">Say hello.</p>
-        <button class="ab-email" id="aboutMail" type="button">kallukalia01@outlook.com</button>
-        <div class="ab-links">
-          <a href="#" onclick="return false">GitHub</a>
-          <a href="#" onclick="return false">LinkedIn</a>
-        </div>
+      <!-- Projects (Education row style — each entry pops on hover, opens a card on click) -->
+      <div class="cv2">
+        <section class="cv2-sec">
+          <h2 class="cv2-h reveal">Projects</h2>
+          <p class="card-hint micro reveal"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="1.8" fill="currentColor" stroke="none"/></svg><span><span class="on-fine">Click</span><span class="on-touch">Tap</span> any project for details</span></p>
+          <article class="cv2-item reveal" role="button" tabindex="0" data-ab-card="proj-one" aria-label="Open project: Placeholder Project One">
+            <div class="cv2-year">2026</div>
+            <div class="cv2-body">
+              <div class="cv2-range">Personal · placeholder</div>
+              <h3 class="cv2-role">Placeholder Project · One</h3>
+              <p class="cv2-what">A one-line hook for the project. Full write-up lives in the card.</p>
+              <span class="cv2-more">Read more →</span>
+            </div>
+          </article>
+          <article class="cv2-item reveal" role="button" tabindex="0" data-ab-card="proj-two" aria-label="Open project: Placeholder Project Two">
+            <div class="cv2-year">2025</div>
+            <div class="cv2-body">
+              <div class="cv2-range">Personal · placeholder</div>
+              <h3 class="cv2-role">Placeholder Project · Two</h3>
+              <p class="cv2-what">A one-line hook for the project. Full write-up lives in the card.</p>
+              <span class="cv2-more">Read more →</span>
+            </div>
+          </article>
+          <article class="cv2-item reveal" role="button" tabindex="0" data-ab-card="proj-three" aria-label="Open project: Placeholder Project Three">
+            <div class="cv2-year">2024</div>
+            <div class="cv2-body">
+              <div class="cv2-range">Open source · placeholder</div>
+              <h3 class="cv2-role">Placeholder Project · Three</h3>
+              <p class="cv2-what">A one-line hook for the project. Full write-up lives in the card.</p>
+              <span class="cv2-more">Read more →</span>
+            </div>
+          </article>
+        </section>
       </div>
 
     </div>
+    <nav class="read-next reveal" aria-label="Continue reading">
+      <a class="rn-link" href="transition-prototype.html#contact">
+        <span class="rn-cue">Next</span>
+        <span class="rn-row"><span class="rn-name">Contact</span><svg class="rn-arrow" viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M1 6h15M11 1l5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="rn-peek">Where to find me</span>
+      </a>
+    </nav>
   </section>
 
 </main>
@@ -1030,14 +1146,6 @@
 </div>
 
 <!-- ---------- prototype chrome ---------- -->
-<!-- Story tray (IA rework): Architecture · Journey · Skills only — About is
-     off both trays, reachable from the menu (and the Home closing bookend). -->
-<div class="switch-dock" role="tablist" aria-label="Story page">
-  <button class="sw" data-goto="architecture" role="tab">Architecture</button>
-  <button class="sw active" data-goto="journey" role="tab" aria-current="page">Journey</button>
-  <button class="sw" data-goto="skills" role="tab">Skills</button>
-</div>
-
 <script>
   const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
@@ -1045,7 +1153,6 @@
 
   const pages=[...document.querySelectorAll('.page')];
   const arrivalWrap=document.getElementById('arrivalWrap');
-  const switchDock=document.querySelector('.switch-dock');
   const titles={journey:'Journey',architecture:'Architecture',skills:'Skills',about:'About'};
   let activeName='journey';
   const active=()=>document.querySelector('.page.active');
@@ -1787,14 +1894,6 @@
     pages.forEach(p=>p.classList.toggle('active',p.dataset.page===name));
     document.body.dataset.page=name;
     window.scrollTo(0,0);
-    // About is off the Story tray (Architecture · Journey · Skills only) — hide it there
-    switchDock.style.display = name==='about' ? 'none' : '';
-    // the bottom tray declares the current location (active state + aria-current)
-    document.querySelectorAll('.switch-dock .sw').forEach(b=>{
-      const on=b.dataset.goto===name;
-      b.classList.toggle('active',on);
-      b.setAttribute('aria-current',on?'page':'false');
-    });
     if(name==='journey') buildJourney();
     if(name==='skills') skillsLayout();
     if(name==='architecture') archLayout();
@@ -1940,6 +2039,52 @@
   document.addEventListener('keydown',e=>{
     if(e.key==='Escape'&&paperCard.classList.contains('open')) closeCard();
   });
+  // ---- About: Education / Work / Projects entries open the same paper card ----
+  // Placeholder copy in the LinkedIn "what happened" shape (meta / title / sections / links);
+  // Monish swaps the real write-ups in at implementation.
+  const ABOUT_CARDS={
+    'edu-bsc':{meta:'2017 — 2021 · Education',title:'BSc Computer Science',
+      body:[['Where','Placeholder University. (Monish fills the real institution at implementation.)'],
+            ['Focus','Computer-science foundations — algorithms, systems, and the maths under machine learning.'],
+            ['Alongside','Space for a thesis, coursework, or activities worth calling out.']],
+      ev:[['transcript or details →','#']]},
+    'work-current':{meta:'2024 — present · Self-directed',title:'ML / Platform Engineer',
+      body:[['What I do','Designing and building the MLOps platform this site fronts, end to end — data versioning, training, a CI quality gate, scale-to-zero serving, and drift monitoring.'],
+            ['Highlights','Ephemeral EKS load-rehearsals that build and tear themselves down in a single run; a CI gate that blocks a regressing model before it ships; a live demo that costs nothing at rest.'],
+            ['Stack','Python · PyTorch · ONNX · FastAPI · AWS Lambda · Terraform · DVC · MLflow · GitHub Actions']],
+      ev:[['the platform, live →','#'],['the repository →','#']]},
+    'work-swe':{meta:'2022 — 2024 · Placeholder Co.',title:'Software Engineer',
+      body:[['What I did','Backend services and data pipelines. (Placeholder — Monish writes the real responsibilities at implementation.)'],
+            ['Highlights','A few concrete wins go here — a system shipped, a metric moved, a problem owned.'],
+            ['Stack','The languages and tools used in the role.']],
+      ev:[['a project or reference →','#']]},
+    'work-intern':{meta:'2021 — 2022 · Placeholder Co.',title:'Engineering Intern',
+      body:[['What I did','First professional exposure to production systems. (Placeholder — real detail at implementation.)'],
+            ['Highlights','What the internship delivered, and what it taught.']],
+      ev:[['a project or reference →','#']]},
+    'proj-one':{meta:'Personal project · Placeholder',title:'Placeholder Project · One',
+      body:[['What it is','A paragraph on the project and the problem it solves. (Placeholder content — swapped for a real project at implementation.)'],
+            ['My role','What Monish built and owned.'],
+            ['Stack','The tools and languages behind it.']],
+      ev:[['the repo →','#'],['a live demo →','#']]},
+    'proj-two':{meta:'Personal project · Placeholder',title:'Placeholder Project · Two',
+      body:[['What it is','Description placeholder — a real project goes here at implementation.'],
+            ['My role','—'],['Stack','—']],
+      ev:[['the repo →','#']]},
+    'proj-three':{meta:'Open source · Placeholder',title:'Placeholder Project · Three',
+      body:[['What it is','Description placeholder — a real contribution goes here at implementation.'],
+            ['My role','—'],['Stack','—']],
+      ev:[['the repo →','#']]}
+  };
+  function openAboutCard(el){
+    const d=ABOUT_CARDS[el.dataset.abCard]; if(!d) return;
+    fillCard(d,el);
+  }
+  document.querySelectorAll('.ab-page [data-ab-card]').forEach(el=>{
+    el.addEventListener('click',()=>openAboutCard(el));
+    el.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openAboutCard(el); } });
+  });
+
   // architecture parts open their cards — wired in archBuild(), which draws the parts
 
   // ---- slide-in menu ----
@@ -1963,17 +2108,6 @@
   document.querySelectorAll('[data-goto]').forEach(b=>{
     b.addEventListener('click',()=>{ setMenu(false); switchPage(b.dataset.goto); });
   });
-
-  // ---- click-to-copy email (About) — swaps its own label to "Copied ✓" ----
-  (function(){
-    const b=document.getElementById('aboutMail');
-    b.addEventListener('click',async()=>{
-      const p=b.textContent;
-      try{ await navigator.clipboard.writeText(p); }catch(e){}
-      b.textContent='Copied ✓';
-      setTimeout(()=>{ b.textContent=p; },1400);
-    });
-  })();
 
   // ---- deep-link on load: #page or #page/cardId ----
   function bootFromHash(){

@@ -108,37 +108,38 @@
     background:none;border:0;cursor:pointer;padding:6px;color:var(--foreground);
     display:inline-flex;line-height:0;transition:color var(--hover-dur) var(--ease-hover),scale var(--hover-dur) var(--ease-hover);
   }
-  .menu-panel nav{display:flex;flex-direction:column;gap:18px;flex:1;overflow-y:auto;overflow-x:hidden;}
+  .menu-panel nav{display:flex;flex-direction:column;gap:30px;flex:1;overflow-y:auto;overflow-x:hidden;}
+  /* the nav is grouped into categories; each group fades up as a unit. The old
+     per-link staircase moved onto the group (links are no longer nav siblings,
+     so a global nth-child staircase can't reach across the group wrappers). */
+  .menu-group{
+    display:flex;flex-direction:column;gap:12px;
+    opacity:0;transform:translate(30px,10px);
+    transition:
+      opacity var(--dur) var(--ease-out-expo) var(--stagger,0s),
+      transform var(--dur) var(--ease-out-expo) var(--stagger,0s);
+  }
+  .menu-panel.open .menu-group{opacity:1;transform:none;}
+  .menu-panel.open .menu-group:nth-child(1){--stagger:calc(var(--dur)*.2)}
+  .menu-panel.open .menu-group:nth-child(2){--stagger:calc(var(--dur)*.32)}
+  .menu-panel.open .menu-group:nth-child(3){--stagger:calc(var(--dur)*.44)}
+  .menu-panel.open .menu-group:nth-child(4){--stagger:calc(var(--dur)*.56)}
+  .menu-cat{padding-left:2px;}
   .menu-link{
     font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
     font-variation-settings:"opsz" 72;font-weight:500;letter-spacing:-.01em;
     /* capped at 7.6vw below ~368px wide, as on Home: the nav there is too narrow for the 28px
        floor, so "Architecture" was cut by overflow-x:hidden at rest and more once it grew */
-    text-transform:uppercase;font-size:min(clamp(28px,4.5vw,38px),7.6vw);line-height:1.05;
+    text-transform:uppercase;font-size:min(clamp(26px,4.2vw,34px),7.2vw);line-height:1.05;
     color:var(--foreground);text-decoration:none;width:fit-content;cursor:pointer;
     background:none;border:0;text-align:left;padding:0;transform-origin:left center;
-    opacity:0;transform:translate(30px,10px);
-    /* stagger rides on --stagger and applies ONLY to the entrance; hover reacts at once */
+    /* all menu items read the same — no mode-based muting (the highlighting was
+       just prototype scaffolding for cross-file links). Entrance lives on the group;
+       the link only reacts to hover. */
     transition:
-      opacity var(--dur) var(--ease-out-expo) var(--stagger,0s),
-      transform var(--dur) var(--ease-out-expo) var(--stagger,0s),
       scale var(--hover-dur) var(--ease-hover),
       color var(--hover-dur) var(--ease-hover);
   }
-  /* all menu items read the same — no mode-based muting (the highlighting was
-     just prototype scaffolding for cross-file links) */
-  .menu-panel.open .menu-link{opacity:1;transform:none;}
-  /* nth-child (not nth-of-type): the nav mixes <a> and <button>, so type-counting
-     would scramble the staircase. */
-  .menu-panel.open .menu-link:nth-child(1){--stagger:calc(var(--dur)*.2)}
-  .menu-panel.open .menu-link:nth-child(2){--stagger:calc(var(--dur)*.3)}
-  .menu-panel.open .menu-link:nth-child(3){--stagger:calc(var(--dur)*.4)}
-  .menu-panel.open .menu-link:nth-child(4){--stagger:calc(var(--dur)*.5)}
-  .menu-panel.open .menu-link:nth-child(5){--stagger:calc(var(--dur)*.6)}
-  .menu-panel.open .menu-link:nth-child(6){--stagger:calc(var(--dur)*.7)}
-  .menu-panel.open .menu-link:nth-child(7){--stagger:calc(var(--dur)*.8)}
-  .menu-panel.open .menu-link:nth-child(8){--stagger:calc(var(--dur)*.9)}
-  .menu-panel.open .menu-link:nth-child(9){--stagger:calc(var(--dur)*1)}
 
   /* ---------- arrival line — "the line carries you", restored 2026-07-28 ---------- */
   .arrival-wrap{
@@ -295,6 +296,35 @@
   .page-foot p{margin:0 0 12px;font-size:14px;color:var(--muted-foreground);max-width:64ch;}
   .page-foot .links{display:flex;gap:26px;flex-wrap:wrap;font-size:14.5px;}
 
+  /* ---------- reading foot: the forward handoff — the mirror of ← HOME ----------
+     The last thing on each page, below the provenance foot: it hands the reader to the
+     next page in menu order. The next page's NAME is the hero (Bodoni, emphasis by scale
+     not weight); the chevron mirrors the HOME chevron and slides right on hover, the whole
+     link warming to ochre like every other control. Contextual, not persistent chrome. */
+  .read-next{margin-top:clamp(40px,7vh,64px);padding-top:clamp(22px,3.2vh,32px);border-top:1px solid var(--foreground);}
+  .rn-link{
+    display:inline-flex;flex-direction:column;gap:7px;width:fit-content;max-width:100%;
+    text-decoration:none;color:var(--foreground);cursor:pointer;
+    background:none;border:0;padding:0;text-align:left;font:inherit;transform-origin:left center;
+    transition:color var(--hover-dur) var(--ease-hover);
+  }
+  .rn-cue{text-transform:uppercase;letter-spacing:.22em;font-size:11.5px;font-weight:500;color:var(--muted-foreground);}
+  .rn-row{display:flex;align-items:center;gap:.34em;}
+  .rn-name{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 72;
+    font-weight:500;letter-spacing:-.01em;text-transform:uppercase;line-height:1;
+    font-size:clamp(34px,6vw,54px);color:inherit;
+  }
+  .rn-arrow{flex:0 0 auto;width:clamp(24px,3.6vw,32px);height:auto;transition:transform var(--hover-dur) var(--ease-hover);}
+  .rn-peek{font-size:14.5px;color:var(--muted-foreground);max-width:52ch;}
+  @media (hover:hover) and (pointer:fine){
+    .rn-link:hover{color:var(--warm);}
+    .rn-link:hover .rn-arrow{transform:translateX(3px);}
+  }
+  .rn-link:is(:focus-visible,:active){color:var(--warm);}
+  .rn-link:is(:focus-visible,:active) .rn-arrow{transform:translateX(3px);}
+  .rn-link:focus-visible{outline:2px solid var(--warm);outline-offset:4px;border-radius:3px;}
+
   /* verdict banner — the one place a page leads with status; sits in the well */
   .banner{border-left:3px solid var(--axis);background:var(--well);border-color:#e8ecf2;box-shadow:none;}
   .banner.is-bad{border-left-color:var(--bad);}
@@ -402,15 +432,27 @@
     </button>
   </div>
   <nav>
-    <a class="menu-link elsewhere" href="transition-prototype.html" title="Home lives in the Home-scroll prototype">Home</a>
-    <button class="menu-link" data-goto="quality">Quality</button>
-    <button class="menu-link" data-goto="monitoring">Monitoring</button>
-    <button class="menu-link" data-goto="performance">Performance</button>
-    <a class="menu-link elsewhere" href="sections-prototype.html#architecture" title="Story mode lives in the sections prototype">Architecture</a>
-    <a class="menu-link elsewhere" href="sections-prototype.html#journey" title="Story mode lives in the sections prototype">Journey</a>
-    <a class="menu-link elsewhere" href="sections-prototype.html#skills" title="Story mode lives in the sections prototype">Skills</a>
-    <a class="menu-link elsewhere" href="sections-prototype.html#about" title="About is off both trays">About</a>
-    <a class="menu-link elsewhere" href="transition-prototype.html#contact" title="Contact is the Home bookend">Contact</a>
+    <div class="menu-group">
+      <span class="menu-cat micro">Start</span>
+      <a class="menu-link elsewhere" href="transition-prototype.html" title="Home lives in the Home-scroll prototype">Home</a>
+    </div>
+    <div class="menu-group">
+      <span class="menu-cat micro">The Data</span>
+      <button class="menu-link" data-goto="quality">Quality</button>
+      <button class="menu-link" data-goto="performance">Performance</button>
+      <button class="menu-link" data-goto="monitoring">Monitoring</button>
+    </div>
+    <div class="menu-group">
+      <span class="menu-cat micro">The Story</span>
+      <a class="menu-link elsewhere" href="sections-prototype.html#architecture" title="Story mode lives in the sections prototype">Architecture</a>
+      <a class="menu-link elsewhere" href="sections-prototype.html#journey" title="Story mode lives in the sections prototype">Journey</a>
+      <a class="menu-link elsewhere" href="sections-prototype.html#skills" title="Story mode lives in the sections prototype">Skills</a>
+    </div>
+    <div class="menu-group">
+      <span class="menu-cat micro">More</span>
+      <a class="menu-link elsewhere" href="sections-prototype.html#about" title="About is off both trays">About</a>
+      <a class="menu-link elsewhere" href="transition-prototype.html#contact" title="Contact is the Home bookend">Contact</a>
+    </div>
   </nav>
 </aside>
 
@@ -505,6 +547,14 @@
           <a class="link" href="https://monishkamwal.github.io/mlops/" target="_blank" rel="noopener">the raw evidence hub ↗</a>
         </div>
       </div>
+
+      <nav class="read-next reveal" aria-label="Continue reading">
+        <button class="rn-link" type="button" data-goto="performance">
+          <span class="rn-cue">Next</span>
+          <span class="rn-row"><span class="rn-name">Performance</span><svg class="rn-arrow" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M5 2l5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span class="rn-peek">A snapshot from the last EKS dress rehearsal</span>
+        </button>
+      </nav>
     </div>
   </section>
 
@@ -624,6 +674,14 @@
           <a class="link" href="https://monishkamwal.github.io/mlops/drift.html" target="_blank" rel="noopener">Evidently&rsquo;s own report ↗</a>
         </div>
       </div>
+
+      <nav class="read-next reveal" aria-label="Continue reading">
+        <a class="rn-link" href="sections-prototype.html#architecture">
+          <span class="rn-cue">Next</span>
+          <span class="rn-row"><span class="rn-name">Architecture</span><svg class="rn-arrow" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M5 2l5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span class="rn-peek">The machine behind the doodle</span>
+        </a>
+      </nav>
     </div>
   </section>
 
@@ -709,20 +767,20 @@
         <p>The series here are shaped to the api-metrics.json contract; they swap for the real Prometheus capture the moment the hub publishes one.</p>
         <div class="links">
           <a class="link" href="https://monishkamwal.github.io/mlops/api-metrics.json" target="_blank" rel="noopener">api-metrics.json ↗</a>
-          <a class="link" href="sections-prototype.html#architecture">the architecture behind it →</a>
         </div>
       </div>
+
+      <nav class="read-next reveal" aria-label="Continue reading">
+        <button class="rn-link" type="button" data-goto="monitoring">
+          <span class="rn-cue">Next</span>
+          <span class="rn-row"><span class="rn-name">Monitoring</span><svg class="rn-arrow" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M5 2l5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span class="rn-peek">Is it holding up against real visitors?</span>
+        </button>
+      </nav>
     </div>
   </section>
 
 </main>
-
-<!-- ---------- the isolated Data tray ---------- -->
-<div class="switch-dock" role="tablist" aria-label="Data page">
-  <button class="sw active" data-goto="quality" role="tab" aria-current="page">Quality</button>
-  <button class="sw" data-goto="monitoring" role="tab">Monitoring</button>
-  <button class="sw" data-goto="performance" role="tab">Performance</button>
-</div>
 
 <div class="edge-blur top" id="edgeTop" aria-hidden="true"><i></i><i></i><i></i></div>
 <div class="edge-blur bot" id="edgeBot" aria-hidden="true"><i></i><i></i><i></i></div>
