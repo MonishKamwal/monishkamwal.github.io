@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { architecture, type ArchPart } from "@/lib/content";
 import { readNextFor } from "@/lib/story/storyNav";
 import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
@@ -8,7 +8,7 @@ import { useArchMotion } from "@/lib/hooks/useArchMotion";
 import { renderInline } from "@/lib/story/inline";
 import { CardHint } from "../CardHint";
 import { ReadNext } from "../ReadNext";
-import { useCardController, type CardData } from "../PaperCard";
+import { useCardController, useHashCard, type CardData } from "../PaperCard";
 import frame from "../story.module.css";
 import styles from "./ArchitecturePage.module.css";
 
@@ -41,12 +41,12 @@ export function ArchitecturePage() {
 
   useArchMotion(motionRefs, reduced, onPart, styles.ioOn);
 
-  // deep link: /architecture#<part-id> opens that card on load
-  useEffect(() => {
-    const id = location.hash.replace("#", "");
-    const part = id && architecture.parts.find((p) => p.id === id);
-    if (part) openCard(partCard(part), null);
-  }, [openCard]);
+  // deep link: /architecture#<part-id> opens that card (on load + hash change)
+  const resolveCard = useCallback((id: string) => {
+    const part = architecture.parts.find((p) => p.id === id);
+    return part ? partCard(part) : null;
+  }, []);
+  useHashCard(resolveCard);
 
   return (
     <>

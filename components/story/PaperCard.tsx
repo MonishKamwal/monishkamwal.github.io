@@ -41,6 +41,25 @@ export function useCardController(): Controller {
   return ctx;
 }
 
+/** Open a card from the URL hash — on first load AND on later same-page hash
+ *  changes. `resolve` maps a hash id to its card (or null). Pass a stable
+ *  (useCallback) resolver. Re-opening the already-open card is a harmless no-op,
+ *  so no de-dup is needed. */
+export function useHashCard(resolve: (id: string) => CardData | null): void {
+  const { openCard } = useCardController();
+  useEffect(() => {
+    const open = () => {
+      const id = decodeURIComponent(location.hash.replace("#", ""));
+      if (!id) return;
+      const data = resolve(id);
+      if (data) openCard(data, null);
+    };
+    open(); // first load / deep link
+    window.addEventListener("hashchange", open);
+    return () => window.removeEventListener("hashchange", open);
+  }, [resolve, openCard]);
+}
+
 export function PaperCardProvider({ children }: { children: React.ReactNode }) {
   const reduced = useReducedMotion();
   const [data, setData] = useState<CardData | null>(null);

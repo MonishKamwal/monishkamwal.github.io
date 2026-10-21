@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { journey } from "@/lib/content";
 import { fmtDate } from "@/lib/format";
 import { buildJourneyLayout, type JourneyNode } from "@/lib/story/journeyLayout";
@@ -9,7 +9,7 @@ import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
 import { useJourneyMotion } from "@/lib/hooks/useJourneyMotion";
 import { CardHint } from "../CardHint";
 import { ReadNext } from "../ReadNext";
-import { useCardController, type CardData } from "../PaperCard";
+import { useCardController, useHashCard, type CardData } from "../PaperCard";
 import frame from "../story.module.css";
 import styles from "./JourneyPage.module.css";
 
@@ -54,13 +54,15 @@ export function JourneyPage() {
   const open = (node: JourneyNode, opener: Element | null) =>
     openCard(entryCard(node), opener);
 
-  // deep link: /journey#<slug> opens that entry's card on load
-  useEffect(() => {
-    const slug = location.hash.replace("#", "");
-    if (!slug) return;
-    const node = layout.nodes.find((n) => n.slug === slug);
-    if (node) openCard(entryCard(node), null);
-  }, [layout, openCard]);
+  // deep link: /journey#<slug> opens that entry's card (on load + hash change)
+  const resolveCard = useCallback(
+    (slug: string) => {
+      const node = layout.nodes.find((n) => n.slug === slug);
+      return node ? entryCard(node) : null;
+    },
+    [layout],
+  );
+  useHashCard(resolveCard);
 
   return (
     <>
