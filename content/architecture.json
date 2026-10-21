@@ -1,5 +1,5 @@
 {
-  "_note": "Matches the Architecture prototype (sections-prototype.html 'pulled apart, crossings are stops'). `blocks` are in camera order (head → overview → serve → w0 → mon → w1 → ci → w3 → k8s → w2 → end); plane blocks carry `io` rows (each lights its wire). `parts` are the clickable isometric cubes that open paper cards (what-it-is / why / trade-offs + evidence). `kickerTone:'ochre'` marks wire + the ephemeral-K8s kickers. Evidence hrefs pinned to real URLs; `body` strings are markdown.",
+  "_note": "Source of truth is the platform's own ARCHITECTURE.md (mlops repo); the diagram is built to fit the architecture, not the reverse. `blocks` carry the narrative in camera order (head → overview → serve → w0 → mon → w1 → ci → w3 → k8s → w2 → end) — the 'portfolio cut' that ARCHITECTURE.md §11 prescribes; plane blocks carry `io` rows (each lights its wire). `parts` now cover EVERY cube in the diagram (id == the cube's card id: browser/lambda/s3 · drift/evidence/issue · train/registry/gate/ship/blocked · eks/helm/load), each a what-it-is/why/trade-off card drawn from the real system. `kickerTone:'ochre'` marks wire + the ephemeral-K8s kickers. Evidence hrefs pinned to real repo/run/hub URLs; `body` strings are markdown.",
   "sectionIndicator": "Architecture",
   "title": "Architecture",
   "lead": "The machine behind the doodle",
@@ -20,10 +20,22 @@
       "kind": "plane",
       "kicker": "Plane 1 · always on",
       "heading": "Serving",
-      "body": ["An always-on serving plane at ~$0. AWS Lambda wakes from zero, runs FastAPI with an ONNX model, and sends the guess back to the canvas."],
+      "body": [
+        "An always-on serving plane at ~$0. AWS Lambda wakes from zero, runs FastAPI with an ONNX model, and sends the guess back to the canvas."
+      ],
       "io": [
-        { "dir": "Sends", "text": "logs, every prediction", "target": "→ Monitoring", "wire": "w0" },
-        { "dir": "Receives", "text": "a new model ships", "target": "← CI/CD", "wire": "w2" }
+        {
+          "dir": "Sends",
+          "text": "logs, every prediction",
+          "target": "→ Monitoring",
+          "wire": "w0"
+        },
+        {
+          "dir": "Receives",
+          "text": "a new model ships",
+          "target": "← CI/CD",
+          "wire": "w2"
+        }
       ]
     },
     {
@@ -32,7 +44,9 @@
       "kickerTone": "ochre",
       "kicker": "The wire · From Serving to Monitoring",
       "heading": "Logs, every prediction",
-      "body": ["Every prediction Lambda serves is written to S3 as a log line. Every Monday the drift report reads that week's logs and compares them with the training data."]
+      "body": [
+        "Every prediction Lambda serves is written to S3 as a log line. Every Monday the drift report reads that week's logs and compares them with the training data."
+      ]
     },
     {
       "id": "mon",
@@ -44,8 +58,18 @@
         "The site styles all of it — including this very page — from JSON contracts, never from the platform's own HTML."
       ],
       "io": [
-        { "dir": "Receives", "text": "logs, every prediction", "target": "← Serving", "wire": "w0" },
-        { "dir": "Sends", "text": "drift breach → retrain", "target": "→ CI/CD", "wire": "w1" }
+        {
+          "dir": "Receives",
+          "text": "logs, every prediction",
+          "target": "← Serving",
+          "wire": "w0"
+        },
+        {
+          "dir": "Sends",
+          "text": "drift breach → retrain",
+          "target": "→ CI/CD",
+          "wire": "w1"
+        }
       ]
     },
     {
@@ -54,7 +78,9 @@
       "kickerTone": "ochre",
       "kicker": "The wire · From Monitoring to CI/CD",
       "heading": "Drift breach → retrain",
-      "body": ["When drift crosses its threshold, the report opens a GitHub issue. A retrain folds the labeled drawings into the training split, and the gate decides whether the result ships."]
+      "body": [
+        "When drift crosses its threshold, the report opens a GitHub issue. A retrain folds the labeled drawings into the training split, and the gate decides whether the result ships."
+      ]
     },
     {
       "id": "ci",
@@ -66,9 +92,24 @@
         "The champion alias only moves on a strict improvement, so \"champion\" always means the best-ever bar. A crippled 0.50 model is blocked in CI, deploy steps skip, and the live model is untouched."
       ],
       "io": [
-        { "dir": "Receives", "text": "drift breach → retrain", "target": "← Monitoring", "wire": "w1" },
-        { "dir": "Sends", "text": "a new model ships", "target": "→ Serving", "wire": "w2" },
-        { "dir": "Sends", "text": "the same image", "target": "→ Ephemeral K8s", "wire": "w3" }
+        {
+          "dir": "Receives",
+          "text": "drift breach → retrain",
+          "target": "← Monitoring",
+          "wire": "w1"
+        },
+        {
+          "dir": "Sends",
+          "text": "a new model ships",
+          "target": "→ Serving",
+          "wire": "w2"
+        },
+        {
+          "dir": "Sends",
+          "text": "the same image",
+          "target": "→ Ephemeral K8s",
+          "wire": "w3"
+        }
       ]
     },
     {
@@ -77,7 +118,9 @@
       "kickerTone": "ochre",
       "kicker": "The wire · From CI/CD to Ephemeral K8s",
       "heading": "The same image",
-      "body": ["The image that serves on Lambda is the one Helm deploys to EKS, by digest — so the monthly load test measures the real thing, not a copy."]
+      "body": [
+        "The image that serves on Lambda is the one Helm deploys to EKS, by digest — so the monthly load test measures the real thing, not a copy."
+      ]
     },
     {
       "id": "k8s",
@@ -90,7 +133,12 @@
         "A monthly failsafe sweeps any survivor tagged `tier=ephemeral`, so a botched teardown can't quietly bill. No always-on cluster cost, anywhere."
       ],
       "io": [
-        { "dir": "Receives", "text": "the same image", "target": "← CI/CD", "wire": "w3" }
+        {
+          "dir": "Receives",
+          "text": "the same image",
+          "target": "← CI/CD",
+          "wire": "w3"
+        }
       ]
     },
     {
@@ -99,60 +147,236 @@
       "kickerTone": "ochre",
       "kicker": "The wire · From CI/CD back to Serving",
       "heading": "A new model ships",
-      "body": ["A challenger that clears the gate is built into an image and deployed to Lambda. This is the wire that closes the loop: canvas → CI → deploy → drift → feedback → retrain."]
+      "body": [
+        "A challenger that clears the gate is built into an image and deployed to Lambda. This is the wire that closes the loop: canvas → CI → deploy → drift → feedback → retrain."
+      ]
     },
     {
       "id": "end",
       "kind": "end",
       "kicker": "Every claim is published",
-      "body": ["What stays running when nothing is happening: two storage buckets, one container registry, one function. Everything else is summoned on demand and torn down."],
+      "body": [
+        "What stays running when nothing is happening: two storage buckets, one container registry, one function. Everything else is summoned on demand and torn down."
+      ],
       "links": [
-        { "label": "Browse the raw evidence →", "href": "https://monishkamwal.github.io/mlops/" },
-        { "label": "GitHub repo →", "href": "https://github.com/MonishKamwal/mlops" }
+        {
+          "label": "Browse the raw evidence →",
+          "href": "https://monishkamwal.github.io/mlops/"
+        },
+        {
+          "label": "GitHub repo →",
+          "href": "https://github.com/MonishKamwal/mlops"
+        }
       ]
     }
   ],
   "parts": [
     {
+      "id": "browser",
+      "meta": "Serve · client",
+      "title": "The canvas",
+      "items": [
+        {
+          "heading": "What it is",
+          "body": "The home-page canvas. A drawing is sent to the serving API as raw QuickDraw strokes — the `[[xs],[ys]]` coordinates — not as pixels; a 👍 / 👎 (with a class picker on 👎) comes back as a feedback event."
+        },
+        {
+          "heading": "Why strokes",
+          "body": "The server owns every transform down to the 28×28 tensor, in the same module the training pipeline imports. Sending raw strokes means the frontend can change without touching how the model sees a drawing — and there is no train/serve skew to drift into."
+        },
+        {
+          "heading": "Privacy",
+          "body": "The prediction log stores an input hash, never pixels. A drawing is kept only on an explicit graded verdict, behind an upfront consent notice — no identity, no tracking."
+        }
+      ],
+      "evidence": [
+        {
+          "label": "the serving app",
+          "href": "https://github.com/MonishKamwal/mlops/blob/main/src/quickdraw/serving/app.py"
+        },
+        {
+          "label": "the shared preprocessing",
+          "href": "https://github.com/MonishKamwal/mlops/blob/main/src/quickdraw/data/preprocess.py"
+        }
+      ]
+    },
+    {
       "id": "lambda",
-      "meta": "Serve",
+      "meta": "Serve · always on",
       "title": "AWS Lambda",
       "items": [
-        { "heading": "What it is", "body": "A FastAPI app running the model as ONNX, reached through a Lambda Function URL." },
-        { "heading": "Why this choice", "body": "It scales to zero — nothing runs, and nothing is billed, until someone draws. The cold start is honest, and it's the story the home page tells." },
-        { "heading": "Trade-offs", "body": "The first request after an idle spell is slow; a warm container would be faster but would cost money doing nothing. The warm-up ping and the cold-start message cover the gap." }
+        {
+          "heading": "What it is",
+          "body": "A FastAPI app running the model as ONNX, reached through a Lambda Function URL. The arm64 container image runs unmodified on Lambda, under `docker run`, and on EKS — no code fork between tiers."
+        },
+        {
+          "heading": "Why this choice",
+          "body": "It scales to zero — nothing runs, and nothing is billed, until someone draws. The cold start is honest, and it's the story the home page tells."
+        },
+        {
+          "heading": "Trade-offs",
+          "body": "The first request after an idle spell is slow; a warm container would be faster but would cost money doing nothing. The warm-up ping and the cold-start message cover the gap."
+        }
       ],
       "evidence": [
-        { "label": "the serving app", "href": "https://github.com/MonishKamwal/mlops/blob/main/src/quickdraw/serving/app.py" },
-        { "label": "the Lambda infra", "href": "https://github.com/MonishKamwal/mlops/tree/main/infra/persistent" }
+        {
+          "label": "the serving app",
+          "href": "https://github.com/MonishKamwal/mlops/blob/main/src/quickdraw/serving/app.py"
+        },
+        {
+          "label": "the Lambda infra",
+          "href": "https://github.com/MonishKamwal/mlops/blob/main/infra/persistent/lambda.tf"
+        }
       ]
     },
     {
-      "id": "data",
-      "meta": "Build · data",
-      "title": "DVC — pull data",
+      "id": "s3",
+      "meta": "Serve · state",
+      "title": "S3 — logs & data",
       "items": [
-        { "heading": "What it is", "body": "The training data is versioned with DVC and pulled from the one S3 bucket at the start of every run." },
-        { "heading": "Why this choice", "body": "Git tracks the code; DVC tracks the large dataset by hash — so any run can be reproduced from an exact data version without bloating the repository." },
-        { "heading": "Trade-offs", "body": "One more tool and a remote to configure — paid back the first time a result had to be reproduced exactly." }
+        {
+          "heading": "What it is",
+          "body": "Three buckets. A logs bucket holds predictions, feedback, and labeled captures; a data bucket is the DVC remote, the MLflow store, and the monitoring outputs; a tfstate bucket holds Terraform state. The app writes logs per request, fail-open — an S3 outage costs a log line, never a prediction."
+        },
+        {
+          "heading": "Why this shape",
+          "body": "One partitioned store means one lifecycle policy and one place to reason about cost and access. The Lambda execution role can only append to `predictions/`, `feedback/`, and `captures/` — no read, no delete."
+        }
       ],
       "evidence": [
-        { "label": "“One bucket, three jobs”", "href": "/journey#one-bucket-three-jobs" },
-        { "label": "the DVC remote", "href": "https://github.com/MonishKamwal/mlops/blob/main/dvc.yaml" }
+        {
+          "label": "the bucket infra",
+          "href": "https://github.com/MonishKamwal/mlops/blob/main/infra/persistent/s3.tf"
+        },
+        {
+          "label": "the append-only IAM",
+          "href": "https://github.com/MonishKamwal/mlops/blob/main/infra/persistent/iam.tf"
+        }
       ]
     },
     {
-      "id": "validate",
-      "meta": "Build · data",
-      "title": "Pandera — validate",
+      "id": "drift",
+      "meta": "Monitor · weekly",
+      "title": "Drift report",
       "items": [
-        { "heading": "What it is", "body": "A declared schema checked against the pulled data before training is allowed to start." },
-        { "heading": "Why this choice", "body": "Bad data fails the pipeline loudly and early, instead of quietly producing a bad model you only notice days later." },
-        { "heading": "Trade-offs", "body": "The schema needs maintaining as the data evolves; a too-strict first version blocked perfectly valid pulls." }
+        {
+          "heading": "What it is",
+          "body": "Every Monday, Evidently scores the model's output distribution — predicted-class mix, top-1 confidence, top1−top2 margin — over a 30-day window of real predictions against a reference distribution. It publishes `drift.json` as a data contract."
+        },
+        {
+          "heading": "The key call",
+          "body": "It does not alert on the ever-present out-of-distribution drift: real doodles are OOD against QuickDraw's bitmaps by definition, so that fires every week and means nothing. It pages only when the model is doing badly — a confidence collapse or a proxy-accuracy breach. The OOD drift is still measured and published, just not paged on."
+        }
       ],
       "evidence": [
-        { "label": "“Pandera at the door”", "href": "/journey#pandera-at-the-door" },
-        { "label": "the validation stage", "href": "https://github.com/MonishKamwal/mlops/blob/main/src/quickdraw/data/validate.py" }
+        {
+          "label": "the drift report code",
+          "href": "https://github.com/MonishKamwal/mlops/blob/main/src/quickdraw/monitoring/drift.py"
+        },
+        {
+          "label": "this week's drift.json",
+          "href": "https://monishkamwal.github.io/mlops/drift.json"
+        }
+      ]
+    },
+    {
+      "id": "evidence",
+      "meta": "Monitor · published",
+      "title": "Evidence hub",
+      "items": [
+        {
+          "heading": "What it is",
+          "body": "The public hub that backs every claim on this site. It renders from the MLflow registry — the record of which model is champion and what it scored — not from a checked-in snapshot, so it can't show a number that's no longer live."
+        },
+        {
+          "heading": "The contract",
+          "body": "Every public-facing output ships as JSON — `evidence.json`, `drift.json`, `feedback.json`, the history files — and the portfolio styles it. The platform's own HTML and Grafana PNGs are demoted to functional artifacts; the look belongs to the site."
+        }
+      ],
+      "evidence": [
+        {
+          "label": "the evidence exporter",
+          "href": "https://github.com/MonishKamwal/mlops/blob/main/src/quickdraw/evidence/export.py"
+        },
+        {
+          "label": "the live evidence hub",
+          "href": "https://monishkamwal.github.io/mlops/"
+        }
+      ]
+    },
+    {
+      "id": "issue",
+      "meta": "Monitor · alert",
+      "title": "GitHub issue",
+      "items": [
+        {
+          "heading": "What it is",
+          "body": "The alert channel. When the drift report sees mean confidence below 0.55, or proxy accuracy below 0.5 with at least ten graded verdicts, it opens — or comments on — a single `drift-alert` issue. It's idempotent: one issue per breach, not one per run."
+        },
+        {
+          "heading": "Why an issue",
+          "body": "It puts the signal where the work happens. A breach is a prompt to retrain, and the retrain folds the labeled drawings back into the training split — closing the loop without a dashboard anyone has to remember to check."
+        }
+      ],
+      "evidence": [
+        {
+          "label": "the alert code",
+          "href": "https://github.com/MonishKamwal/mlops/blob/main/src/quickdraw/monitoring/alert.py"
+        },
+        {
+          "label": "the drift workflow",
+          "href": "https://github.com/MonishKamwal/mlops/blob/main/.github/workflows/drift-report.yml"
+        }
+      ]
+    },
+    {
+      "id": "train",
+      "meta": "Build · every merge",
+      "title": "Train",
+      "items": [
+        {
+          "heading": "What it is",
+          "body": "The DVC DAG that runs on every merge touching model inputs: download → preprocess → validate → train (a PyTorch CNN, logged to MLflow) → evaluate → export ONNX → reference. Each stage hashes its code and params, so only what changed re-runs."
+        },
+        {
+          "heading": "Validation is a gate",
+          "body": "Training depends on the validation report — a declared Pandera schema over the pulled data. No report, no training; bad data fails the pipeline loudly and early instead of quietly producing a worse model."
+        }
+      ],
+      "evidence": [
+        {
+          "label": "the DVC pipeline",
+          "href": "https://github.com/MonishKamwal/mlops/blob/main/dvc.yaml"
+        },
+        {
+          "label": "the training code",
+          "href": "https://github.com/MonishKamwal/mlops/blob/main/src/quickdraw/training/train.py"
+        }
+      ]
+    },
+    {
+      "id": "registry",
+      "meta": "Build · lineage",
+      "title": "MLflow registry",
+      "items": [
+        {
+          "heading": "What it is",
+          "body": "Every run registers a model version and logs its metrics; `champion` and `challenger` aliases track the best-ever bar and the latest candidate. The tracking database is SQLite, synced to S3, so the history reads the same on any machine."
+        },
+        {
+          "heading": "Why it's the source of truth",
+          "body": "The evidence hub renders from this registry rather than a committed file, and the champion alias — not a 'currently deployed' flag — is what the gate compares against. The built image digest is what's actually live."
+        }
+      ],
+      "evidence": [
+        {
+          "label": "the registry code",
+          "href": "https://github.com/MonishKamwal/mlops/blob/main/src/quickdraw/training/registry.py"
+        },
+        {
+          "label": "the live model card",
+          "href": "https://monishkamwal.github.io/mlops/"
+        }
       ]
     },
     {
@@ -160,13 +384,57 @@
       "meta": "Build",
       "title": "The quality gate",
       "items": [
-        { "heading": "What it is", "body": "A CI step that compares the freshly-trained challenger against the deployed champion before anything ships." },
-        { "heading": "Why this choice", "body": "It makes “never ship a regression” a property of the pipeline, not a promise someone has to keep. The blocked deploy is the page's best proof." },
-        { "heading": "Trade-offs", "body": "A too-tight threshold blocks statistically-equal models; it's tuned to a small tolerance band rather than a hard line." }
+        {
+          "heading": "What it is",
+          "body": "A CI step that compares the freshly-trained challenger against the reigning champion on held-out test accuracy, with two rules: an absolute floor of 0.85, and no regression beyond a small epsilon (0.005). Pass, and the challenger ships."
+        },
+        {
+          "heading": "Ship and re-crown are decoupled",
+          "body": "Passing means 'ship this'; the champion alias moves only on a strict improvement, so 'champion' always means the best-ever bar rather than a record of what's live. A crippled 0.50 model is blocked in CI, the deploy steps skip, and the live model is untouched."
+        },
+        {
+          "heading": "Trade-offs",
+          "body": "A too-tight threshold blocks statistically-equal models; it's tuned to a tolerance band rather than a hard line."
+        }
       ],
       "evidence": [
-        { "label": "the blocked-deploy run", "href": "https://github.com/MonishKamwal/mlops/actions/runs/29757829275" },
-        { "label": "gate.py", "href": "https://github.com/MonishKamwal/mlops/blob/main/src/quickdraw/training/gate.py" }
+        {
+          "label": "the blocked-deploy run",
+          "href": "https://github.com/MonishKamwal/mlops/actions/runs/29757829275"
+        },
+        {
+          "label": "gate.py",
+          "href": "https://github.com/MonishKamwal/mlops/blob/main/src/quickdraw/training/gate.py"
+        }
+      ]
+    },
+    {
+      "id": "ship",
+      "meta": "Build · deploy",
+      "title": "Deploy — Docker → Lambda",
+      "items": [
+        {
+          "heading": "What it is",
+          "body": "A challenger that clears the gate is built into an arm64 image, pushed to ECR, and the serving Lambda is updated by image digest — not a mutable tag, which can't sneak a different build in. A smoke test then asserts the live model's sha256 matches the ONNX that was just built."
+        },
+        {
+          "heading": "Why this choice",
+          "body": "The same image serves the live Lambda and the monthly EKS rehearsal — one artifact, two homes, no drift between them."
+        },
+        {
+          "heading": "Trade-offs",
+          "body": "Container cold starts are heavier than a plain zip; acceptable given scale-to-zero and the warm-up ping."
+        }
+      ],
+      "evidence": [
+        {
+          "label": "the deploy workflow",
+          "href": "https://github.com/MonishKamwal/mlops/blob/main/.github/workflows/train-deploy.yml"
+        },
+        {
+          "label": "the image build",
+          "href": "https://github.com/MonishKamwal/mlops/blob/main/Dockerfile"
+        }
       ]
     },
     {
@@ -174,39 +442,95 @@
       "meta": "Build · dead end",
       "title": "A deploy that got blocked",
       "items": [
-        { "heading": "What happened", "body": "A challenger regressed against the champion. The gate failed the job, and the deploy never ran." },
-        { "heading": "Why it matters", "body": "This is the gate working. The dead-end on the diagram is a real CI run you can open and read for yourself." }
+        {
+          "heading": "What happened",
+          "body": "A challenger regressed against the champion. The gate failed the job, the deploy steps were skipped, and the live model was left untouched."
+        },
+        {
+          "heading": "Why it matters",
+          "body": "This is the gate working. The dead-end on the diagram is a real CI run you can open and read for yourself."
+        }
       ],
       "evidence": [
-        { "label": "the failed CI run", "href": "https://github.com/MonishKamwal/mlops/actions/runs/29757829275" }
+        {
+          "label": "the failed CI run",
+          "href": "https://github.com/MonishKamwal/mlops/actions/runs/29757829275"
+        }
       ]
     },
     {
-      "id": "ship",
-      "meta": "Build · deploy",
-      "title": "Docker → Lambda",
+      "id": "eks",
+      "meta": "Ephemeral · ~30 min/month",
+      "title": "EKS + VPC",
       "items": [
-        { "heading": "What it is", "body": "The promoted model is baked into a container image, and the serving Lambda is updated to it." },
-        { "heading": "Why this choice", "body": "The same image serves the live Lambda and the monthly EKS rehearsal — one artifact, two homes, no drift between them." },
-        { "heading": "Trade-offs", "body": "Container cold starts are heavier than a plain zip; acceptable given scale-to-zero and the warm-up ping." }
+        {
+          "heading": "What it is",
+          "body": "Once a month, Terraform brings up a VPC (two AZs, a single NAT) and an EKS 1.33 cluster with three t4g.small Graviton nodes — for the length of one run, then destroyed unconditionally."
+        },
+        {
+          "heading": "Three teardown layers",
+          "body": "A leaked cluster plus NAT costs ~$8–10 a day, so teardown is defended three ways: an `if: always()` destroy that runs on success, failure, or cancel; a scheduled failsafe a few hours later; and the same failsafe as a manual break-glass. The failsafe sweep only touches resources tagged `tier=ephemeral`, pinned by a test."
+        }
       ],
       "evidence": [
-        { "label": "the deploy workflow", "href": "https://github.com/MonishKamwal/mlops/blob/main/.github/workflows/train-deploy.yml" },
-        { "label": "the image build", "href": "https://github.com/MonishKamwal/mlops/blob/main/Dockerfile" }
+        {
+          "label": "the ephemeral Terraform",
+          "href": "https://github.com/MonishKamwal/mlops/tree/main/infra/ephemeral"
+        },
+        {
+          "label": "the EKS workflow",
+          "href": "https://github.com/MonishKamwal/mlops/blob/main/.github/workflows/eks-demo.yml"
+        }
       ]
     },
     {
-      "id": "destroy",
-      "meta": "Rehearsal",
-      "title": "Destroy — nothing left running",
+      "id": "helm",
+      "meta": "Ephemeral · deploy",
+      "title": "API by digest",
       "items": [
-        { "heading": "What it is", "body": "The final Terraform step tears down the VPC and EKS cluster built minutes earlier." },
-        { "heading": "Why this choice", "body": "The cluster only exists to prove the model under load. Keeping it alive would burn money for no traffic." },
-        { "heading": "Trade-offs", "body": "Each run pays the build-up time again; the evidence — dashboards, k6 results — is captured before teardown, so nothing is lost." }
+        {
+          "heading": "What it is",
+          "body": "Helm deploys the exact serving image Lambda runs, pinned by digest so a mutable tag can't substitute a different build. It's a ClusterIP service with no public load balancer; Prometheus scrapes its `/metrics`."
+        },
+        {
+          "heading": "Why by digest",
+          "body": "The monthly load test is only worth running if it measures the real thing. Deploying by digest guarantees the cluster is exercising the same bytes that serve live traffic, not a copy."
+        }
       ],
       "evidence": [
-        { "label": "a weekly rehearsal run", "href": "https://github.com/MonishKamwal/mlops/actions/runs/29970873573" },
-        { "label": "the Terraform", "href": "https://github.com/MonishKamwal/mlops/tree/main/infra/ephemeral" }
+        {
+          "label": "the Helm chart",
+          "href": "https://github.com/MonishKamwal/mlops/tree/main/deploy/helm/quickdraw-api"
+        },
+        {
+          "label": "the EKS workflow",
+          "href": "https://github.com/MonishKamwal/mlops/blob/main/.github/workflows/eks-demo.yml"
+        }
+      ]
+    },
+    {
+      "id": "load",
+      "meta": "Ephemeral · measure",
+      "title": "Load test",
+      "items": [
+        {
+          "heading": "What it is",
+          "body": "k6 drives 20 virtual users for three minutes against the in-cluster API. kube-prometheus-stack (Prometheus + Grafana) captures `api-metrics.json` and a dashboard image, and everything is uploaded as evidence before the cluster is torn down — so nothing is lost when it goes away."
+        },
+        {
+          "heading": "Why ephemeral",
+          "body": "The cluster exists only to prove the model under load. Keeping it alive would burn money for no traffic; capturing the evidence first means the proof outlives the cluster."
+        }
+      ],
+      "evidence": [
+        {
+          "label": "the k6 script",
+          "href": "https://github.com/MonishKamwal/mlops/blob/main/deploy/k6/predict.js"
+        },
+        {
+          "label": "a rehearsal run",
+          "href": "https://github.com/MonishKamwal/mlops/actions/runs/29970873573"
+        }
       ]
     }
   ]
