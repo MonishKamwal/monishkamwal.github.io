@@ -53,6 +53,9 @@ export default function SketchDemo() {
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const mockIxRef = useRef(0);
   const reduceRef = useRef(false);
+  // Holds the latest padIdle so the idle loop can re-arm itself without a
+  // stale self-reference (the recursive setTimeout below goes through this).
+  const padIdleRef = useRef<() => void>(() => {});
 
   const [preds, setPreds] = useState<Prediction[] | null>(null); // null → resting
   const [status, setStatus] = useState<"" | "warming" | "thinking" | "offline">(
@@ -77,7 +80,7 @@ export default function SketchDemo() {
 
   const padIdle = useCallback(() => {
     if (currentPolyRef.current) {
-      idleTimerRef.current = setTimeout(padIdle, IDLE_AFTER);
+      idleTimerRef.current = setTimeout(() => padIdleRef.current(), IDLE_AFTER);
       return; // never wipe mid-stroke
     }
     const ink = inkRef.current;
@@ -99,6 +102,9 @@ export default function SketchDemo() {
       reduceRef.current ? 0 : 650,
     );
   }, [setMock]);
+  useEffect(() => {
+    padIdleRef.current = padIdle;
+  }, [padIdle]);
 
   const padWake = useCallback(() => {
     rootEl()?.classList.remove("pad-idle");
