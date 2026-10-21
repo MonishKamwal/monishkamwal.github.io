@@ -157,15 +157,6 @@
   }
 }
 
-.tail {
-  margin-top: 8px;
-  text-align: center;
-  font-size: 12px;
-  color: var(--muted-foreground);
-  font-style: italic;
-  opacity: 0;
-}
-
 @media (max-width: 640px) {
   .entry {
     width: 44%;

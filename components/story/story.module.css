@@ -80,6 +80,9 @@
   display: flex;
   align-items: center;
   gap: 0.42em;
+  width: fit-content;
+  transform-origin: left center;
+  transition: scale var(--hover-dur) var(--ease-hover);
 }
 .rnName {
   font-family: var(--font-bodoni), Georgia, serif;
@@ -107,6 +110,10 @@
 .rnLink:hover .rnArrow {
   transform: translateX(4px);
 }
-.rnLink:is(:focus-visible, :active) {
+/* the universal hover: the "Skills →" row pops at --hover-scale from the left */
+.rnLink:is(:hover, :focus-visible, :active) {
   color: var(--warm);
+}
+.rnLink:is(:hover, :focus-visible, :active) .rnRow {
+  scale: var(--hover-scale);
 }

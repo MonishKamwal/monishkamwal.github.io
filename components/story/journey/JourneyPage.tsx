@@ -42,11 +42,10 @@ export function JourneyPage() {
   const svg = useRef<SVGSVGElement>(null);
   const path = useRef<SVGPathElement>(null);
   const end = useRef<SVGPathElement>(null);
-  const tail = useRef<HTMLParagraphElement>(null);
   const lensCircle = useRef<SVGCircleElement>(null);
   const lensHole = useRef<SVGCircleElement>(null);
   const motionRefs = useMemo(
-    () => ({ wrap, svg, path, end, tail, lensCircle, lensHole }),
+    () => ({ wrap, svg, path, end, lensCircle, lensHole }),
     [],
   );
 
@@ -147,9 +146,6 @@ export function JourneyPage() {
             </div>
           ))}
         </div>
-        <p ref={tail} className={styles.tail}>
-          {journey.tail}
-        </p>
       </div>
 
       {next && <ReadNext next={next} />}

@@ -9,7 +9,7 @@ export type JourneyRefs = {
   svg: RefObject<SVGSVGElement | null>;
   path: RefObject<SVGPathElement | null>;
   end: RefObject<SVGPathElement | null>;
-  tail: RefObject<HTMLParagraphElement | null>;
+  tail?: RefObject<HTMLParagraphElement | null>;
   lensCircle: RefObject<SVGCircleElement | null>;
   lensHole: RefObject<SVGCircleElement | null>;
 };
@@ -42,10 +42,10 @@ export function useJourneyMotion(
     const svg = refs.svg.current;
     const path = refs.path.current;
     const end = refs.end.current;
-    const tail = refs.tail.current;
+    const tail = refs.tail?.current ?? null;
     const lensCircle = refs.lensCircle.current;
     const lensHole = refs.lensHole.current;
-    if (!wrap || !svg || !path || !end || !tail || !lensCircle || !lensHole) return;
+    if (!wrap || !svg || !path || !end || !lensCircle || !lensHole) return;
 
     const LENS_S =
       parseFloat(
@@ -92,7 +92,7 @@ export function useJourneyMotion(
       dots.forEach((d) => (d.style.opacity = "1"));
       heads.forEach((h) => (h.style.opacity = "1"));
       end.style.strokeDashoffset = "0";
-      tail.style.opacity = "1";
+      if (tail) tail.style.opacity = "1";
       return;
     }
 
@@ -185,7 +185,7 @@ export function useJourneyMotion(
       });
       const eLen = end.getTotalLength();
       end.style.strokeDashoffset = String(eLen * (1 - clamp((dP - 0.9) / 0.1, 0, 1)));
-      tail.style.opacity = String(clamp((dP - 0.96) / 0.04, 0, 1));
+      if (tail) tail.style.opacity = String(clamp((dP - 0.96) / 0.04, 0, 1));
       magnify();
     };
 

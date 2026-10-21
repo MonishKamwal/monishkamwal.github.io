@@ -9,11 +9,15 @@ import type { JourneyEntry, JourneyPhase } from "@/lib/content";
 const VBW = 700;
 const LX = 245;
 const RX = 455; // gentle crests, room for the outer text
-const PHASE0_Y = 60; // first heading sits center-top; the line starts under it
-const HEAD_TO_ENTRY = 130;
-const ENTRY_TO_ENTRY = 160;
-const ENTRY_TO_HEAD = 120;
-const TAIL = 190; // room below the last dot for the unfinished tail
+const PHASE0_Y = 70; // first heading sits center-top; the line starts under it
+// Gaps are sized for the real entries, whose blocks run 1–3 lines of title plus
+// a 2–3 line summary (~150px tall). A centered phase heading spans the full
+// width, so the gap from the last entry of a band to the next heading is the
+// largest — it must clear the tallest entry's text.
+const HEAD_TO_ENTRY = 150;
+const ENTRY_TO_ENTRY = 185;
+const ENTRY_TO_HEAD = 195;
+const TAIL = 150; // room below the last dot for the unfinished tail
 
 export type JourneyNode = {
   slug: string;
