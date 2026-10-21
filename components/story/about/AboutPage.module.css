@@ -1,0 +1,357 @@
+/* About page — editorial hero + Skills-wash + the Work serpentine + card rows.
+   Ported from sections-prototype.html §ABOUT. Module-scoped; the wash blobs
+   (innerHTML) are reached with :global, scoped under .abWash. */
+
+.abPage {
+  position: relative;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: clamp(84px, 13vh, 130px) clamp(26px, 6vw, 80px) clamp(44px, 8vh, 90px);
+  container-type: inline-size;
+}
+/* About's links take the one hover: deep ochre, ×--hover-scale from centre */
+.abPage a {
+  color: var(--deep-ochre);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(150, 96, 10, 0.32);
+  display: inline-block;
+  transform-origin: center;
+  transition: color var(--hover-dur) var(--ease-hover),
+    border-color var(--hover-dur) var(--ease-hover),
+    scale var(--hover-dur) var(--ease-hover);
+}
+@media (hover: hover) and (pointer: fine) {
+  .abPage a:hover {
+    color: var(--warm);
+    border-color: var(--warm);
+    scale: var(--hover-scale);
+  }
+}
+.abPage a:is(:focus-visible, :active) {
+  color: var(--warm);
+  border-color: var(--warm);
+  scale: var(--hover-scale);
+}
+.abPage a:focus-visible {
+  outline: 2px solid var(--warm);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* the wash — Home §5 Skills scheme, right side, behind the hero down to the trace */
+.abWash {
+  position: absolute;
+  z-index: 0;
+  overflow: visible;
+  pointer-events: none;
+  top: -1%;
+  right: -5%;
+  width: min(600px, 56%);
+  height: 86%;
+}
+.abWash :global(.blob) {
+  mix-blend-mode: multiply;
+  opacity: 0.42;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* hero */
+.abHero {
+  position: relative;
+}
+.heroIn {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(210px, 29%, 300px);
+  grid-template-areas: "eyebrow eyebrow" "name portrait" "lead portrait";
+  column-gap: clamp(20px, 3vw, 44px);
+  align-items: start;
+}
+.abEyebrow {
+  grid-area: eyebrow;
+  margin: 0 0 clamp(14px, 2vh, 22px);
+}
+.abName {
+  grid-area: name;
+  font-family: var(--font-bodoni), Georgia, serif;
+  font-optical-sizing: auto;
+  font-variation-settings: "opsz" 96;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 0.84;
+  font-size: clamp(40px, 12cqw, 120px);
+  margin: 0;
+}
+.abName em {
+  display: block;
+  font-style: italic;
+  font-weight: 500;
+  color: var(--deep-ochre);
+  margin-left: 0.3em;
+}
+.abLead {
+  grid-area: lead;
+  max-width: 60ch;
+  margin-top: clamp(22px, 4vh, 40px);
+}
+.abLead p {
+  margin: 0 0 14px;
+  font-size: clamp(15px, 1.5vw, 16.5px);
+}
+.abDrop::first-letter {
+  font-family: var(--font-bodoni), Georgia, serif;
+  font-weight: 500;
+  font-size: 3.4em;
+  line-height: 0.72;
+  float: left;
+  margin: 0.06em 0.1em 0 0;
+  color: var(--deep-ochre);
+}
+.heroPhoto {
+  grid-area: portrait;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(14px, 2vh, 20px);
+}
+.photoResume {
+  margin: 0;
+  text-align: center;
+  font-size: 14.5px;
+}
+.portrait {
+  width: min(290px, 52vw);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #fffdf8;
+  border: 1px solid rgba(10, 10, 10, 0.07);
+  box-shadow: 0 26px 60px -34px rgba(10, 10, 10, 0.42);
+  overflow: hidden;
+  position: relative;
+}
+.portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Education / Projects — big-anchor rows that open a card */
+.cv2 {
+  margin-top: clamp(54px, 10vh, 104px);
+}
+.cv2H {
+  font-family: var(--font-bodoni), Georgia, serif;
+  font-optical-sizing: auto;
+  font-variation-settings: "opsz" 96;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  font-size: clamp(30px, 5.5cqw, 56px);
+  margin: 0 0 clamp(16px, 2.6vh, 26px);
+  line-height: 0.95;
+}
+.cv2Item {
+  display: grid;
+  grid-template-columns: clamp(96px, 14cqw, 168px) 1fr;
+  column-gap: clamp(18px, 3vw, 40px);
+  align-items: baseline;
+  padding: clamp(18px, 3vh, 30px) 0;
+  border-top: 1px solid var(--foreground);
+  cursor: pointer;
+}
+.cv2Year {
+  font-family: var(--font-bodoni), Georgia, serif;
+  font-optical-sizing: auto;
+  font-variation-settings: "opsz" 72;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  font-size: clamp(40px, 8cqw, 86px);
+  line-height: 0.9;
+  color: var(--deep-ochre);
+  transform-origin: left center;
+  transition: color var(--hover-dur) var(--ease-hover), scale var(--hover-dur) var(--ease-hover);
+}
+.cv2Range {
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground);
+}
+.cv2Role {
+  font-size: clamp(18px, 2.4cqw, 26px);
+  font-weight: 450;
+  margin: 4px 0 6px;
+  line-height: 1.12;
+  letter-spacing: -0.005em;
+  transition: color var(--hover-dur) var(--ease-hover);
+}
+.cv2What {
+  margin: 0;
+  font-size: 14.5px;
+  color: var(--muted-foreground);
+  max-width: 52ch;
+}
+.cv2More {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--deep-ochre);
+  opacity: 0;
+  transform: translateX(-5px);
+  transition: opacity var(--hover-dur) var(--ease-hover), transform var(--hover-dur) var(--ease-hover);
+}
+@media (hover: hover) and (pointer: fine) {
+  .cv2Item:hover .cv2Year {
+    color: var(--warm);
+    scale: 1.06;
+  }
+  .cv2Item:hover .cv2Role {
+    color: var(--deep-ochre);
+  }
+  .cv2Item:hover .cv2More {
+    opacity: 1;
+    transform: none;
+  }
+}
+.cv2Item:is(:focus-visible, :active) .cv2Year {
+  color: var(--warm);
+  scale: 1.06;
+}
+.cv2Item:is(:focus-visible, :active) .cv2Role {
+  color: var(--deep-ochre);
+}
+.cv2Item:is(:focus-visible, :active) .cv2More {
+  opacity: 1;
+  transform: none;
+}
+.cv2Item:focus-visible {
+  outline: 2px solid var(--warm);
+  outline-offset: 6px;
+  border-radius: 4px;
+}
+
+/* Work — the static serpentine */
+.workGroup {
+  margin-top: 0;
+}
+.workH {
+  margin-top: clamp(50px, 9vh, 96px);
+  border-bottom: 1px solid var(--foreground);
+  padding-bottom: clamp(16px, 2.6vh, 26px);
+}
+.workH .cv2H {
+  margin: 0;
+}
+.trace {
+  position: relative;
+  width: 100%;
+  max-width: 720px;
+  margin: clamp(24px, 4vh, 46px) auto 0;
+  aspect-ratio: 700 / 660;
+}
+.trace svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.trPath {
+  fill: none;
+  stroke: var(--deep-ochre);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+.trLens {
+  fill: none;
+  stroke: var(--deep-ochre);
+  stroke-width: 4.7;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+.trNode {
+  fill: var(--paper);
+  stroke: var(--foreground);
+  stroke-width: 2;
+  transition: fill var(--hover-dur) var(--ease-hover), stroke var(--hover-dur) var(--ease-hover);
+}
+.trNode.hot {
+  fill: var(--warm);
+  stroke: var(--warm);
+}
+.trStop {
+  position: absolute;
+  width: 38%;
+  transform-origin: left center;
+  cursor: pointer;
+}
+.trStop.left {
+  text-align: right;
+  transform-origin: right center;
+}
+.trRange {
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground);
+}
+.trRole {
+  display: block;
+  font-size: clamp(16px, 1.9vw, 20px);
+  font-weight: 450;
+  margin: 3px 0;
+  line-height: 1.16;
+  transition: color var(--hover-dur) var(--ease-hover);
+}
+.trStop.hot .trRole {
+  color: var(--deep-ochre);
+}
+.trWhat {
+  display: block;
+  font-size: 13.5px;
+  color: var(--muted-foreground);
+}
+.trMore {
+  display: block;
+  margin-top: 5px;
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--deep-ochre);
+  opacity: 0;
+  transition: opacity var(--hover-dur) var(--ease-hover);
+}
+.trStop.hot .trMore {
+  opacity: 1;
+}
+.trStop:focus-visible {
+  outline: 2px solid var(--warm);
+  outline-offset: 6px;
+  border-radius: 5px;
+}
+
+@media (max-width: 640px) {
+  .heroIn {
+    grid-template-columns: 1fr;
+    grid-template-areas: "eyebrow" "portrait" "name" "lead";
+    justify-items: start;
+  }
+  .heroPhoto {
+    justify-self: center;
+    margin-bottom: 18px;
+  }
+  .cv2Item {
+    grid-template-columns: 1fr;
+    row-gap: 6px;
+  }
+  .cv2Year {
+    font-size: clamp(44px, 20cqw, 64px);
+  }
+}

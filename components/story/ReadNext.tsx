@@ -1,10 +1,10 @@
 import Link from "next/link";
-import type { ReadNext as ReadNextData } from "@/lib/story/storyNav";
 import styles from "./story.module.css";
 
 // The docking ribbon at the foot of a Story page: "Next · <Page> → <peek>".
 // A real route link (client transition), so the reading chain flows page to page.
-export function ReadNext({ next }: { next: ReadNextData }) {
+// Structural prop so About can point it at Contact (the Home bookend), not a page.
+export function ReadNext({ next }: { next: { name: string; href: string; peek: string } }) {
   return (
     <nav className={`reveal ${styles.readNext}`} aria-label="Continue reading">
       <Link className={styles.rnLink} href={next.href}>
