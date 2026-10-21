@@ -17,7 +17,7 @@
       "span": 12,
       "kind": "well",
       "body_md": "Once a month the platform builds a real EKS cluster, load-tests the *same container image* that serves the live demo, captures these series from Prometheus — then tears everything down. A deliberate snapshot, not a live feed: nothing is left running, because nothing needs to be.",
-      "link": { "label": "how the rehearsal works →", "href": "/architecture#destroy" }
+      "link": { "label": "how the rehearsal works →", "href": "/architecture#eks" }
     },
     {
       "id": "kpis",

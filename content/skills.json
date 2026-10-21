@@ -22,8 +22,7 @@
       "name": "Training models",
       "line": "A model has to beat the last one before it can ship.",
       "tools": [
-        { "name": "PyTorch", "did": "Trains the QuickDraw CNN that guesses your drawing on Home.", "evidence": { "label": "the model · Architecture", "href": "/architecture" } },
-        { "name": "scikit-learn", "did": "Gives the baseline that the CNN must beat.", "evidence": { "label": "the runs table · Quality", "href": "/quality" } },
+        { "name": "PyTorch", "did": "Trains the QuickDraw CNN that guesses your drawing on Home.", "evidence": { "label": "the model · Architecture", "href": "/architecture#train" } },
         { "name": "Python", "did": "Every pipeline step, from the data checks to the quality gate.", "evidence": { "label": "the repo · GitHub", "href": "https://github.com/MonishKamwal/mlops" } }
       ]
     },
@@ -35,7 +34,7 @@
       "tools": [
         { "name": "Docker", "did": "Packs the model and its server into one image.", "evidence": { "label": "the container image · Architecture", "href": "/architecture#ship" } },
         { "name": "AWS Lambda", "did": "Serves the model, and scales to zero between visitors.", "evidence": { "label": "the serve path · Architecture", "href": "/architecture#lambda" } },
-        { "name": "Terraform", "did": "Builds the weekly EKS cluster and tears it down again.", "evidence": { "label": "the dress rehearsal · Architecture", "href": "/architecture#destroy" } }
+        { "name": "Terraform", "did": "Builds the monthly EKS cluster and tears it down again.", "evidence": { "label": "the dress rehearsal · Architecture", "href": "/architecture#eks" } }
       ]
     },
     {
