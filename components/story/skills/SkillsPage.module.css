@@ -1,0 +1,196 @@
+/* Skills page — the sticky "map" stage + the scrolly text flow. Ported from
+   sections-prototype.html §SKILLS. Module-scoped text/layout; the map's inner
+   classes (built as innerHTML) are reached with :global, scoped under .skMap. */
+
+.stageScroll {
+  position: relative;
+}
+.skStage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  z-index: 0;
+}
+.skMap {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.skPlate {
+  display: none;
+}
+
+.skFlow {
+  position: relative;
+  margin-top: -100vh;
+  margin-top: -100svh;
+  pointer-events: none;
+}
+.skFlow a {
+  pointer-events: auto;
+}
+.skBlock {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 110px clamp(36px, 6vw, 90px) 110px 59%;
+}
+.skBlock > * {
+  transition: none;
+}
+.skBlockHead {
+  justify-content: flex-start;
+  padding: clamp(96px, 15vh, 150px) 0 0 clamp(24px, 6vw, 86px);
+}
+.skK {
+  margin: 0 0 12px;
+}
+.skK.skKShared {
+  color: var(--deep-ochre);
+}
+.skName {
+  font-family: var(--font-bodoni), Georgia, serif;
+  font-optical-sizing: auto;
+  font-variation-settings: "opsz" 48;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.02;
+  font-size: clamp(32px, 3.2vw, 46px);
+  margin: 0;
+}
+.skTool {
+  font-size: clamp(32px, 3.1vw, 44px);
+  font-weight: 350;
+  letter-spacing: -0.015em;
+  line-height: 1.05;
+  margin: 0;
+}
+.skLine {
+  margin: 10px 0 24px;
+  font-size: 17px;
+  color: var(--muted-foreground);
+  line-height: 1.45;
+  max-width: 34ch;
+}
+.skRcs {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.skRcT {
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  line-height: 1.2;
+}
+.skRcD {
+  margin: 3px 0 5px;
+  font-size: 14.5px;
+  color: var(--muted-foreground);
+  line-height: 1.5;
+}
+.skEv {
+  font-size: 13.5px;
+  align-self: flex-start;
+}
+.skEv .w {
+  color: var(--muted-foreground);
+}
+.skBox {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  max-width: 420px;
+}
+.skBox span {
+  font-size: 19px;
+  color: var(--muted-foreground);
+  font-weight: 300;
+}
+
+/* ---- the map (innerHTML → :global, scoped under .skMap) ---- */
+.skMap :global(.blob) {
+  mix-blend-mode: multiply;
+}
+.skMap :global(.m-g) {
+  cursor: pointer;
+}
+/* a map label's opacity = its shape's quiet level (--sk-t) × its place (--sk-l) */
+.skMap text {
+  opacity: calc(var(--sk-t, 1) * var(--sk-l, 1));
+}
+.skMap :global(.m-name) {
+  font-family: var(--font-bodoni), Georgia, serif;
+  font-optical-sizing: auto;
+  font-variation-settings: "opsz" 28;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  fill: var(--foreground);
+  transition: fill 0.3s var(--ease-out-expo), opacity 0.3s var(--ease-out-expo);
+}
+.skMap :global(.m-tool) {
+  font-family: var(--font-outfit), sans-serif;
+  font-weight: 350;
+  fill: var(--muted-foreground);
+}
+.skMap :global(.m-shared) {
+  font-family: var(--font-outfit), sans-serif;
+  font-weight: 500;
+  fill: var(--foreground);
+  pointer-events: none;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: scale 0.3s var(--ease-out-expo), fill 0.3s var(--ease-out-expo);
+}
+.skMap :global(.m-g.on .m-name) {
+  fill: var(--deep-ochre);
+}
+.skMap :global(.m-shared.on) {
+  scale: 1.25;
+  fill: var(--deep-ochre);
+}
+
+/* portrait / phone: the map holds the top of the screen, reading runs under it */
+@media (max-width: 700px), (max-aspect-ratio: 9 / 10) {
+  .skStage {
+    z-index: 2;
+    pointer-events: none;
+  }
+  .skMap {
+    top: 9%;
+    height: 51%;
+    z-index: 1;
+    pointer-events: auto;
+  }
+  .skPlate {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 66%;
+    z-index: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, var(--ground) 0, var(--ground) 91%, transparent);
+  }
+  .skBlock {
+    min-height: 0;
+    justify-content: flex-start;
+    padding: 0 clamp(24px, 6vw, 40px) 34vh;
+  }
+  .skBlockHead {
+    min-height: 86vh;
+    padding: clamp(96px, 15vh, 150px) clamp(24px, 6vw, 40px) 0;
+    position: relative;
+    z-index: 3;
+  }
+  .skBlockEnd {
+    padding-bottom: 40vh;
+  }
+}
