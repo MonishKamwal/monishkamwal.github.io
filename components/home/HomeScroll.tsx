@@ -1103,7 +1103,6 @@ export default function HomeScroll() {
         <a className="link or-link" href={bookend.aboutLink.href}>
           {bookend.aboutLink.label} →
         </a>
-        <p className="note">{bookend.note}</p>
       </section>
     </main>
   );
