@@ -88,7 +88,7 @@
       "date": "2026-07-21",
       "phaseKey": "Phase 4",
       "title": "Evidence that can't quietly lie",
-      "summary": "A dashboard that reads a saved file can drift from reality; one that reads the registry can't.",
+      "summary": "An evidence page that trusts a saved file drifts from the truth. Mine reads the source.",
       "body_md": "Every claim on this site is meant to resolve to something you can open. The risk is subtle: a dashboard that reads a checked-in results file will happily keep showing yesterday's number long after the real model has moved on.\n\nSo the evidence hub reads from the model registry — the actual record of which model is champion and what it scored — rather than from a snapshot someone committed. It literally cannot disagree with what shipped.\n\nIt also keeps data and styling strictly apart. The platform publishes plain JSON; this portfolio reads that JSON and builds its own look. The platform's own HTML is deliberately throwaway. That separation is why the Data pages here can render the real numbers without the platform ever dictating how they look.",
       "evidence": [
         {
@@ -107,7 +107,7 @@
       "phaseKey": "Phase 2",
       "title": "The gate that says no",
       "summary": "Letting the pipeline block a worse model felt wrong — until it didn't.",
-      "body_md": "Every merge trains a fresh model. Nothing, at first, stopped a worse one from quietly going live. The fix is a gate: before anything ships, the pipeline compares the new model (the *challenger*) against the current best (the *champion*) on a held-out test set, and refuses to deploy if it regressed.\n\nThe idea that made it click was separating two things that look identical: \"ship this\" and \"this is the new best.\" If passing the gate also crowned a new champion, then a run of barely-equal models would each become champion, and the bar the gate enforces would quietly erode run after run.\n\nSo they're decoupled. Passing means the model ships. But the champion title only moves on a genuine improvement — so \"champion\" always means the best ever seen, a high-water mark that never slips. I proved both paths live: a real improvement re-crowned the champion, and a deliberately broken model was blocked in CI with the deploy steps skipped and the live model untouched. That blocked run is the single best piece of proof in the whole project.",
+      "body_md": "Every merge trains a fresh model. Nothing, at first, stopped a worse one from quietly going live. The fix is a gate: before anything ships, the pipeline compares the new model (the *challenger*) against the current best (the *champion*) on a held-out test set, and refuses to deploy if it regressed.\n\nThe idea that made it click was separating two things that look identical: \"ship this\" and \"this is the new best.\" If passing the gate also crowned a new champion, then a run of barely-equal models would each become champion, and the bar the gate enforces would quietly erode run after run.\n\nSo they're decoupled. Passing means the model ships. But the champion title only moves on a genuine improvement — so \"champion\" always means the best ever seen, a high-water mark that never slips. I proved both paths live: a real improvement re-crowned the champion, and a deliberately broken model was blocked in CI with the deploy steps skipped and the live model untouched. That blocked run is on the record — the clearest proof the gate earns its keep.",
       "evidence": [
         {
           "label": "the blocked-deploy run",
@@ -124,7 +124,7 @@
       "date": "2026-07-20",
       "phaseKey": "Phase 2",
       "title": "No keys anywhere",
-      "summary": "The merge-to-live path, with zero long-lived credentials stored anywhere.",
+      "summary": "Automating deploys usually means a stored key waiting to leak. This one stores nothing.",
       "body_md": "Automating deploys usually means storing a cloud access key somewhere — a thing to rotate, a thing to leak. I wanted none of that.\n\nInstead, each CI run proves its identity to AWS on the spot and is handed credentials that expire in about an hour. Nothing is stored; there's nothing to steal. The trust is pinned to *this exact repository*, so only workflows here can deploy.\n\nThe first run exercised the entire chain in one go — prove identity, pull the model's history, run the pipeline, pass the gate, build the ARM image, push it, update the live function, and then smoke-test that the model actually answering requests is the one I just built. After that, merging to the main branch is the only manual step; everything downstream is automatic.",
       "evidence": [
         {
@@ -142,7 +142,7 @@
       "date": "2026-07-18",
       "phaseKey": "Phase 2",
       "title": "Pandera at the door",
-      "summary": "Validating the data before it can ever reach training.",
+      "summary": "Bad data doesn't announce itself — so a schema stops it at the door.",
       "body_md": "A bad data pull doesn't announce itself. It slips through, poisons training, and only surfaces days later as a mysteriously worse model.\n\nSo I put a schema at the door: a declared description of what healthy data looks like — the right number of examples per class, sensible pixel values, every class present in every split — checked before training is allowed to begin. Bad data now fails loudly and immediately instead of quietly days later.\n\nThe trick that makes it a real gate rather than a suggestion: training is wired to *depend on* the validation report. No report, no training — it's enforced by the structure of the pipeline, not by remembering to run a check. The first schema was too strict and rejected perfectly valid data; I loosened it where the data legitimately varies. A gate you have to fight is a gate you'll eventually disable.",
       "evidence": [
         {
@@ -160,7 +160,7 @@
       "date": "2026-07-18",
       "phaseKey": "Phase 2",
       "title": "One bucket, three jobs",
-      "summary": "Dataset versioning, model tracking, and storage — and the case for a single S3 bucket.",
+      "summary": "Three cloud jobs wanted three buckets. I gave them one, on purpose.",
       "body_md": "Three things needed a home in the cloud: a place to version the large dataset outside of Git, a place for the experiment-tracking system to keep its artifacts, and a place for the models and evidence to live.\n\nThe tidy instinct is a separate bucket for each. I chose one bucket, partitioned by folder — one lifecycle policy, one place to reason about cost and access, fewer moving parts. The note to split them later, if access patterns ever diverge, is on the record; until then, simpler wins.\n\nTwo smaller lessons came bundled with it. The dataset is versioned by content hash, so any past result can be reproduced from an exact data version without bloating the repository. And the tracking database is the only state that syncs to the cloud — the model artifacts go straight to storage with portable addresses, so the same history reads correctly on every machine instead of pointing at a path that only exists on my laptop.",
       "evidence": [
         {
@@ -197,7 +197,7 @@
       "phaseKey": "Phase 1",
       "title": "The model is the easy part",
       "summary": "A small CNN cleared the bar in two epochs — and got confused exactly where you would.",
-      "body_md": "The headline that surprised nobody who's done this: the model was the quickest part. A small network cleared the accuracy target in its second pass over the data and settled around 91–92% — on clean, plentiful doodles, you don't need anything clever.\n\nWhat I liked was *where* it struggled. The hardest classes were dog, bird, and cat; the easy ones were geometric shapes like star and clock. That's exactly where a person squinting at a tiny 28×28 doodle would struggle too — there are a hundred ways to draw a dog and essentially one way to draw a star.\n\nTwo small traps hid in the plumbing around it — a stray leftover file the exporter created, and a couple of model-tracking tools that needed the right connection string to show the runs at all — the kind of thing that costs an hour and teaches you the tool. The model itself cost an afternoon. The platform around it is the project.",
+      "body_md": "The part everyone expects to be hard was the quickest: the model itself. A small network cleared the accuracy target in its second pass over the data and settled around 91–92% — on clean, plentiful doodles, you don't need anything clever.\n\nWhat I liked was *where* it struggled. The hardest classes were dog, bird, and cat; the easy ones were geometric shapes like star and clock. That's exactly where a person squinting at a tiny 28×28 doodle would struggle too — there are a hundred ways to draw a dog and essentially one way to draw a star.\n\nTwo small traps hid in the plumbing around it — a stray leftover file the exporter created, and a couple of model-tracking tools that needed the right connection string to show the runs at all — the kind of thing that costs an hour and teaches you the tool. The model itself cost an afternoon. The platform around it is the project.",
       "evidence": [
         {
           "label": "the confusion matrix",
@@ -215,7 +215,7 @@
       "phaseKey": "Phase 1",
       "title": "One preprocessing path, or skew wins",
       "summary": "The bug that never throws an error: training and serving prepare data just differently enough.",
-      "body_md": "This is the bug that never fires a stack trace. Training prepares its images one way; the live server, reimplementing \"the same thing,\" prepares them slightly differently — and accuracy quietly rots in production while every test stays green.\n\nThe fix isn't more testing, it's structure. The browser sends the raw drawing, and every step down to the final 28×28 image happens in a single piece of code that the training pipeline imports too. There is only one preprocessing path, so the two sides *can't* drift. A parity test then just confirms what the architecture already guarantees.\n\nIt pays off a second time elsewhere: because the server normalizes every drawing itself, the canvas can send raw coordinates and stay dumb — someone can redesign the frontend without ever touching how the model sees a drawing. Boring, structural, and exactly the point.",
+      "body_md": "This is the bug that never shows up as an error. Training prepares its images one way; the live server, reimplementing \"the same thing,\" prepares them slightly differently — and accuracy quietly rots in production while every test stays green.\n\nThe fix isn't more testing, it's structure. The browser sends the raw drawing, and every step down to the final 28×28 image happens in a single piece of code that the training pipeline imports too. There is only one preprocessing path, so the two sides *can't* drift. A parity test then just confirms what the architecture already guarantees.\n\nIt pays off a second time elsewhere: because the server normalizes every drawing itself, the canvas can send raw coordinates and stay dumb — someone can redesign the frontend without ever touching how the model sees a drawing. Boring, structural, and exactly the point.",
       "evidence": [
         {
           "label": "the shared preprocessing",
@@ -233,7 +233,7 @@
       "phaseKey": "Phase 0",
       "title": "Guardrails before resources",
       "summary": "The budget alarms went up before a single piece of infrastructure did.",
-      "body_md": "Before I created anything that could cost money, I set up the things that stop it from costing too much: a budget, spend alerts, and a clear read on exactly what my account was and wasn't allowed to do.\n\nThat turned out to matter, because the account is on AWS's newer free plan — a fixed pot of credits, a six-month window, and certain expensive services blocked outright. Knowing those limits up front shaped real decisions later: scale-to-zero serving, monitoring that runs weekly instead of constantly, and a Kubernetes cluster that exists for half an hour a month.\n\nThe habit is the point. Being responsible for the things outside the code — the operations half of \"MLOps\" — starts on day one, not after the first surprising bill.",
+      "body_md": "Before I created anything that could cost money, I set up the things that stop it from costing too much: a budget, spend alerts, and a clear read on exactly what my account was and wasn't allowed to do.\n\nThat turned out to matter, because the account is on AWS's newer free plan — a fixed pot of credits, a six-month window, and certain expensive services blocked outright. Knowing those limits up front shaped real decisions later: scale-to-zero serving, monitoring that runs weekly instead of constantly, and a Kubernetes cluster that exists for half an hour a month.\n\nThat habit — being responsible for the things outside the code, the operations half of \"MLOps\" — is one I wanted from day one, not after the first surprising bill.",
       "evidence": [
         {
           "label": "the persistent infra",
