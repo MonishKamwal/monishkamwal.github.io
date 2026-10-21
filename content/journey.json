@@ -1,0 +1,162 @@
+{
+  "_note": "Entries are stored newest-first. The Journey page renders them oldest-at-top → newest-at-bottom (scrolling down walks forward through the build); the Home teaser features `featuredSlugs` from home.json. Tone: plain and matter-of-fact — describe the decision and the reasoning, not a story. Each entry carries an `evidence` array pinned to real, verified URLs (mlops repo files on `main`, specific GitHub Actions runs, the live evidence hub).",
+  "sectionIndicator": "Journey",
+  "title": "The Journey",
+  "lede": "Roads not taken",
+  "intro": "The decisions behind the platform — the options considered, the ones chosen, and what each one turned out to teach. Written while building, not after.",
+  "cardHint": "any entry to read the full story",
+  "tail": "the path runs on — the project is still going",
+  "phases": [
+    { "key": "Phase 0", "title": "Planning" },
+    { "key": "Phase 1", "title": "Serving live" },
+    { "key": "Phase 2", "title": "Automation & gates" },
+    { "key": "Phase 3", "title": "Ephemeral Kubernetes" },
+    { "key": "Phase 4", "title": "Monitoring" }
+  ],
+  "entries": [
+    {
+      "slug": "the-retrain-flywheel",
+      "date": "2026-07-24",
+      "phaseKey": "Phase 4",
+      "title": "The retrain flywheel, end to end",
+      "summary": "A graded drawing becomes training data, and an opt-in run folds it back into the model.",
+      "body_md": "When you draw on the home page and tell the model whether its guess was right, that verdict is stored as a labeled example: a yes labels the drawing with the guess, a no with the correction you pick.\n\nAn opt-in training run folds those drawings into the training set only — the validation and test sets stay untouched, so the evaluation stays honest — registers the result as a challenger, and the quality gate decides whether it replaces the live model.\n\nI ran the full loop once to confirm it works end to end: drawings collected, training set extended, a challenger trained, the gate holding the current model. The accuracy change from a handful of new drawings is negligible; the run was there to check the path, not the number — a correction can travel from the canvas back to a deployed model without a manual step in between.",
+      "evidence": [
+        { "label": "the flywheel run, end to end", "href": "https://github.com/MonishKamwal/mlops/actions/runs/30061303377" },
+        { "label": "the augment step", "href": "https://github.com/MonishKamwal/mlops/blob/main/src/quickdraw/training/augment.py" }
+      ]
+    },
+    {
+      "slug": "when-the-drift-report-lied",
+      "date": "2026-07-23",
+      "phaseKey": "Phase 4",
+      "title": "A drift report that read backwards",
+      "summary": "The drift library changes method with sample size, and the result was being read the wrong way.",
+      "body_md": "The drift library picks its method from how much data it is given — a statistical test on small samples, a distance measure on large ones — and the two are interpreted in opposite directions. I had hard-coded one interpretation, so on real traffic the report showed no drift even though the model's confidence had dropped sharply.\n\nThe fix was to stop deriving the verdict by hand: pin the library to a single method so the direction is fixed, and read the size of the change rather than a p-value, which becomes unreliable at large sample sizes.\n\nThe general point: don't recompute a library's result from its raw output unless you are sure how that output is defined.",
+      "evidence": [
+        { "label": "the drift report code", "href": "https://github.com/MonishKamwal/mlops/blob/main/src/quickdraw/monitoring/drift.py" },
+        { "label": "this week's drift.json", "href": "https://monishkamwal.github.io/mlops/drift.json" }
+      ]
+    },
+    {
+      "slug": "control-plane-is-not-eks",
+      "date": "2026-07-22",
+      "phaseKey": "Phase 3",
+      "title": "A smoke test that proved nothing",
+      "summary": "An early check skipped the part the free plan actually restricts, so it cleared nothing.",
+      "body_md": "Early on I checked whether Kubernetes was allowed on the account by creating an empty cluster. It worked, so I recorded it as available. That was wrong: the empty cluster is a managed service, and the restriction is on the worker machines — which is where the first real run failed.\n\nThe free plan limits those machines three ways: only certain instance types are eligible, new accounts can be capped below the size any of them need, and the serving container is ARM-only, so the machines have to match. The resolution was small ARM (Graviton) instances — eligible, inexpensive to run briefly, and the same architecture the live demo already uses.\n\nThe testing point: check the part that is actually constrained, end to end. A check that stops short of it says nothing about it.",
+      "evidence": [
+        { "label": "a full rehearsal run", "href": "https://github.com/MonishKamwal/mlops/actions/runs/29970873573" },
+        { "label": "the EKS Terraform", "href": "https://github.com/MonishKamwal/mlops/tree/main/infra/ephemeral" }
+      ]
+    },
+    {
+      "slug": "evidence-from-the-source-of-truth",
+      "date": "2026-07-21",
+      "phaseKey": "Phase 4",
+      "title": "Evidence from the registry, not a saved file",
+      "summary": "The evidence hub reads the model registry, so it can't show a number that's no longer current.",
+      "body_md": "Each claim on the site should resolve to something you can open. A dashboard that reads a checked-in results file can keep showing an old number after the live model has changed.\n\nSo the evidence hub reads from the model registry — the record of which model is champion and what it scored — rather than from a committed snapshot, which keeps it consistent with what actually shipped.\n\nData and presentation are kept separate as well: the platform publishes plain JSON, and this site reads that JSON and renders its own layout. That split is what lets the Data pages here show the real numbers without depending on the platform's own HTML.",
+      "evidence": [
+        { "label": "the evidence exporter", "href": "https://github.com/MonishKamwal/mlops/blob/main/src/quickdraw/evidence/export.py" },
+        { "label": "the live evidence hub", "href": "https://monishkamwal.github.io/mlops/" }
+      ]
+    },
+    {
+      "slug": "the-gate-that-says-no",
+      "date": "2026-07-20",
+      "phaseKey": "Phase 2",
+      "title": "The gate that says no",
+      "summary": "A CI gate blocks a new model from shipping if it regresses against the current best.",
+      "body_md": "Every merge trains a new model, and at first nothing stopped a worse one from going live. The gate compares the new model (the challenger) against the current best (the champion) on a held-out test set before deploy, and blocks the deploy if it regresses.\n\nThe design detail that mattered was separating two decisions: whether to ship a model, and whether it becomes the new best. If passing the gate also promoted the champion, a run of near-equal models would each become champion and the bar the gate enforces would drift down over time.\n\nSo the two are decoupled. Passing ships the model; the champion only changes on a clear improvement, which keeps it a fixed reference. Both paths were tested: an improved model re-crowned the champion, and a deliberately broken one was blocked in CI with the deploy skipped and the live model unchanged.",
+      "evidence": [
+        { "label": "the blocked-deploy run", "href": "https://github.com/MonishKamwal/mlops/actions/runs/29757829275" },
+        { "label": "gate.py", "href": "https://github.com/MonishKamwal/mlops/blob/main/src/quickdraw/training/gate.py" }
+      ]
+    },
+    {
+      "slug": "no-keys-anywhere",
+      "date": "2026-07-20",
+      "phaseKey": "Phase 2",
+      "title": "No keys anywhere",
+      "summary": "Deploys run without any long-lived cloud credentials stored in the repo.",
+      "body_md": "Automated deploys usually need a stored cloud access key, which has to be rotated and can leak. This one stores none.\n\nInstead, each CI run proves its identity to AWS at run time and receives credentials that expire after about an hour. The trust is scoped to this repository, so only its workflows can deploy.\n\nThe first run exercised the whole chain: prove identity, pull the model history, run the pipeline, pass the gate, build the ARM image, push it, update the live function, and check that the model now answering requests matches the one just built. After that, merging to the main branch is the only manual step.",
+      "evidence": [
+        { "label": "the deploy workflow", "href": "https://github.com/MonishKamwal/mlops/blob/main/.github/workflows/train-deploy.yml" },
+        { "label": "the trust policy", "href": "https://github.com/MonishKamwal/mlops/blob/main/infra/persistent/iam.tf" }
+      ]
+    },
+    {
+      "slug": "pandera-at-the-door",
+      "date": "2026-07-18",
+      "phaseKey": "Phase 2",
+      "title": "Pandera at the door",
+      "summary": "A schema checks the data before it can reach training.",
+      "body_md": "A bad data pull doesn't surface immediately; it can pass through, affect training, and show up days later as a worse model.\n\nSo a schema runs first: a declared description of valid data — the expected number of examples per class, reasonable pixel values, every class present in each split — checked before training begins, so bad data fails early rather than quietly.\n\nWhat makes it a gate rather than an optional step is that training depends on the validation report: no report, no training. It is enforced by the pipeline's structure. The first schema was too strict and rejected valid data, so I relaxed it where the data legitimately varies.",
+      "evidence": [
+        { "label": "the validation stage", "href": "https://github.com/MonishKamwal/mlops/blob/main/src/quickdraw/data/validate.py" },
+        { "label": "the DVC pipeline", "href": "https://github.com/MonishKamwal/mlops/blob/main/dvc.yaml" }
+      ]
+    },
+    {
+      "slug": "one-bucket-three-jobs",
+      "date": "2026-07-18",
+      "phaseKey": "Phase 2",
+      "title": "One bucket, three jobs",
+      "summary": "The dataset, the model registry, and the evidence all share one S3 bucket.",
+      "body_md": "Three things needed cloud storage: a place to version the dataset outside Git, the artifact store for the experiment-tracking system, and somewhere for the models and evidence.\n\nThe default would be a separate bucket for each. I used one bucket partitioned by folder instead — one lifecycle policy, and one place to manage cost and access — with a note to split them later if the access patterns diverge.\n\nTwo related points: the dataset is versioned by content hash, so a past result can be reproduced from an exact version without storing it in Git; and only the tracking database syncs to the cloud — the model artifacts are written to storage with absolute addresses, so the history reads the same on any machine.",
+      "evidence": [
+        { "label": "the one bucket", "href": "https://github.com/MonishKamwal/mlops/blob/main/infra/persistent/s3.tf" },
+        { "label": "the DVC pipeline", "href": "https://github.com/MonishKamwal/mlops/blob/main/dvc.yaml" }
+      ]
+    },
+    {
+      "slug": "the-freeze-changes-the-design",
+      "date": "2026-07-06",
+      "phaseKey": "Phase 1",
+      "title": "The freeze that changes how you log",
+      "summary": "The serving function freezes the moment it replies, which rules out background logging.",
+      "body_md": "The live demo runs on a function that scales to zero — it does nothing, and costs nothing, until a request arrives. One consequence is that it freezes as soon as it returns a response, so work deferred to run after replying may not finish.\n\nThat rules out the usual background logging. The log write happens within the request instead, before the response is sent, and it fails open: a storage error costs one log line, not the prediction. A test forces storage to fail and confirms the request still returns a guess.\n\nThe log stores a hash of the input rather than the pixels — enough to measure drift later, without keeping anyone's drawing.",
+      "evidence": [
+        { "label": "the prediction log", "href": "https://github.com/MonishKamwal/mlops/blob/main/src/quickdraw/serving/prediction_log.py" },
+        { "label": "the append-only IAM", "href": "https://github.com/MonishKamwal/mlops/blob/main/infra/persistent/iam.tf" }
+      ]
+    },
+    {
+      "slug": "the-model-is-the-easy-part",
+      "date": "2026-07-04",
+      "phaseKey": "Phase 1",
+      "title": "The model is the easy part",
+      "summary": "A small CNN reached the accuracy target quickly; the work was everything around it.",
+      "body_md": "The model was the quick part. A small network reached the accuracy target on its second pass over the data and settled around 91–92%; on clean, plentiful doodles it doesn't need to be elaborate.\n\nThe errors fell where you'd expect: the hardest classes were dog, bird, and cat, and the easiest were geometric shapes like star and clock — roughly where a person reading a 28×28 doodle would also struggle.\n\nMost of the time went into the surrounding details: a stray file the exporter left behind, and the experiment-tracking tools needing the right connection string to show the runs at all. The model took an afternoon; the platform around it is the actual project.",
+      "evidence": [
+        { "label": "the confusion matrix", "href": "https://monishkamwal.github.io/mlops/confusion_matrix.png" },
+        { "label": "the training code", "href": "https://github.com/MonishKamwal/mlops/blob/main/src/quickdraw/training/train.py" }
+      ]
+    },
+    {
+      "slug": "one-preprocessing-path",
+      "date": "2026-07-03",
+      "phaseKey": "Phase 1",
+      "title": "One preprocessing path",
+      "summary": "Training and serving can prepare inputs slightly differently; one shared path prevents it.",
+      "body_md": "Train/serve skew is a quiet failure: training prepares its images one way, the serving code reimplements the same thing slightly differently, and accuracy drops in production while the tests still pass.\n\nThe fix is structural rather than more tests. The browser sends the raw drawing, and every step down to the final 28×28 image runs in one module that the training pipeline also imports. With a single preprocessing path the two sides can't diverge, and a parity test confirms it.\n\nIt has a second benefit: because the server normalizes each drawing itself, the canvas sends raw coordinates, and the frontend can be changed without affecting how the model sees a drawing.",
+      "evidence": [
+        { "label": "the shared preprocessing", "href": "https://github.com/MonishKamwal/mlops/blob/main/src/quickdraw/data/preprocess.py" },
+        { "label": "the serving predictor", "href": "https://github.com/MonishKamwal/mlops/blob/main/src/quickdraw/serving/predictor.py" }
+      ]
+    },
+    {
+      "slug": "guardrails-before-resources",
+      "date": "2026-07-03",
+      "phaseKey": "Phase 0",
+      "title": "Guardrails before resources",
+      "summary": "Budgets and spend alerts were set up before any infrastructure.",
+      "body_md": "Before creating anything that could cost money, I set up a budget, spend alerts, and a clear picture of what the account was allowed to do.\n\nThat mattered because the account is on AWS's newer free plan: a fixed amount of credit, a six-month window, and some expensive services blocked. Knowing those limits up front shaped later decisions — scale-to-zero serving, weekly rather than continuous monitoring, and a Kubernetes cluster that only exists for about half an hour a month.\n\nIt is the operations side of the work — being responsible for things outside the code — handled from the start rather than after the first bill.",
+      "evidence": [
+        { "label": "the persistent infra", "href": "https://github.com/MonishKamwal/mlops/tree/main/infra/persistent" },
+        { "label": "provider-wide cost tags", "href": "https://github.com/MonishKamwal/mlops/blob/main/infra/persistent/providers.tf" }
+      ]
+    }
+  ]
+}

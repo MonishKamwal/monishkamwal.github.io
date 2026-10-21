@@ -1,49 +1,53 @@
 import type { Metadata } from "next";
-import { Caveat, Geist, Geist_Mono } from "next/font/google";
+import { Bodoni_Moda, Outfit } from "next/font/google";
 import "./globals.css";
-import Nav from "@/components/Nav";
-import Footer from "@/components/Footer";
+import site from "@/content/site.json";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Editorial display serif — titles only, set at display optical sizes.
+// `axes: ['opsz']` is required: next/font keeps only the weight axis by default,
+// which would strip Bodoni's optical-size axis and ignore the `font-variation-
+// settings:"opsz" N` the titles rely on (DESIGN.md §2). Italic is loaded for the
+// About hero's surname.
+const bodoni = Bodoni_Moda({
+  variable: "--font-bodoni",
   subsets: ["latin"],
+  axes: ["opsz"],
+  style: ["normal", "italic"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+// Everything else — body, nav, UI, data labels.
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
-});
-
-const caveat = Caveat({
-  variable: "--font-caveat",
-  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://monishkamwal.github.io"),
   title: {
-    default: "Monish Kamwal — ML systems, end to end",
-    template: "%s · Monish Kamwal",
+    default: `${site.name} — ${site.tagline}`,
+    template: `%s · ${site.name}`,
   },
-  description:
-    "Portfolio and live frontend of an end-to-end MLOps platform: training pipelines, CI/CD quality gates, ephemeral Kubernetes, and drift monitoring — built in public.",
+  description: site.description,
+  openGraph: {
+    title: `${site.name} — ${site.tagline}`,
+    description: site.description,
+    url: "https://monishkamwal.github.io",
+    siteName: site.name,
+    type: "website",
+  },
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} h-full antialiased`}
+      className={`${bodoni.variable} ${outfit.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
-        <Nav />
-        <main className="flex-1">{children}</main>
-        <Footer />
-      </body>
+      <body className="min-h-full">{children}</body>
     </html>
   );
 }

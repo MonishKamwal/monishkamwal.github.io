@@ -1,0 +1,93 @@
+{
+  "_note": "Matches the Monitoring page of data-prototype-white.html. Panels render LIVE from drift.json + feedback.json (verdict banner, confidence + margin histograms, categorical dumbbell, trends, proxy accuracy, verdicts table). {tokens} in the banner are interpolated from the contract. This file is the static framing.",
+  "sectionIndicator": "Monitoring",
+  "mode": "data",
+  "title": "Monitoring",
+  "subtitle": "Is it holding up against real visitors?",
+  "provenance": {
+    "liveLabel": "live data",
+    "contract": "drift.json + feedback.json",
+    "generatedVerb": "generated",
+    "cadence": "weekly"
+  },
+  "panels": [
+    {
+      "id": "verdict",
+      "span": 12,
+      "kind": "banner",
+      "status": "bad",
+      "windowLabel": "this window:",
+      "body_md": "The monitor compares what the live model predicts now against what it predicted on the training-era reference. Every tracked signal has drifted — **real visitors draw differently than the dataset**, and mean confidence has fallen from {refMean} to {curMean}. That is expected rather than a failure: it is what the monitor is for, and it is the signal the retrain flywheel uses."
+    },
+    {
+      "id": "confidence",
+      "span": 6,
+      "title": "Prediction confidence",
+      "sub": "{confSub}",
+      "kind": "histogram",
+      "status": "bad",
+      "hasTable": true
+    },
+    {
+      "id": "margin",
+      "span": 6,
+      "title": "Decision margin",
+      "sub": "{margSub}",
+      "kind": "histogram",
+      "status": "bad",
+      "hasTable": true
+    },
+    {
+      "id": "labels",
+      "span": 7,
+      "title": "What people actually draw",
+      "sub": "{labSub}",
+      "kind": "dumbbell",
+      "status": "bad",
+      "hasTable": true,
+      "caption": "Sorted by shift. The reference spreads evenly by construction; visitors have favourites."
+    },
+    {
+      "id": "confidence-trend",
+      "span": 5,
+      "title": "Confidence over time",
+      "sub": "weekly runs · the gap is the story",
+      "kind": "line",
+      "hasTable": true
+    },
+    {
+      "id": "columns-drifted",
+      "span": 5,
+      "title": "Columns drifted",
+      "sub": "per weekly run · red dot = drift detected",
+      "kind": "dotstrip",
+      "hasTable": true
+    },
+    {
+      "id": "proxy-accuracy",
+      "span": 5,
+      "title": "Visitors as evaluators",
+      "sub": "yes / no votes after each guess → proxy accuracy",
+      "kind": "hero",
+      "tiles": [
+        { "label": "votes" },
+        { "label": "last window" }
+      ],
+      "caption": "Small sample — a signal, not a score. Quiet weeks (n = 0) are normal; drift above carries the page through them."
+    },
+    {
+      "id": "verdicts-by-class",
+      "span": 7,
+      "title": "Verdicts by predicted class",
+      "sub": "what visitors said, per guess the model made",
+      "kind": "table"
+    }
+  ],
+  "footer": "Drift is computed weekly by Evidently over the model's own outputs; feedback is the retrain flywheel's label source.",
+  "links": [
+    { "label": "drift.json ↗", "href": "https://monishkamwal.github.io/mlops/drift.json" },
+    { "label": "feedback.json ↗", "href": "https://monishkamwal.github.io/mlops/feedback.json" },
+    { "label": "Evidently's own report ↗", "href": "https://monishkamwal.github.io/mlops/" }
+  ],
+  "readNext": { "name": "Architecture", "peek": "The machine behind the doodle", "href": "/architecture" }
+}

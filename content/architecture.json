@@ -1,0 +1,213 @@
+{
+  "_note": "Matches the Architecture prototype (sections-prototype.html 'pulled apart, crossings are stops'). `blocks` are in camera order (head → overview → serve → w0 → mon → w1 → ci → w3 → k8s → w2 → end); plane blocks carry `io` rows (each lights its wire). `parts` are the clickable isometric cubes that open paper cards (what-it-is / why / trade-offs + evidence). `kickerTone:'ochre'` marks wire + the ephemeral-K8s kickers. Evidence hrefs pinned to real URLs; `body` strings are markdown.",
+  "sectionIndicator": "Architecture",
+  "title": "Architecture",
+  "lead": "The machine behind the doodle",
+  "cardHint": "any part of the drawing to read about it",
+  "blocks": [
+    {
+      "id": "ov",
+      "kind": "overview",
+      "kicker": "System overview",
+      "heading": "Four planes",
+      "body": [
+        "Four planes: an always-on **serving plane** at ~$0, a **CI/CD plane** on GitHub Actions, an **ephemeral Kubernetes plane** that exists ~30 minutes a month, and a **monitoring plane** that closes the loop back into training.",
+        "A visitor's drawing becomes a prediction, a log line, and — if they grade it — labeled training data. Every merge retrains, gates, and redeploys the model without a human. Every week the logs are scored for drift."
+      ]
+    },
+    {
+      "id": "serve",
+      "kind": "plane",
+      "kicker": "Plane 1 · always on",
+      "heading": "Serving",
+      "body": ["An always-on serving plane at ~$0. AWS Lambda wakes from zero, runs FastAPI with an ONNX model, and sends the guess back to the canvas."],
+      "io": [
+        { "dir": "Sends", "text": "logs, every prediction", "target": "→ Monitoring", "wire": "w0" },
+        { "dir": "Receives", "text": "a new model ships", "target": "← CI/CD", "wire": "w2" }
+      ]
+    },
+    {
+      "id": "w0",
+      "kind": "wire",
+      "kickerTone": "ochre",
+      "kicker": "The wire · From Serving to Monitoring",
+      "heading": "Logs, every prediction",
+      "body": ["Every prediction Lambda serves is written to S3 as a log line. Every Monday the drift report reads that week's logs and compares them with the training data."]
+    },
+    {
+      "id": "mon",
+      "kind": "plane",
+      "kicker": "Plane 2 · weekly",
+      "heading": "Evidence & drift",
+      "body": [
+        "Every claim on the site is backed by a published artifact. The evidence hub renders from the MLflow registry. The weekly drift report scores real predictions against a reference distribution; feedback becomes a proxy-accuracy signal; a drift breach opens a GitHub issue.",
+        "The site styles all of it — including this very page — from JSON contracts, never from the platform's own HTML."
+      ],
+      "io": [
+        { "dir": "Receives", "text": "logs, every prediction", "target": "← Serving", "wire": "w0" },
+        { "dir": "Sends", "text": "drift breach → retrain", "target": "→ CI/CD", "wire": "w1" }
+      ]
+    },
+    {
+      "id": "w1",
+      "kind": "wire",
+      "kickerTone": "ochre",
+      "kicker": "The wire · From Monitoring to CI/CD",
+      "heading": "Drift breach → retrain",
+      "body": ["When drift crosses its threshold, the report opens a GitHub issue. A retrain folds the labeled drawings into the training split, and the gate decides whether the result ships."]
+    },
+    {
+      "id": "ci",
+      "kind": "plane",
+      "kicker": "Plane 3 · on every merge",
+      "heading": "The quality gate",
+      "body": [
+        "**Ship and re-crown are decoupled.** Every training run produces a challenger; the gate compares it to the reigning champion on held-out test accuracy, with two rules — an absolute floor (0.85) and no regression beyond a small epsilon. Pass, and the challenger ships.",
+        "The champion alias only moves on a strict improvement, so \"champion\" always means the best-ever bar. A crippled 0.50 model is blocked in CI, deploy steps skip, and the live model is untouched."
+      ],
+      "io": [
+        { "dir": "Receives", "text": "drift breach → retrain", "target": "← Monitoring", "wire": "w1" },
+        { "dir": "Sends", "text": "a new model ships", "target": "→ Serving", "wire": "w2" },
+        { "dir": "Sends", "text": "the same image", "target": "→ Ephemeral K8s", "wire": "w3" }
+      ]
+    },
+    {
+      "id": "w3",
+      "kind": "wire",
+      "kickerTone": "ochre",
+      "kicker": "The wire · From CI/CD to Ephemeral K8s",
+      "heading": "The same image",
+      "body": ["The image that serves on Lambda is the one Helm deploys to EKS, by digest — so the monthly load test measures the real thing, not a copy."]
+    },
+    {
+      "id": "k8s",
+      "kind": "plane",
+      "kickerTone": "ochre",
+      "kicker": "Plane 4 · ~30 minutes a month",
+      "heading": "Ephemeral Kubernetes",
+      "body": [
+        "The same serving image that runs on Lambda also runs on Kubernetes — but only for ~30 minutes a month. A workflow does **apply → exercise → destroy**: Terraform brings up EKS and a VPC, Helm deploys the API by image digest, Prometheus scrapes it, k6 drives load, and everything is torn down.",
+        "A monthly failsafe sweeps any survivor tagged `tier=ephemeral`, so a botched teardown can't quietly bill. No always-on cluster cost, anywhere."
+      ],
+      "io": [
+        { "dir": "Receives", "text": "the same image", "target": "← CI/CD", "wire": "w3" }
+      ]
+    },
+    {
+      "id": "w2",
+      "kind": "wire",
+      "kickerTone": "ochre",
+      "kicker": "The wire · From CI/CD back to Serving",
+      "heading": "A new model ships",
+      "body": ["A challenger that clears the gate is built into an image and deployed to Lambda. This is the wire that closes the loop: canvas → CI → deploy → drift → feedback → retrain."]
+    },
+    {
+      "id": "end",
+      "kind": "end",
+      "kicker": "Every claim is published",
+      "body": ["What stays running when nothing is happening: two storage buckets, one container registry, one function. Everything else is summoned on demand and torn down."],
+      "links": [
+        { "label": "Browse the raw evidence →", "href": "https://monishkamwal.github.io/mlops/" },
+        { "label": "GitHub repo →", "href": "https://github.com/MonishKamwal/mlops" }
+      ]
+    }
+  ],
+  "parts": [
+    {
+      "id": "lambda",
+      "meta": "Serve",
+      "title": "AWS Lambda",
+      "items": [
+        { "heading": "What it is", "body": "A FastAPI app running the model as ONNX, reached through a Lambda Function URL." },
+        { "heading": "Why this choice", "body": "It scales to zero — nothing runs, and nothing is billed, until someone draws. The cold start is honest, and it's the story the home page tells." },
+        { "heading": "Trade-offs", "body": "The first request after an idle spell is slow; a warm container would be faster but would cost money doing nothing. The warm-up ping and the cold-start message cover the gap." }
+      ],
+      "evidence": [
+        { "label": "the serving app", "href": "https://github.com/MonishKamwal/mlops/blob/main/src/quickdraw/serving/app.py" },
+        { "label": "the Lambda infra", "href": "https://github.com/MonishKamwal/mlops/tree/main/infra/persistent" }
+      ]
+    },
+    {
+      "id": "data",
+      "meta": "Build · data",
+      "title": "DVC — pull data",
+      "items": [
+        { "heading": "What it is", "body": "The training data is versioned with DVC and pulled from the one S3 bucket at the start of every run." },
+        { "heading": "Why this choice", "body": "Git tracks the code; DVC tracks the large dataset by hash — so any run can be reproduced from an exact data version without bloating the repository." },
+        { "heading": "Trade-offs", "body": "One more tool and a remote to configure — paid back the first time a result had to be reproduced exactly." }
+      ],
+      "evidence": [
+        { "label": "“One bucket, three jobs”", "href": "/journey#one-bucket-three-jobs" },
+        { "label": "the DVC remote", "href": "https://github.com/MonishKamwal/mlops/blob/main/dvc.yaml" }
+      ]
+    },
+    {
+      "id": "validate",
+      "meta": "Build · data",
+      "title": "Pandera — validate",
+      "items": [
+        { "heading": "What it is", "body": "A declared schema checked against the pulled data before training is allowed to start." },
+        { "heading": "Why this choice", "body": "Bad data fails the pipeline loudly and early, instead of quietly producing a bad model you only notice days later." },
+        { "heading": "Trade-offs", "body": "The schema needs maintaining as the data evolves; a too-strict first version blocked perfectly valid pulls." }
+      ],
+      "evidence": [
+        { "label": "“Pandera at the door”", "href": "/journey#pandera-at-the-door" },
+        { "label": "the validation stage", "href": "https://github.com/MonishKamwal/mlops/blob/main/src/quickdraw/data/validate.py" }
+      ]
+    },
+    {
+      "id": "gate",
+      "meta": "Build",
+      "title": "The quality gate",
+      "items": [
+        { "heading": "What it is", "body": "A CI step that compares the freshly-trained challenger against the deployed champion before anything ships." },
+        { "heading": "Why this choice", "body": "It makes “never ship a regression” a property of the pipeline, not a promise someone has to keep. The blocked deploy is the page's best proof." },
+        { "heading": "Trade-offs", "body": "A too-tight threshold blocks statistically-equal models; it's tuned to a small tolerance band rather than a hard line." }
+      ],
+      "evidence": [
+        { "label": "the blocked-deploy run", "href": "https://github.com/MonishKamwal/mlops/actions/runs/29757829275" },
+        { "label": "gate.py", "href": "https://github.com/MonishKamwal/mlops/blob/main/src/quickdraw/training/gate.py" }
+      ]
+    },
+    {
+      "id": "blocked",
+      "meta": "Build · dead end",
+      "title": "A deploy that got blocked",
+      "items": [
+        { "heading": "What happened", "body": "A challenger regressed against the champion. The gate failed the job, and the deploy never ran." },
+        { "heading": "Why it matters", "body": "This is the gate working. The dead-end on the diagram is a real CI run you can open and read for yourself." }
+      ],
+      "evidence": [
+        { "label": "the failed CI run", "href": "https://github.com/MonishKamwal/mlops/actions/runs/29757829275" }
+      ]
+    },
+    {
+      "id": "ship",
+      "meta": "Build · deploy",
+      "title": "Docker → Lambda",
+      "items": [
+        { "heading": "What it is", "body": "The promoted model is baked into a container image, and the serving Lambda is updated to it." },
+        { "heading": "Why this choice", "body": "The same image serves the live Lambda and the monthly EKS rehearsal — one artifact, two homes, no drift between them." },
+        { "heading": "Trade-offs", "body": "Container cold starts are heavier than a plain zip; acceptable given scale-to-zero and the warm-up ping." }
+      ],
+      "evidence": [
+        { "label": "the deploy workflow", "href": "https://github.com/MonishKamwal/mlops/blob/main/.github/workflows/train-deploy.yml" },
+        { "label": "the image build", "href": "https://github.com/MonishKamwal/mlops/blob/main/Dockerfile" }
+      ]
+    },
+    {
+      "id": "destroy",
+      "meta": "Rehearsal",
+      "title": "Destroy — nothing left running",
+      "items": [
+        { "heading": "What it is", "body": "The final Terraform step tears down the VPC and EKS cluster built minutes earlier." },
+        { "heading": "Why this choice", "body": "The cluster only exists to prove the model under load. Keeping it alive would burn money for no traffic." },
+        { "heading": "Trade-offs", "body": "Each run pays the build-up time again; the evidence — dashboards, k6 results — is captured before teardown, so nothing is lost." }
+      ],
+      "evidence": [
+        { "label": "a weekly rehearsal run", "href": "https://github.com/MonishKamwal/mlops/actions/runs/29970873573" },
+        { "label": "the Terraform", "href": "https://github.com/MonishKamwal/mlops/tree/main/infra/ephemeral" }
+      ]
+    }
+  ]
+}

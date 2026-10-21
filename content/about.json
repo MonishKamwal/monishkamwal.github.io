@@ -1,0 +1,156 @@
+{
+  "_note": "Matches the About prototype (sections-prototype.html): editorial hero (eyebrow · name with italic surname · drop-cap lead · circular portrait + résumé) → Education (card rows) → Work (serpentine, stops alternate side, each opens a card) → Projects (card rows). Each entry's `card` fills the shared paper card (meta · title · sections · evidence). Contact lives in the Home bookend (site.json), reached via read-next → Contact. Real content from public/resume.pdf; portrait public/portrait.jpg, résumé public/resume.pdf.",
+  "sectionIndicator": "About",
+  "hero": {
+    "eyebrow": "About — the person behind the machine",
+    "nameFirst": "Monish",
+    "nameLast": "Kamwal",
+    "lead": [
+      "I'm Monish Kamwal — a Computer Science co-op student at Memorial University of Newfoundland, and an AI developer who builds machine-learning systems end to end.",
+      "Most of my work has been in the public sector: government RAG chatbots, the MLOps behind a fleet-management platform, and the cloud infrastructure around them. My interest is less the model itself than everything around it — how data gets versioned, how a bad model gets stopped before it ships, and how infrastructure can be created for a load test and torn down afterward.",
+      "This site is one of those systems, built on my own time. I'm based in St. John's, Newfoundland."
+    ],
+    "portrait": { "src": "/portrait.jpg", "alt": "Monish Kamwal" },
+    "resume": { "label": "Download résumé (PDF)", "href": "/resume.pdf" }
+  },
+  "education": {
+    "title": "Education",
+    "cardHint": "the entry for details",
+    "entries": [
+      {
+        "id": "edu-bsc",
+        "anchor": "BSc.",
+        "range": "2023 — present",
+        "role": "Computer Science (Co-op) · Memorial University of Newfoundland",
+        "what": "Computer-science foundations, with a minor in Mathematics. GPA 3.75.",
+        "card": {
+          "meta": "2023 — present · Education",
+          "title": "BSc Computer Science (Co-op)",
+          "items": [
+            { "heading": "Where", "body": "Memorial University of Newfoundland · St. John's, NL." },
+            { "heading": "Focus", "body": "Computer-science foundations — algorithms, systems, and the maths under machine learning — on a co-op (work-integrated) track, with a minor in Mathematics." },
+            { "heading": "Standing", "body": "GPA 3.75 (86.4%)." }
+          ],
+          "evidence": []
+        }
+      }
+    ]
+  },
+  "work": {
+    "title": "Work",
+    "cardHint": "any role for the full story",
+    "entries": [
+      {
+        "id": "work-ssc",
+        "side": "left",
+        "range": "2026 — 2026",
+        "role": "AI Developer Co-op · Shared Services Canada",
+        "what": "A government RAG chatbot and the end-to-end MLOps behind a fleet-management platform, on Azure.",
+        "card": {
+          "meta": "Jan 2026 — Dec 2026 · Shared Services Canada",
+          "title": "AI Developer Co-op",
+          "items": [
+            { "heading": "What I did", "body": "Built a public-facing RAG chatbot for the Manitoba Families Child Disability Services department: an Azure ingestion pipeline (Functions, Blob Storage, AI Document Intelligence) that converts multi-format government assets and complex PDFs into structured Markdown, with GPT-4o/mini inference behind Azure AI Foundry prompt guardrails for safe, citation-backed answers." },
+            { "heading": "Highlights", "body": "Also improved the NL Government's Fleet Manager with automated data ingestion, Azure DevOps CI/CD, self-hosted build agents, and an MLflow tracking server, and co-managed the Azure infrastructure, telemetry, and cost monitoring. Recognized with the Technical Innovator Award (Winter 2026) and the Problem Solver Award (Spring 2026); featured on the SSC Gazette and the Government of Canada website." },
+            { "heading": "Stack", "body": "Azure (Functions · Blob · AI Search · Document Intelligence · OpenAI · AI Foundry) · MLflow · Azure DevOps · Docker" }
+          ],
+          "evidence": []
+        }
+      },
+      {
+        "id": "work-pspc",
+        "side": "right",
+        "range": "2025 — 2025",
+        "role": "AI Developer Co-op · Public Services & Procurement Canada",
+        "what": "Shipped the first Fleet Manager release and set the team's data-cleaning standards.",
+        "card": {
+          "meta": "Sep 2025 — Dec 2025 · Public Services & Procurement Canada",
+          "title": "AI Developer Co-op",
+          "items": [
+            { "heading": "What I did", "body": "Containerized and deployed the Fleet Manager MVP on Azure VMs with Docker and a Caddy reverse proxy for automated HTTPS/TLS, and trained baseline scikit-learn models to forecast fuel consumption and vehicle availability." },
+            { "heading": "Highlights", "body": "Authored the C.L.E.A.N. data-preprocessing framework (Pandas, NumPy), standardizing how the team cleaned raw fleet data; served as Scrum Master, designed Figma wireframes, led Docker / data-preprocessing workshops, and presented to executive leadership. Featured on Memorial University's Gazette." },
+            { "heading": "Stack", "body": "Azure VMs · Docker · Caddy · scikit-learn · Pandas · NumPy · Figma" }
+          ],
+          "evidence": []
+        }
+      },
+      {
+        "id": "work-vac",
+        "side": "left",
+        "range": "2024 — 2024",
+        "role": "ML Researcher · VAC Lab, Memorial University",
+        "what": "Co-developed a vision-language model for breast-cancer detection and benchmarked 23+ architectures.",
+        "card": {
+          "meta": "Oct 2024 — Dec 2024 · Visual & Analytic Computing Lab",
+          "title": "ML Researcher",
+          "items": [
+            { "heading": "What I did", "body": "Co-developed a vision-language model with Prof. Matthew Hamilton and graduate researchers for automated breast-cancer detection and clinical report generation, under medical data-security and compliance constraints." },
+            { "heading": "Highlights", "body": "Benchmarked 23+ LLM/multimodal architectures across 8 datasets — weighing parameter scale, inference latency, and diagnostic accuracy — and fine-tuned / deployed open-source multimodal models with context-window optimization and compression; authored the final research report and CAIR manual." },
+            { "heading": "Stack", "body": "Vision-Language Models · Transformers · multimodal fine-tuning · model compression" }
+          ],
+          "evidence": []
+        }
+      }
+    ]
+  },
+  "projects": {
+    "title": "Projects",
+    "cardHint": "any project for details",
+    "entries": [
+      {
+        "id": "proj-quickdraw",
+        "anchor": "2026",
+        "range": "Personal · live",
+        "role": "QuickDraw MLOps Platform",
+        "what": "The end-to-end MLOps platform this site fronts, run for under $5/month.",
+        "card": {
+          "meta": "Jul — Oct 2026 · Personal project · live",
+          "title": "QuickDraw MLOps Platform",
+          "items": [
+            { "heading": "What it is", "body": "An end-to-end MLOps platform that classifies browser sketches in real time. A 422k-parameter PyTorch CNN (15 classes, macro-F1 0.916) runs as ONNX on AWS Lambda for under $5/month, with a quality-gated training pipeline, weekly drift monitoring, a retrain loop from user feedback, and monthly ephemeral-EKS load tests." },
+            { "heading": "My role", "body": "Designed and built the whole system: a 7-stage DVC pipeline with Pandera validation, a champion/challenger quality gate in MLflow, keyless AWS deploys over OIDC (no stored keys, least-privilege IAM), dual-Terraform infrastructure, and this front-end." },
+            { "heading": "Stack", "body": "PyTorch · ONNX · FastAPI · AWS (Lambda · EKS · S3 · ECR) · Terraform · Helm · Prometheus · Grafana · k6 · DVC · MLflow · Evidently · GitHub Actions · Next.js" }
+          ],
+          "evidence": [
+            { "label": "the architecture", "href": "/architecture" },
+            { "label": "the repository", "href": "https://github.com/MonishKamwal/mlops" }
+          ]
+        }
+      },
+      {
+        "id": "proj-hnn",
+        "anchor": "2024",
+        "range": "Research · Memorial University",
+        "role": "Hamiltonian Neural Network — double pendulum",
+        "what": "A physics-informed network that predicts the motion of a chaotic double pendulum.",
+        "card": {
+          "meta": "Jun — Jul 2024 · Memorial University",
+          "title": "Hamiltonian Neural Network for a double pendulum",
+          "items": [
+            { "heading": "What it is", "body": "A Hamiltonian Neural Network, built with Prof. Afework Solomon, that predicts the motion of a double pendulum — a classically chaotic system — by learning its energy rather than its trajectory directly." },
+            { "heading": "What I did", "body": "Implemented and trained the model in PyTorch and NumPy, reducing the loss by over 76% across 900 epochs, and plotted the training curve in Matplotlib." },
+            { "heading": "Stack", "body": "PyTorch · NumPy · Matplotlib" }
+          ],
+          "evidence": []
+        }
+      },
+      {
+        "id": "proj-ols",
+        "anchor": "2024",
+        "range": "Personal",
+        "role": "OLS regression — CEO pay vs. renewable energy",
+        "what": "A small econometric study testing whether executive pay tracks sustainability effort.",
+        "card": {
+          "meta": "Feb — Mar 2024 · Personal project",
+          "title": "OLS regression: CEO compensation and renewable-energy use",
+          "items": [
+            { "heading": "What it is", "body": "A short econometric study testing whether executive compensation correlates with a firm's renewable-energy use." },
+            { "heading": "What I did", "body": "Collected data from 24 firms, cleaned it, and ran an ordinary-least-squares regression over 60 data points in Statsmodels and Pandas. The result: no meaningful correlation between executive pay and sustainability effort." },
+            { "heading": "Stack", "body": "Statsmodels · Pandas · Python" }
+          ],
+          "evidence": []
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "_note": "Matches the Quality page of data-prototype-white.html. Panels render LIVE from evidence.json (hero accuracy, gate line, per-class F1, confusion matrix, runs table); this file is the static framing (titles, subs, captions, provenance, foot, read-next). `span` = 12-col grid width. Date in provenance is interpolated from the contract (`{generated}`).",
+  "sectionIndicator": "Quality",
+  "mode": "data",
+  "title": "Quality",
+  "subtitle": "The model's report card — regenerated on every deploy",
+  "provenance": {
+    "liveLabel": "live data",
+    "contract": "evidence.json",
+    "generatedVerb": "generated",
+    "cadence": "every model deploy"
+  },
+  "panels": [
+    {
+      "id": "champion",
+      "span": 4,
+      "title": "Test accuracy",
+      "sub": "champion, held-out set",
+      "kind": "hero",
+      "tiles": [
+        { "label": "macro-F1" },
+        { "label": "champion" }
+      ]
+    },
+    {
+      "id": "gate",
+      "span": 8,
+      "title": "The quality gate",
+      "sub": "a challenger ships only if it clears the floor and doesn't regress the champion",
+      "kind": "line",
+      "caption": "Floor: test accuracy ≥ {floor}. Regression band ε = {eps} — a challenger inside the band is statistically equal, so the champion holds.",
+      "blocked": {
+        "label": "blocked",
+        "text": "the gate saying no, on the record — a challenger regressed and the deploy never ran.",
+        "link": { "label": "the blocked CI run ↗", "href": "https://github.com/MonishKamwal/mlops/actions/runs/29757829275" }
+      }
+    },
+    {
+      "id": "per-class-f1",
+      "span": 5,
+      "title": "Per-class F1",
+      "sub": "15 doodle classes · 1,000 test doodles each",
+      "kind": "bar",
+      "hasTable": true,
+      "caption": "Dogs are hard — they collect the cat-shaped mistakes. Hover a class for precision & recall."
+    },
+    {
+      "id": "confusion-matrix",
+      "span": 7,
+      "title": "Where it gets confused",
+      "sub": "true class ↓  →  predicted class",
+      "kind": "heatmap",
+      "status": "mock",
+      "statusLabel": "illustrative"
+    },
+    {
+      "id": "runs",
+      "span": 12,
+      "title": "Every registered run",
+      "sub": "the registry is the source of truth — CI retrains on every model-affecting merge",
+      "kind": "table"
+    }
+  ],
+  "footer": "Everything on this page renders from the platform's published contracts — no screenshots, no hand-typed numbers.",
+  "links": [
+    { "label": "evidence.json ↗", "href": "https://monishkamwal.github.io/mlops/evidence.json" },
+    { "label": "the raw evidence hub ↗", "href": "https://monishkamwal.github.io/mlops/" }
+  ],
+  "readNext": { "name": "Performance", "peek": "A snapshot from the last EKS dress rehearsal", "href": "/performance" }
+}

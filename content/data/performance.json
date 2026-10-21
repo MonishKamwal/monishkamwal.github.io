@@ -1,0 +1,73 @@
+{
+  "_note": "Matches the Performance page of data-prototype-white.html. Panels render LIVE from api-metrics.json (KPI tiles, latency p50–p99, throughput, status ledger, node CPU/mem). First real capture published 2026-10-20 (EKS run 39511787204), so provenance is live ('captured data'), not the prototype's 'mock — first capture pending'. Date interpolated from the contract's `captured_at`.",
+  "sectionIndicator": "Performance",
+  "mode": "data",
+  "title": "Performance",
+  "subtitle": "A snapshot from the last EKS dress rehearsal",
+  "provenance": {
+    "liveLabel": "captured data",
+    "mock": false,
+    "contract": "api-metrics.json",
+    "generatedVerb": "captured",
+    "cadence": "monthly load test"
+  },
+  "panels": [
+    {
+      "id": "intro",
+      "span": 12,
+      "kind": "well",
+      "body_md": "Once a month the platform builds a real EKS cluster, load-tests the *same container image* that serves the live demo, captures these series from Prometheus — then tears everything down. A deliberate snapshot, not a live feed: nothing is left running, because nothing needs to be.",
+      "link": { "label": "how the rehearsal works →", "href": "/architecture#destroy" }
+    },
+    {
+      "id": "kpis",
+      "span": 12,
+      "kind": "tiles"
+    },
+    {
+      "id": "latency",
+      "span": 12,
+      "title": "Latency under load",
+      "sub": "p50 → p99, one-minute windows across the 15-minute run",
+      "kind": "line",
+      "hasTable": true
+    },
+    {
+      "id": "throughput",
+      "span": 7,
+      "title": "Throughput",
+      "sub": "requests per second · k6 ramp → plateau → ramp-down",
+      "kind": "line",
+      "hasTable": true
+    },
+    {
+      "id": "status-ledger",
+      "span": 5,
+      "title": "Every response, accounted for",
+      "sub": "status codes across the whole run",
+      "kind": "ledger",
+      "caption": "No server errors during the test — the ledger's 5xx row is empty because nothing failed."
+    },
+    {
+      "id": "node-cpu",
+      "span": 6,
+      "title": "Node CPU",
+      "sub": "cluster average, %",
+      "kind": "line",
+      "hasTable": true
+    },
+    {
+      "id": "node-mem",
+      "span": 6,
+      "title": "Node memory",
+      "sub": "cluster average, %",
+      "kind": "line",
+      "hasTable": true
+    }
+  ],
+  "footer": "These series are the real Prometheus capture from the last monthly load test, served straight from api-metrics.json — no screenshots, no hand-typed numbers.",
+  "links": [
+    { "label": "api-metrics.json ↗", "href": "https://monishkamwal.github.io/mlops/api-metrics.json" }
+  ],
+  "readNext": { "name": "Monitoring", "peek": "Is it holding up against real visitors?", "href": "/monitoring" }
+}
