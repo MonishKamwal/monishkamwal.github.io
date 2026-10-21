@@ -1,0 +1,44 @@
+{
+  "_note": "Frames LIVE data from the mlops hub. The frontend fetches `drift.json` (+history) and `feedback.json` (+history) and fills the drift signals and proxy-accuracy panels. Copy with {tokens} is interpolated from live values at render — e.g. {confidenceFrom}/{confidenceTo} from drift.json, {window} from the report window. Feedback can legitimately be empty (n = 0); the empty-state copy is below.",
+  "sectionIndicator": "Monitoring",
+  "mode": "data",
+  "title": "Monitoring",
+  "subtitle": "Is it holding up against real visitors?",
+  "source": {
+    "liveLabel": "live data",
+    "contract": "drift.json + feedback.json",
+    "cadenceVerb": "generated",
+    "cadence": "weekly",
+    "contractHref": "https://monishkamwal.github.io/mlops/drift.json"
+  },
+  "intro_md": "The monitor compares what the live model predicts against what it predicted back on its training data. Every tracked signal has drifted — real visitors doodle differently than the dataset, and mean confidence has slid from {confidenceFrom} to {confidenceTo}.\n\nThat's not the model failing; that's the instrument catching the world moving — and it's exactly what the retrain flywheel feeds on.",
+  "sections": [
+    {
+      "id": "drift-signals",
+      "title": "Output drift",
+      "windowLabel": "this window:",
+      "body": "Drift is measured on what the model *outputs*, not on the pixels going in — the log deliberately never keeps anyone's drawing. Three signals are tracked, each scored against the training-era baseline.",
+      "signals": [
+        { "key": "predicted_label", "label": "Which classes it guesses", "plain": "The mix of answers the model gives. Shifts when visitors draw different things than the dataset did." },
+        { "key": "confidence", "label": "Top-1 confidence", "plain": "How sure the model is of its best guess. A slide here is the earliest sign real drawings are harder than training ones." },
+        { "key": "margin", "label": "Top-1 vs top-2 margin", "plain": "How far the winning guess beats the runner-up. A thinner margin means more genuine toss-ups." }
+      ],
+      "note": "The report measures drift but doesn't cry wolf about it: out-of-distribution drift is constant and expected, so it only raises an alert when the model is actually doing badly — a confidence collapse or a failing accuracy signal."
+    },
+    {
+      "id": "proxy-accuracy",
+      "title": "Proxy accuracy from feedback",
+      "body": "Every time a visitor grades a guess with yes or no, that verdict becomes a running stand-in for real-world accuracy — overall, per class, and by input type.",
+      "emptyState": {
+        "label": "n = 0",
+        "text": "A quiet week with no verdicts is a valid result, not an error — the drift signals carry the page until the next visitor grades a guess."
+      }
+    }
+  ],
+  "footer": "Drift is computed weekly by Evidently over the model's own outputs; feedback is the retrain flywheel's label source.",
+  "links": [
+    { "label": "drift.json", "href": "https://monishkamwal.github.io/mlops/drift.json" },
+    { "label": "feedback.json", "href": "https://monishkamwal.github.io/mlops/feedback.json" },
+    { "label": "Evidently's own report", "href": "https://monishkamwal.github.io/mlops/" }
+  ]
+}

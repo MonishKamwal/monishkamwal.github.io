@@ -1,0 +1,67 @@
+{
+  "_note": "Frames LIVE data from the mlops hub. The frontend fetches https://monishkamwal.github.io/mlops/api-metrics.json and fills the series. First real capture published 2026-10-20 (EKS run 39511787204). Contract shape: { captured_at, window:{start,end,step_seconds,minutes}, queries:{ <key>:{ promql, unit, series:[{labels, points:[[unix_ts, value], ...]}] } } }. Each `section.contractKeys` names the queries that section renders. Units: latency=seconds, rps=reqps, error_rate=ratio, node_*=ratio. An empty `series` array is a real result (e.g. error_rate_5xx empty = no 5xx). The page header date comes from `captured_at`.",
+  "sectionIndicator": "Performance",
+  "mode": "data",
+  "title": "Performance",
+  "subtitle": "A snapshot from the last EKS dress rehearsal",
+  "source": {
+    "liveLabel": "captured data",
+    "contract": "api-metrics.json",
+    "cadenceVerb": "captured",
+    "cadence": "monthly load test",
+    "contractHref": "https://monishkamwal.github.io/mlops/api-metrics.json",
+    "capturedAtField": "captured_at"
+  },
+  "intro_md": "Once a month the platform builds a real Kubernetes cluster, load-tests the *same* container image that serves the live demo, captures these numbers straight from Prometheus — then tears everything down.\n\nA deliberate snapshot, not a live feed: nothing is left running, because nothing needs to be. What you see below is the real capture from the last run.",
+  "crossLink": { "label": "how the rehearsal works", "href": "/architecture#destroy" },
+  "sections": [
+    {
+      "id": "latency",
+      "title": "Response time under load",
+      "contractKeys": ["latency_p50", "latency_p90", "latency_p95", "latency_p99"],
+      "body": "How long the model takes to answer while traffic is pouring in, shown as a spread from typical (p50) to worst-case (p99). The p99 is the honest number — it's what the slowest one-in-a-hundred request waits. Even flat out, typical responses land in a few hundredths of a second.",
+      "seriesLabels": {
+        "latency_p50": "typical (p50)",
+        "latency_p90": "p90",
+        "latency_p95": "slow (p95)",
+        "latency_p99": "worst-case (p99)"
+      }
+    },
+    {
+      "id": "throughput",
+      "title": "Throughput",
+      "contractKeys": ["rps_total", "rps_by_handler", "requests_by_status"],
+      "body": "How many requests a second the service handled during the test, and how that held up as the load climbed and settled. This is a stress test, not everyday demo traffic — the point is to find a sustained ceiling, and nearly all of it is the /predict path doing the real work.",
+      "seriesLabels": {
+        "rps_total": "all requests",
+        "rps_by_handler": "by endpoint",
+        "requests_by_status": "by status"
+      }
+    },
+    {
+      "id": "errors",
+      "title": "Errors under load",
+      "contractKeys": ["error_rate_5xx"],
+      "body": "The share of requests that failed with a server error while under load. The cleanest result is the one you can't draw — an empty line.",
+      "emptyState": {
+        "label": "no errors",
+        "text": "No server errors during the test. The series is empty because nothing failed — the model served every request the load test threw at it."
+      }
+    },
+    {
+      "id": "headroom",
+      "title": "Cluster headroom",
+      "contractKeys": ["node_cpu_utilization", "node_mem_utilization"],
+      "body": "How hard the three cluster nodes were actually working — processor and memory use across the run. It shows whether the load test pushed the machines to their limit or left room to spare.",
+      "seriesLabels": {
+        "node_cpu_utilization": "CPU used",
+        "node_mem_utilization": "memory used"
+      }
+    }
+  ],
+  "footer": "These series are the real Prometheus capture from the last monthly load test, served straight from api-metrics.json — no screenshots, no hand-typed numbers.",
+  "links": [
+    { "label": "api-metrics.json", "href": "https://monishkamwal.github.io/mlops/api-metrics.json" },
+    { "label": "the evidence hub", "href": "https://monishkamwal.github.io/mlops/" }
+  ]
+}

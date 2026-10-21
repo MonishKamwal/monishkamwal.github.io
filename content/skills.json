@@ -1,0 +1,144 @@
+{
+  "_note": "Skills with receipts — no levels or ratings; the evidence links do the grading. `competencies` are the groups; `crossings` are tools shared between two adjacent groups. Evidence `href`s are pinned (verified 2026-10-20): internal routes to the Story/Data pages, plus real mlops repo files and a real CI run.",
+  "sectionIndicator": "Skills",
+  "title": "Skills",
+  "lede": "What I build with",
+  "intro": "The tools I reached for on this project, each tied to the exact place it earns its keep. Follow any link to the evidence.",
+  "competencies": [
+    {
+      "id": "data",
+      "name": "Keeping data honest",
+      "line": "Nothing reaches a model before it has a version and a check.",
+      "tools": [
+        {
+          "name": "DVC",
+          "did": "Versions the dataset out of Git and into the one S3 bucket.",
+          "evidence": { "label": "“One bucket, three jobs” · Journey", "href": "/journey#one-bucket-three-jobs" }
+        },
+        {
+          "name": "Pandera",
+          "did": "Checks the data's shape before it can reach training.",
+          "evidence": { "label": "“Pandera at the door” · Journey", "href": "/journey#pandera-at-the-door" }
+        }
+      ]
+    },
+    {
+      "id": "train",
+      "name": "Training models",
+      "line": "A model has to beat the last one before it can ship.",
+      "tools": [
+        {
+          "name": "PyTorch",
+          "did": "Trains the small network that guesses your drawing on the home page.",
+          "evidence": { "label": "the model · Architecture", "href": "/architecture" }
+        },
+        {
+          "name": "scikit-learn",
+          "did": "Gives the baseline the trained model has to beat.",
+          "evidence": { "label": "the runs table · Quality", "href": "/quality" }
+        },
+        {
+          "name": "the pipeline",
+          "did": "Every step, from the data checks to the quality gate.",
+          "evidence": { "label": "the repo · GitHub", "href": "https://github.com/MonishKamwal/mlops" }
+        }
+      ]
+    },
+    {
+      "id": "ship",
+      "name": "Shipping it",
+      "line": "From a trained file to a live address, and back down to zero.",
+      "tools": [
+        {
+          "name": "Docker",
+          "did": "Packs the model and its server into one image.",
+          "evidence": { "label": "the container image · Architecture", "href": "/architecture#ship" }
+        },
+        {
+          "name": "Terraform · AWS Lambda",
+          "did": "Serves the model, and scales to zero between visitors.",
+          "evidence": { "label": "the serve path · Architecture", "href": "/architecture#lambda" }
+        },
+        {
+          "name": "EKS",
+          "did": "Builds the monthly Kubernetes cluster and tears it down again.",
+          "evidence": { "label": "the dress rehearsal · Architecture", "href": "/architecture#destroy" }
+        }
+      ]
+    },
+    {
+      "id": "watch",
+      "name": "Watching it run",
+      "line": "Proof that the model still works after it ships.",
+      "tools": [
+        {
+          "name": "MLflow",
+          "did": "Records every run; the registry promotes the winner.",
+          "evidence": { "label": "the registry · Architecture", "href": "/architecture" }
+        },
+        {
+          "name": "Evidently",
+          "did": "Compares this week's predictions against the training data.",
+          "evidence": { "label": "drift this week · Monitoring", "href": "/monitoring" }
+        },
+        {
+          "name": "Grafana",
+          "did": "Keeps the load-test dashboards as evidence.",
+          "evidence": { "label": "the last capture · Performance", "href": "/performance" }
+        }
+      ]
+    },
+    {
+      "id": "front",
+      "name": "Building the front",
+      "line": "The page you are reading, and the demo on it.",
+      "tools": [
+        {
+          "name": "Next.js · TypeScript",
+          "did": "This site: a static export that calls the live model.",
+          "evidence": { "label": "the repo · GitHub", "href": "https://github.com/MonishKamwal/monishkamwal.github.io" }
+        },
+        {
+          "name": "the data contracts",
+          "did": "Type the JSON contracts that the Data pages read.",
+          "evidence": { "label": "the contracts · GitHub", "href": "https://github.com/MonishKamwal/mlops/tree/main/portfolio" }
+        }
+      ]
+    }
+  ],
+  "crossings": [
+    {
+      "id": "s3",
+      "name": "S3",
+      "between": ["data", "train"],
+      "line": "One bucket holds the data, the models, and the evidence.",
+      "evidence": { "label": "“One bucket, three jobs” · Journey", "href": "/journey#one-bucket-three-jobs" }
+    },
+    {
+      "id": "onnx",
+      "name": "ONNX",
+      "between": ["train", "ship"],
+      "line": "The model leaves PyTorch as ONNX, so a cold start stays short.",
+      "evidence": { "label": "the export step · Architecture", "href": "/architecture" }
+    },
+    {
+      "id": "k6",
+      "name": "k6",
+      "between": ["ship", "watch"],
+      "line": "Puts load on the live model each month and records the result.",
+      "evidence": { "label": "the last load test · Performance", "href": "/performance" }
+    },
+    {
+      "id": "gha",
+      "name": "GitHub Actions",
+      "between": ["watch", "front"],
+      "line": "Retrains on each model change, and deploys this site.",
+      "evidence": { "label": "a CI run · GitHub", "href": "https://github.com/MonishKamwal/mlops/actions/runs/30212504152" }
+    }
+  ],
+  "toolbox": {
+    "label": "Also in the toolbox",
+    "note": "Used across the project, without a headline of their own.",
+    "items": ["FastAPI", "SQL", "Kubernetes", "CloudWatch", "pandas", "NumPy", "pytest", "Bash", "Git", "Tailwind"]
+  }
+}

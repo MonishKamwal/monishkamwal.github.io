@@ -1,0 +1,59 @@
+{
+  "name": "Monish Kamwal",
+  "tagline": "MLOps Project & Portfolio",
+  "description": "Monish Kamwal — I build machine-learning systems end to end. This site is the live front of an MLOps platform I built from scratch: draw a doodle, a deployed model guesses it, and every claim behind it is published.",
+  "nav": {
+    "menuLabel": "Menu",
+    "homeLabel": "Home",
+    "groups": [
+      {
+        "label": "The Data",
+        "note": "The live machine room — real numbers from the running platform.",
+        "items": [
+          { "label": "Quality", "href": "/quality" },
+          { "label": "Performance", "href": "/performance" },
+          { "label": "Monitoring", "href": "/monitoring" }
+        ]
+      },
+      {
+        "label": "The Story",
+        "note": "How it was built, and why these choices.",
+        "items": [
+          { "label": "Architecture", "href": "/architecture" },
+          { "label": "Journey", "href": "/journey" },
+          { "label": "Skills", "href": "/skills" }
+        ]
+      },
+      {
+        "label": "More",
+        "items": [
+          { "label": "About", "href": "/about" },
+          { "label": "Contact", "href": "/#contact" }
+        ]
+      }
+    ]
+  },
+  "trays": {
+    "story": [
+      { "label": "Architecture", "href": "/architecture" },
+      { "label": "Journey", "href": "/journey" },
+      { "label": "Skills", "href": "/skills" }
+    ],
+    "data": [
+      { "label": "Quality", "href": "/quality" },
+      { "label": "Performance", "href": "/performance" },
+      { "label": "Monitoring", "href": "/monitoring" }
+    ]
+  },
+  "contact": {
+    "email": "monishca001@gmail.com",
+    "github": "https://github.com/MonishKamwal",
+    "linkedin": "https://linkedin.com/in/mkamwal",
+    "copiedLabel": "Copied"
+  },
+  "links": {
+    "evidenceHub": "https://monishkamwal.github.io/mlops/",
+    "repo": "https://github.com/MonishKamwal/mlops",
+    "siteRepo": "https://github.com/MonishKamwal/monishkamwal.github.io"
+  }
+}
