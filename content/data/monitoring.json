@@ -1,44 +1,93 @@
 {
-  "_note": "Frames LIVE data from the mlops hub. The frontend fetches `drift.json` (+history) and `feedback.json` (+history) and fills the drift signals and proxy-accuracy panels. Copy with {tokens} is interpolated from live values at render — e.g. {confidenceFrom}/{confidenceTo} from drift.json, {window} from the report window. Feedback can legitimately be empty (n = 0); the empty-state copy is below.",
+  "_note": "Matches the Monitoring page of data-prototype-white.html. Panels render LIVE from drift.json + feedback.json (verdict banner, confidence + margin histograms, categorical dumbbell, trends, proxy accuracy, verdicts table). {tokens} in the banner are interpolated from the contract. This file is the static framing.",
   "sectionIndicator": "Monitoring",
   "mode": "data",
   "title": "Monitoring",
   "subtitle": "Is it holding up against real visitors?",
-  "source": {
+  "provenance": {
     "liveLabel": "live data",
     "contract": "drift.json + feedback.json",
-    "cadenceVerb": "generated",
-    "cadence": "weekly",
-    "contractHref": "https://monishkamwal.github.io/mlops/drift.json"
+    "generatedVerb": "generated",
+    "cadence": "weekly"
   },
-  "intro_md": "The monitor compares what the live model predicts against what it predicted back on its training data. Every tracked signal has drifted — real visitors doodle differently than the dataset, and mean confidence has slid from {confidenceFrom} to {confidenceTo}.\n\nThat's not the model failing; that's the instrument catching the world moving — and it's exactly what the retrain flywheel feeds on.",
-  "sections": [
+  "panels": [
     {
-      "id": "drift-signals",
-      "title": "Output drift",
+      "id": "verdict",
+      "span": 12,
+      "kind": "banner",
+      "status": "bad",
       "windowLabel": "this window:",
-      "body": "Drift is measured on what the model *outputs*, not on the pixels going in — the log deliberately never keeps anyone's drawing. Three signals are tracked, each scored against the training-era baseline.",
-      "signals": [
-        { "key": "predicted_label", "label": "Which classes it guesses", "plain": "The mix of answers the model gives. Shifts when visitors draw different things than the dataset did." },
-        { "key": "confidence", "label": "Top-1 confidence", "plain": "How sure the model is of its best guess. A slide here is the earliest sign real drawings are harder than training ones." },
-        { "key": "margin", "label": "Top-1 vs top-2 margin", "plain": "How far the winning guess beats the runner-up. A thinner margin means more genuine toss-ups." }
-      ],
-      "note": "The report measures drift but doesn't cry wolf about it: out-of-distribution drift is constant and expected, so it only raises an alert when the model is actually doing badly — a confidence collapse or a failing accuracy signal."
+      "body_md": "The monitor compares what the live model predicts against what it predicted for the training-era reference. Every tracked signal has drifted — **real visitors doodle differently than the dataset**, and mean confidence has slid from {refMean} to {curMean}. That's not the model failing; that's the instrument catching the world moving — and it's exactly what the retrain flywheel feeds on."
+    },
+    {
+      "id": "confidence",
+      "span": 6,
+      "title": "Prediction confidence",
+      "sub": "{confSub}",
+      "kind": "histogram",
+      "status": "bad",
+      "hasTable": true
+    },
+    {
+      "id": "margin",
+      "span": 6,
+      "title": "Decision margin",
+      "sub": "{margSub}",
+      "kind": "histogram",
+      "status": "bad",
+      "hasTable": true
+    },
+    {
+      "id": "labels",
+      "span": 7,
+      "title": "What people actually draw",
+      "sub": "{labSub}",
+      "kind": "dumbbell",
+      "status": "bad",
+      "hasTable": true,
+      "caption": "Sorted by shift. The reference spreads evenly by construction; visitors have favourites."
+    },
+    {
+      "id": "confidence-trend",
+      "span": 5,
+      "title": "Confidence over time",
+      "sub": "weekly runs · the gap is the story",
+      "kind": "line",
+      "hasTable": true
+    },
+    {
+      "id": "columns-drifted",
+      "span": 5,
+      "title": "Columns drifted",
+      "sub": "per weekly run · red dot = drift detected",
+      "kind": "dotstrip",
+      "hasTable": true
     },
     {
       "id": "proxy-accuracy",
-      "title": "Proxy accuracy from feedback",
-      "body": "Every time a visitor grades a guess with yes or no, that verdict becomes a running stand-in for real-world accuracy — overall, per class, and by input type.",
-      "emptyState": {
-        "label": "n = 0",
-        "text": "A quiet week with no verdicts is a valid result, not an error — the drift signals carry the page until the next visitor grades a guess."
-      }
+      "span": 5,
+      "title": "Visitors as evaluators",
+      "sub": "yes / no votes after each guess → proxy accuracy",
+      "kind": "hero",
+      "tiles": [
+        { "label": "votes" },
+        { "label": "last window" }
+      ],
+      "caption": "Small sample — a signal, not a score. Quiet weeks (n = 0) are normal; drift above carries the page through them."
+    },
+    {
+      "id": "verdicts-by-class",
+      "span": 7,
+      "title": "Verdicts by predicted class",
+      "sub": "what visitors said, per guess the model made",
+      "kind": "table"
     }
   ],
   "footer": "Drift is computed weekly by Evidently over the model's own outputs; feedback is the retrain flywheel's label source.",
   "links": [
-    { "label": "drift.json", "href": "https://monishkamwal.github.io/mlops/drift.json" },
-    { "label": "feedback.json", "href": "https://monishkamwal.github.io/mlops/feedback.json" },
-    { "label": "Evidently's own report", "href": "https://monishkamwal.github.io/mlops/" }
-  ]
+    { "label": "drift.json ↗", "href": "https://monishkamwal.github.io/mlops/drift.json" },
+    { "label": "feedback.json ↗", "href": "https://monishkamwal.github.io/mlops/feedback.json" },
+    { "label": "Evidently's own report ↗", "href": "https://monishkamwal.github.io/mlops/" }
+  ],
+  "readNext": { "name": "Architecture", "peek": "The machine behind the doodle", "href": "/architecture" }
 }

@@ -192,7 +192,7 @@ export default function SketchDemo() {
 
       {/* Predictions paper */}
       <div className="paper flex flex-col gap-4 p-5">
-        <p className="micro-label">{c.predictions.heading}</p>
+        <p className="micro-label">My best guesses</p>
 
         {status === "warming" && (
           <p className="text-sm text-muted">{c.states.warmingUp}</p>

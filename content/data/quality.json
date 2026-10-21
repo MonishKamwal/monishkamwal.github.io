@@ -1,55 +1,70 @@
 {
-  "_note": "This page frames LIVE data from the mlops evidence hub. The frontend fetches `evidence.json` and fills the champion card, runs table, per-class F1 and confusion matrix; the copy here is the static framing around those charts. No numbers are hand-typed here.",
+  "_note": "Matches the Quality page of data-prototype-white.html. Panels render LIVE from evidence.json (hero accuracy, gate line, per-class F1, confusion matrix, runs table); this file is the static framing (titles, subs, captions, provenance, foot, read-next). `span` = 12-col grid width. Date in provenance is interpolated from the contract (`{generated}`).",
   "sectionIndicator": "Quality",
   "mode": "data",
   "title": "Quality",
   "subtitle": "The model's report card — regenerated on every deploy",
-  "source": {
+  "provenance": {
     "liveLabel": "live data",
     "contract": "evidence.json",
-    "cadenceVerb": "generated",
-    "cadence": "every model deploy",
-    "contractHref": "https://monishkamwal.github.io/mlops/evidence.json"
+    "generatedVerb": "generated",
+    "cadence": "every model deploy"
   },
-  "intro": "This is how good the model is, straight from the system that built it — not a screenshot, not a number I typed in. Every panel below is drawn live from the platform's published record.",
-  "sections": [
+  "panels": [
     {
       "id": "champion",
-      "title": "The current champion",
-      "body": "The best model the pipeline has ever accepted — its accuracy, its version, and when it was crowned. This is read from the model registry, so it's always the model actually in charge."
+      "span": 4,
+      "title": "Test accuracy",
+      "sub": "champion, held-out set",
+      "kind": "hero",
+      "tiles": [
+        { "label": "macro-F1" },
+        { "label": "champion" }
+      ]
     },
     {
       "id": "gate",
+      "span": 8,
       "title": "The quality gate",
-      "body": "Before any model ships, it has to clear an absolute accuracy floor and beat the reigning champion without regressing. The gate is the one part of the pipeline allowed to say no.",
-      "callout": {
-        "status": "blocked",
+      "sub": "a challenger ships only if it clears the floor and doesn't regress the champion",
+      "kind": "line",
+      "caption": "Floor: test accuracy ≥ {floor}. Regression band ε = {eps} — a challenger inside the band is statistically equal, so the champion holds.",
+      "blocked": {
         "label": "blocked",
-        "text": "The gate saying no, on the record — a challenger regressed and the deploy never ran. This is the gate working, and you can open the CI run that proves it.",
-        "link": { "label": "the blocked CI run", "href": "https://github.com/MonishKamwal/mlops/actions/runs/29757829275" }
+        "text": "the gate saying no, on the record — a challenger regressed and the deploy never ran.",
+        "link": { "label": "the blocked CI run ↗", "href": "https://github.com/MonishKamwal/mlops/actions/runs/29757829275" }
       }
     },
     {
-      "id": "runs",
-      "title": "Every registered run",
-      "body": "The registry is the source of truth: CI retrains on every change that can affect the model, and each run is recorded here with the number it scored — the ones that shipped and the ones that didn't."
-    },
-    {
       "id": "per-class-f1",
+      "span": 5,
       "title": "Per-class F1",
-      "caption": "15 doodle classes · 1,000 test doodles each",
-      "body": "How reliably the model recognises each kind of drawing. Dogs are hard — they quietly collect the cat-shaped mistakes — while geometric shapes like stars and clocks are nearly perfect. Hover a class for its precision and recall."
+      "sub": "15 doodle classes · 1,000 test doodles each",
+      "kind": "bar",
+      "hasTable": true,
+      "caption": "Dogs are hard — they collect the cat-shaped mistakes. Hover a class for precision & recall."
     },
     {
       "id": "confusion-matrix",
+      "span": 7,
       "title": "Where it gets confused",
-      "caption": "true class (down) → predicted class (across)",
-      "body": "A grid of what gets mistaken for what. The bright diagonal is everything the model got right; the off-diagonal smudges are the honest mistakes — and they cluster exactly where a person squinting at a tiny doodle would slip too."
+      "sub": "true class ↓  →  predicted class",
+      "kind": "heatmap",
+      "status": "mock",
+      "statusLabel": "illustrative"
+    },
+    {
+      "id": "runs",
+      "span": 12,
+      "title": "Every registered run",
+      "sub": "the registry is the source of truth — CI retrains on every model-affecting merge",
+      "kind": "table"
     }
   ],
   "footer": "Everything on this page renders from the platform's published contracts — no screenshots, no hand-typed numbers.",
   "links": [
-    { "label": "evidence.json", "href": "https://monishkamwal.github.io/mlops/evidence.json" },
-    { "label": "the raw evidence hub", "href": "https://monishkamwal.github.io/mlops/" }
-  ]
+    { "label": "evidence.json ↗", "href": "https://monishkamwal.github.io/mlops/evidence.json" },
+    { "label": "the raw evidence hub ↗", "href": "https://monishkamwal.github.io/mlops/" }
+  ],
+  "readNext": { "name": "Performance", "peek": "A snapshot from the last EKS dress rehearsal", "href": "/performance" }
 }

@@ -1,9 +1,7 @@
 // Typed accessors for the hand-authored site copy in /content.
-// JSON is imported at build time (static export), so this is zero-runtime —
-// the types just give components a safe, documented shape to render.
-//
-// Convention (see content/README.md): fields ending in `_md` hold Markdown;
-// everything else is plain text. `_note` keys are maintainer notes, never shown.
+// JSON is imported at build time (static export), so this is zero-runtime.
+// Schemas match the three finalized prototypes (see DESIGN.md). Fields ending
+// in `_md` hold Markdown; `_note` keys are maintainer notes, never shown.
 
 import siteJson from "@/content/site.json";
 import homeJson from "@/content/home.json";
@@ -19,121 +17,121 @@ import performanceJson from "@/content/data/performance.json";
 
 export type Link = { label: string; href: string };
 export type Cta = Link;
+/** A paper-card body: labeled sections + evidence links. */
+export type CardItem = { heading: string; body: string };
+export type Card = {
+  meta: string;
+  title: string;
+  items: CardItem[];
+  evidence: Link[];
+};
 
 /* ---------- site ---------- */
 
-export type NavGroup = {
-  label: string;
-  note?: string;
-  items: Link[];
-};
-
+export type NavGroup = { label: string; note?: string; items: Link[] };
 export type SiteContent = {
   name: string;
   tagline: string;
   description: string;
   nav: { menuLabel: string; homeLabel: string; groups: NavGroup[] };
   trays: { story: Link[]; data: Link[] };
-  contact: {
-    email: string;
-    github: string;
-    linkedin: string;
-    copiedLabel: string;
-  };
+  contact: { email: string; github: string; linkedin: string; copiedLabel: string };
   links: { evidenceHub: string; repo: string; siteRepo: string };
 };
 
 /* ---------- home ---------- */
 
-export type HomeTeaser = {
-  id: string;
-  sectionIndicator: string;
-  title: string;
-  lede: string;
-  body: string;
-  cta: Cta;
-  featuredSlugs?: string[];
-};
-
+export type ArchDeckPlane = { kicker: string; name: string; sentence: string };
 export type HomeContent = {
   hero: { name: string; tagline: string; scrollCueLabel: string };
   demo: {
     sectionIndicator: string;
     title: string;
-    lede: string;
     prompt: string;
-    promptFallbackClasses: string[];
+    promptClasses: string[];
     controls: { clear: string; undo: string };
-    predictions: { heading: string; emptyHint: string };
+    predictions: { emptyHint: string };
     feedback: {
       question: string;
       yes: string;
       no: string;
       noFollowUp: string;
-      note: string;
       thanks: string;
     };
-    privacyNote: string;
+    doorwayNote: string;
     cta: Cta;
+    privacyNote: string;
     states: { warmingUp: string; thinking: string; unreachable: string };
   };
-  teasers: HomeTeaser[];
+  teasers: {
+    architecture: {
+      sectionIndicator: string;
+      title: string;
+      lede: string;
+      archDeck: ArchDeckPlane[];
+      cta: Cta;
+    };
+    journey: {
+      sectionIndicator: string;
+      title: string;
+      lede: string;
+      featuredSlugs: string[];
+      cta: Cta;
+    };
+    skills: { sectionIndicator: string; title: string; lede: string; cta: Cta };
+  };
   bookend: {
     sectionIndicator: string;
     title: string;
-    lede: string;
+    copiedLabel: string;
     aboutLink: Cta;
-    mailtoLabel: string;
+    note: string;
   };
 };
 
 /* ---------- architecture ---------- */
 
-export type ArchStop = {
+export type ArchIo = { dir: "Sends" | "Receives"; text: string; target: string; wire: string };
+export type ArchBlock = {
   id: string;
-  kind: "plane" | "wire";
-  label: string;
-  title: string;
-  body_md: string;
+  kind: "overview" | "plane" | "wire" | "end";
+  kicker: string;
+  kickerTone?: "ochre";
+  heading?: string;
+  body: string[];
+  io?: ArchIo[];
+  links?: Link[];
 };
-
-export type ArchComponent = {
-  id: string;
-  meta: string;
-  title: string;
-  format: string;
-  items: { heading: string; body: string }[];
-  evidence: Link[];
-};
-
+export type ArchPart = { id: string; meta: string; title: string; items: CardItem[]; evidence: Link[] };
 export type ArchitectureContent = {
   sectionIndicator: string;
   title: string;
-  lede: string;
-  intro: string;
-  overview: { label: string; title: string; body_md: string };
-  stops: ArchStop[];
-  closing: { title: string; body_md: string; links: Link[] };
-  components: ArchComponent[];
+  lead: string;
+  cardHint: string;
+  blocks: ArchBlock[];
+  parts: ArchPart[];
 };
 
 /* ---------- journey ---------- */
 
+export type JourneyPhase = { key: string; title: string };
 export type JourneyEntry = {
   slug: string;
   date: string;
-  phase: string;
+  phaseKey: string;
   title: string;
   summary: string;
   body_md: string;
   evidence: Link[];
 };
-
 export type JourneyContent = {
   sectionIndicator: string;
   title: string;
   lede: string;
   intro: string;
+  cardHint: string;
+  tail: string;
+  phases: JourneyPhase[];
   entries: JourneyEntry[];
 };
 
@@ -142,6 +140,7 @@ export type JourneyContent = {
 export type SkillTool = { name: string; did: string; evidence: Link };
 export type Competency = {
   id: string;
+  index: string;
   name: string;
   line: string;
   tools: SkillTool[];
@@ -149,98 +148,90 @@ export type Competency = {
 export type Crossing = {
   id: string;
   name: string;
-  between: string[];
+  between: [string, string];
+  sharedLabel: string;
   line: string;
   evidence: Link;
 };
-
 export type SkillsContent = {
   sectionIndicator: string;
   title: string;
   lede: string;
-  intro: string;
+  cardHint: string;
+  stops: string[];
   competencies: Competency[];
   crossings: Crossing[];
-  toolbox: { label: string; note: string; items: string[] };
+  toolbox: { label: string; items: string[] };
 };
 
 /* ---------- about ---------- */
 
-export type CvEntry = {
-  dateRange: string;
+export type AboutEntry = {
+  id: string;
+  range: string;
   role: string;
-  place: string;
-  line: string;
-  details?: string[];
+  what: string;
+  anchor?: string; // Education / Projects row anchor (big year/degree)
+  side?: "left" | "right"; // Work serpentine stop side
+  card: Card;
 };
-
+export type AboutSection = { title: string; cardHint: string; entries: AboutEntry[] };
 export type AboutContent = {
   sectionIndicator: string;
-  title: string;
-  lede: string;
-  bio: { portrait: { src: string; alt: string }; body_md: string };
-  cv: {
-    work: { title: string; intro: string; entries: CvEntry[] };
-    education: { title: string; intro: string; entries: CvEntry[] };
+  hero: {
+    eyebrow: string;
+    nameFirst: string;
+    nameLast: string;
+    lead: string[];
+    portrait: { src: string; alt: string };
+    resume: Link;
   };
-  resume: { label: string; href: string };
-  contact: {
-    lede: string;
-    email: string;
-    emailCopiedLabel: string;
-    github: string;
-    linkedin: string;
-  };
+  education: AboutSection;
+  work: AboutSection;
+  projects: AboutSection;
 };
 
 /* ---------- data pages ---------- */
 
-export type DataSource = {
+export type DataProvenance = {
   liveLabel: string;
+  mock?: boolean;
   contract: string;
-  cadenceVerb: string;
+  generatedVerb: string;
   cadence: string;
-  contractHref: string;
-  capturedAtField?: string;
 };
-
-export type DataSection = {
+export type DataPanel = {
   id: string;
-  title: string;
-  body: string;
+  span: number;
+  kind: string; // hero | line | bar | heatmap | table | banner | histogram | dumbbell | dotstrip | tiles | ledger | well
+  title?: string;
+  sub?: string;
   caption?: string;
-  contractKeys?: string[];
-  seriesLabels?: Record<string, string>;
+  status?: string;
+  statusLabel?: string;
+  hasTable?: boolean;
+  body_md?: string;
   windowLabel?: string;
-  signals?: { key: string; label: string; plain: string }[];
-  note?: string;
-  callout?: {
-    status: string;
-    label: string;
-    text: string;
-    link?: Link;
-  };
-  emptyState?: { label: string; text: string };
+  tiles?: { label: string }[];
+  blocked?: { label: string; text: string; link: Link };
+  link?: Link;
 };
-
 export type DataPageContent = {
   sectionIndicator: string;
   mode: "data";
   title: string;
   subtitle: string;
-  source: DataSource;
-  intro?: string;
-  intro_md?: string;
-  crossLink?: Link;
-  sections: DataSection[];
+  provenance: DataProvenance;
+  panels: DataPanel[];
   footer: string;
   links: Link[];
+  readNext: { name: string; peek: string; href: string };
 };
 
 /* ---------- typed exports ---------- */
 
-export const site = siteJson as SiteContent;
-export const home = homeJson as HomeContent;
+export const site = siteJson as unknown as SiteContent;
+export const home = homeJson as unknown as HomeContent;
 export const architecture = architectureJson as unknown as ArchitectureContent;
 export const journey = journeyJson as unknown as JourneyContent;
 export const skills = skillsJson as unknown as SkillsContent;

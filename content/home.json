@@ -1,81 +1,59 @@
 {
+  "_note": "Matches the Home prototype (transition-prototype.html). The hero name renders UPPERCASE (styling). §2 demo wires to lib/predict.ts (idle self-demo doodles + states are implementation). §3 is the auto-cycling isometric arch-deck — `archDeck` holds its four plane captions (A_CAP). §4 features 3 journey entries by slug. §5 is the Skills wash map (reads skills.json). §6 bookend is an icon trio (GitHub · LinkedIn · mail-copy, from site.json contact).",
   "hero": {
     "name": "Monish Kamwal",
     "tagline": "MLOps Project & Portfolio",
-    "scrollCueLabel": "Scroll to the demo"
+    "scrollCueLabel": "Scroll to the live demo"
   },
   "demo": {
     "sectionIndicator": "Live demo",
-    "title": "Draw something.",
-    "lede": "My model will try to guess what it is — live, while you draw.",
-    "prompt": "It knows 15 doodles. Try an apple, a bicycle, an umbrella — or whatever you like.",
-    "promptFallbackClasses": [
-      "Airplane", "Apple", "Banana", "Bicycle", "Bird", "Car", "Cat", "Clock",
-      "Dog", "Face", "Fish", "House", "Star", "Tree", "Umbrella"
-    ],
-    "controls": {
-      "clear": "Clear",
-      "undo": "Undo"
-    },
-    "predictions": {
-      "heading": "My best guesses",
-      "emptyHint": "Start drawing and the guesses appear here."
-    },
-    "feedback": {
-      "question": "Did I get it?",
-      "yes": "Yes",
-      "no": "No",
-      "noFollowUp": "What was it, really?",
-      "note": "every guess is scored",
-      "thanks": "Thanks — noted."
-    },
-    "privacyNote": "Anonymous. Your drawing and your verdict may be used to help train the model — no account, no tracking, nothing that identifies you.",
-    "cta": {
-      "label": "See how the model performs",
-      "href": "/quality"
-    },
+    "title": "Draw Something",
+    "prompt": "It knows 15 doodles",
+    "promptClasses": ["Airplane", "Apple", "Banana", "Bicycle", "Bird", "Car", "Cat", "Clock", "Dog", "Face", "Fish", "House", "Star", "Tree", "Umbrella"],
+    "controls": { "clear": "Clear", "undo": "Undo" },
+    "predictions": { "emptyHint": "Start drawing and the guesses appear here." },
+    "feedback": { "question": "Did I get it?", "yes": "Yes", "no": "No", "noFollowUp": "What was it, really?", "thanks": "Thanks — noted." },
+    "doorwayNote": "every guess is scored",
+    "cta": { "label": "See how the model performs", "href": "/quality" },
+    "privacyNote": "Anonymous — your drawing + verdict may help train the model.",
     "states": {
       "warmingUp": "Waking the model up — it scales to zero between visitors, which is rather the point. One moment.",
       "thinking": "Thinking…",
       "unreachable": "The model is offline right now. Here is a recording of it in action — the live demo returns when the service is back up."
     }
   },
-  "teasers": [
-    {
-      "id": "architecture",
-      "sectionIndicator": "Behind the demo",
+  "teasers": {
+    "architecture": {
+      "sectionIndicator": "Behind the scenes",
       "title": "Behind the Scenes",
       "lede": "From strokes to prediction",
-      "body": "That doodle didn't just get guessed — it ran through a real machine: a model that trains itself on every change, a gate that can refuse to ship, and infrastructure that builds and destroys itself on a schedule.",
+      "archDeck": [
+        { "kicker": "Plane 1 · always on", "name": "Serving", "sentence": "Lambda wakes from zero, runs the model, and logs every guess to S3." },
+        { "kicker": "Plane 2 · every week", "name": "Monitoring", "sentence": "The week's logs are scored for drift; a breach opens a GitHub issue." },
+        { "kicker": "Plane 3 · every merge", "name": "CI/CD", "sentence": "Every run makes a challenger; it ships only if it clears the quality gate." },
+        { "kicker": "Plane 4 · ~30 min a month", "name": "Ephemeral K8s", "sentence": "The cluster comes up, is load-tested, then torn down to $0." }
+      ],
       "cta": { "label": "Explore the full architecture", "href": "/architecture" }
     },
-    {
-      "id": "journey",
+    "journey": {
       "sectionIndicator": "Journey",
       "title": "The Journey",
       "lede": "Roads not taken",
-      "body": "The decisions, the wrong turns, and the reasons behind them — written while building, not polished after.",
-      "cta": { "label": "Read the journey", "href": "/journey" },
-      "featuredSlugs": [
-        "one-bucket-three-jobs",
-        "the-gate-that-says-no",
-        "pandera-at-the-door"
-      ]
+      "featuredSlugs": ["one-bucket-three-jobs", "the-gate-that-says-no", "pandera-at-the-door"],
+      "cta": { "label": "Read the journey", "href": "/journey" }
     },
-    {
-      "id": "skills",
+    "skills": {
       "sectionIndicator": "Skills",
       "title": "Skills",
       "lede": "What I build with",
-      "body": "The tools I reached for on this project — each one tied to the exact place it earns its keep.",
       "cta": { "label": "See all skills", "href": "/skills" }
     }
-  ],
+  },
   "bookend": {
     "sectionIndicator": "Contact",
     "title": "Say hello.",
-    "lede": "I read everything.",
+    "copiedLabel": "Copied",
     "aboutLink": { "label": "Or learn more about me", "href": "/about" },
-    "mailtoLabel": "or open in your mail app"
+    "note": "I read everything."
   }
 }

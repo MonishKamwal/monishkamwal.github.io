@@ -38,7 +38,7 @@ export default function Bookend() {
           href={`mailto:${site.contact.email}`}
           className="text-xs text-muted underline-offset-2 hover:underline"
         >
-          {b.mailtoLabel}
+          or open in your mail app
         </a>
       </div>
 
@@ -68,7 +68,7 @@ export default function Bookend() {
         {b.aboutLink.label} →
       </Link>
 
-      <p className="text-xs text-muted">{b.lede}</p>
+      <p className="text-xs text-muted">{b.note}</p>
     </div>
   );
 }

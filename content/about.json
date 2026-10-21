@@ -1,81 +1,122 @@
 {
-  "_note": "Real content from Monish's résumé (public/resume.pdf). CV runs are newest-first (a record, not a story — the opposite of Journey's order). Design shows ONE plain line per stop and stops aren't clickable; `line` is that line. `details` holds the fuller résumé bullets as an optional supplementary field the frontend may ignore if it keeps to the one-line design. Portrait is still a placeholder — no photo provided yet. Contact mirrors site.json → contact; keep the two in sync.",
+  "_note": "Matches the About prototype (sections-prototype.html): editorial hero (eyebrow · name with italic surname · drop-cap lead · circular portrait + résumé) → Education (card rows) → Work (serpentine, stops alternate side, each opens a card) → Projects (card rows). Each entry's `card` fills the shared paper card (meta · title · sections · evidence). Contact lives in the Home bookend (site.json), reached via read-next → Contact. Real content from public/resume.pdf; portrait public/portrait.jpg, résumé public/resume.pdf.",
   "sectionIndicator": "About",
-  "title": "About",
-  "lede": "The person behind the machine",
-  "bio": {
-    "portrait": {
-      "src": "/portrait.jpg",
-      "alt": "Monish Kamwal",
-      "_note": "Portrait at public/portrait.jpg (portrait orientation, ~2268×4032). Design treats it as a photo laid on the page: hairline border + soft shadow, no rotation."
-    },
-    "body_md": "I'm Monish Kamwal — a Computer Science co-op student at Memorial University of Newfoundland, and an AI developer who builds machine-learning systems end to end.\n\nMost of my work has been in the public sector: government RAG chatbots, the MLOps behind a fleet-management platform, cloud infrastructure that has to actually hold up. What draws me in isn't the model in isolation but everything around it — how data gets versioned, how a bad model gets stopped before it ships, how infrastructure can build itself up for a load test and tear itself back down to nothing.\n\nThis site is one of those systems, built from scratch on my own time: the doodle demo on the home page is the friendly face, and the machine behind it — pipelines, quality gates, drift monitoring, an ephemeral Kubernetes cluster — is the real work. Based in St. John's, Newfoundland."
+  "hero": {
+    "eyebrow": "About — the person behind the machine",
+    "nameFirst": "Monish",
+    "nameLast": "Kamwal",
+    "lead": [
+      "I'm Monish Kamwal — a Computer Science co-op student at Memorial University of Newfoundland, and an AI developer who builds machine-learning systems end to end.",
+      "Most of my work has been in the public sector: government RAG chatbots, the MLOps behind a fleet-management platform, cloud infrastructure that has to actually hold up. What draws me in isn't the model in isolation but everything around it — how data gets versioned, how a bad model gets stopped before it ships, how infrastructure can appear for a load test and vanish by morning.",
+      "This site is one of those systems, built from scratch on my own time. Based in St. John's, Newfoundland."
+    ],
+    "portrait": { "src": "/portrait.jpg", "alt": "Monish Kamwal" },
+    "resume": { "label": "Download résumé (PDF)", "href": "/resume.pdf" }
   },
-  "cv": {
-    "work": {
-      "title": "Work",
-      "intro": "",
-      "entries": [
-        {
-          "dateRange": "JAN 2026 — DEC 2026",
-          "role": "AI Developer Co-op",
-          "place": "Shared Services Canada · St. John's, NL",
-          "line": "Built a government RAG chatbot and the end-to-end MLOps behind a fleet-management platform on Azure.",
-          "details": [
-            "Engineered an enterprise RAG ingestion pipeline (Azure Functions, Blob Storage, Azure AI Document Intelligence) that crawls and converts multi-format public assets and complex PDFs into structure-aware Markdown.",
-            "Tuned vector retrieval with header- and table-aware chunking, Azure OpenAI embeddings, and Azure AI Search vector indexing; productionized GPT-4o/mini inference with Azure AI Foundry prompt guardrails for safe, citation-backed answers.",
-            "Owned end-to-end MLOps for Fleet Manager v2 — automated data ingestion, Azure DevOps CI/CD, self-hosted build agents, and an MLflow tracking server — and co-managed the Azure infrastructure, telemetry, and cost monitoring.",
-            "Recognized with the Technical Innovator Award (Winter 2026) and Problem Solver Award (Spring 2026); featured on the SSC Gazette and the Government of Canada website."
-          ]
-        },
-        {
-          "dateRange": "SEP 2025 — DEC 2025",
-          "role": "AI Developer Co-op",
-          "place": "Public Services & Procurement Canada · St. John's, NL",
-          "line": "Shipped the first Fleet Manager release and set the team's data-cleaning standards.",
-          "details": [
-            "Containerized and deployed the Fleet Manager MVP on Azure VMs with Docker and a Caddy reverse proxy for automated HTTPS/TLS, route isolation, and domain management.",
-            "Trained and evaluated baseline scikit-learn models to forecast fuel consumption and vehicle availability for fleet operations.",
-            "Authored the C.L.E.A.N. data-preprocessing framework (Pandas, NumPy), standardizing how the team cleaned and structured raw fleet data.",
-            "Served as Scrum Master for daily standups, designed Figma wireframes, and led team workshops on Docker and data preprocessing; featured on Memorial University's Gazette."
-          ]
-        },
-        {
-          "dateRange": "OCT 2024 — DEC 2024",
-          "role": "ML Researcher",
-          "place": "Visual and Analytic Computing (VAC) Lab · Memorial University",
-          "line": "Co-developed a vision-language model for breast-cancer detection and benchmarked 23+ architectures.",
-          "details": [
-            "Co-developed a vision-language model with faculty and graduate researchers for automated breast-cancer detection and clinical report generation under HIPAA/medical-compliance constraints.",
-            "Benchmarked 23+ LLM/multimodal architectures across 8 datasets, weighing parameter scale, inference latency, and diagnostic accuracy to inform model selection.",
-            "Fine-tuned and deployed open-source multimodal models with context-window optimization and compression for constrained environments; authored the final research report and CAIR manual."
+  "education": {
+    "title": "Education",
+    "cardHint": "the entry for details",
+    "entries": [
+      {
+        "id": "edu-bsc",
+        "anchor": "BSc.",
+        "range": "2023 — present",
+        "role": "Computer Science (Co-op) · Memorial University of Newfoundland",
+        "what": "Computer-science foundations, with a minor in Mathematics. GPA 3.75.",
+        "card": {
+          "meta": "2023 — present · Education",
+          "title": "BSc Computer Science (Co-op)",
+          "items": [
+            { "heading": "Where", "body": "Memorial University of Newfoundland · St. John's, NL." },
+            { "heading": "Focus", "body": "Computer-science foundations — algorithms, systems, and the maths under machine learning — on a co-op (work-integrated) track, with a minor in Mathematics." },
+            { "heading": "Standing", "body": "GPA 3.75 (86.4%)." }
+          ],
+          "evidence": []
+        }
+      }
+    ]
+  },
+  "work": {
+    "title": "Work",
+    "cardHint": "any role for the full story",
+    "entries": [
+      {
+        "id": "work-ssc",
+        "side": "left",
+        "range": "2026 — 2026",
+        "role": "AI Developer Co-op · Shared Services Canada",
+        "what": "A government RAG chatbot and the end-to-end MLOps behind a fleet-management platform, on Azure.",
+        "card": {
+          "meta": "Jan 2026 — Dec 2026 · Shared Services Canada",
+          "title": "AI Developer Co-op",
+          "items": [
+            { "heading": "What I did", "body": "Engineered an enterprise RAG ingestion pipeline (Azure Functions, Blob Storage, Azure AI Document Intelligence) that converts multi-format public assets and complex PDFs into structure-aware Markdown, and productionized GPT-4o/mini inference with Azure AI Foundry prompt guardrails for safe, citation-backed answers." },
+            { "heading": "Highlights", "body": "Owned end-to-end MLOps for Fleet Manager v2 — automated data ingestion, Azure DevOps CI/CD, self-hosted build agents, and an MLflow tracking server — and co-managed the Azure infrastructure, telemetry, and cost monitoring. Recognized with the Technical Innovator Award (Winter 2026) and Problem Solver Award (Spring 2026); featured on the SSC Gazette and the Government of Canada website." },
+            { "heading": "Stack", "body": "Azure (Functions · Blob · AI Search · Document Intelligence · OpenAI · AI Foundry) · MLflow · Azure DevOps · Docker" }
+          ],
+          "evidence": []
+        }
+      },
+      {
+        "id": "work-pspc",
+        "side": "right",
+        "range": "2025 — 2025",
+        "role": "AI Developer Co-op · Public Services & Procurement Canada",
+        "what": "Shipped the first Fleet Manager release and set the team's data-cleaning standards.",
+        "card": {
+          "meta": "Sep 2025 — Dec 2025 · Public Services & Procurement Canada",
+          "title": "AI Developer Co-op",
+          "items": [
+            { "heading": "What I did", "body": "Containerized and deployed the Fleet Manager MVP on Azure VMs with Docker and a Caddy reverse proxy for automated HTTPS/TLS, and trained baseline scikit-learn models to forecast fuel consumption and vehicle availability." },
+            { "heading": "Highlights", "body": "Authored the C.L.E.A.N. data-preprocessing framework (Pandas, NumPy), standardizing how the team cleaned raw fleet data; served as Scrum Master, designed Figma wireframes, and led Docker / data-preprocessing workshops. Featured on Memorial University's Gazette." },
+            { "heading": "Stack", "body": "Azure VMs · Docker · Caddy · scikit-learn · Pandas · NumPy · Figma" }
+          ],
+          "evidence": []
+        }
+      },
+      {
+        "id": "work-vac",
+        "side": "left",
+        "range": "2024 — 2024",
+        "role": "ML Researcher · VAC Lab, Memorial University",
+        "what": "Co-developed a vision-language model for breast-cancer detection and benchmarked 23+ architectures.",
+        "card": {
+          "meta": "Oct 2024 — Dec 2024 · Visual & Analytic Computing Lab",
+          "title": "ML Researcher",
+          "items": [
+            { "heading": "What I did", "body": "Co-developed a vision-language model with faculty and graduate researchers for automated breast-cancer detection and clinical report generation, under HIPAA / medical-compliance constraints." },
+            { "heading": "Highlights", "body": "Benchmarked 23+ LLM/multimodal architectures across 8 datasets — weighing parameter scale, inference latency, and diagnostic accuracy — and fine-tuned / deployed open-source multimodal models with context-window optimization and compression; authored the final research report and CAIR manual." },
+            { "heading": "Stack", "body": "Vision-Language Models · Transformers · multimodal fine-tuning · model compression" }
+          ],
+          "evidence": []
+        }
+      }
+    ]
+  },
+  "projects": {
+    "title": "Projects",
+    "cardHint": "any project for details",
+    "entries": [
+      {
+        "id": "proj-quickdraw",
+        "anchor": "2026",
+        "range": "Personal · live",
+        "role": "QuickDraw MLOps Platform",
+        "what": "The end-to-end MLOps platform this very site fronts — built from scratch for under $5/month.",
+        "card": {
+          "meta": "2026 · Personal project · live",
+          "title": "QuickDraw MLOps Platform",
+          "items": [
+            { "heading": "What it is", "body": "A full-stack, automated MLOps platform for live sketch recognition: a quality-gated training pipeline, scale-to-zero serving, drift monitoring, a retrain flywheel from visitor feedback, and ephemeral EKS load-rehearsals — all for under $5/month of cloud." },
+            { "heading": "My role", "body": "Designed and built the whole system solo: data versioning (DVC), training + a champion/challenger CI gate, keyless AWS OIDC deploys, dual-Terraform infrastructure, and this portfolio front-end." },
+            { "heading": "Stack", "body": "PyTorch · ONNX · FastAPI · AWS (Lambda · EKS · S3 · ECR) · Terraform · Helm · DVC · MLflow · Evidently · GitHub Actions · Next.js" }
+          ],
+          "evidence": [
+            { "label": "the architecture", "href": "/architecture" },
+            { "label": "the repository", "href": "https://github.com/MonishKamwal/mlops" }
           ]
         }
-      ]
-    },
-    "education": {
-      "title": "Education",
-      "intro": "",
-      "entries": [
-        {
-          "dateRange": "JAN 2023 — PRESENT",
-          "role": "Bachelor of Science, Computer Science (Co-op) · Minor in Mathematics",
-          "place": "Memorial University of Newfoundland · St. John's, NL",
-          "line": "GPA 3.75 (86.4%)."
-        }
-      ]
-    }
-  },
-  "resume": {
-    "label": "Download résumé (PDF)",
-    "href": "/resume.pdf",
-    "_note": "Copied to public/resume.pdf. Quiet ochre link after the Education run."
-  },
-  "contact": {
-    "lede": "I read everything.",
-    "email": "monishca001@gmail.com",
-    "emailCopiedLabel": "Copied",
-    "github": "https://github.com/MonishKamwal",
-    "linkedin": "https://linkedin.com/in/mkamwal"
+      }
+    ]
   }
 }

@@ -5,31 +5,34 @@ these files, not the components. Live numbers (model accuracy, drift, performanc
 here — those are fetched at runtime from the mlops evidence hub's JSON contracts. This folder is
 the *words*; the hub is the *data*.
 
+**Schemas match the finalized prototypes / `DESIGN.md`** (aligned 2026-10-21). The typed shape of
+every file is in `lib/content.ts`; each file's `_note` says which prototype/page it maps to.
+
 ## Conventions
 
 - **`*_md` / `*_md` fields** hold Markdown (paragraphs, `**bold**`, light emphasis). Everything
   else is plain text.
 - **`_note`** at the top of a file is a maintainer note to ourselves — not for display.
 - **`{token}`** in a string is a live value the frontend interpolates at render (documented in
-  that file's `_note`). Example: `monitoring.json`'s `{confidenceFrom}` / `{confidenceTo}`.
-- **Evidence `href` values are pinned to real, verified URLs** (as of 2026-10-20) — mlops repo
-  files on `main`, specific GitHub Actions runs (e.g. the blocked-deploy gate failure
-  `29757829275`), and the live evidence hub. The one exception is `api-metrics.json`, which 404s
-  until the first monthly EKS load test publishes a capture — see `data/performance.json`'s note.
+  that file's `_note`). Example: `monitoring.json`'s `{refMean}` / `{curMean}`, `quality.json`'s
+  `{floor}` / `{eps}`.
+- **Evidence `href` values are pinned to real, verified URLs** — mlops repo files on `main`,
+  specific GitHub Actions runs (e.g. the blocked-deploy gate failure `29757829275`), and the live
+  evidence hub (incl. `api-metrics.json`, published 2026-10-20).
 
 ## Files
 
 | File | Page / area |
 |---|---|
-| `site.json` | Global: name, tagline, nav + menu groups, the two trays, contact + link placeholders |
-| `home.json` | Home scroll: hero, live-demo copy + states, the three teasers, closing bookend |
-| `architecture.json` | Architecture ("The Story"): overview, the plane/wire narrative scroll, clickable component cards, closing |
-| `journey.json` | Journey devlog entries (stored newest-first; page renders oldest→newest) |
-| `skills.json` | Skills: competencies with evidence links, shared crossings, the toolbox tail |
-| `data/quality.json` | Data mode → Quality (frames live `evidence.json`) |
-| `data/monitoring.json` | Data mode → Monitoring (frames live `drift.json` + `feedback.json`) |
-| `data/performance.json` | Data mode → Performance (frames live `api-metrics.json`) |
-| `about.json` | About: bio, Work + Education CV (newest-first), résumé link, contact |
+| `site.json` | Global: name, tagline, nav + menu groups, the two trays, contact + links |
+| `home.json` | Home scroll: hero, demo copy + states, teasers (`architecture` arch-deck · `journey` featuredSlugs · `skills`), icon-trio bookend |
+| `architecture.json` | Architecture: camera-ordered `blocks` (overview/planes/wires/end) with `io` rows + `parts` (clickable isometric cubes → paper cards) |
+| `journey.json` | Journey: `phases` (chip headings) + `entries` (stored newest-first; page renders oldest→newest; each opens a paper card) |
+| `skills.json` | Skills: `stops` (camera order) · `competencies` (per-tool receipts) · `crossings` (shared tools) · `toolbox` |
+| `data/quality.json` | Data → Quality: `panels` framing live `evidence.json` |
+| `data/monitoring.json` | Data → Monitoring: `panels` framing live `drift.json` + `feedback.json` |
+| `data/performance.json` | Data → Performance: `panels` framing live `api-metrics.json` |
+| `about.json` | About: `hero` · `education` · `work` (serpentine) · `projects` — each entry has a `card` (paper-card body) |
 
 ## Where the copy came from
 

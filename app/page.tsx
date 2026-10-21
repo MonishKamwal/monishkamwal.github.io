@@ -5,38 +5,35 @@ import SketchDemo from "@/components/home/SketchDemo";
 import Bookend from "@/components/home/Bookend";
 import { home, skills, journeyEntry } from "@/lib/content";
 
-const washById: Record<string, string> = {
-  architecture: "bg-wash-sage",
-  journey: "bg-wash-ochre",
-  skills: "bg-wash-rose",
-};
+// NOTE: this is the simplified Phase-1 Home. The prototype-exact rebuild
+// (merged seam grounds, the single instrument + idle demo, the isometric arch
+// deck, the serpentine Journey, the wash-blob Skills, the icon-trio bookend)
+// replaces it — see DESIGN.md §5. It now reads the finalized content schema.
 
 export default function HomePage() {
-  const [arch, journeyTeaser, skillsTeaser] = home.teasers;
+  const { architecture: arch, journey: journeyTeaser, skills: skillsTeaser } =
+    home.teasers;
 
   return (
     <>
       <TopBar variant="home" />
 
-      {/* §1 — Hero (white, no label → menu stays hidden here) */}
+      {/* §1 — Hero */}
       <section className="flex min-h-screen flex-col items-center justify-center px-6 text-center">
         <Reveal>
-          <h1 className="font-display text-6xl leading-none tracking-[-0.02em] text-ink sm:text-8xl">
+          <h1 className="font-display text-6xl uppercase leading-none tracking-[-0.02em] text-ink sm:text-8xl">
             {home.hero.name}
           </h1>
-          <p className="mt-6 text-sm text-muted sm:text-base">
+          <p className="mt-6 text-sm uppercase tracking-[0.34em] text-muted">
             {home.hero.tagline}
           </p>
         </Reveal>
-        <span
-          aria-hidden
-          className="absolute bottom-10 animate-pulse text-2xl text-ochre"
-        >
+        <span aria-hidden className="absolute bottom-10 animate-pulse text-2xl text-ochre">
           ↓
         </span>
       </section>
 
-      {/* §2 — Live demo (Data "well" ground — foreshadows Data mode) */}
+      {/* §2 — Live demo (well ground) */}
       <section
         data-section-label={home.demo.sectionIndicator}
         className="bg-well px-6 py-24 sm:py-28"
@@ -46,7 +43,6 @@ export default function HomePage() {
             <h2 className="font-display text-4xl text-ink sm:text-5xl">
               {home.demo.title}
             </h2>
-            <p className="mt-3 max-w-xl text-muted">{home.demo.lede}</p>
           </Reveal>
           <div className="mt-10">
             <SketchDemo />
@@ -60,20 +56,38 @@ export default function HomePage() {
       </section>
 
       {/* §3 — Architecture teaser (sage) */}
-      <Teaser
-        label={arch.sectionIndicator}
-        wash={washById[arch.id]}
-        title={arch.title}
-        lede={arch.lede}
-        body={arch.body}
-        ctaHref={arch.cta.href}
-        ctaLabel={arch.cta.label}
-      />
+      <section
+        data-section-label={arch.sectionIndicator}
+        className="bg-wash-sage px-6 py-24 sm:py-28"
+      >
+        <div className="mx-auto max-w-3xl">
+          <Reveal>
+            <h2 className="font-display text-4xl text-ink sm:text-5xl">
+              {arch.title}
+            </h2>
+            <p className="mt-2 text-muted">{arch.lede}</p>
+          </Reveal>
+          <ul className="mt-10 flex flex-col gap-4">
+            {arch.archDeck.map((plane, i) => (
+              <Reveal as="li" key={plane.name} delay={i * 50}>
+                <p className="micro-label">{plane.kicker}</p>
+                <span className="font-display text-xl text-ink">{plane.name}</span>
+                <p className="text-sm text-muted">{plane.sentence}</p>
+              </Reveal>
+            ))}
+          </ul>
+          <Reveal className="mt-10">
+            <Link href={arch.cta.href} className="ink-link text-sm">
+              {arch.cta.label} →
+            </Link>
+          </Reveal>
+        </div>
+      </section>
 
       {/* §4 — Journey teaser (ochre) */}
       <section
         data-section-label={journeyTeaser.sectionIndicator}
-        className={`${washById[journeyTeaser.id]} px-6 py-24 sm:py-28`}
+        className="bg-wash-ochre px-6 py-24 sm:py-28"
       >
         <div className="mx-auto max-w-3xl">
           <Reveal>
@@ -83,13 +97,13 @@ export default function HomePage() {
             <p className="mt-2 text-muted">{journeyTeaser.lede}</p>
           </Reveal>
           <ul className="mt-10 flex flex-col gap-8">
-            {(journeyTeaser.featuredSlugs ?? []).map((slug, i) => {
+            {journeyTeaser.featuredSlugs.map((slug, i) => {
               const e = journeyEntry(slug);
               if (!e) return null;
               return (
                 <Reveal as="li" key={slug} delay={i * 60}>
                   <p className="micro-label">
-                    {formatDate(e.date)} · {e.phase}
+                    {formatDate(e.date)} · {e.phaseKey}
                   </p>
                   <Link
                     href={`/journey#${e.slug}`}
@@ -113,7 +127,7 @@ export default function HomePage() {
       {/* §5 — Skills teaser (rose) */}
       <section
         data-section-label={skillsTeaser.sectionIndicator}
-        className={`${washById[skillsTeaser.id]} px-6 py-24 sm:py-28`}
+        className="bg-wash-rose px-6 py-24 sm:py-28"
       >
         <div className="mx-auto max-w-3xl">
           <Reveal>
@@ -156,53 +170,9 @@ export default function HomePage() {
   );
 }
 
-function Teaser({
-  label,
-  wash,
-  title,
-  lede,
-  body,
-  ctaHref,
-  ctaLabel,
-}: {
-  label: string;
-  wash: string;
-  title: string;
-  lede: string;
-  body: string;
-  ctaHref: string;
-  ctaLabel: string;
-}) {
-  return (
-    <section
-      data-section-label={label}
-      className={`${wash} px-6 py-24 sm:py-28`}
-    >
-      <div className="mx-auto max-w-3xl">
-        <Reveal>
-          <h2 className="font-display text-4xl text-ink sm:text-5xl">
-            {title}
-          </h2>
-          <p className="mt-2 text-muted">{lede}</p>
-          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-ink">
-            {body}
-          </p>
-          <Link href={ctaHref} className="ink-link mt-8 inline-block text-sm">
-            {ctaLabel} →
-          </Link>
-        </Reveal>
-      </div>
-    </section>
-  );
-}
-
 function formatDate(iso: string): string {
   const d = new Date(iso + "T00:00:00");
   return d
-    .toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    })
+    .toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
     .toUpperCase();
 }
