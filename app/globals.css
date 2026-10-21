@@ -152,6 +152,7 @@ body {
   --w-sage: #d8ecde;
   --w-blue: #dee5f4;
   --w-sand: #f1e7d0;
+  --paper: #f6efe3; /* About's warm ground (Story mode) */
   --ground: #ffffff;
   --seam-12: color-mix(in oklab, #ffffff, var(--well));
   --seam-23: color-mix(in oklab, var(--well), var(--wash-sage));
@@ -172,6 +173,77 @@ body {
   font-weight: 330;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+}
+/* Story mode (inner pages) shares the design-system primitives above; its page
+   chrome reuses the global topbar, menu and edge-blur rules. Per-page --ground
+   is set inline by StoryShell. Page-specific styles live in CSS Modules. */
+.story-root {
+  min-height: 100vh;
+  background: var(--ground);
+  color: var(--foreground);
+  font-family: var(--outfit);
+  font-weight: 330;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+/* Story chrome that is driven by raw class strings from JS (so it can't be a
+   hashed CSS-module class), kept global alongside .topbar/.menu-panel. */
+/* Home hero-gates the menu button (hidden until the hero passes); on Story
+   pages there is no hero, so it is always present. */
+.story-root .menu-btn {
+  opacity: 1;
+  visibility: visible;
+}
+.home-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  pointer-events: auto;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--foreground);
+  text-decoration: none;
+  transition: color 0.3s var(--ease-out-expo);
+}
+.home-link svg {
+  transition: transform 0.3s var(--ease-out-expo);
+}
+.home-link:hover {
+  color: var(--warm);
+}
+.home-link:hover svg {
+  transform: translateX(-3px);
+}
+.home-link:focus-visible {
+  outline: 2px solid var(--warm);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+/* the arrival line — "the line carries you" (classes toggled by useArrival) */
+.arrival-wrap {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity calc(var(--dur) * 1.2) var(--ease-out-expo);
+}
+.arrival-wrap.retire {
+  opacity: 0;
+}
+.arrival-line {
+  stroke: var(--foreground);
+  stroke-width: 1.4;
+  fill: none;
+  stroke-dasharray: 160;
+  stroke-dashoffset: 160;
+}
+.arrival-wrap.draw .arrival-line {
+  transition: stroke-dashoffset calc(var(--dur) * 1.7) var(--ease-out-expo);
+  stroke-dashoffset: 0;
 }
 /* .micro / .display are global design-system classes (as in the prototype):
    kept single-class so the per-title optical-size rules below (.scene-title
@@ -1478,6 +1550,14 @@ body {
     transition: none !important;
   }
   .home-root .reveal {
+    opacity: 1 !important;
+  }
+  .story-root *,
+  .story-root {
+    animation: none !important;
+    transition: none !important;
+  }
+  .story-root .reveal {
     opacity: 1 !important;
   }
 }

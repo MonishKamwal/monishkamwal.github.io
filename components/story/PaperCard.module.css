@@ -1,0 +1,116 @@
+/* The shared paper card (Journey entry / Architecture stop / About entry),
+   ported from sections-prototype.html §paper card. */
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 10, 0.2);
+  z-index: 60;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity calc(var(--dur) * 0.8) var(--ease-out-expo);
+}
+.scrim.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.card {
+  position: fixed;
+  z-index: 61;
+  left: 50%;
+  top: 50%;
+  width: min(680px, 92vw);
+  max-height: 86vh;
+  overflow: auto;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0 30px 70px -30px rgba(10, 10, 10, 0.5),
+    0 4px 14px -6px rgba(10, 10, 10, 0.18);
+  padding: clamp(28px, 5vw, 52px);
+  transform: translate(-50%, -50%) scale(0.6);
+  opacity: 0;
+  pointer-events: none;
+  transform-origin: var(--ox, 50%) var(--oy, 50%);
+  transition: transform var(--dur) var(--ease-out-expo),
+    opacity calc(var(--dur) * 0.7) var(--ease-out-expo);
+}
+.card.open {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  padding: 6px;
+  color: var(--foreground);
+  line-height: 0;
+  transition: color var(--hover-dur) var(--ease-hover),
+    scale var(--hover-dur) var(--ease-hover);
+}
+.close:hover {
+  color: var(--warm);
+}
+@media (hover: hover) and (pointer: fine) {
+  .close:hover {
+    scale: var(--hover-scale);
+  }
+}
+.close:is(:focus-visible, :active) {
+  color: var(--warm);
+  scale: var(--hover-scale);
+}
+.close:focus-visible {
+  outline: 2px solid var(--warm);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+.meta {
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  font-weight: 500;
+}
+.title {
+  font-family: var(--font-bodoni), Georgia, serif;
+  font-optical-sizing: auto;
+  font-variation-settings: "opsz" 72;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  font-size: clamp(26px, 4vw, 38px);
+  line-height: 1.05;
+  margin: 8px 0 18px;
+}
+.body h4 {
+  margin: 22px 0 6px;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  font-weight: 600;
+}
+.body p {
+  margin: 0 0 12px;
+  font-size: 15px;
+  max-width: 60ch;
+  line-height: 1.6;
+}
+.ev {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 9px;
+  font-size: 14px;
+}

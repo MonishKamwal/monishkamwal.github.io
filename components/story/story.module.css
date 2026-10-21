@@ -1,0 +1,112 @@
+/* Shared Story page-frame primitives (the parts common to all four inner
+   pages), ported from sections-prototype.html. Page-specific geometry lives in
+   each page's own module. */
+
+.wrap {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: clamp(96px, 15vh, 150px) clamp(24px, 5vw, 40px) clamp(60px, 10vh, 110px);
+}
+
+.pageHead {
+  margin-bottom: clamp(30px, 6vh, 60px);
+}
+.pageTitle {
+  font-size: clamp(46px, 9vw, 96px);
+  text-transform: uppercase;
+  margin: 0;
+}
+.pageLead {
+  margin: 12px 0 0;
+  font-size: clamp(16px, 2vw, 21px);
+  color: var(--muted-foreground);
+}
+
+/* the card hint: one deep-ochre instruction line under the lead. The verb
+   follows the input — "Click" where the device hovers, "Tap" on touch. */
+.cardHint {
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  gap: 9px;
+  margin: 16px 0 0;
+  color: var(--deep-ochre);
+}
+.cardHint svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+}
+.cardHint .onTouch {
+  display: none;
+}
+@media (hover: none), (pointer: coarse) {
+  .cardHint .onFine {
+    display: none;
+  }
+  .cardHint .onTouch {
+    display: inline;
+  }
+}
+
+/* read-next: the docking ribbon that carries you to the next Story page */
+.readNext {
+  max-width: 900px;
+  margin: clamp(44px, 8vh, 88px) auto 0;
+  padding: clamp(24px, 3.6vh, 36px) clamp(24px, 5vw, 40px) clamp(60px, 10vh, 110px);
+  border-top: 1px solid var(--foreground);
+}
+.rnLink {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: none;
+  border: 0;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  color: var(--foreground);
+  text-decoration: none;
+  transition: color 0.3s var(--ease-out-expo);
+}
+.rnCue {
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+.rnRow {
+  display: flex;
+  align-items: center;
+  gap: 0.42em;
+}
+.rnName {
+  font-family: var(--font-bodoni), Georgia, serif;
+  font-optical-sizing: auto;
+  font-variation-settings: "opsz" 72;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  font-size: clamp(30px, 5vw, 52px);
+  line-height: 1;
+}
+.rnArrow {
+  flex: 0 0 auto;
+  width: clamp(26px, 3.8vw, 36px);
+  height: auto;
+  transition: transform 0.3s var(--ease-out-expo);
+}
+.rnPeek {
+  font-size: 14.5px;
+  color: var(--muted-foreground);
+  max-width: 52ch;
+}
+.rnLink:hover {
+  color: var(--warm);
+}
+.rnLink:hover .rnArrow {
+  transform: translateX(4px);
+}
+.rnLink:is(:focus-visible, :active) {
+  color: var(--warm);
+}
