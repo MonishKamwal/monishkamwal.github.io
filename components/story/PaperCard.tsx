@@ -10,6 +10,7 @@ import {
 } from "react";
 import type { Link as ContentLink } from "@/lib/content";
 import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
+import { renderInline } from "@/lib/story/inline";
 import styles from "./PaperCard.module.css";
 
 /** One labeled (or unlabeled) block of a card's body. */
@@ -47,7 +48,6 @@ export function PaperCardProvider({ children }: { children: React.ReactNode }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const prevFocus = useRef<Element | null>(null);
-  const baseHash = useRef<string>("");
 
   const openCard = useCallback(
     (next: CardData, opener?: Element | null) => {
@@ -57,24 +57,27 @@ export function PaperCardProvider({ children }: { children: React.ReactNode }) {
         cardRef.current.style.setProperty("--oy", `${r.top + r.height / 2}px`);
       }
       prevFocus.current = document.activeElement;
-      if (next.hash) {
-        baseHash.current = location.hash;
-        history.replaceState(null, "", `#${next.hash}`);
-      }
       setData(next);
     },
     [reduced],
   );
 
   const closeCard = useCallback(() => {
-    setData((cur) => {
-      if (cur?.hash) {
-        history.replaceState(null, "", location.pathname + baseHash.current);
-      }
-      return null;
-    });
+    if (location.hash) {
+      history.replaceState(null, "", location.pathname + location.search);
+    }
+    setData(null);
     if (prevFocus.current instanceof HTMLElement) prevFocus.current.focus();
   }, []);
+
+  // Keep the URL hash in step with the open card (so it's deep-linkable), as an
+  // effect — never inside render / a setState updater, which would update the
+  // router mid-render.
+  useEffect(() => {
+    if (data?.hash && location.hash !== `#${data.hash}`) {
+      history.replaceState(null, "", `#${data.hash}`);
+    }
+  }, [data]);
 
   // Move focus into the card when it opens; close on Escape.
   useEffect(() => {
@@ -125,7 +128,7 @@ export function PaperCardProvider({ children }: { children: React.ReactNode }) {
               {data.sections.map((s, i) => (
                 <div key={i}>
                   {s.heading && <h4>{s.heading}</h4>}
-                  <p>{s.body}</p>
+                  <p>{renderInline(s.body)}</p>
                 </div>
               ))}
             </div>
