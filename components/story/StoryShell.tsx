@@ -40,7 +40,9 @@ export function StoryShell({
       ref={rootRef}
       className="story-root"
       data-page={page}
-      style={{ "--ground": GROUND[page] } as React.CSSProperties}
+      // --ground tints the page + menu; --wash is what the global edge-blur
+      // dissolves toward (Home names it --wash per section) — keep them in sync.
+      style={{ "--ground": GROUND[page], "--wash": GROUND[page] } as React.CSSProperties}
     >
       <TopBar menuOpen={open} onOpenMenu={openMenu} />
       <Menu open={open} onClose={close} />
