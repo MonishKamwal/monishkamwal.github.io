@@ -4,9 +4,15 @@ import "./globals.css";
 import site from "@/content/site.json";
 
 // Editorial display serif — titles only, set at display optical sizes.
+// `axes: ['opsz']` is required: next/font keeps only the weight axis by default,
+// which would strip Bodoni's optical-size axis and ignore the `font-variation-
+// settings:"opsz" N` the titles rely on (DESIGN.md §2). Italic is loaded for the
+// About hero's surname.
 const bodoni = Bodoni_Moda({
   variable: "--font-bodoni",
   subsets: ["latin"],
+  axes: ["opsz"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 
