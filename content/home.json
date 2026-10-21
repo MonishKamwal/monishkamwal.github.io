@@ -17,7 +17,7 @@
     "cta": { "label": "See how the model performs", "href": "/quality" },
     "privacyNote": "Anonymous — your drawing + verdict may help train the model.",
     "states": {
-      "warmingUp": "Waking the model up — it scales to zero between visitors, which is rather the point. One moment.",
+      "warmingUp": "Waking the model up — it scales to zero between visitors, so the first guess takes a moment.",
       "thinking": "Thinking…",
       "unreachable": "The model is offline right now. Here is a recording of it in action — the live demo returns when the service is back up."
     }

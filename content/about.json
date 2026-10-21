@@ -7,8 +7,8 @@
     "nameLast": "Kamwal",
     "lead": [
       "I'm Monish Kamwal — a Computer Science co-op student at Memorial University of Newfoundland, and an AI developer who builds machine-learning systems end to end.",
-      "Most of my work has been in the public sector: government RAG chatbots, the MLOps behind a fleet-management platform, cloud infrastructure that has to actually hold up. What draws me in isn't the model in isolation but everything around it — how data gets versioned, how a bad model gets stopped before it ships, how infrastructure can appear for a load test and vanish by morning.",
-      "This site is one of those systems — built from scratch, on my own time, out of St. John's, Newfoundland."
+      "Most of my work has been in the public sector: government RAG chatbots, the MLOps behind a fleet-management platform, and the cloud infrastructure around them. My interest is less the model itself than everything around it — how data gets versioned, how a bad model gets stopped before it ships, and how infrastructure can be created for a load test and torn down afterward.",
+      "This site is one of those systems, built on my own time. I'm based in St. John's, Newfoundland."
     ],
     "portrait": { "src": "/portrait.jpg", "alt": "Monish Kamwal" },
     "resume": { "label": "Download résumé (PDF)", "href": "/resume.pdf" }

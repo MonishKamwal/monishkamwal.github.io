@@ -17,7 +17,7 @@
       "kind": "banner",
       "status": "bad",
       "windowLabel": "this window:",
-      "body_md": "The monitor compares what the live model predicts against what it predicted for the training-era reference. Every tracked signal has drifted — **real visitors doodle differently than the dataset**, and mean confidence has slid from {refMean} to {curMean}. That's not the model failing; that's the instrument catching the world moving — and it's exactly what the retrain flywheel feeds on."
+      "body_md": "The monitor compares what the live model predicts now against what it predicted on the training-era reference. Every tracked signal has drifted — **real visitors draw differently than the dataset**, and mean confidence has fallen from {refMean} to {curMean}. That is expected rather than a failure: it is what the monitor is for, and it is the signal the retrain flywheel uses."
     },
     {
       "id": "confidence",
