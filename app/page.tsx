@@ -1,94 +1,208 @@
 import Link from "next/link";
-import SketchDemo from "@/components/SketchDemo";
+import TopBar from "@/components/chrome/TopBar";
+import Reveal from "@/components/Reveal";
+import SketchDemo from "@/components/home/SketchDemo";
+import Bookend from "@/components/home/Bookend";
+import { home, skills, journeyEntry } from "@/lib/content";
 
-const pillars = [
-  {
-    title: "Train in CI",
-    body: "GitHub Actions retrains the QuickDraw CNN on every model-affecting merge; MLflow tracks every run and artifact.",
-    phase: "Phase 2 · planned",
-  },
-  {
-    title: "Gate & deploy",
-    body: "A quality gate compares challenger vs champion — regressions never ship. Winners land on a scale-to-zero Lambda.",
-    phase: "Lambda live · gate planned",
-  },
-  {
-    title: "Ephemeral Kubernetes",
-    body: "Terraform builds an EKS cluster every week, load-tests the model, publishes the evidence, and destroys itself.",
-    phase: "Phase 3 · planned",
-  },
-  {
-    title: "Watch for drift",
-    body: "Visitor drawings (anonymous) feed weekly Evidently drift reports against the training distribution.",
-    phase: "Phase 4 · planned",
-  },
-];
+const washById: Record<string, string> = {
+  architecture: "bg-wash-sage",
+  journey: "bg-wash-ochre",
+  skills: "bg-wash-rose",
+};
 
-export default function Home() {
+export default function HomePage() {
+  const [arch, journeyTeaser, skillsTeaser] = home.teasers;
+
   return (
     <>
-      <section className="mx-auto max-w-5xl px-6 pb-8 pt-20 sm:pt-28">
-        <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-edge bg-panel px-3 py-1 text-xs text-muted">
-          <span className="h-2 w-2 rounded-full bg-accent" aria-hidden />
-          Phase 1 · Walking skeleton — the model below is live
-        </p>
-        <h1 className="max-w-3xl text-4xl font-semibold leading-tight sm:text-5xl">
-          I build machine-learning systems{" "}
-          <span className="font-hand text-5xl text-accent sm:text-6xl">
-            end to end.
-          </span>
-        </h1>
-        <p className="mt-5 max-w-2xl text-muted">
-          I&apos;m Monish Kamwal. This site is the live frontend of an MLOps
-          platform I&apos;m building from scratch — data versioning, training
-          pipelines with quality gates, ephemeral Kubernetes deployments, and
-          drift monitoring. Every claim links to a public artifact: a CI run, a
-          report, a line of Terraform.
-        </p>
-        <div className="mt-8 flex flex-wrap gap-3">
-          <a
-            href="#demo"
-            className="rounded-md bg-accent px-5 py-2.5 text-sm font-medium text-night transition-opacity hover:opacity-90"
-          >
-            Try the live demo
-          </a>
-          <Link
-            href="/journey"
-            className="rounded-md border border-edge bg-panel px-5 py-2.5 text-sm text-ink transition-colors hover:border-accent"
-          >
-            Read the journey
-          </Link>
+      <TopBar variant="home" />
+
+      {/* §1 — Hero (white, no label → menu stays hidden here) */}
+      <section className="flex min-h-screen flex-col items-center justify-center px-6 text-center">
+        <Reveal>
+          <h1 className="font-display text-6xl leading-none tracking-[-0.02em] text-ink sm:text-8xl">
+            {home.hero.name}
+          </h1>
+          <p className="mt-6 text-sm text-muted sm:text-base">
+            {home.hero.tagline}
+          </p>
+        </Reveal>
+        <span
+          aria-hidden
+          className="absolute bottom-10 animate-pulse text-2xl text-ochre"
+        >
+          ↓
+        </span>
+      </section>
+
+      {/* §2 — Live demo (Data "well" ground — foreshadows Data mode) */}
+      <section
+        data-section-label={home.demo.sectionIndicator}
+        className="bg-well px-6 py-24 sm:py-28"
+      >
+        <div className="mx-auto max-w-5xl">
+          <Reveal>
+            <h2 className="font-display text-4xl text-ink sm:text-5xl">
+              {home.demo.title}
+            </h2>
+            <p className="mt-3 max-w-xl text-muted">{home.demo.lede}</p>
+          </Reveal>
+          <div className="mt-10">
+            <SketchDemo />
+          </div>
+          <Reveal className="mt-8">
+            <Link href={home.demo.cta.href} className="ink-link text-sm">
+              {home.demo.cta.label} →
+            </Link>
+          </Reveal>
         </div>
       </section>
 
-      <SketchDemo />
+      {/* §3 — Architecture teaser (sage) */}
+      <Teaser
+        label={arch.sectionIndicator}
+        wash={washById[arch.id]}
+        title={arch.title}
+        lede={arch.lede}
+        body={arch.body}
+        ctaHref={arch.cta.href}
+        ctaLabel={arch.cta.label}
+      />
 
-      <section className="mx-auto max-w-5xl px-6 py-16">
-        <h2 className="text-2xl font-semibold sm:text-3xl">Under the hood</h2>
-        <p className="mt-2 max-w-2xl text-sm text-muted">
-          The doodle box above is the tip of an iceberg. Each piece below gets
-          built, demoed, and documented — in order.
-        </p>
-        <div className="mt-8 grid gap-4 sm:grid-cols-2">
-          {pillars.map((p) => (
-            <Link
-              key={p.title}
-              href="/projects/mlops-platform"
-              className="group rounded-xl border border-edge bg-panel p-5 transition-colors hover:border-accent"
-            >
-              <div className="flex items-center justify-between">
-                <h3 className="font-medium text-ink group-hover:text-accent">
-                  {p.title}
-                </h3>
-                <span className="rounded-full bg-night px-2.5 py-0.5 font-mono text-[11px] text-muted">
-                  {p.phase}
-                </span>
-              </div>
-              <p className="mt-2 text-sm text-muted">{p.body}</p>
+      {/* §4 — Journey teaser (ochre) */}
+      <section
+        data-section-label={journeyTeaser.sectionIndicator}
+        className={`${washById[journeyTeaser.id]} px-6 py-24 sm:py-28`}
+      >
+        <div className="mx-auto max-w-3xl">
+          <Reveal>
+            <h2 className="font-display text-4xl text-ink sm:text-5xl">
+              {journeyTeaser.title}
+            </h2>
+            <p className="mt-2 text-muted">{journeyTeaser.lede}</p>
+          </Reveal>
+          <ul className="mt-10 flex flex-col gap-8">
+            {(journeyTeaser.featuredSlugs ?? []).map((slug, i) => {
+              const e = journeyEntry(slug);
+              if (!e) return null;
+              return (
+                <Reveal as="li" key={slug} delay={i * 60}>
+                  <p className="micro-label">
+                    {formatDate(e.date)} · {e.phase}
+                  </p>
+                  <Link
+                    href={`/journey#${e.slug}`}
+                    className="font-display text-2xl text-ink transition-colors hover:text-ochre"
+                  >
+                    {e.title}
+                  </Link>
+                  <p className="mt-1 text-sm text-muted">{e.summary}</p>
+                </Reveal>
+              );
+            })}
+          </ul>
+          <Reveal className="mt-10">
+            <Link href={journeyTeaser.cta.href} className="ink-link text-sm">
+              {journeyTeaser.cta.label} →
             </Link>
-          ))}
+          </Reveal>
         </div>
+      </section>
+
+      {/* §5 — Skills teaser (rose) */}
+      <section
+        data-section-label={skillsTeaser.sectionIndicator}
+        className={`${washById[skillsTeaser.id]} px-6 py-24 sm:py-28`}
+      >
+        <div className="mx-auto max-w-3xl">
+          <Reveal>
+            <h2 className="font-display text-4xl text-ink sm:text-5xl">
+              {skillsTeaser.title}
+            </h2>
+            <p className="mt-2 text-muted">{skillsTeaser.lede}</p>
+          </Reveal>
+          <ul className="mt-10 flex flex-col gap-4">
+            {skills.competencies.map((comp, i) => (
+              <Reveal
+                as="li"
+                key={comp.id}
+                delay={i * 50}
+                className={i % 2 === 1 ? "sm:ml-16" : ""}
+              >
+                <span className="text-xl text-ink sm:text-2xl">
+                  {comp.tools.map((t) => t.name).join(" · ")}
+                </span>
+              </Reveal>
+            ))}
+          </ul>
+          <Reveal className="mt-10">
+            <Link href={skillsTeaser.cta.href} className="ink-link text-sm">
+              {skillsTeaser.cta.label} →
+            </Link>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* §6 — Bookend (white) */}
+      <section
+        data-section-label={home.bookend.sectionIndicator}
+        id="contact"
+        className="flex min-h-[80vh] items-center justify-center px-6 py-24"
+      >
+        <Bookend />
       </section>
     </>
   );
+}
+
+function Teaser({
+  label,
+  wash,
+  title,
+  lede,
+  body,
+  ctaHref,
+  ctaLabel,
+}: {
+  label: string;
+  wash: string;
+  title: string;
+  lede: string;
+  body: string;
+  ctaHref: string;
+  ctaLabel: string;
+}) {
+  return (
+    <section
+      data-section-label={label}
+      className={`${wash} px-6 py-24 sm:py-28`}
+    >
+      <div className="mx-auto max-w-3xl">
+        <Reveal>
+          <h2 className="font-display text-4xl text-ink sm:text-5xl">
+            {title}
+          </h2>
+          <p className="mt-2 text-muted">{lede}</p>
+          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-ink">
+            {body}
+          </p>
+          <Link href={ctaHref} className="ink-link mt-8 inline-block text-sm">
+            {ctaLabel} →
+          </Link>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+function formatDate(iso: string): string {
+  const d = new Date(iso + "T00:00:00");
+  return d
+    .toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    })
+    .toUpperCase();
 }

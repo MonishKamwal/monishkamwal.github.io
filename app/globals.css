@@ -1,26 +1,124 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+/* ------------------------------------------------------------------ *
+ * Design tokens — from DESIGN.md (Stage 1 palette + four-ground pass).
+ * Light theme only. Ochre is the single interactive accent; the washes
+ * are grounds only (never on type or controls). Status colors live in
+ * Data mode and appear only in charts/status marks.
+ * ------------------------------------------------------------------ */
 @theme {
-  --color-night: #0b0e14;
-  --color-panel: #131a29;
-  --color-edge: #242d42;
-  --color-ink: #e7e9ee;
-  --color-muted: #8b93a7;
-  --color-accent: #fbbf24;
-}
+  /* Neutrals */
+  --color-ground: #ffffff; /* page */
+  --color-surface: #f5f5f5; /* panels / muted */
+  --color-hairline: #e8e8e8; /* separators on white surfaces only */
+  --color-ink: #0a0a0a; /* primary text + all drawn lines/dots */
+  --color-muted: #6b6b6b; /* secondary text, micro-labels (AA-safe) */
 
-@theme inline {
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-hand: var(--font-caveat);
+  /* The one accent — ochre */
+  --color-ochre: #c98a3a; /* bright: large marks, fills, hovers, focus */
+  --color-ochre-deep: #96600a; /* small text/links (AA on white + washes) */
+  --color-ochre-soft: #e8b87e; /* hover/glow */
+
+  /* Solid button */
+  --color-primary: #0a0a0a;
+  --color-on-primary: #fafafa;
+
+  /* The four editorial washes (grounds only) */
+  --color-wash-blue: #e7f0ff; /* demo / About (dusty blue) */
+  --color-wash-sage: #e0f7e7; /* Behind-the-demo / Architecture */
+  --color-wash-ochre: #ffecdb; /* Journey */
+  --color-wash-rose: #ffe8ee; /* Skills */
+
+  /* Data mode — the cool "instrument" surfaces */
+  --color-well: #f6f8fb; /* machine-room ground + bar tracks */
+  --color-well-line: #e3e8f0; /* cooler hairline for Data chrome */
+
+  /* Data status palette (charts + status marks only; AA-checked later) */
+  --color-pass: #2e7d55; /* positive — pass / stable */
+  --color-warn: #96600a; /* watch — reuse deep ochre (per token pass) */
+  --color-fail: #c0392b; /* negative — fail / drifted */
+
+  /* Fonts (wired to next/font vars in layout.tsx) */
+  --font-display: var(--font-bodoni), ui-serif, Georgia, serif;
+  --font-sans: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+
+  /* Motion — calm expo, one duration token (DESIGN.md Stage 1 / 4.5) */
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur: 480ms;
 }
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background-color: var(--color-night);
+  background-color: var(--color-ground);
   color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-synthesis-weight: none;
+  text-rendering: optimizeLegibility;
+}
+
+/* Editorial display type: Bodoni Moda, set tight at large sizes. */
+.font-display {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+}
+
+/* Wide-tracked uppercase micro-label (dates, section tags). */
+.micro-label {
+  font-family: var(--font-sans);
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: 0.72rem;
+  color: var(--color-muted);
+}
+
+/* The paper card — shared by the canvas, journey/arch cards, portrait. */
+.paper {
+  background: var(--color-ground);
+  border: 1px solid var(--color-hairline);
+  border-radius: 13px;
+  box-shadow:
+    0 1px 2px rgba(10, 10, 10, 0.04),
+    0 8px 24px rgba(10, 10, 10, 0.06);
+}
+
+/* Body links: deep ochre, AA on white and all four washes. */
+.ink-link {
+  color: var(--color-ochre-deep);
+  text-decoration: none;
+}
+.ink-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Focus — ochre ring, never removed. */
+:where(a, button, [tabindex], input, textarea):focus-visible {
+  outline: 2px solid var(--color-ochre);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* Reveal-on-scroll base; the hook toggles data-revealed. Respect reduced
+   motion by rendering everything in place. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(14px);
+    transition:
+      opacity var(--dur) var(--ease-expo),
+      transform var(--dur) var(--ease-expo);
+  }
+  [data-reveal][data-revealed="true"] {
+    opacity: 1;
+    transform: none;
+  }
 }
