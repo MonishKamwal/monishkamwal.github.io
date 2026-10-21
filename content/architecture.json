@@ -178,7 +178,7 @@
       "items": [
         {
           "heading": "What it is",
-          "body": "The home-page canvas. A drawing is sent to the serving API as raw QuickDraw strokes — the `[[xs],[ys]]` coordinates — not as pixels; a 👍 / 👎 (with a class picker on 👎) comes back as a feedback event."
+          "body": "The home-page canvas. A drawing is sent to the serving API as raw QuickDraw strokes — the `[[xs],[ys]]` coordinates — not as pixels; a yes / no verdict (with a class picker on a no) comes back as a feedback event."
         },
         {
           "heading": "Why strokes",
