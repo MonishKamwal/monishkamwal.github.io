@@ -325,7 +325,6 @@ export default function HomeScroll() {
       VBW = phone ? 360 : 700;
       VBH = phone ? 540 : 404;
       const vbBox = phone ? 540 : 420;
-      const lblOff = phone ? 14 : 22;
       jPath.ownerSVGElement!.setAttribute("viewBox", "0 0 " + VBW + " " + vbBox);
       let d = "M " + jNodes[0].x + " " + jNodes[0].y;
       for (let i = 1; i < jNodes.length; i++) {
@@ -370,12 +369,14 @@ export default function HomeScroll() {
           onLeft = n.side === "left";
         e.classList.toggle("on-left", onLeft);
         e.classList.toggle("on-right", !onLeft);
-        e.style.top = "calc(" + yPct + "% - 12px)";
+        // Offsets are container-relative (--j-off / --j-voff) so the labels
+        // scale and stay pinned to their dots as the path grows. See globals.css.
+        e.style.top = "calc(" + yPct + "% - var(--j-voff))";
         if (onLeft) {
-          e.style.right = "calc(" + (100 - xPct) + "% + " + lblOff + "px)";
+          e.style.right = "calc(" + (100 - xPct) + "% + var(--j-off))";
           e.style.left = "auto";
         } else {
-          e.style.left = "calc(" + xPct + "% + " + lblOff + "px)";
+          e.style.left = "calc(" + xPct + "% + var(--j-off))";
           e.style.right = "auto";
         }
       });
@@ -609,6 +610,24 @@ export default function HomeScroll() {
       if (hit) hit.classList.toggle("lit");
     };
     document.addEventListener("pointerup", onPointerUp);
+    /* ================= §2 demo panel scale ================= */
+    // The instrument is a fixed-geometry panel; scale it whole so it fills big
+    // screens like the other sections, never below 1x (its designed size) and
+    // never past what the viewport can hold. offsetWidth/Height are the intrinsic
+    // (pre-transform) size, so this is safe to read regardless of the current
+    // scale. The transform is applied in CSS via --demo-scale.
+    const instrument = $(".instrument") as HTMLElement | null;
+    function sizeDemo() {
+      if (!instrument) return;
+      const iw = instrument.offsetWidth,
+        ih = instrument.offsetHeight;
+      if (!iw || !ih) return;
+      const s = Math.max(
+        1,
+        Math.min((window.innerWidth * 0.66) / iw, (window.innerHeight * 0.72) / ih),
+      );
+      instrument.style.setProperty("--demo-scale", s.toFixed(3));
+    }
     function sizeSkillsLink() {
       const px = Math.max(17, Math.min(20, 0.017 * window.innerWidth));
       root!.querySelectorAll<SVGSVGElement>(".wash").forEach((wash) => {
@@ -768,6 +787,7 @@ export default function HomeScroll() {
     archBuild();
     layoutPath();
     sizeSkillsLink();
+    sizeDemo();
     const aPrev = archStage?.querySelector(".cy-arrow.prev");
     const aNext = archStage?.querySelector(".cy-arrow.next");
     const onPrev = () => aArrow(-1);
@@ -779,6 +799,7 @@ export default function HomeScroll() {
       archBuild();
       layoutPath();
       sizeSkillsLink();
+      sizeDemo();
     };
     window.addEventListener("resize", onResize);
 

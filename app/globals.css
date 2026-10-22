@@ -519,7 +519,10 @@ body {
   --seam-bottom: var(--seam-12);
 }
 .hero-name {
-  font-size: clamp(52px, 12vw, 140px);
+  /* Scales with the viewport (no fixed px cap) so it grows to fill big screens
+     like the §5 wash; the vh term keeps it within a short viewport, the px floor
+     holds the mobile size. The tagline below tracks it to stay one unit. */
+  font-size: clamp(52px, 10vw, 22vh);
   text-transform: uppercase;
   text-align: center;
   padding: 0 20px;
@@ -532,7 +535,7 @@ body {
   margin: clamp(18px, 3vh, 28px) 0 0;
   padding: 0 20px;
   text-align: center;
-  font-size: clamp(12px, 1.5vw, 15px);
+  font-size: clamp(12px, 1.05vw, 2.3vh);
   letter-spacing: 0.34em;
   text-transform: uppercase;
   font-weight: 500;
@@ -669,6 +672,13 @@ body {
   max-width: min(92vw, 980px);
   width: 100%;
   margin-top: clamp(24px, 4.5vh, 48px);
+  /* The panel is a fixed-geometry unit (mixed px internals), so it scales whole
+     — like the §5 wash — via a JS-measured --demo-scale (see HomeScroll's
+     sizeDemo). 1x on laptops, growing on big screens. getScreenCTM keeps the
+     drawing pad's pointer mapping correct under the transform. */
+  transform: scale(var(--demo-scale, 1));
+  transform-origin: center;
+  will-change: transform;
   background: #fff;
   border: 1px solid #e4e8ef;
   border-radius: 13px;
@@ -934,7 +944,10 @@ body {
 }
 .arch-stage {
   position: relative;
-  width: min(1440px, 100%, calc(88vh * 1440 / 816));
+  /* No fixed px cap — the stage grows to fill the section, limited only by the
+     viewport height (so it never overflows). Its caption scales via --u, so the
+     whole diagram scales as one unit, like the all-SVG §5 skills wash. */
+  width: min(100%, calc(88vh * 1440 / 816));
   aspect-ratio: 1440/816;
   margin: 0 auto;
   container-type: inline-size;
@@ -1044,14 +1057,21 @@ body {
   --seam-bottom: var(--seam-45);
 }
 .j-inner {
-  max-width: 820px;
   margin: 0 auto;
   width: 100%;
 }
 .j-path-wrap {
   position: relative;
-  margin-top: clamp(0px, 1vh, 10px);
-  max-width: 760px;
+  margin: clamp(0px, 1vh, 10px) auto 0;
+  /* Same model as §3's .arch-stage: the path+labels are one scaling unit. The
+     SVG path scales with its viewBox; the HTML labels scale with --ju (the
+     container unit) and are offset by --j-off / --j-voff, so nothing drifts.
+     No fixed px cap — it grows to fill, limited by the viewport height. */
+  width: min(100%, calc(64vh * 700 / 420));
+  container-type: inline-size;
+  --ju: calc(100cqw / 700);
+  --j-off: calc(22 * var(--ju));
+  --j-voff: calc(12 * var(--ju));
 }
 .j-path-wrap svg {
   width: 100%;
@@ -1103,7 +1123,7 @@ body {
 }
 .j-entry {
   position: absolute;
-  width: min(240px, 34%);
+  width: calc(238 * var(--ju));
   opacity: 0;
 }
 .j-entry.on-left,
@@ -1118,11 +1138,11 @@ body {
 }
 .j-cta {
   position: absolute;
-  width: min(240px, 34%);
+  width: calc(238 * var(--ju));
   margin: 0;
 }
 .j-entry .d {
-  font-size: 10px;
+  font-size: calc(10 * var(--ju));
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--muted-foreground);
@@ -1134,14 +1154,14 @@ body {
   font-variation-settings: "opsz" 40;
   font-weight: 500;
   letter-spacing: -0.01em;
-  font-size: clamp(16px, 2.2vw, 21px);
-  margin: 4px 0 3px;
+  font-size: calc(21 * var(--ju));
+  margin: calc(4 * var(--ju)) 0 calc(3 * var(--ju));
   line-height: 1.1;
   transition: color var(--hover-dur) var(--ease-hover);
 }
 .j-entry p {
   margin: 0;
-  font-size: 12.5px;
+  font-size: calc(12.5 * var(--ju));
   color: var(--muted-foreground);
   line-height: 1.45;
 }
@@ -1303,25 +1323,31 @@ body {
   text-align: center;
 }
 .after h2 {
-  font-size: clamp(44px, 10vw, 110px);
+  /* Same model as the hero: scales with the viewport, no fixed px cap, so the
+     bookend grows to fill big screens. The icons + link below scale with it. */
+  font-size: clamp(44px, 9vw, 26vh);
   margin: 0;
 }
 .after .copied {
   margin-top: 8px;
-  font-size: 12px;
+  font-size: clamp(12px, 0.85vw, 1.8vh);
   color: var(--deep-ochre);
   opacity: 0;
   transition: opacity 0.4s var(--ease-out-expo);
 }
 .after .or-link {
-  margin-top: 30px;
-  font-size: 15.5px;
+  margin-top: clamp(30px, 3vh, 48px);
+  font-size: clamp(15.5px, 1.1vw, 2.2vh);
 }
 .after .b-foot {
-  margin-top: 30px;
+  margin-top: clamp(30px, 3vh, 48px);
   display: flex;
-  gap: 26px;
+  gap: clamp(26px, 1.9vw, 3.4vh);
   justify-content: center;
+}
+.after .b-foot svg {
+  width: clamp(26px, 1.9vw, 3.4vh);
+  height: clamp(26px, 1.9vw, 3.4vh);
 }
 .after .b-foot a,
 .after .b-foot button {
@@ -1447,6 +1473,12 @@ body {
   .demo-title,
   .scene-title {
     font-size: clamp(26px, 7vw, 34px);
+  }
+  .j-path-wrap {
+    /* Phone uses the 360-wide portrait viewBox; full width, offsets tightened. */
+    width: 100%;
+    --ju: calc(100cqw / 360);
+    --j-off: calc(14 * var(--ju));
   }
   .j-entry,
   .j-cta {
