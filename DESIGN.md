@@ -409,7 +409,7 @@ live in `sections-prototype.html`). The **whole diagram is one `viewBox` SVG** (
 `preserveAspectRatio="xMidYMid meet"`, so it scales to any screen), and a **scroll-driven camera**
 walks a winding road past every devlog entry while a **comet dot stays locked to the active entry**.
 
-- **Masthead** (`.masthead`, `position:absolute; top:clamp(74px,12vh,122px); left:clamp(24px,6vw,86px)`,
+- **Masthead** (`.masthead`, `position:absolute; top:clamp(96px,15vh,150px); left:clamp(24px,6vw,86px)`,
   z-6, `pointer-events:none`) — the intro title **scrolls away** with the page (the road never runs
   under a pinned title): the shared Story title and lead styles for "The Journey" (`.display` opsz
   96, uppercase) + "Roads not taken" + `.card-hint` "Click any entry to read the full story",
