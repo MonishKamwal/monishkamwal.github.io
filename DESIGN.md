@@ -411,8 +411,9 @@ walks a winding road past every devlog entry while a **comet dot stays locked to
 
 - **Masthead** (`.masthead`, `position:absolute; top:clamp(74px,12vh,122px); left:clamp(24px,6vw,86px)`,
   z-6, `pointer-events:none`) — the intro title **scrolls away** with the page (the road never runs
-  under a pinned title): `.mh-title` "The Journey" (`.display` opsz 96, uppercase) + `.mh-sub` "Roads
-  not taken" + `.card-hint` "Click any entry to read the full story".
+  under a pinned title): the shared Story title and lead styles for "The Journey" (`.display` opsz
+  96, uppercase) + "Roads not taken" + `.card-hint` "Click any entry to read the full story",
+  revealed in sequence with the Architecture/Skills header.
 - **The stage** (`.stageScroll` > `.stage`, `position:sticky; top:0; height:100svh`, z-0, holding the
   `#jMap` SVG) with the **reading column scrolling over it** (`.flow`, `margin-top:-100svh`,
   `pointer-events:none` except the entries). (The sketch carries the shared top bar + slide-in menu

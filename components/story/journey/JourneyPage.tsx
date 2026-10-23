@@ -9,6 +9,7 @@ import { useJourneyMotion } from "@/lib/hooks/useJourneyMotion";
 import { CardHint } from "../CardHint";
 import { ReadNext } from "../ReadNext";
 import { useCardController, useHashCard, type CardData } from "../PaperCard";
+import frame from "../story.module.css";
 import styles from "./JourneyPage.module.css";
 
 // An entry's paper card: the meta line, the full body_md (a section per blank-line
@@ -69,9 +70,9 @@ export function JourneyPage() {
       {/* the intro title scrolls away with the page (the road never runs under a
           pinned title) */}
       <div className={styles.masthead}>
-        <h1 className={`page-title display ${styles.mhTitle}`}>{journey.title}</h1>
-        <p className={styles.mhSub}>{journey.lede}</p>
-        <CardHint text={journey.cardHint} />
+        <h1 className={`page-title display reveal ${frame.pageTitle}`}>{journey.title}</h1>
+        <p className={`reveal ${frame.pageLead}`} data-stagger="1">{journey.lede}</p>
+        <CardHint text={journey.cardHint} stagger={2} />
       </div>
 
       <div ref={root} className={styles.stageScroll}>

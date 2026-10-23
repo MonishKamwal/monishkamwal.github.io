@@ -135,15 +135,6 @@
 .masthead :global(.card-hint) {
   pointer-events: auto;
 }
-.mhTitle {
-  margin: 0;
-  color: var(--foreground);
-}
-.mhSub {
-  margin: 12px 0 0;
-  font-size: clamp(16px, 2vw, 21px);
-  color: var(--muted-foreground);
-}
 
 /* ---------- the SVG diagram (built as innerHTML → global classes) ---------- */
 .jMap :global(.jm-road) {

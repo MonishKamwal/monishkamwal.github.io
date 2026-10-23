@@ -74,7 +74,7 @@
   letter-spacing: 0.22em;
   font-size: 11.5px;
   font-weight: 500;
-  color: var(--muted-foreground);
+  color: var(--foreground);
 }
 .rnRow {
   display: flex;
@@ -101,7 +101,7 @@
 }
 .rnPeek {
   font-size: 14.5px;
-  color: var(--muted-foreground);
+  color: var(--foreground);
   max-width: 52ch;
 }
 .rnLink:hover {
