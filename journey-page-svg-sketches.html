@@ -136,12 +136,6 @@
     text-transform:uppercase;margin:0;color:var(--foreground);
   }
   .mh-sub{margin:12px 0 0;font-size:clamp(16px,2vw,21px);color:var(--muted-foreground);}
-  /* opening Phase 0 title — fixed in the reading column, scales in with the path (jitter-free) */
-  .leadTitle{
-    position:fixed;z-index:5;left:56%;top:50%;right:clamp(36px,6vw,90px);
-    transform:translateY(-50%);transform-origin:left center;
-    pointer-events:none;will-change:transform,opacity;opacity:0;
-  }
   .note{position:fixed;bottom:14px;left:16px;z-index:50;font-size:11.5px;color:var(--muted-foreground);max-width:44ch;line-height:1.4;pointer-events:none;
     background:rgba(255,246,236,.82);backdrop-filter:blur(2px);padding:9px 13px;border-radius:8px;border:1px solid rgba(150,96,10,.12);}
 
@@ -152,7 +146,6 @@
     .flow{}
     .block{min-height:0;justify-content:flex-start;padding:52vh clamp(22px,6vw,40px) 30vh;}
     .blockHead{min-height:84vh;padding:clamp(80px,13vh,150px) clamp(22px,6vw,40px) 0;position:relative;z-index:3;}
-    .leadTitle{left:clamp(22px,6vw,40px);right:clamp(22px,6vw,40px);top:62%;}
   }
 </style>
 </head>
@@ -162,9 +155,6 @@
   <h1 class="mh-title">The Journey</h1>
   <p class="mh-sub">Roads not taken</p>
 </div>
-
-<!-- the opening Phase 0 title: a fixed overlay that scales in with the winding path -->
-<div id="leadTitle" class="leadTitle"></div>
 
 <p class="note">Sketch · the <b>whole diagram is one <code>viewBox</code> SVG</b> (scales to any screen). A scroll-camera walks the road; the <b>travelling stroke + comet head stay locked to the active entry</b>, and each dot rings out the instant the head reaches it. Phase names are editorial chapter cards.</p>
 
@@ -251,23 +241,19 @@ const phaseMeta=g=>{const n=g.items.length;return `${n} decision${n>1?"s":""}`;}
 const flow=document.getElementById("flow");
 function arrow(){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;vertical-align:-1px"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';}
 function buildFlow(){
-  const g0=GROUPS[0], num0=g0.ph.key.replace(/\D/g,"");
-  // The single Phase 0 title lives in a FIXED overlay (built once here), not the scrolling flow,
-  // so pinning it through the opening is jitter-free — only its scale + opacity animate.
-  document.getElementById("leadTitle").innerHTML=`
-    <p class="micro k kOchre">The Journey · Roads not taken</p>
-    <p class="chapNum">${esc(num0)}</p>
-    <h2 class="chapTitle">${esc(g0.ph.title)}</h2>
-    <p class="chapMeta">Phase ${esc(num0)} · ${esc(phaseMeta(g0))}</p>
-    <div class="card-hint" style="margin-top:20px">${arrow()} Scroll to walk the path — any entry opens the full story</div>`;
-  // head block is now just an empty camera stop (the lead overlay carries its Phase 0 title)
-  let h=`<div class="block" data-stop></div>`;
+  // No zoomed-out opening: the page lands directly in the Phase 0 "camera" state. Phase 0 is just
+  // the first chapter card (carrying the journey kicker + scroll hint); every phase card behaves
+  // the same — centred, then rolls up and fades into its entries.
+  let h="";
   GROUPS.forEach((g,gi)=>{
     const num=g.ph.key.replace(/\D/g,"");
-    // Phase 0's chapter title lives in the landing block above — it zooms in with the path and
-    // settles here — so this gate is just an empty camera stop, no second Phase 0 card to reveal.
     h+= gi===0
-      ? `<div class="block" data-stop></div>`
+      ? `<div class="block" data-stop>
+      <p class="micro k kOchre">The Journey · Roads not taken</p>
+      <p class="chapNum">${esc(num)}</p>
+      <h2 class="chapTitle">${esc(g.ph.title)}</h2>
+      <p class="chapMeta">Phase ${esc(num)} · ${esc(phaseMeta(g))}</p>
+      <div class="card-hint" style="margin-top:20px">${arrow()} Scroll to walk the path — any entry opens the full story</div></div>`
       : `<div class="block chapter" data-stop>
       <p class="micro k kOchre">Phase</p>
       <p class="chapNum">${esc(num)}</p>
@@ -290,7 +276,6 @@ function buildFlow(){
 
 /* ============================ the stage: scroll camera + synced comet + dot pulse ============================ */
 const svg=document.getElementById("jMap");
-const leadTitle=document.getElementById("leadTitle");
 let GEO=null, nodes=[], gates=[], geomPath=null, roadLit=null, jHead=null, jHalo=null;
 let pins=[], blocks=[], anchors=[], stops=[], pathLen=0;
 let nodeStop={}, gateStop={};
@@ -330,8 +315,9 @@ function build(){
   jHead=svg.querySelector(".jHead"); jHalo=svg.querySelector(".jHalo");
   pins=[...svg.querySelectorAll(".pin")];
 
-  // stops, 1:1 with the flow blocks: head → (gate, entries…) per phase → end
-  stops=[{kind:"head", x:gates[0].x, y:gates[0].y, frac:0}];
+  // stops, 1:1 with the flow blocks: (gate, entries…) per phase → end. No separate zoomed-out
+  // head stop — the page lands straight on the Phase 0 gate.
+  stops=[];
   let ni=0;
   GROUPS.forEach((g,gi)=>{
     stops.push({kind:"gate", gi, x:gates[gi].x, y:gates[gi].y, frac:gates[gi].frac});
@@ -360,11 +346,6 @@ function layout(){
 
 function cam(stop){
   const r=svg.getBoundingClientRect(), AR=r.width/Math.max(1,r.height), port=portMq.matches;
-  if(stop.kind==="head"){               // opening: road start sits left, Phase 0 title reads in the right column — zoomed out
-    const H=port?1150:980, W=H*AR;
-    const cx=port?stop.x:stop.x+W*0.16;
-    return [cx-W/2, stop.y-H/2, W, H];
-  }
   const H=(stop.kind==="end"?(port?1180:1020):(port?770:630)), W=H*AR;   // road left, reading right
   const cx=port?stop.x:stop.x+W*0.16;
   return [cx-W/2, stop.y-H/2, W, H];
@@ -411,23 +392,6 @@ function apply(){
     p.setAttribute("opacity",op.toFixed(3));
     p.classList.toggle("on", Math.round(prog)===nodeStop[k]);
   });
-
-  // the single Phase 0 title (fixed overlay): through the opening it scales IN with the winding
-  // path (scale 1/ZOOM → 1) without ever scrolling — being fixed, there is no scroll-cancel
-  // transform, so no jitter. It settles into position at the gate, then rolls up a touch and
-  // fades as the first entry comes in. Scale is driven by `e`, which also drives the camera zoom,
-  // so title and path grow in perfect lockstep.
-  const ZOOM=cam(stops[0])[3]/cam(stops[1])[3];   // how much the opening head→gate zooms (980/630)
-  if(i===0){                                      // head → gate0: zoom in with the path
-    leadTitle.style.opacity="1";
-    leadTitle.style.transform=`translateY(-50%) scale(${Math.pow(ZOOM,e-1).toFixed(4)})`;
-  }else if(i===1){                                // gate0 → entry1: roll up + fade as usual
-    const u=clamp((f-0.2)/0.3,0,1);
-    leadTitle.style.opacity=(1-u).toFixed(3);
-    leadTitle.style.transform=`translateY(calc(-50% - ${(u*42).toFixed(1)}px)) scale(1)`;
-  }else{
-    leadTitle.style.opacity="0";
-  }
 
   // reading column: fade the active block in, its neighbour out
   blocks.forEach((b,j)=>{
