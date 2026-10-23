@@ -24,6 +24,7 @@
     --hover-dur:.18s;
     --hover-scale:1.08;
     --ground:var(--wash-ochre);
+    --dur:.48s;                 /* the loose global motion value (from the prototype) */
   }
   *{box-sizing:border-box;}
   html{scroll-behavior:auto;}
@@ -129,8 +130,103 @@
     font:inherit;font-weight:600;padding:6px 16px;border-radius:999px;transition:.2s var(--ease-out-expo);
   }
   .toggle button.on{background:var(--wash-ochre);color:var(--deep-ochre);}
-  /* page masthead — title + subtitle pinned top-left */
-  .masthead{position:fixed;top:clamp(20px,4vh,40px);left:clamp(24px,6vw,86px);z-index:40;pointer-events:none;}
+  /* ---------- top bar (fixed chrome: Home + menu) — copied from sections-prototype ---------- */
+  .topbar{
+    position:fixed;top:0;left:0;right:0;z-index:30;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 26px;pointer-events:none;
+  }
+  .home-link{
+    display:inline-flex;align-items:center;gap:7px;pointer-events:auto;
+    font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--foreground);text-decoration:none;
+    transition:color .3s var(--ease-out-expo);
+  }
+  .home-link svg{transition:transform .3s var(--ease-out-expo);}
+  .home-link:hover{color:var(--warm);}
+  .home-link:hover svg{transform:translateX(-3px);}
+  .home-link:focus-visible{outline:2px solid var(--warm);outline-offset:3px;border-radius:3px;}
+  .menu-btn{
+    background:none;border:0;cursor:pointer;padding:6px;color:var(--foreground);
+    display:inline-flex;line-height:0;pointer-events:auto;
+    transition:color .18s var(--ease-out-expo),scale .18s var(--ease-out-expo);
+  }
+  .menu-btn:hover{color:var(--warm);scale:1.12;}
+  .menu-btn:focus-visible{outline:2px solid var(--warm);outline-offset:2px;border-radius:3px;}
+
+  /* ---------- slide-in menu ---------- */
+  .m-scrim{
+    position:fixed;inset:0;background:rgba(10,10,10,.16);z-index:50;
+    opacity:0;pointer-events:none;transition:opacity calc(var(--dur)*.8) var(--ease-out-expo);
+  }
+  .m-scrim.open{opacity:1;pointer-events:auto;}
+  .menu-panel{
+    position:fixed;top:0;right:0;bottom:0;width:min(400px,88vw);z-index:51;
+    background:var(--ground);border-left:1px solid var(--border);
+    box-shadow:-20px 0 48px -28px rgba(10,10,10,.30);
+    padding:24px 34px 34px;display:flex;flex-direction:column;
+    transform:translateX(102%);visibility:hidden;
+    transition:transform var(--dur) var(--ease-out-expo),background var(--dur) var(--ease-out-expo),visibility 0s var(--dur);
+  }
+  .menu-panel.open{
+    transform:none;visibility:visible;
+    transition:transform var(--dur) var(--ease-out-expo),background var(--dur) var(--ease-out-expo),visibility 0s 0s;
+  }
+  .menu-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:38px;}
+  .m-close{
+    background:none;border:0;cursor:pointer;padding:6px;color:var(--foreground);
+    display:inline-flex;line-height:0;transition:color .18s var(--ease-out-expo),scale .18s var(--ease-out-expo);
+  }
+  .m-close:hover{color:var(--warm);scale:1.12;}
+  .m-close:focus-visible{outline:2px solid var(--warm);outline-offset:2px;border-radius:3px;}
+  .menu-panel nav{display:flex;flex-direction:column;gap:36px;flex:1;overflow-y:auto;overflow-x:hidden;}
+  .menu-group{
+    display:flex;flex-direction:column;gap:9px;
+    opacity:0;transform:translate(30px,10px);
+    transition:opacity var(--dur) var(--ease-out-expo) var(--stagger,0s),transform var(--dur) var(--ease-out-expo) var(--stagger,0s);
+  }
+  .menu-panel.open .menu-group{opacity:1;transform:none;}
+  .menu-panel.open .menu-group:nth-child(1){--stagger:calc(var(--dur)*.2)}
+  .menu-panel.open .menu-group:nth-child(2){--stagger:calc(var(--dur)*.32)}
+  .menu-panel.open .menu-group:nth-child(3){--stagger:calc(var(--dur)*.44)}
+  .menu-panel.open .menu-group:nth-child(4){--stagger:calc(var(--dur)*.56)}
+  .menu-cat{margin-bottom:3px;opacity:.7;}
+  .menu-link{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;
+    font-variation-settings:"opsz" 72;font-weight:400;letter-spacing:0;
+    font-size:clamp(29px,4.6vw,38px);line-height:1.1;
+    color:var(--foreground);text-decoration:none;width:fit-content;cursor:pointer;
+    background:none;border:0;text-align:left;padding:0;transform-origin:left center;
+    transition:scale .18s var(--ease-out-expo),color .18s var(--ease-out-expo);
+  }
+  .menu-link:hover,.menu-link:focus-visible{color:var(--warm);scale:1.09;}
+  .menu-link:focus-visible{outline:2px solid var(--warm);outline-offset:4px;}
+
+  /* ---------- "continue reading" footer — copied from sections-prototype ---------- */
+  .read-next{max-width:900px;margin:clamp(44px,8vh,88px) auto 0;padding:clamp(24px,3.6vh,36px) clamp(24px,5vw,40px) clamp(60px,10vh,110px);border-top:1px solid var(--foreground);}
+  .rn-link{
+    display:inline-flex;flex-direction:column;gap:7px;width:fit-content;max-width:100%;
+    text-decoration:none;color:var(--foreground);cursor:pointer;
+    background:none;border:0;padding:0;text-align:left;font:inherit;transform-origin:left center;
+    transition:color .3s var(--ease-out-expo);
+  }
+  .rn-cue{text-transform:uppercase;letter-spacing:.22em;font-size:11.5px;font-weight:500;color:var(--muted-foreground);}
+  .rn-row{display:flex;align-items:center;gap:.42em;}
+  .rn-name{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 72;
+    font-weight:500;letter-spacing:-.01em;text-transform:uppercase;line-height:1;
+    font-size:clamp(34px,6vw,54px);color:inherit;
+  }
+  .rn-arrow{flex:0 0 auto;width:clamp(26px,3.8vw,36px);height:auto;transition:transform .3s var(--ease-out-expo);}
+  .rn-peek{font-size:14.5px;color:var(--muted-foreground);max-width:52ch;}
+  .rn-link:hover{color:var(--warm);}
+  .rn-link:hover .rn-arrow{transform:translateX(4px);}
+  .rn-link:is(:focus-visible,:active){color:var(--warm);}
+  .rn-link:is(:focus-visible,:active) .rn-arrow{transform:translateX(4px);}
+
+  /* page masthead — the intro title; sits in the page (scrolls away), below the top bar,
+     so the winding path no longer runs under a permanently-pinned title */
+  .masthead{position:absolute;top:clamp(74px,12vh,122px);left:clamp(24px,6vw,86px);z-index:6;pointer-events:none;}
   .mh-title{
     font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 96;
     font-weight:500;letter-spacing:-.02em;line-height:.92;font-size:clamp(46px,9vw,96px);
@@ -152,6 +248,51 @@
 </head>
 <body>
 
+<!-- ---------- top bar (copied from sections-prototype) ---------- -->
+<div class="topbar">
+  <a class="home-link" href="transition-prototype.html" aria-label="Back to the home page">
+    <svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M16 6H1M6 1 1 6l5 5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>Home</span>
+  </a>
+  <button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="menuPanel">
+    <svg width="26" height="14" viewBox="0 0 26 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 1h24M1 7h24M1 13h24" stroke-linecap="round"/></svg>
+  </button>
+</div>
+
+<!-- ---------- slide-in menu ---------- -->
+<div class="m-scrim" id="mScrim"></div>
+<aside class="menu-panel" id="menuPanel" aria-hidden="true" aria-label="Site menu">
+  <div class="menu-head">
+    <span class="micro">Menu</span>
+    <button class="m-close" id="mClose" aria-label="Close menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 2l16 16M18 2L2 18" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <nav>
+    <div class="menu-group">
+      <span class="menu-cat micro">Start</span>
+      <a class="menu-link" href="transition-prototype.html" title="Home lives in the Home-scroll prototype">Home</a>
+    </div>
+    <div class="menu-group">
+      <span class="menu-cat micro">The Data</span>
+      <a class="menu-link" href="data-prototype-white.html#quality">Quality</a>
+      <a class="menu-link" href="data-prototype-white.html#performance">Performance</a>
+      <a class="menu-link" href="data-prototype-white.html#monitoring">Monitoring</a>
+    </div>
+    <div class="menu-group">
+      <span class="menu-cat micro">The Story</span>
+      <a class="menu-link" href="sections-prototype.html">Architecture</a>
+      <a class="menu-link" href="sections-prototype.html">Journey</a>
+      <a class="menu-link" href="sections-prototype.html">Skills</a>
+    </div>
+    <div class="menu-group">
+      <span class="menu-cat micro">More</span>
+      <a class="menu-link" href="sections-prototype.html">About</a>
+      <a class="menu-link" href="transition-prototype.html#contact" title="Contact is the Home bookend">Contact</a>
+    </div>
+  </nav>
+</aside>
+
 <div class="masthead">
   <h1 class="mh-title">The Journey</h1>
   <p class="mh-sub">Roads not taken</p>
@@ -166,6 +307,36 @@
   </div>
   <div class="flow" id="flow"></div>
 </div>
+
+<!-- ---------- continue reading (copied from sections-prototype) ---------- -->
+<nav class="read-next" aria-label="Continue reading">
+  <a class="rn-link" href="sections-prototype.html">
+    <span class="rn-cue">Next</span>
+    <span class="rn-row"><span class="rn-name">Skills</span><svg class="rn-arrow" viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M1 6h15M11 1l5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    <span class="rn-peek">What I build with</span>
+  </a>
+</nav>
+
+<script>
+/* ---------- slide-in menu (copied from sections-prototype) ---------- */
+(function(){
+  const menuBtn=document.getElementById('menuBtn');
+  const menuPanel=document.getElementById('menuPanel');
+  const mScrim=document.getElementById('mScrim');
+  const mClose=document.getElementById('mClose');
+  function setMenu(open){
+    menuPanel.classList.toggle('open',open);
+    mScrim.classList.toggle('open',open);
+    menuPanel.setAttribute('aria-hidden',String(!open));
+    menuBtn.setAttribute('aria-expanded',String(open));
+    (open?mClose:menuBtn).focus();
+  }
+  menuBtn.addEventListener('click',()=>setMenu(true));
+  mClose.addEventListener('click',()=>setMenu(false));
+  mScrim.addEventListener('click',()=>setMenu(false));
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&menuPanel.classList.contains('open')) setMenu(false); });
+})();
+</script>
 
 <script>
 /* ============================ content (real journey.json, oldest→newest, grouped by phase) ============================ */
