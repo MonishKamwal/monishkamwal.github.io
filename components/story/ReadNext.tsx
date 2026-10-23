@@ -6,7 +6,7 @@ import styles from "./story.module.css";
 // Structural prop so About can point it at Contact (the Home bookend), not a page.
 export function ReadNext({ next }: { next: { name: string; href: string; peek: string } }) {
   return (
-    <nav className={`reveal ${styles.readNext}`} aria-label="Continue reading">
+    <nav className={`reveal ${styles.readNext}`} data-reveal="foot" aria-label="Continue reading">
       <Link className={styles.rnLink} href={next.href}>
         <span className={styles.rnCue}>Next</span>
         <span className={styles.rnRow}>
