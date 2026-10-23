@@ -76,6 +76,16 @@
     font-weight:500;letter-spacing:-.01em;line-height:1.02;font-size:clamp(30px,3.2vw,46px);margin:0;
   }
   .jSummary{margin:14px 0 22px;font-size:17px;color:var(--muted-foreground);line-height:1.5;max-width:40ch;}
+  /* an entry is a click target that opens its paper card; hover warms the title + lifts slightly.
+     NB: this is purely a text hover — it does NOT touch the travelling dot. */
+  .jEntry{pointer-events:auto;cursor:pointer;transform-origin:left center;
+    transition:scale var(--hover-dur) var(--ease-hover);}
+  .jEntry .jTitle{transition:color var(--hover-dur) var(--ease-hover);}
+  @media (hover:hover){
+    .jEntry:hover{scale:1.02;}
+    .jEntry:hover .jTitle{color:var(--deep-ochre);}
+  }
+  .jEntry:focus-visible{outline:2px solid var(--warm);outline-offset:8px;border-radius:4px;}
   .jEv{display:flex;flex-direction:column;gap:9px;align-items:flex-start;}
   .jEv .link{font-size:13.5px;}
   .jEv .w{color:var(--muted-foreground);}
@@ -90,6 +100,12 @@
   .chapTitle{
     font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 72;
     font-weight:400;letter-spacing:-.015em;line-height:1.0;font-size:clamp(38px,4.6vw,68px);margin:0;max-width:16ch;
+  }
+  /* the phase label, set at the SAME full size as the phase name (deep-ochre accent) */
+  .chapPhase{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 72;
+    font-weight:400;letter-spacing:-.01em;line-height:1.02;font-size:clamp(38px,4.6vw,68px);
+    text-transform:uppercase;color:var(--deep-ochre);margin:0 0 4px;
   }
   .chapMeta{margin:18px 0 0;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted-foreground);font-weight:600;}
 
@@ -236,6 +252,30 @@
   .note{position:fixed;bottom:14px;left:16px;z-index:50;font-size:11.5px;color:var(--muted-foreground);max-width:44ch;line-height:1.4;pointer-events:none;
     background:rgba(255,246,236,.82);backdrop-filter:blur(2px);padding:9px 13px;border-radius:8px;border:1px solid rgba(150,96,10,.12);}
 
+  /* ---------- paper card (entry detail modal — same as sections-prototype) ---------- */
+  .card-scrim{position:fixed;inset:0;background:rgba(10,10,10,.20);z-index:60;opacity:0;pointer-events:none;
+    transition:opacity calc(var(--dur)*.8) var(--ease-out-expo);}
+  .card-scrim.open{opacity:1;pointer-events:auto;}
+  .paper-card{
+    position:fixed;z-index:61;left:50%;top:50%;width:min(620px,92vw);max-height:86vh;overflow:auto;
+    background:#fff;border:1px solid var(--border);border-radius:6px;
+    box-shadow:0 30px 70px -30px rgba(10,10,10,.5),0 4px 14px -6px rgba(10,10,10,.18);
+    padding:clamp(28px,5vw,52px);
+    transform:translate(-50%,-50%) scale(.6);opacity:0;transform-origin:var(--ox,50%) var(--oy,50%);
+    transition:transform var(--dur) var(--ease-out-expo),opacity calc(var(--dur)*.7) var(--ease-out-expo);
+  }
+  .paper-card.open{transform:translate(-50%,-50%) scale(1);opacity:1;}
+  .paper-card:not(.open){pointer-events:none;}
+  .card-x{position:absolute;top:16px;right:16px;background:none;border:0;cursor:pointer;padding:6px;color:var(--foreground);
+    line-height:0;transition:color var(--hover-dur) var(--ease-hover),scale var(--hover-dur) var(--ease-hover);}
+  .card-x:hover{color:var(--warm);scale:var(--hover-scale);}
+  .card-x:focus-visible{outline:2px solid var(--warm);outline-offset:2px;border-radius:3px;}
+  .card-meta{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted-foreground);font-weight:500;}
+  .card-title{font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 72;
+    font-weight:500;letter-spacing:-.01em;font-size:clamp(26px,4vw,38px);line-height:1.05;margin:8px 0 18px;color:var(--foreground);}
+  .card-body p{margin:0 0 12px;font-size:15px;line-height:1.55;max-width:60ch;color:var(--foreground);}
+  .card-ev{margin-top:24px;padding-top:16px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:9px;font-size:14px;}
+
   /* ---------- portrait: stage holds the top, reading runs under ---------- */
   @media (max-width:720px),(max-aspect-ratio:9/10){
     .stage{z-index:2;pointer-events:none;}
@@ -316,6 +356,18 @@
     <span class="rn-peek">What I build with</span>
   </a>
 </nav>
+
+<!-- ---------- entry detail modal (paper card) ---------- -->
+<div class="card-scrim" id="cardScrim"></div>
+<div class="paper-card" id="paperCard" role="dialog" aria-modal="true" aria-labelledby="cardTitle" tabindex="-1">
+  <button class="card-x" id="cardX" aria-label="Close">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 2l16 16M18 2L2 18" stroke-linecap="round"/></svg>
+  </button>
+  <div class="card-meta" id="cardMeta"></div>
+  <div class="card-title" id="cardTitle"></div>
+  <div class="card-body" id="cardBody"></div>
+  <div class="card-ev" id="cardEv"></div>
+</div>
 
 <script>
 /* ---------- slide-in menu (copied from sections-prototype) ---------- */
@@ -420,23 +472,17 @@ function buildFlow(){
   let h="";
   GROUPS.forEach((g,gi)=>{
     const num=g.ph.key.replace(/\D/g,"");
-    h+= gi===0
-      ? `<div class="block" data-stop>
-      <p class="chapNum">${esc(num)}</p>
-      <h2 class="chapTitle">${esc(g.ph.title)}</h2>
-      <p class="chapMeta">Phase ${esc(num)} · ${esc(phaseMeta(g))}</p></div>`
-      : `<div class="block chapter" data-stop>
-      <p class="micro k kOchre">Phase</p>
-      <p class="chapNum">${esc(num)}</p>
-      <h2 class="chapTitle">${esc(g.ph.title)}</h2>
-      <p class="chapMeta">${esc(phaseMeta(g))}</p></div>`;
+    h+=`<div class="block chapter" data-stop>
+      <p class="chapPhase">Phase ${esc(num)}</p>
+      <h2 class="chapTitle">${esc(g.ph.title)}</h2></div>`;
     g.items.forEach(e=>{
       const ev=e.ev.map(x=>`<a class="link" href="${x.h}" target="_blank" rel="noopener">${esc(x.l)} ${arrow()}</a>`).join("");
       h+=`<div class="block" data-stop>
+        <div class="jEntry" data-slug="${esc(e.slug)}" role="button" tabindex="0" aria-haspopup="dialog">
         <p class="micro k kOchre">${esc(fmtDate(e.date))} · ${esc(e.phaseKey)} — ${esc(PHASES.find(p=>p.key===e.phaseKey).title)}</p>
         <h2 class="jTitle">${esc(e.title)}</h2>
         <p class="jSummary">${esc(e.summary)}</p>
-        <div class="jEv">${ev}</div></div>`;
+        <div class="jEv">${ev}</div></div></div>`;
     });
   });
   // the final stop carries no text — it exists only to pull the camera back and reveal
@@ -582,6 +628,36 @@ layout();
 (function loop(){ apply(); requestAnimationFrame(loop); })();
 addEventListener("resize",()=>{ build(); layout(); });
 if(document.fonts) document.fonts.ready.then(()=>{ build(); layout(); });
+
+/* ---------- click an entry → open its paper card (same behaviour as sections-prototype).
+   Purely driven by the click; nothing here touches the travelling dot. ---------- */
+(function(){
+  const scrim=document.getElementById("cardScrim"), card=document.getElementById("paperCard"),
+        cx=document.getElementById("cardX"), mMeta=document.getElementById("cardMeta"),
+        mTitle=document.getElementById("cardTitle"), mBody=document.getElementById("cardBody"),
+        mEv=document.getElementById("cardEv");
+  let prevFocus=null;
+  function openCard(e,opener){
+    const ph=PHASES.find(p=>p.key===e.phaseKey);
+    mMeta.textContent=`${fmtDate(e.date)} · ${e.phaseKey} — ${ph?ph.title:""}`;
+    mTitle.textContent=e.title;
+    mBody.innerHTML=`<p>${esc(e.summary)}</p>`;
+    mEv.innerHTML=e.ev.map(x=>`<a class="link" target="_blank" rel="noopener" href="${x.h}">${esc(x.l)} ↗</a>`).join("");
+    if(opener){ const r=opener.getBoundingClientRect(); card.style.setProperty("--ox",(r.left+r.width/2)+"px"); card.style.setProperty("--oy",(r.top+r.height/2)+"px"); }
+    scrim.classList.add("open"); card.classList.add("open");
+    prevFocus=document.activeElement; cx.focus();
+  }
+  function closeCard(){ scrim.classList.remove("open"); card.classList.remove("open"); if(prevFocus&&prevFocus.focus) prevFocus.focus(); }
+  cx.addEventListener("click",closeCard);
+  scrim.addEventListener("click",closeCard);
+  document.addEventListener("keydown",ev=>{ if(ev.key==="Escape"&&card.classList.contains("open")) closeCard(); });
+  const bySlug={}; ENTRIES.forEach(e=>{ bySlug[e.slug]=e; });
+  document.querySelectorAll(".jEntry").forEach(el=>{
+    const e=bySlug[el.dataset.slug]; if(!e) return;
+    el.addEventListener("click",ev=>{ if(ev.target.closest("a")) return; openCard(e,el); });
+    el.addEventListener("keydown",ev=>{ if(ev.key==="Enter"||ev.key===" "){ ev.preventDefault(); openCard(e,el); } });
+  });
+})();
 </script>
 </body>
 </html>
