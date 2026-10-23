@@ -1,6 +1,6 @@
 # Portfolio — Design Specification
 
-**This document is a carbon copy of the finalized design.** The design *is* the three
+**This document is a carbon copy of the finalized design.** The design *is* the
 prototype files; this spec transcribes every value, layout, motion, and interaction in them so
 the real site can be built to match exactly. Where a pixel-exact path, chart algorithm, or SVG
 geometry is needed, the prototype is the literal source of truth.
@@ -8,7 +8,8 @@ geometry is needed, the prototype is the literal source of truth.
 | Prototype (source of truth) | Covers |
 |---|---|
 | `transition-prototype.html` | **Home** — the six-section scroll (Hero · Demo · Behind the Scenes · Journey · Skills · Contact bookend) |
-| `sections-prototype.html` | **Story mode** — Architecture · Journey · Skills — and **About** |
+| `sections-prototype.html` | **Story mode** — Architecture · Skills — and **About** |
+| `journey-page-svg-sketches.html` | **Story mode → Journey** — the all-SVG scroll-camera road (supersedes the Journey page that used to live in `sections-prototype.html`) |
 | `data-prototype-white.html` | **Data mode** — Quality · Monitoring · Performance |
 
 The prototypes are standalone HTML (inline `<style>`/`<script>`, Google-Fonts `<link>`). The real
@@ -401,25 +402,70 @@ prototype; **routes in the real site**). Each page inherits its wash via `body[d
 with the arrival line, carries the Story tray, and ends on a read-next foot. Shared paper card +
 crop modal overlays live once at the end of `<main>`.
 
-### 6.1 Journey (`/journey`) — ground ochre
+### 6.1 Journey (`/journey`) — ground ochre — "an SVG camera walks the road"
 
-- `.j-intro` (title block at the left edge): `.page-title` "The Journey" + `.page-lead` "Roads not
-  taken" + `.card-hint` "Click/Tap any entry to read the full story".
-- `.wrap.j-body` holds the **full serpentine** (`#jSvg viewBox 0 0 700 1500`, `LX=245/RX=455`):
-  **every** devlog entry on one winding line, oldest at top. Layout (`jLayout`) interleaves **phase
-  headings** (`.phase-head` — an ochre `.chip` with `.pk` phase kicker + `.ph` Bodoni title, centered
-  on the line) with **entries** at alternating crests. Prototype's set:
-  - Phase 0 · **Scaffold** → *Why a monorepo said no* (L) · *Pages, not a server* (R)
-  - Phase 1 · **Serving live** → *Scale to zero, on purpose* (L) · *Strokes, not pixels* (R)
-  - Phase 2 · **The pipeline** → *One bucket, three jobs* (L) · *The gate that says no* (R) ·
-    *Pandera at the door* (L)
-- Entries (`.j-entry width:min(200px,30%)`): `.d` date·phase, `h3` Bodoni opsz 40 title (link),
-  `p` line. **Dots** injected on the path; hovering an entry or phase-chip lifts it + swells its dot
-  + slides the lens (same magnifier as Home §4; `LENS_R=52`). The whole entry (and its dot) opens its
-  **paper card** on click; lifted blocks rise above the edge blur (z-26).
-- Line stays fully drawn; scroll reveals dots+entries top-to-bottom (`applyJourney`, draw-progress off
-  the wrap rect). The line runs past the last dot and **fades unfinished** (`.j-end`), with
-  `.j-tail` "the path runs on — the project is still going" (italic, centered).
+Source of truth: **`journey-page-svg-sketches.html`** (supersedes the static serpentine that used to
+live in `sections-prototype.html`). The **whole diagram is one `viewBox` SVG** (`0 0 1000 <vbh>`,
+`preserveAspectRatio="xMidYMid meet"`, so it scales to any screen), and a **scroll-driven camera**
+walks a winding road past every devlog entry while a **comet dot stays locked to the active entry**.
+
+- **Masthead** (`.masthead`, `position:absolute; top:clamp(74px,12vh,122px); left:clamp(24px,6vw,86px)`,
+  z-6, `pointer-events:none`) — the intro title **scrolls away** with the page (the road never runs
+  under a pinned title): `.mh-title` "The Journey" (`.display` opsz 96, uppercase) + `.mh-sub` "Roads
+  not taken" + `.card-hint` "Click any entry to read the full story".
+- **The stage** (`.stageScroll` > `.stage`, `position:sticky; top:0; height:100svh`, z-0, holding the
+  `#jMap` SVG) with the **reading column scrolling over it** (`.flow`, `margin-top:-100svh`,
+  `pointer-events:none` except the entries). (The sketch carries the shared top bar + slide-in menu
+  (§4.1–4.2) and the read-next foot; add the arrival line (§4.4) on port.)
+
+- **The road** (`buildRoad`, plan units, `vbw=1000`): a smooth serpentine through the entries' nodes
+  with vertical bezier handles (`m=(b.y−a.y)*.5`), nodes alternating **L=322 / R=678**, the chain
+  starting centre-top (`500, firstGateY`). Vertical rhythm: `TOP=150`, gate→first-entry `178`,
+  entry→entry `212`, entry→next-gate `252`, `TAIL=250`. The line runs past the last node and **fades
+  unfinished** (`.tail`, ochre-line, dashed `2 11`). **Palette departs from ink:** base road =
+  `--ochre-line` (2.2); the walked stretch = `--warm` (`.roadLit`, 3.2); entry pins (`.pinDot`) are
+  `--ground`-filled **ink** circles (`r=7`) that switch to a **deep-ochre** ring when active (`.pin.on`).
+  **Every node & gate is snapped onto the exact path point at its measured length-fraction** — so the
+  pin ring, the comet dot and the halo end up **concentric** (without the snap the ~2u sampling gap
+  left the dot sitting low in the ring).
+
+- **The camera** (`cam`/`setVB`): each flow block owns a **stop** `{x,y,frac}`; the viewBox is
+  interpolated between consecutive stops by an **eased segment fraction** (`e=smooth((f−0.08)/0.84)`),
+  width **log-lerped**, centre linear. Framing: `H=630` landscape (`820` on the end stop; `770`/`980`
+  portrait), `W=H·AR`; the road sits left and the reading column right (`cx = stop.x + W·0.16`); **the
+  stop sits dead-centre vertically** (`vbTop = stop.y − H/2`) so **at settle the dot's horizontal line
+  runs between the active entry's title and its summary** (verified within ±9u of the gap midpoint for
+  every entry). No zoomed-out intro — the page **lands directly in the Phase 0 camera**.
+
+- **The comet** (`apply`, per-frame from `scrollY`, in a `requestAnimationFrame` loop): `headFrac`
+  runs the road by the **same eased progress that selects the active text**, so the dot lands on a node
+  exactly as that node's text centres. The lit stroke draws to the head (`strokeDashoffset`); `.jHead`
+  is a deep-ochre dot (`r=4`); `.jHalo` is a ring that **blooms out of the dot** (`r 6→18`,
+  `6+prox·12`) as it nears an entry and shrinks as it leaves — driven by **distance to the nearest
+  node** (`RING_NEAR=0.032`), not time. Pins fade in as the head passes; the active one rings `.on`.
+  Gated to in-view; off under reduced motion.
+
+- **The reading column** (`buildFlow`, right **56%**, one screen per block, `justify-content:center`):
+  - **Phase chapter card** (`.block.chapter`): `.chapPhase` "PHASE N" (uppercase, deep ochre) +
+    `.chapTitle` phase name — both **Bodoni opsz 72, weight 400, at the same full size**
+    (`clamp(38px,4.6vw,68px)`); no fine-print decision count.
+  - **Entry** (`.block > .jEntry`, `role="button"`, `data-slug`): `.micro` date·phase eyebrow (deep
+    ochre) + `.jTitle` (Bodoni opsz 48, weight 500, `clamp(30px,3.2vw,46px)`) + `.jSummary` (17px
+    muted, max 40ch). **Teaser only — no evidence links on the road.**
+  - A final empty `.blockEnd` (`min-height:62svh`) pulls the camera back to reveal the fading tail low
+    in frame, close to the foot.
+- **Hover** (`.jEntry`, `@media (hover:hover)` only): title → deep ochre + block `scale:1.02` — a
+  **pure text hover that never touches the travelling dot**. `:focus-visible` outlines the entry.
+- **Click / Enter / Space** opens the entry's **paper card** (§4.5), scaling from the entry's centre:
+  `.card-meta` date·phase · `.card-title` · `.card-body` = the entry's full `body_md` (blank-line-split
+  into `<p>`) · `.card-ev` = the evidence `.link ↗` list (new tab). Esc / ✕ / scrim close; focus
+  returns to the opener.
+- **Content**: `fetch("content/journey.json")` at boot — `phases[] {key,title}` + `entries[]`
+  (newest-first) `{slug, date, phaseKey, title, summary, body_md, evidence[] {label,href}}`; grouped by
+  phase (declared order, entries oldest-first within, empty phases dropped). A hard-coded array is the
+  `file://` fallback.
+- **Portrait/phone** (`≤720px` or `9/10`): the stage holds the top (`jMap top:7% height:46%`), the
+  reading column runs beneath, and the camera keeps the dot **centred** (stacked layout).
 - Read-next → **Skills** ("What I build with").
 
 ### 6.2 Architecture (`/architecture`) — ground sage — "pulled apart, crossings are stops"
@@ -624,6 +670,8 @@ framing prose is in `content/data/*.json`. Charts are hand-rolled inline SVG per
   self-demo's hard-coded doodles (real demo draws from the live model), placeholder copy and `#`
   evidence hrefs (real URLs live in `content/*.json`).
 - **Pixel/geometry authority:** for exact SVG path data (journey serpentine, isometric sheets, wash
-  blobs, work serpentine), camera math (`renderArch`, `skCam`, `applyArch`), and chart rendering, the
-  three prototype files are the literal reference — port them.
+  blobs, work serpentine), camera math (Journey `buildRoad`/`cam`/`setVB`/`apply`; Architecture
+  `renderArch`/`applyArch`; Skills `skCam`), and chart rendering, the prototype files are the literal
+  reference — port them. The Journey road's node/gate **path-snap** (`getPointAtLength` at each
+  measured fraction) is load-bearing: it is what keeps the comet dot concentric with the entry rings.
 ```
