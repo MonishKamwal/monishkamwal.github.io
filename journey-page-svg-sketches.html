@@ -248,9 +248,13 @@ function buildFlow(){
     <h2 class="chapTitle">${esc(g0.ph.title)}</h2>
     <p class="chapMeta">Phase ${esc(num0)} · ${esc(phaseMeta(g0))}</p>
     <div class="card-hint" style="margin-top:20px">${arrow()} Scroll to walk the path — any entry opens the full story</div></div>`;
-  GROUPS.forEach(g=>{
+  GROUPS.forEach((g,gi)=>{
     const num=g.ph.key.replace(/\D/g,"");
-    h+=`<div class="block chapter" data-stop>
+    // Phase 0's chapter title lives in the landing block above — it zooms in with the path and
+    // settles here — so this gate is just an empty camera stop, no second Phase 0 card to reveal.
+    h+= gi===0
+      ? `<div class="block" data-stop></div>`
+      : `<div class="block chapter" data-stop>
       <p class="micro k kOchre">Phase</p>
       <p class="chapNum">${esc(num)}</p>
       <h2 class="chapTitle">${esc(g.ph.title)}</h2>
@@ -393,8 +397,27 @@ function apply(){
     p.classList.toggle("on", Math.round(prog)===nodeStop[k]);
   });
 
-  // reading column: fade the active block in, its neighbour out
+  // the single Phase 0 title (block 0): rather than rolling up to reveal a second Phase 0, it
+  // travels + zooms IN with the winding path through the opening (scale 1/ZOOM → 1, pinned on
+  // screen so it doesn't scroll away), settles into position at the gate, then rolls up and fades
+  // like any other title as the first entry comes in.
+  const ZOOM=cam(stops[0])[3]/cam(stops[1])[3];   // how much the opening head→gate zooms (980/630)
+  const b0=blocks[0];
+  b0.style.transformOrigin="71% 50%";
+  if(i===0){                                      // head → gate0: zoom in with the path
+    b0.style.opacity="1";
+    b0.style.transform=`translateY(${scrollY.toFixed(1)}px) scale(${Math.pow(ZOOM,e-1).toFixed(4)})`;
+  }else if(i===1){                                // gate0 → entry1: release, roll up + fade as usual
+    const u=clamp((f-0.2)/0.3,0,1);
+    b0.style.opacity=(1-u).toFixed(3);
+    b0.style.transform=`translateY(${(scrollY*(1-u)).toFixed(1)}px) scale(1)`;
+  }else{
+    b0.style.opacity="0"; b0.style.transform="";
+  }
+
+  // reading column: fade the active block in, its neighbour out (block 0 handled above)
   blocks.forEach((b,j)=>{
+    if(j===0) return;
     let o;
     if(j===i) o=1-clamp((f-0.2)/0.3,0,1);
     else if(j===i+1) o=clamp((f-0.5)/0.3,0,1);
