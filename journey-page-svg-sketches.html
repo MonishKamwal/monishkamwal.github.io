@@ -514,7 +514,10 @@ function build(){
   for(let k=0;k<=N;k++) samp.push(geomPath.getPointAtLength(pathLen*k/N));
   const fracNear=(x,y)=>{let bi=0,bd=1e9;for(let k=0;k<=N;k++){const dx=samp[k].x-x,dy=samp[k].y-y,dd=dx*dx+dy*dy;if(dd<bd){bd=dd;bi=k;}}return bi/N;};
   const fracAtY=y=>{let bi=0,bd=1e9;for(let k=0;k<=N;k++){const dy=Math.abs(samp[k].y-y);if(dy<bd){bd=dy;bi=k;}}return bi/N;};
-  nodes.forEach(n=>{n.frac=fracNear(n.x,n.y);});
+  // snap each node onto the EXACT path point at its measured fraction, so the entry pin is drawn
+  // at the very spot the travelling dot settles — pin ring, dot and halo end up concentric
+  // (without this the ~2u sampling gap leaves the dot sitting low in the ring)
+  nodes.forEach(n=>{n.frac=fracNear(n.x,n.y);const p=geomPath.getPointAtLength(n.frac*pathLen);n.x=p.x;n.y=p.y;});
   gates.forEach(g=>{g.frac=fracAtY(g.y);const p=geomPath.getPointAtLength(g.frac*pathLen);g.x=p.x;g.y=p.y;});
 
   // pass 2 — assemble the full diagram now that every point is known. No phase markers
@@ -568,6 +571,8 @@ function cam(stop){
   const r=svg.getBoundingClientRect(), AR=r.width/Math.max(1,r.height), port=portMq.matches;
   const H=(stop.kind==="end"?(port?980:820):(port?770:630)), W=H*AR;   // road left, reading right
   const cx=port?stop.x:stop.x+W*0.16;
+  // the waypoint sits dead-centre vertically, so at settle the dot's horizontal line runs
+  // through the gap between the active entry's title and its summary
   return [cx-W/2, stop.y-H/2, W, H];
 }
 function setVB(a,b,e){
