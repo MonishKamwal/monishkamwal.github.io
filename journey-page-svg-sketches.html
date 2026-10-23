@@ -128,6 +128,14 @@
     font:inherit;font-weight:600;padding:6px 16px;border-radius:999px;transition:.2s var(--ease-out-expo);
   }
   .toggle button.on{background:var(--wash-ochre);color:var(--deep-ochre);}
+  /* page masthead — title + subtitle pinned top-left */
+  .masthead{position:fixed;top:clamp(20px,4vh,40px);left:clamp(24px,6vw,86px);z-index:40;pointer-events:none;}
+  .mh-title{
+    font-family:"Bodoni Moda",Georgia,serif;font-optical-sizing:auto;font-variation-settings:"opsz" 96;
+    font-weight:500;letter-spacing:-.02em;line-height:.92;font-size:clamp(46px,9vw,96px);
+    text-transform:uppercase;margin:0;color:var(--foreground);
+  }
+  .mh-sub{margin:12px 0 0;font-size:clamp(16px,2vw,21px);color:var(--muted-foreground);}
   .note{position:fixed;bottom:14px;left:16px;z-index:50;font-size:11.5px;color:var(--muted-foreground);max-width:44ch;line-height:1.4;pointer-events:none;
     background:rgba(255,246,236,.82);backdrop-filter:blur(2px);padding:9px 13px;border-radius:8px;border:1px solid rgba(150,96,10,.12);}
 
@@ -142,6 +150,11 @@
 </style>
 </head>
 <body>
+
+<div class="masthead">
+  <h1 class="mh-title">The Journey</h1>
+  <p class="mh-sub">Roads not taken</p>
+</div>
 
 <p class="note">Sketch · the <b>whole diagram is one <code>viewBox</code> SVG</b> (scales to any screen). A scroll-camera walks the road; the <b>travelling stroke + comet head stay locked to the active entry</b>, and each dot rings out the instant the head reaches it. Phase names are editorial chapter cards.</p>
 
@@ -228,9 +241,13 @@ const phaseMeta=g=>{const n=g.items.length;return `${n} decision${n>1?"s":""}`;}
 const flow=document.getElementById("flow");
 function arrow(){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;vertical-align:-1px"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';}
 function buildFlow(){
-  let h=`<div class="block blockHead" data-stop><h1 class="page-title">The Journey</h1>
-    <p class="page-lead">Roads not taken</p>
-    <div class="card-hint">${arrow()} Scroll to walk the path — any entry opens the full story</div></div>`;
+  const g0=GROUPS[0], num0=g0.ph.key.replace(/\D/g,"");
+  let h=`<div class="block" data-stop>
+    <p class="micro k kOchre">The Journey · Roads not taken</p>
+    <p class="chapNum">${esc(num0)}</p>
+    <h2 class="chapTitle">${esc(g0.ph.title)}</h2>
+    <p class="chapMeta">Phase ${esc(num0)} · ${esc(phaseMeta(g0))}</p>
+    <div class="card-hint" style="margin-top:20px">${arrow()} Scroll to walk the path — any entry opens the full story</div></div>`;
   GROUPS.forEach(g=>{
     const num=g.ph.key.replace(/\D/g,"");
     h+=`<div class="block chapter" data-stop>
@@ -324,9 +341,10 @@ function layout(){
 
 function cam(stop){
   const r=svg.getBoundingClientRect(), AR=r.width/Math.max(1,r.height), port=portMq.matches;
-  if(stop.kind==="head"){               // opening: the road's start sits centred, title reads top-left
+  if(stop.kind==="head"){               // opening: road start sits left, Phase 0 title reads in the right column — zoomed out
     const H=port?1150:980, W=H*AR;
-    return [stop.x-W/2, stop.y-H/2, W, H];
+    const cx=port?stop.x:stop.x+W*0.16;
+    return [cx-W/2, stop.y-H/2, W, H];
   }
   const H=(stop.kind==="end"?(port?1180:1020):(port?770:630)), W=H*AR;   // road left, reading right
   const cx=port?stop.x:stop.x+W*0.16;
@@ -356,7 +374,7 @@ function apply(){
   const headFrac=clamp(stops[i].frac + (stops[i+1].frac-stops[i].frac)*e, 0, 1);
   roadLit.style.strokeDashoffset=(pathLen*(1-headFrac)).toFixed(2);
   const hp=geomPath.getPointAtLength(headFrac*pathLen);
-  const headOn=clamp(headFrac/0.004,0,1)*clamp((1.002-headFrac)/0.02,0,1);
+  const headOn=clamp((1.002-headFrac)/0.02,0,1);
   // the travelling dot stays a plain dot as it runs the road
   jHead.setAttribute("cx",hp.x.toFixed(1)); jHead.setAttribute("cy",hp.y.toFixed(1));
   jHead.setAttribute("opacity",headOn.toFixed(3));
