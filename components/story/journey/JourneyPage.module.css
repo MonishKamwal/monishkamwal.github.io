@@ -1,0 +1,228 @@
+/* Journey page — the all-SVG scroll-camera road. Ported from
+   journey-page-svg-sketches.html (supersedes the static serpentine). The sticky
+   stage holds one viewBox SVG the camera walks; the reading column scrolls over
+   it. Module-scoped for the text/layout; :global() for the jm-* classes the SVG
+   is built with as innerHTML (and the .on pin-active toggle). See DESIGN.md §6.1. */
+
+/* the stage + its reading flow share a wrapper so the pin releases at the end of
+   the flow, not the whole page. --ochre-line / --ochre-gate are Journey-only
+   road tints, declared here so they cascade into the SVG innerHTML. */
+.stageScroll {
+  position: relative;
+  --ochre-line: #e9c9a6; /* a drawn road on the ochre ground */
+  --ochre-gate: #f6dcc0; /* the phase-gate chip fill */
+}
+.stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  z-index: 0;
+}
+.jMap {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* the reading column lies over the stage and lets the pointer through to the
+   road (so a pin stays clickable); only the entries catch the pointer */
+.flow {
+  position: relative;
+  margin-top: -100vh;
+  margin-top: -100svh;
+  pointer-events: none;
+}
+.block {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 110px clamp(36px, 6vw, 90px) 110px 56%;
+}
+.blockEnd {
+  justify-content: center;
+  min-height: 62vh;
+  min-height: 62svh;
+}
+
+/* phase chapter card (reading column) — editorial: big at a LIGHT weight, no box.
+   The phase label and name are set at the same full size (deep-ochre accent). */
+.chapPhase {
+  font-family: var(--bodoni), Georgia, serif;
+  font-optical-sizing: auto;
+  font-variation-settings: "opsz" 72;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.02;
+  font-size: clamp(38px, 4.6vw, 68px);
+  text-transform: uppercase;
+  color: var(--deep-ochre);
+  margin: 0 0 4px;
+}
+.chapTitle {
+  font-family: var(--bodoni), Georgia, serif;
+  font-optical-sizing: auto;
+  font-variation-settings: "opsz" 72;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1;
+  font-size: clamp(38px, 4.6vw, 68px);
+  margin: 0;
+  max-width: 16ch;
+}
+
+/* an entry: a click target that opens its paper card; hover warms the title +
+   lifts slightly. NB: a pure text hover — it does NOT touch the travelling dot. */
+.jEntry {
+  pointer-events: auto;
+  cursor: pointer;
+  transform-origin: left center;
+  transition: scale var(--hover-dur) var(--ease-hover);
+}
+.jEntry:focus-visible {
+  outline: 2px solid var(--warm);
+  outline-offset: 8px;
+  border-radius: 4px;
+}
+.jEyebrow {
+  margin: 0 0 12px;
+}
+/* beats the global .micro colour (element+class wins by specificity, as in arch) */
+.jEntry .jEyebrow {
+  color: var(--deep-ochre);
+}
+.jTitle {
+  font-family: var(--bodoni), Georgia, serif;
+  font-optical-sizing: auto;
+  font-variation-settings: "opsz" 48;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.02;
+  font-size: clamp(30px, 3.2vw, 46px);
+  margin: 0;
+  transition: color var(--hover-dur) var(--ease-hover);
+}
+.jSummary {
+  margin: 14px 0 0;
+  font-size: 17px;
+  color: var(--muted-foreground);
+  line-height: 1.5;
+  max-width: 40ch;
+}
+@media (hover: hover) and (pointer: fine) {
+  .jEntry:hover {
+    scale: 1.02;
+  }
+  .jEntry:hover .jTitle {
+    color: var(--deep-ochre);
+  }
+}
+
+/* page masthead — the intro title; sits in the page (scrolls away) below the top
+   bar, so the winding road never runs under a permanently-pinned title */
+.masthead {
+  position: absolute;
+  top: clamp(74px, 12vh, 122px);
+  left: clamp(24px, 6vw, 86px);
+  z-index: 6;
+  pointer-events: none;
+}
+.masthead :global(.card-hint) {
+  pointer-events: auto;
+}
+.mhTitle {
+  margin: 0;
+  color: var(--foreground);
+}
+.mhSub {
+  margin: 12px 0 0;
+  font-size: clamp(16px, 2vw, 21px);
+  color: var(--muted-foreground);
+}
+
+/* ---------- the SVG diagram (built as innerHTML → global classes) ---------- */
+.jMap :global(.jm-road) {
+  fill: none;
+  stroke: var(--ochre-line);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+/* the travelling stroke: the stretch of road already walked, drawn to the comet */
+.jMap :global(.jm-roadLit) {
+  fill: none;
+  stroke: var(--warm);
+  stroke-width: 3.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.jMap :global(.jm-tail) {
+  fill: none;
+  stroke: var(--ochre-line);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-dasharray: 2 11;
+  opacity: 0.7;
+}
+/* the comet head (a small point) + its soft halo ring, riding the lit tip */
+.jMap :global(.jm-halo) {
+  fill: none;
+  stroke: var(--warm);
+  stroke-width: 1.6;
+  pointer-events: none;
+}
+.jMap :global(.jm-head) {
+  fill: var(--deep-ochre);
+  pointer-events: none;
+}
+/* entry pins */
+.jMap :global(.jm-pin) {
+  cursor: pointer;
+}
+.jMap :global(.jm-pinDot) {
+  fill: var(--ground);
+  stroke: var(--foreground);
+  stroke-width: 2;
+  transition: fill var(--hover-dur) var(--ease-hover), stroke var(--hover-dur) var(--ease-hover);
+}
+.jMap :global(.jm-pin.on .jm-pinDot) {
+  fill: var(--ground);
+  stroke: var(--deep-ochre);
+  stroke-width: 2.6;
+}
+@media (hover: hover) and (pointer: fine) {
+  .jMap :global(.jm-pin:hover .jm-pinDot) {
+    stroke: var(--warm);
+  }
+}
+
+/* ---------- portrait: the stage holds the top, reading runs under it ---------- */
+@media (max-width: 720px), (max-aspect-ratio: 9 / 10) {
+  .stage {
+    z-index: 2;
+    pointer-events: none;
+  }
+  .jMap {
+    top: 7%;
+    height: 46%;
+    z-index: 1;
+    pointer-events: auto;
+  }
+  .block {
+    min-height: 0;
+    justify-content: flex-start;
+    padding: 52vh clamp(22px, 6vw, 40px) 30vh;
+  }
+  .blockEnd {
+    min-height: 40vh;
+    padding-bottom: 20vh;
+  }
+  .jTitle {
+    font-size: clamp(28px, 7vw, 40px);
+  }
+}
