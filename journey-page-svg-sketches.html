@@ -68,7 +68,7 @@
     justify-content:flex-start;
     padding:clamp(96px,15vh,150px) 0 0 clamp(24px,6vw,86px);
   }
-  .blockEnd{justify-content:center;}
+  .blockEnd{justify-content:center;min-height:62vh;min-height:62svh;}
   .k{margin:0 0 12px;}
   .kOchre{color:var(--deep-ochre);}
   .jTitle{
@@ -495,7 +495,7 @@ function build(){
     g.items.forEach(()=>{ const n=nodes[ni]; stops.push({kind:"entry", ni, x:n.x, y:n.y, frac:n.frac}); ni++; });
   });
   const last=nodes[nodes.length-1];
-  stops.push({kind:"end", x:last.x, y:last.y+150, frac:1});
+  stops.push({kind:"end", x:last.x, y:last.y-150, frac:1});   // centre well above the last node so the fading tail sits low in frame, close to the footer
   nodeStop={}; gateStop={};
   stops.forEach((st,si)=>{ if(st.kind==="entry") nodeStop[st.ni]=si; if(st.kind==="gate") gateStop[st.gi]=si; });
 
@@ -517,7 +517,7 @@ function layout(){
 
 function cam(stop){
   const r=svg.getBoundingClientRect(), AR=r.width/Math.max(1,r.height), port=portMq.matches;
-  const H=(stop.kind==="end"?(port?1180:1020):(port?770:630)), W=H*AR;   // road left, reading right
+  const H=(stop.kind==="end"?(port?980:820):(port?770:630)), W=H*AR;   // road left, reading right
   const cx=port?stop.x:stop.x+W*0.16;
   return [cx-W/2, stop.y-H/2, W, H];
 }
