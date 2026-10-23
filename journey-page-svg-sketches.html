@@ -391,15 +391,16 @@
 </script>
 
 <script>
-/* ============================ content (real journey.json, oldest→newest, grouped by phase) ============================ */
-const PHASES = [
+/* ============================ content — loaded from content/journey.json at boot; the arrays
+   below are an offline fallback (no body text) if the fetch fails, e.g. opened from file://) ========= */
+let PHASES = [
   {key:"Phase 0", title:"Planning"},
   {key:"Phase 1", title:"Serving live"},
   {key:"Phase 2", title:"Automation & gates"},
   {key:"Phase 3", title:"Ephemeral Kubernetes"},
   {key:"Phase 4", title:"Monitoring"},
 ];
-const ENTRIES = [
+let ENTRIES = [
   {slug:"guardrails-before-resources",date:"2026-07-03",phaseKey:"Phase 0",title:"Guardrails before resources",summary:"Budgets and spend alerts were set up before any infrastructure.",
    ev:[{l:"the persistent infra",h:"https://github.com/MonishKamwal/mlops/tree/main/infra/persistent"},{l:"provider-wide cost tags",h:"https://github.com/MonishKamwal/mlops/blob/main/infra/persistent/providers.tf"}]},
   {slug:"one-preprocessing-path",date:"2026-07-03",phaseKey:"Phase 1",title:"One preprocessing path",summary:"Training and serving can prepare inputs slightly differently; one shared path prevents it.",
@@ -427,8 +428,11 @@ const ENTRIES = [
 ];
 
 /* group by phase (declared order), entries within sorted oldest-first, drop empty phases */
-const GROUPS = PHASES.map(ph=>({ph, items:ENTRIES.filter(e=>e.phaseKey===ph.key).sort((a,b)=>a.date.localeCompare(b.date))})).filter(g=>g.items.length);
-const ORDERED = GROUPS.flatMap(g=>g.items);          // entries in page order
+let GROUPS=[], ORDERED=[];
+function computeGroups(){
+  GROUPS = PHASES.map(ph=>({ph, items:ENTRIES.filter(e=>e.phaseKey===ph.key).sort((a,b)=>a.date.localeCompare(b.date))})).filter(g=>g.items.length);
+  ORDERED = GROUPS.flatMap(g=>g.items);          // entries in page order
+}
 const fmtDate = d=>{const [y,m,dd]=d.split("-");return new Date(+y,+m-1,+dd).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});};
 
 /* ============================ geometry: the winding road (plan units) ============================ */
@@ -476,13 +480,12 @@ function buildFlow(){
       <p class="chapPhase">Phase ${esc(num)}</p>
       <h2 class="chapTitle">${esc(g.ph.title)}</h2></div>`;
     g.items.forEach(e=>{
-      const ev=e.ev.map(x=>`<a class="link" href="${x.h}" target="_blank" rel="noopener">${esc(x.l)} ${arrow()}</a>`).join("");
+      // the serpentine entry is just date · title · summary — the evidence links live in its card
       h+=`<div class="block" data-stop>
         <div class="jEntry" data-slug="${esc(e.slug)}" role="button" tabindex="0" aria-haspopup="dialog">
         <p class="micro k kOchre">${esc(fmtDate(e.date))} · ${esc(e.phaseKey)} — ${esc(PHASES.find(p=>p.key===e.phaseKey).title)}</p>
         <h2 class="jTitle">${esc(e.title)}</h2>
-        <p class="jSummary">${esc(e.summary)}</p>
-        <div class="jEv">${ev}</div></div></div>`;
+        <p class="jSummary">${esc(e.summary)}</p></div></div>`;
     });
   });
   // the final stop carries no text — it exists only to pull the camera back and reveal
@@ -621,17 +624,9 @@ function apply(){
   });
 }
 
-/* ============================ boot ============================ */
-buildFlow();
-build();
-layout();
-(function loop(){ apply(); requestAnimationFrame(loop); })();
-addEventListener("resize",()=>{ build(); layout(); });
-if(document.fonts) document.fonts.ready.then(()=>{ build(); layout(); });
-
-/* ---------- click an entry → open its paper card (same behaviour as sections-prototype).
-   Purely driven by the click; nothing here touches the travelling dot. ---------- */
-(function(){
+/* ---------- the entry detail card (same behaviour as sections-prototype). openCard renders the
+   full body_md (paragraph per blank line) + the evidence links. Nothing here touches the dot. ---------- */
+const CardModal=(function(){
   const scrim=document.getElementById("cardScrim"), card=document.getElementById("paperCard"),
         cx=document.getElementById("cardX"), mMeta=document.getElementById("cardMeta"),
         mTitle=document.getElementById("cardTitle"), mBody=document.getElementById("cardBody"),
@@ -641,8 +636,9 @@ if(document.fonts) document.fonts.ready.then(()=>{ build(); layout(); });
     const ph=PHASES.find(p=>p.key===e.phaseKey);
     mMeta.textContent=`${fmtDate(e.date)} · ${e.phaseKey} — ${ph?ph.title:""}`;
     mTitle.textContent=e.title;
-    mBody.innerHTML=`<p>${esc(e.summary)}</p>`;
-    mEv.innerHTML=e.ev.map(x=>`<a class="link" target="_blank" rel="noopener" href="${x.h}">${esc(x.l)} ↗</a>`).join("");
+    const body=(e.body||e.summary||"").split(/\n\n+/).map(p=>`<p>${esc(p)}</p>`).join("");
+    mBody.innerHTML=body;
+    mEv.innerHTML=(e.ev||[]).map(x=>`<a class="link" target="_blank" rel="noopener" href="${x.h}">${esc(x.l)} ↗</a>`).join("");
     if(opener){ const r=opener.getBoundingClientRect(); card.style.setProperty("--ox",(r.left+r.width/2)+"px"); card.style.setProperty("--oy",(r.top+r.height/2)+"px"); }
     scrim.classList.add("open"); card.classList.add("open");
     prevFocus=document.activeElement; cx.focus();
@@ -651,13 +647,30 @@ if(document.fonts) document.fonts.ready.then(()=>{ build(); layout(); });
   cx.addEventListener("click",closeCard);
   scrim.addEventListener("click",closeCard);
   document.addEventListener("keydown",ev=>{ if(ev.key==="Escape"&&card.classList.contains("open")) closeCard(); });
+  return { open:openCard };
+})();
+function wireEntries(){
   const bySlug={}; ENTRIES.forEach(e=>{ bySlug[e.slug]=e; });
   document.querySelectorAll(".jEntry").forEach(el=>{
     const e=bySlug[el.dataset.slug]; if(!e) return;
-    el.addEventListener("click",ev=>{ if(ev.target.closest("a")) return; openCard(e,el); });
-    el.addEventListener("keydown",ev=>{ if(ev.key==="Enter"||ev.key===" "){ ev.preventDefault(); openCard(e,el); } });
+    el.onclick=ev=>{ if(ev.target.closest("a")) return; CardModal.open(e,el); };
+    el.onkeydown=ev=>{ if(ev.key==="Enter"||ev.key===" "){ ev.preventDefault(); CardModal.open(e,el); } };
   });
-})();
+}
+
+/* ============================ boot ============================ */
+function init(){ computeGroups(); buildFlow(); build(); layout(); wireEntries(); }
+fetch("content/journey.json").then(r=>r.json()).then(data=>{
+  if(Array.isArray(data.phases)) PHASES=data.phases;
+  if(Array.isArray(data.entries)) ENTRIES=data.entries.map(e=>({
+    slug:e.slug, date:e.date, phaseKey:e.phaseKey, title:e.title, summary:e.summary,
+    body:e.body_md, ev:(e.evidence||[]).map(x=>({l:x.label, h:x.href}))
+  }));
+  init();
+}).catch(err=>{ console.warn("journey.json load failed — using the built-in fallback", err); init(); });
+(function loop(){ apply(); requestAnimationFrame(loop); })();
+addEventListener("resize",()=>{ if(stops.length){ build(); layout(); } });
+if(document.fonts) document.fonts.ready.then(()=>{ if(stops.length){ build(); layout(); } });
 </script>
 </body>
 </html>
