@@ -6,16 +6,16 @@ import { Menu } from "@/components/story/Menu";
 import { EdgeBlur } from "@/components/story/EdgeBlur";
 import { ArrivalLine } from "@/components/story/ArrivalLine";
 import { VizTipProvider } from "./VizTip";
-import { SwitchDock } from "./SwitchDock";
 import { useMenu } from "@/lib/hooks/useMenu";
 import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
 import { useScrubbedReveals } from "@/lib/hooks/useScrubbedReveals";
 
 // The shared layout for every Data page (DESIGN.md §7). White ground, lifted
 // paper; mode identity rides the chrome, not a ground tint. Reuses the global
-// chrome (top bar, menu, edge blur, arrival line) and adds the isolated Data
-// tray + the one shared chart tooltip. A scrubbed-reveal loop animates the
-// page's `.reveal` blocks in. Page content (the panel grid) is the children.
+// chrome (top bar, menu, edge blur, arrival line) plus the one shared chart
+// tooltip. Within-mode navigation is the menu + each page's read-next foot (no
+// bottom tray). A scrubbed-reveal loop animates the page's `.reveal` blocks in;
+// page content (the panel grid) is the children.
 export function DataShell({
   current,
   children,
@@ -37,7 +37,6 @@ export function DataShell({
       <VizTipProvider>
         <main>{children}</main>
       </VizTipProvider>
-      <SwitchDock current={current} />
     </div>
   );
 }

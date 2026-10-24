@@ -2163,55 +2163,20 @@ body {
   border-radius: 3px;
 }
 
-/* ---------- the isolated Data tray: bottom navigation (DESIGN §4.6) ---------- */
-.data-root .switch-dock {
-  position: fixed;
-  left: 50%;
-  bottom: 18px;
-  transform: translateX(-50%);
-  z-index: 40;
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 30px;
-  padding: 6px 8px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  box-shadow: 0 8px 24px -16px rgba(10, 10, 10, 0.4);
-}
-.data-root .switch-dock .sw {
-  font-family: var(--outfit);
-  font-size: 12.5px;
-  color: var(--muted-foreground);
-  background: none;
-  border: 0;
-  border-radius: 20px;
-  padding: 6px 14px;
-  cursor: pointer;
-  text-decoration: none;
-  transition: color var(--hover-dur) var(--ease-hover),
-    background var(--hover-dur) var(--ease-hover),
-    scale var(--hover-dur) var(--ease-hover);
-}
-.data-root .switch-dock .sw.active {
-  color: #fff;
-  background: var(--foreground);
-}
-
-/* the one hover for Data controls (adds chip-btn + tray to the house rule) */
+/* the one hover for Data controls (adds the chart's data chip to the house rule) */
 @media (hover: hover) and (pointer: fine) {
-  .data-root :is(.chip-btn, .switch-dock .sw:not(.active)):hover {
+  .data-root .chip-btn:hover {
     color: var(--warm);
     border-color: var(--warm);
     scale: var(--hover-scale);
   }
 }
-.data-root :is(.chip-btn, .switch-dock .sw:not(.active)):is(:focus-visible, :active) {
+.data-root .chip-btn:is(:focus-visible, :active) {
   color: var(--warm);
   border-color: var(--warm);
   scale: var(--hover-scale);
 }
-.data-root :is(.chip-btn, .switch-dock .sw):focus-visible {
+.data-root .chip-btn:focus-visible {
   outline: 2px solid var(--warm);
   outline-offset: 3px;
   border-radius: 20px;
@@ -2226,9 +2191,6 @@ body {
   }
 }
 @media (max-width: 640px) {
-  .data-root .switch-dock {
-    bottom: 70px;
-  }
   .data-root .tile-row {
     gap: 14px;
   }
