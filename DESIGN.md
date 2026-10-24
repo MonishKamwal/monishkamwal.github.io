@@ -21,6 +21,28 @@ The earlier staged decision-log that used to live here is in git history (`git l
 
 ---
 
+## 0. Implementation status (as of 2026-10-23)
+
+This spec describes the **whole finalized design**; the real site is being built against it
+section by section. What exists in the Next.js app today:
+
+| Area | Status | Notes |
+|---|---|---|
+| **Home** — six-section scroll (§5) | **Built** | `app/page.tsx` → `components/home/HomeScroll.tsx` (+ `SketchDemo`, `washMarkup`). Prototype-exact. The live demo is **already wired to the deployed model** (`lib/predict.ts`: `predictSketch` / `model-info` / 👍–👎 `feedback`) — §5.2's "Real site" note is done, not pending. |
+| **Story mode** — Journey · Architecture · Skills · About (§6) | **Built** | Flat routes `app/journey`, `app/architecture`, `app/skills`, `app/about`, each `StoryShell` + its page component under `components/story/**`. Journey/Architecture/Skills carry the sticky scroll-camera stages; About is the editorial column + crop-modal uploader. |
+| **Shared chrome** (§4) | **Mostly built** | `TopBar` (← Home / hamburger), `Menu` (slide-in, four groups), `EdgeBlur`, `ArrivalLine`, `PaperCard` (+ provider), `CardHint`, `ReadNext`. **Exception: the bottom tray / `.switch-dock` (§4.6) is NOT built** — `trays` is only a type in `lib/content.ts`, never rendered. Story navigation today is top bar + menu + read-next foot. |
+| **Content layer** (§9) | **Built** | `content/*.json` consumed through `lib/content.ts`; motion lives in `lib/hooks/*` + `lib/story/*`. Assets `public/portrait.jpg`, `public/resume.pdf` present. Data framing `content/data/*.json` exists even though the pages don't. |
+| **Data mode** — Quality · Monitoring · Performance (§7) | **Not built** | No `app/quality|monitoring|performance` routes, no chart/panel components, no live-contract fetching. The §7 grammar is spec-only for now. |
+
+**Known dangling links** (point at unbuilt Data routes — they 404 today): the Home demo CTA
+"See how the model performs →" (`/quality`), Skills evidence links to `/monitoring` · `/performance`,
+and the Data read-next chains in `content/data/*.json`. These resolve once Data mode is built.
+
+Everything below is the design spec in full. Where a section is not yet implemented (Data mode, the
+bottom tray) it is flagged inline; treat those as the target, not the current state.
+
+---
+
 ## 1. Design tokens
 
 All three prototypes share one `:root`. Values are identical across files except where noted.
@@ -246,6 +268,10 @@ Shared overlay. `.card-scrim` (`rgba(10,10,10,.20)`, z-60) + `.paper-card` (fixe
 
 ### 4.6 Bottom tray (`.switch-dock`) — within-mode navigation (Story + Data, **isolated by mode**)
 
+> **Not yet built (§0).** The tray data lives in `content/site.json` (`trays.story` / `trays.data`)
+> and its type in `lib/content.ts`, but no component renders it. Story navigation today is the top
+> bar ("← Home") + the slide-in menu + the read-next foot (§4.7). Spec retained as the target.
+
 Fixed bottom-centre pill (`#fff`, `border-radius:30px`, `padding:6px 8px`, shadow
 `0 8px 24px -16px`, z-40). Tabs (`.sw`, Outfit 12.5px, muted) jump between the mode's pages; the
 active tab is `background:var(--foreground)`, `#fff` text, and does not answer the pointer.
@@ -317,8 +343,9 @@ middle); clicking it `scrollIntoView({block:'start'})` to the next section.
 - `.demo-arrow-wrap` ↓ cue (becomes the last stacked item on phone).
 - Ground `--well`, seams `--seam-12`/`--seam-23`. Reveal order: canvas (`data-stagger=1`), then
   predictions (`data-stagger=2`).
-- **Real site:** the pad sends raw QuickDraw strokes to the Lambda (`lib/predict.ts`), renders live
-  top-3, warm-up ping + cold-start state, feedback with 👍/👎 + class-picker — all per `content/home.json`.
+- **Built (real model wired):** the pad sends raw QuickDraw strokes to the Lambda (`lib/predict.ts`),
+  renders live top-3, warm-up ping + cold-start state, feedback with 👍/👎 + class-picker — all per
+  `content/home.json`. (Implemented in `components/home/SketchDemo.tsx`, not a placeholder.)
 
 ### §3 Behind the Scenes — `--wash-sage`
 
@@ -399,7 +426,8 @@ middle); clicking it `scrollIntoView({block:'start'})` to the next section.
 
 Three pages (Architecture · Journey · Skills) + About, each `.page` (shown one at a time in the
 prototype; **routes in the real site**). Each page inherits its wash via `body[data-page]`, opens
-with the arrival line, carries the Story tray, and ends on a read-next foot. Shared paper card +
+with the arrival line, carries the Story tray (spec'd in §4.6; not yet built), and ends on a
+read-next foot. Shared paper card +
 crop modal overlays live once at the end of `<main>`.
 
 ### 6.1 Journey (`/journey`) — ground ochre — "an SVG camera walks the road"
@@ -551,6 +579,11 @@ hero down to the serpentine.
 
 ## 7. Data mode (`data-prototype-white.html`)
 
+> **Not yet built (§0).** No routes or components exist for Data mode; the copy framing is already
+> in `content/data/{quality,monitoring,performance}.json`, but the pages, the chart grammar below,
+> and the live-contract fetching are unimplemented. Nav links into Data mode 404 until this ships.
+> Everything in §7 is the target spec.
+
 Three pages (Quality · Monitoring · Performance) — the narrative arc **report card → is it holding up
 → is it fast**. White ground, lifted-paper panels, cool well for narrative, the §1.5 palette. Data
 tray + menu as the only nav. Wider shell than Story: `.wrap max-width:1120px`.
@@ -660,9 +693,14 @@ framing prose is in `content/data/*.json`. Charts are hand-rolled inline SVG per
 
 ## 10. Implementation notes (prototype → real site)
 
-- The prototypes are **one file each with an in-file page switcher**; the real site is **routes**
-  (`app/(story)/…`, `app/(data)/…`, `/about`, `/`). The "arrival line" is the inter-page transition
-  device; the trays and menu become real navigation.
+- The prototypes are **one file each with an in-file page switcher**; the real site is **flat routes**
+  — `app/page.tsx` (Home), `app/journey`, `app/architecture`, `app/skills`, `app/about`, and (when
+  built) `app/quality`, `app/monitoring`, `app/performance`. No `(story)`/`(data)` route groups; mode
+  identity rides the ground tint + chrome, not the URL. Each Story page is a thin server shell wrapping
+  `StoryShell` + its page component (`components/story/<page>/…`, CSS Modules); shared chrome lives in
+  `components/story/*` and motion in `lib/hooks/*` + `lib/story/*`. The "arrival line" (`ArrivalLine`,
+  mounted per page by `StoryShell`) is the inter-page transition device; the menu is the real
+  cross-mode navigation (the read-next foot handles forward motion; the bottom tray is still pending).
 - **Static export, GitHub Pages, modified Next.js** — all dynamic behavior is client-side; read the
   bundled Next docs (`node_modules/next/dist/docs/`) before using an API.
 - **Build structure-first, motion second** (reduced-motion honored throughout); charts are hand-rolled
