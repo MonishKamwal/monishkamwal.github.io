@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" fill="#fff"/>
+  <text
+    x="32"
+    y="46"
+    fill="#0a0a0a"
+    font-family="'Bodoni Moda', Bodoni, Didot, Georgia, serif"
+    font-size="43"
+    font-weight="500"
+    letter-spacing="-3"
+    text-anchor="middle"
+  >MK</text>
+</svg>
