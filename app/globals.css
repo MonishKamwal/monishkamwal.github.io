@@ -1575,6 +1575,665 @@ body {
   scale: none;
 }
 
+/* ================================================================== *
+ * DATA MODE — ported from data-prototype-white.html (the finalized
+ * design). The "white / lifted-paper" instrument variant: mode identity
+ * rides the chrome (slate shadows, cool hairlines), not a ground tint.
+ * Everything is scoped under .data-root so the shared class names
+ * (.panel, .sec-head, .link, .reveal, read-next) can't collide with
+ * Home/Story. The §1.5 instrument tokens live here. See DESIGN.md §7.
+ * ================================================================== */
+.data-root {
+  /* white/lifted-paper instrument instance (chart hues revalidated on #fff) */
+  --card: #ffffff;
+  --card-border: #e4e8ef;
+  --grid: #e7ebf1;
+  --axis: #c9cfd9;
+  --chart-primary: #2a78d6;
+  --chart-deep: #256abf;
+  --ref-gray: #8a93a1;
+  --ok: #0ca30c;
+  --ok-text: #006300;
+  --watch: #c98a3a;
+  --watch-text: #96600a;
+  --bad: #d03b3b;
+  --bad-text: #d03b3b;
+
+  min-height: 100vh;
+  background: #fff;
+  color: var(--foreground);
+  font-family: var(--outfit);
+  font-weight: 330;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+/* no hero to gate the menu button (as on Story pages) */
+.data-root .menu-btn {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ---------- page shell (wider than Story — instruments need bench space) ---------- */
+.data-root .wrap {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: clamp(96px, 14vh, 140px) clamp(20px, 4vw, 40px) clamp(80px, 12vh, 130px);
+}
+.data-root .page-head {
+  margin-bottom: clamp(26px, 5vh, 48px);
+}
+.data-root .page-title {
+  font-size: clamp(46px, 9vw, 96px);
+  text-transform: uppercase;
+  margin: 0;
+}
+.data-root .page-lead {
+  margin: 12px 0 0;
+  font-size: clamp(16px, 2vw, 21px);
+  color: var(--muted-foreground);
+}
+/* provenance row — every Data page names its contract, its freshness, its cadence */
+.data-root .prov {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+.data-root .prov .dot-live {
+  color: var(--ok-text);
+}
+.data-root .prov .dot-live::before {
+  content: "● ";
+  font-size: 8px;
+  vertical-align: 2px;
+}
+.data-root .prov .sep {
+  opacity: 0.45;
+}
+
+/* ---------- panel (chart card) grammar ---------- */
+.data-root .grid12 {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 18px;
+}
+.data-root .panel {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 13px;
+  padding: 20px 22px 18px;
+  min-width: 0;
+  box-shadow: 0 22px 46px -28px rgba(15, 23, 42, 0.2),
+    0 3px 9px -5px rgba(15, 23, 42, 0.07);
+}
+.data-root .panel.well {
+  background: var(--well);
+  border-color: #e8ecf2;
+  box-shadow: none;
+}
+.data-root .p-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+.data-root .p-title {
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+.data-root .p-sub {
+  font-size: 12.5px;
+  color: var(--muted-foreground);
+  margin-top: 1px;
+}
+.data-root .p-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+.data-root .sec-head {
+  font-family: var(--bodoni);
+  font-optical-sizing: auto;
+  font-variation-settings: "opsz" 72;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  font-size: clamp(24px, 3.6vw, 36px);
+  line-height: 1.05;
+  margin: clamp(34px, 6vh, 56px) 0 16px;
+}
+.data-root .sec-head:first-of-type {
+  margin-top: 0;
+}
+.data-root .sec-cap {
+  margin: -6px 0 18px;
+  color: var(--muted-foreground);
+  max-width: 64ch;
+  font-size: 14.5px;
+}
+
+/* status chips — reserved meaning, always icon + label, never colour alone */
+.data-root .st {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 550;
+  padding: 3px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.data-root .st svg {
+  width: 11px;
+  height: 11px;
+  flex: 0 0 auto;
+}
+.data-root .st.ok {
+  color: var(--ok-text);
+  background: rgba(12, 163, 12, 0.08);
+}
+.data-root .st.watch {
+  color: var(--watch-text);
+  background: rgba(201, 138, 58, 0.1);
+}
+.data-root .st.bad {
+  color: var(--bad-text);
+  background: rgba(208, 59, 59, 0.08);
+}
+.data-root .st.mock {
+  color: var(--muted-foreground);
+  background: none;
+  border: 1px dashed var(--axis);
+}
+
+/* KPI tiles + the hero figure */
+.data-root .tile-row {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.data-root .tile {
+  flex: 1 1 150px;
+}
+.data-root .tile .t-label {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+.data-root .tile .t-value {
+  font-size: clamp(24px, 3vw, 30px);
+  font-weight: 550;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+  margin-top: 2px;
+}
+.data-root .tile .t-sub {
+  font-size: 12.5px;
+  color: var(--muted-foreground);
+  margin-top: 1px;
+}
+.data-root .hero-num {
+  font-size: clamp(56px, 7vw, 84px);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.data-root .hero-num .unit {
+  font-size: 0.45em;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--muted-foreground);
+}
+
+/* tables — the WCAG-clean twin of every chart */
+.data-root .tscroll {
+  overflow-x: auto;
+}
+.data-root .dtable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.data-root .dtable th {
+  text-align: left;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 550;
+  color: var(--muted-foreground);
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--axis);
+  white-space: nowrap;
+}
+.data-root .dtable td {
+  padding: 6.5px 10px;
+  border-bottom: 1px solid var(--grid);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.data-root .dtable td.num,
+.data-root .dtable th.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.data-root .dtable tr:last-child td {
+  border-bottom: 0;
+}
+.data-root .dtable tr.row-champ td {
+  background: rgba(201, 138, 58, 0.07);
+}
+.data-root .alias-chip {
+  display: inline-block;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 550;
+  padding: 1px 8px;
+  border-radius: 12px;
+  background: rgba(201, 138, 58, 0.12);
+  color: var(--watch-text);
+}
+.data-root .alias-chip.challenger {
+  background: rgba(42, 120, 214, 0.1);
+  color: var(--chart-deep);
+}
+.data-root .alias-chip.blocked {
+  background: rgba(208, 59, 59, 0.09);
+  color: var(--bad-text);
+  margin-left: 6px;
+}
+
+/* chart internals */
+.data-root .chart {
+  position: relative;
+}
+.data-root .chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.data-root .chart text {
+  font-family: var(--outfit);
+}
+.data-root .ax {
+  font-size: 10.5px;
+  fill: var(--muted-foreground);
+  font-variant-numeric: tabular-nums;
+}
+.data-root .ax-title {
+  font-size: 10.5px;
+  fill: var(--muted-foreground);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.data-root .dlab {
+  font-size: 11px;
+  font-weight: 500;
+  fill: var(--foreground);
+  font-variant-numeric: tabular-nums;
+}
+.data-root .dlab.mut {
+  fill: var(--muted-foreground);
+  font-weight: 420;
+}
+.data-root .lg {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: 12px;
+  color: var(--muted-foreground);
+  margin-top: 10px;
+}
+.data-root .lg .k {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.data-root .lg .sw-line {
+  width: 14px;
+  height: 2px;
+  border-radius: 2px;
+  display: inline-block;
+}
+.data-root .lg .sw-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.data-root .lg .sw-rect {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  display: inline-block;
+}
+.data-root .cap {
+  font-size: 12px;
+  color: var(--muted-foreground);
+  margin-top: 10px;
+  line-height: 1.5;
+}
+
+/* meter rows (requests by status) */
+.data-root .meter-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--grid);
+}
+.data-root .meter-row:last-child {
+  border-bottom: 0;
+}
+.data-root .meter-track {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--grid);
+  overflow: hidden;
+}
+.data-root .meter-fill {
+  height: 100%;
+  border-radius: 3px;
+  min-width: 2px;
+}
+.data-root .meter-num {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  min-width: 110px;
+}
+.data-root .meter-num .sh {
+  color: var(--muted-foreground);
+  font-size: 12px;
+  margin-left: 6px;
+}
+
+/* chart ↔ table toggle — every chart carries its table twin */
+.data-root .chip-btn {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted-foreground);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 3px 9px;
+  cursor: pointer;
+  transition: border-color var(--hover-dur) var(--ease-hover),
+    color var(--hover-dur) var(--ease-hover),
+    scale var(--hover-dur) var(--ease-hover);
+}
+.data-root .chip-btn.active,
+.data-root .chip-btn[aria-pressed="true"] {
+  border-color: var(--warm);
+  color: var(--deep-ochre);
+  background: #f4cc9e38;
+}
+.data-root .tview {
+  display: none;
+}
+.data-root .panel.show-table .tview {
+  display: block;
+}
+.data-root .panel.show-table .chart,
+.data-root .panel.show-table .lg {
+  display: none;
+}
+
+/* shared tooltip — value leads, label follows; line-keys not boxes */
+.viz-tip {
+  position: fixed;
+  z-index: 70;
+  pointer-events: none;
+  opacity: 0;
+  background: #fff;
+  border: 1px solid #e4e8ef;
+  border-radius: 8px;
+  box-shadow: 0 10px 26px -14px rgba(10, 10, 30, 0.35);
+  padding: 8px 11px;
+  font-size: 12px;
+  line-height: 1.5;
+  max-width: 260px;
+  transition: opacity 0.12s var(--ease-out-expo);
+}
+.viz-tip .tt-h {
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 550;
+  color: var(--muted-foreground);
+  margin-bottom: 3px;
+}
+.viz-tip .tt-r {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.viz-tip .tt-k {
+  width: 12px;
+  height: 2px;
+  border-radius: 2px;
+  flex: 0 0 auto;
+}
+.viz-tip .tt-v {
+  font-weight: 550;
+  font-variant-numeric: tabular-nums;
+}
+.viz-tip .tt-l {
+  color: var(--muted-foreground);
+}
+/* the chart's recessive hover mark (crosshair / band / ring) */
+.data-root .hov {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--hover-dur) var(--ease-hover);
+}
+.data-root .hov.hov-on {
+  opacity: 1;
+}
+
+/* page footer links */
+.data-root .page-foot {
+  margin-top: clamp(40px, 8vh, 72px);
+  padding-top: clamp(20px, 3vh, 30px);
+  border-top: 1px solid var(--foreground);
+}
+.data-root .page-foot p {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: var(--muted-foreground);
+  max-width: 64ch;
+}
+.data-root .page-foot .links {
+  display: flex;
+  gap: 26px;
+  flex-wrap: wrap;
+  font-size: 14.5px;
+}
+
+/* verdict banner — the one place a page leads with status; sits in the well */
+.data-root .banner {
+  border-left: 3px solid var(--axis);
+  background: var(--well);
+  border-color: #e8ecf2;
+  box-shadow: none;
+}
+.data-root .banner.is-bad {
+  border-left-color: var(--bad);
+}
+.data-root .banner.is-ok {
+  border-left-color: var(--ok);
+}
+.data-root .banner .b-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.data-root .banner .b-text {
+  font-size: 15px;
+  max-width: 70ch;
+  margin: 8px 0 0;
+}
+
+/* ---------- reading foot: the forward handoff (mirror of ← HOME) ---------- */
+.data-root .read-next {
+  margin-top: clamp(40px, 7vh, 64px);
+  padding-top: clamp(22px, 3.2vh, 32px);
+  border-top: 1px solid var(--foreground);
+}
+.data-root .rn-link {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 7px;
+  width: fit-content;
+  max-width: 100%;
+  text-decoration: none;
+  color: var(--foreground);
+  cursor: pointer;
+  transform-origin: left center;
+  transition: color var(--hover-dur) var(--ease-hover);
+}
+.data-root .rn-cue {
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+.data-root .rn-row {
+  display: flex;
+  align-items: center;
+  gap: 0.34em;
+}
+.data-root .rn-name {
+  font-family: var(--bodoni);
+  font-optical-sizing: auto;
+  font-variation-settings: "opsz" 72;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  line-height: 1;
+  font-size: clamp(34px, 6vw, 54px);
+  color: inherit;
+}
+.data-root .rn-arrow {
+  flex: 0 0 auto;
+  width: clamp(24px, 3.6vw, 32px);
+  height: auto;
+  transition: transform var(--hover-dur) var(--ease-hover);
+}
+.data-root .rn-peek {
+  font-size: 14.5px;
+  color: var(--muted-foreground);
+  max-width: 52ch;
+}
+@media (hover: hover) and (pointer: fine) {
+  .data-root .rn-link:hover {
+    color: var(--warm);
+  }
+  .data-root .rn-link:hover .rn-arrow {
+    transform: translateX(3px);
+  }
+}
+.data-root .rn-link:is(:focus-visible, :active) {
+  color: var(--warm);
+}
+.data-root .rn-link:is(:focus-visible, :active) .rn-arrow {
+  transform: translateX(3px);
+}
+.data-root .rn-link:focus-visible {
+  outline: 2px solid var(--warm);
+  outline-offset: 4px;
+  border-radius: 3px;
+}
+
+/* ---------- the isolated Data tray: bottom navigation (DESIGN §4.6) ---------- */
+.data-root .switch-dock {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  z-index: 40;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 30px;
+  padding: 6px 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 8px 24px -16px rgba(10, 10, 10, 0.4);
+}
+.data-root .switch-dock .sw {
+  font-family: var(--outfit);
+  font-size: 12.5px;
+  color: var(--muted-foreground);
+  background: none;
+  border: 0;
+  border-radius: 20px;
+  padding: 6px 14px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color var(--hover-dur) var(--ease-hover),
+    background var(--hover-dur) var(--ease-hover),
+    scale var(--hover-dur) var(--ease-hover);
+}
+.data-root .switch-dock .sw.active {
+  color: #fff;
+  background: var(--foreground);
+}
+
+/* the one hover for Data controls (adds chip-btn + tray to the house rule) */
+@media (hover: hover) and (pointer: fine) {
+  .data-root :is(.chip-btn, .switch-dock .sw:not(.active)):hover {
+    color: var(--warm);
+    border-color: var(--warm);
+    scale: var(--hover-scale);
+  }
+}
+.data-root :is(.chip-btn, .switch-dock .sw:not(.active)):is(:focus-visible, :active) {
+  color: var(--warm);
+  border-color: var(--warm);
+  scale: var(--hover-scale);
+}
+.data-root :is(.chip-btn, .switch-dock .sw):focus-visible {
+  outline: 2px solid var(--warm);
+  outline-offset: 3px;
+  border-radius: 20px;
+}
+
+@media (max-width: 880px) {
+  .data-root .grid12 {
+    grid-template-columns: 1fr;
+  }
+  .data-root .grid12 .panel {
+    grid-column: 1 / -1 !important;
+  }
+}
+@media (max-width: 640px) {
+  .data-root .switch-dock {
+    bottom: 70px;
+  }
+  .data-root .tile-row {
+    gap: 14px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .home-root *,
   .home-root {
@@ -1590,6 +2249,14 @@ body {
     transition: none !important;
   }
   .story-root .reveal {
+    opacity: 1 !important;
+  }
+  .data-root *,
+  .data-root {
+    animation: none !important;
+    transition: none !important;
+  }
+  .data-root .reveal {
     opacity: 1 !important;
   }
 }

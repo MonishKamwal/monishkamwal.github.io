@@ -32,11 +32,23 @@ section by section. What exists in the Next.js app today:
 | **Story mode** — Journey · Architecture · Skills · About (§6) | **Built** | Flat routes `app/journey`, `app/architecture`, `app/skills`, `app/about`, each `StoryShell` + its page component under `components/story/**`. Journey/Architecture/Skills carry the sticky scroll-camera stages; About is the editorial column + crop-modal uploader. |
 | **Shared chrome** (§4) | **Mostly built** | `TopBar` (← Home / hamburger), `Menu` (slide-in, four groups), `EdgeBlur`, `ArrivalLine`, `PaperCard` (+ provider), `CardHint`, `ReadNext`. **Exception: the bottom tray / `.switch-dock` (§4.6) is NOT built** — `trays` is only a type in `lib/content.ts`, never rendered. Story navigation today is top bar + menu + read-next foot. |
 | **Content layer** (§9) | **Built** | `content/*.json` consumed through `lib/content.ts`; motion lives in `lib/hooks/*` + `lib/story/*`. Assets `public/portrait.jpg`, `public/resume.pdf` present. Data framing `content/data/*.json` exists even though the pages don't. |
-| **Data mode** — Quality · Monitoring · Performance (§7) | **Not built** | No `app/quality|monitoring|performance` routes, no chart/panel components, no live-contract fetching. The §7 grammar is spec-only for now. |
+| **Data mode** — Quality · Monitoring · Performance (§7) | **Built** | Flat routes `app/quality`, `app/performance`, `app/monitoring`, each `DataShell` + its page component under `components/data/**`. Charts are hand-rolled inline-SVG React (`components/data/charts/*`) ported from the prototype's engine, with the shared `VizTip` tooltip + table twins. Contracts fetched client-side via `useContracts` (`lib/data/{contracts,format}.ts`). The isolated Data tray (`SwitchDock`, §4.6) ships here — so §4.6 is now built for Data mode (Story still uses top bar + menu + read-next). |
 
-**Known dangling links** (point at unbuilt Data routes — they 404 today): the Home demo CTA
-"See how the model performs →" (`/quality`), Skills evidence links to `/monitoring` · `/performance`,
-and the Data read-next chains in `content/data/*.json`. These resolve once Data mode is built.
+**Live-contract reality (vs the prototype's embedded snapshot).** The hub serves each contract as
+its own file: `evidence.json` (Quality); `drift.json` + `drift_history.json` + `feedback.json` +
+`feedback_history.json` (Monitoring); `api-metrics.json` (Performance). Two things the prototype's
+merged `DATA` blob hid: (1) there is **no published confusion matrix** — it is embedded in
+`lib/data/contracts.ts` (`ILLUSTRATIVE_CONFUSION`), always flagged "illustrative"; (2) the real
+`api-metrics.json` schema differs from the mock — latency in **seconds**, `requests_by_status` as a
+per-class **rate** series (2xx/4xx/5xx), node utilisation as a **per-instance ratio** across the
+cluster, `error_rate_5xx`, and (currently) a **partial capture** (only the tail of the 15-min window).
+The Performance page adapts: s→ms, rate×step→counts, cluster-average×100, nominal-window axis so a
+partial capture reads honestly. Monitoring handles a **quiet feedback window** (`n = 0`): the proxy-
+accuracy panel falls back to the last window with votes (dated), and the per-class table shows a note.
+
+**Known dangling links — now resolved:** the Home demo CTA "See how the model performs →"
+(`/quality`), Skills evidence links to `/monitoring` · `/performance`, and the Data read-next chains
+all point at real routes now that Data mode is built.
 
 Everything below is the design spec in full. Where a section is not yet implemented (Data mode, the
 bottom tray) it is flagged inline; treat those as the target, not the current state.
