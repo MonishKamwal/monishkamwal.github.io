@@ -19,9 +19,9 @@ export function useArrival(
       return;
     }
 
-    const title = document.querySelector<HTMLElement>(
-      ".story-root .page-title",
-    );
+    // One shell mounts per route (Story or Data), so the bare class is
+    // unambiguous — both modes title with `.page-title`.
+    const title = document.querySelector<HTMLElement>(".page-title");
     if (title) {
       const rg = document.createRange();
       rg.selectNodeContents(title);
