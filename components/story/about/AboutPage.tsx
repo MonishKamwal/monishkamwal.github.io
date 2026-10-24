@@ -140,9 +140,17 @@ export function AboutPage() {
               </defs>
               <path ref={path} className={styles.trPath} d={ABOUT_TRACE_D} mask="url(#abLensMask)" />
               <path className={styles.trLens} d={ABOUT_TRACE_D} clipPath="url(#abLensClip)" />
+              {/* milestone rings bloom as the comet passes each Work node */}
+              {ABOUT_TRACE_NODES.map((n, i) => (
+                <circle key={`ring${i}`} data-tr-ring className={styles.trRing} cx={n[0]} cy={n[1]} r="8" opacity="0" />
+              ))}
               {ABOUT_TRACE_NODES.map((n, i) => (
                 <circle key={i} data-tr-node className={styles.trNode} cx={n[0]} cy={n[1]} r="8" />
               ))}
+              {/* the travelling comet — the Journey "traveling light", laps the serpentine */}
+              <path data-tr-comet className={styles.trComet} d={ABOUT_TRACE_D} />
+              <circle data-tr-halo className={styles.trHalo} r="9" opacity="0" />
+              <circle data-tr-head className={styles.trHead} r="3.6" opacity="0" />
             </svg>
             {about.work.entries.map((e, i) => (
               <div

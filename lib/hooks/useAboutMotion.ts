@@ -83,6 +83,8 @@ export function useAboutMotion(refs: AboutRefs, reduced: boolean, hotClass: stri
       stops: HTMLElement[]; nodes: SVGCircleElement[]; len: number;
       frac: number[]; baseR: number[]; cur: number[];
       hover: number; target: number; focus: number; lensOn: number; off: number | null;
+      comet: SVGPathElement | null; halo: SVGCircleElement | null;
+      head: SVGCircleElement | null; rings: SVGCircleElement[]; cometTail: number;
     };
     let tr: Trace | null = null;
     const traceCleanups: (() => void)[] = [];
@@ -100,12 +102,20 @@ export function useAboutMotion(refs: AboutRefs, reduced: boolean, hotClass: stri
       };
       const nodes = [...trace.querySelectorAll<SVGCircleElement>("[data-tr-node]")];
       const stops = [...trace.querySelectorAll<HTMLElement>("[data-tr-stop]")];
+      const comet = trace.querySelector<SVGPathElement>("[data-tr-comet]");
+      const cometTail = Math.max(40, len * 0.16);
+      if (comet) comet.style.strokeDasharray = `${cometTail} ${len}`;
       const t: Trace = {
         stops, nodes, len,
         frac: NODE_COORDS.map(([x, y]) => fracNear(x, y)),
         baseR: nodes.map((n) => parseFloat(n.getAttribute("r") || "8")),
         cur: stops.map(() => 0),
         hover: -1, target: 0, focus: 0, lensOn: 0, off: null,
+        comet,
+        halo: trace.querySelector<SVGCircleElement>("[data-tr-halo]"),
+        head: trace.querySelector<SVGCircleElement>("[data-tr-head]"),
+        rings: [...trace.querySelectorAll<SVGCircleElement>("[data-tr-ring]")],
+        cometTail,
       };
       stops.forEach((el, i) => {
         const enter = () => {
@@ -150,9 +160,46 @@ export function useAboutMotion(refs: AboutRefs, reduced: boolean, hotClass: stri
       }
     };
 
+    // ---- the travelling comet: the Journey "traveling light + milestone pulse",
+    // ported onto the Work serpentine. A short lit tail laps the path on a steady
+    // clock (not scroll-position), gated by the serpentine's visibility; a soft
+    // halo + bright head ride the leading edge, and each Work node's ring blooms
+    // as the comet passes it. ----
+    const CM_LAP = 6000, CM_WIN = 0.12;
+    const applyComet = (now: number) => {
+      if (!tr || !path || !trace || !tr.comet || !tr.halo || !tr.head) return;
+      const rect = trace.getBoundingClientRect(), vh = window.innerHeight;
+      if (rect.bottom < 0 || rect.top > vh) {
+        tr.comet.style.opacity = "0";
+        tr.halo.setAttribute("opacity", "0");
+        tr.head.setAttribute("opacity", "0");
+        tr.rings.forEach((rg) => rg.setAttribute("opacity", "0"));
+        return;
+      }
+      const vis = clamp((vh * 0.85 - rect.top) / (vh * 0.7), 0, 1);
+      const ph = (now / CM_LAP) % 1, s = ph * tr.len;
+      tr.comet.style.strokeDashoffset = (tr.cometTail - s).toFixed(1);
+      const fade = Math.min(1, ph / 0.06, (1 - ph) / 0.06) * vis;
+      tr.comet.style.opacity = (0.9 * fade).toFixed(3);
+      const pt = path.getPointAtLength(s);
+      for (const el of [tr.halo, tr.head]) {
+        el.setAttribute("cx", pt.x.toFixed(1));
+        el.setAttribute("cy", pt.y.toFixed(1));
+      }
+      tr.halo.setAttribute("opacity", (0.2 * fade).toFixed(3));
+      tr.head.setAttribute("opacity", fade.toFixed(3));
+      tr.rings.forEach((rg, i) => {
+        const since = (((ph - tr!.frac[i]) % 1) + 1) % 1;
+        const raw = since < CM_WIN ? 1 - since / CM_WIN : 0;
+        rg.setAttribute("r", (tr!.baseR[i] + (1 - raw) * 14).toFixed(2));
+        rg.setAttribute("opacity", (raw * vis * 0.5).toFixed(3));
+      });
+    };
+
     let raf = requestAnimationFrame(function loop(t) {
       morphWash(t);
       applyTrace();
+      applyComet(t);
       raf = requestAnimationFrame(loop);
     });
     return () => {
