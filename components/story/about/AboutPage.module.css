@@ -285,6 +285,31 @@
   fill: var(--warm);
   stroke: var(--warm);
 }
+/* the travelling comet (the Journey "traveling light") — bright ochre so it
+   reads against the deep-ochre serpentine; its tail is a short lit dash that
+   laps the path, with a soft halo + bright head and a ring pulse at each node. */
+.trComet {
+  fill: none;
+  stroke: var(--warm);
+  stroke-width: 3;
+  stroke-linecap: round;
+  opacity: 0;
+  pointer-events: none;
+}
+.trHalo {
+  fill: var(--warm);
+  pointer-events: none;
+}
+.trHead {
+  fill: var(--warm);
+  pointer-events: none;
+}
+.trRing {
+  fill: none;
+  stroke: var(--warm);
+  stroke-width: 1.5;
+  pointer-events: none;
+}
 .trStop {
   position: absolute;
   width: 38%;

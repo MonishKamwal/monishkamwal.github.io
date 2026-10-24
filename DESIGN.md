@@ -582,6 +582,11 @@ hero down to the serpentine.
   (`.tr-stop width:38%`, alternating left/right) sit at the nodes (`.tr-range` mono, `.tr-role`,
   `.tr-what`, `.tr-more`). Hover = the Home §4 magnifier on the Work path (node swells + ochre, role →
   deep ochre, lens slides along the path). Each stop opens a **paper card**.
+  - **Travelling comet** (added beyond the prototype): the Home §4 Journey "traveling light + milestone
+    pulse", ported onto the Work serpentine — a bright-ochre (`--warm`) lit tail laps the path on a
+    steady ~6 s clock (gated by the serpentine's viewport visibility, off under reduced motion), a soft
+    halo + bright head ride the leading edge, and each Work node's ring blooms as the comet passes.
+    Lives in `useAboutMotion` alongside the lens; markup `data-tr-comet` / `-halo` / `-head` / `-ring`.
 - **Projects** (`.cv2`, same row style as Education): year anchor + body, each opening a card.
 - Read-next → **Contact** (Home `#contact` bookend) — ("Where to find me").
 - (The old centered "Say hello" `.ab-outro` + `.ab-email` click-to-copy + `.ab-links` grammar exists
