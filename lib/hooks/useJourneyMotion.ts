@@ -273,21 +273,21 @@ export function useJourneyMotion(
       });
     }
 
+    // build() samples the road 720× with getPointAtLength (~hundreds of ms) and
+    // is the heavy part of mount. But the road geometry comes purely from the
+    // (static) groups data — it's independent of viewport size and font metrics —
+    // so it only ever needs to run ONCE. Resize and font-load only shift where the
+    // reading blocks sit, which is all layout() re-measures. Rebuilding there was
+    // doubling (or more) the mount cost and leaving the page blank while it ran.
     build();
     layout();
     let raf = requestAnimationFrame(function loop() {
       apply();
       raf = requestAnimationFrame(loop);
     });
-    const onResize = () => {
-      build();
-      layout();
-    };
+    const onResize = () => layout();
     window.addEventListener("resize", onResize);
-    if (document.fonts) document.fonts.ready.then(() => {
-      build();
-      layout();
-    });
+    if (document.fonts) document.fonts.ready.then(() => layout());
 
     return () => {
       cancelAnimationFrame(raf);
