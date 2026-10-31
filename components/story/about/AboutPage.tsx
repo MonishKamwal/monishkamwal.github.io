@@ -1,11 +1,13 @@
 "use client";
 
-import { useCallback, useMemo, useRef } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { about, type AboutEntry, type AboutSection } from "@/lib/content";
 import { ABOUT_WASH_MARKUP, ABOUT_TRACE_D, ABOUT_TRACE_NODES, ABOUT_TRACE_STOPS } from "@/lib/story/aboutWash";
+import { ABOUT_SKILLS_WASH_MARKUP } from "@/lib/story/aboutSkillsWash";
 import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
 import { useAboutMotion } from "@/lib/hooks/useAboutMotion";
+import { useBreathingWash } from "@/lib/hooks/useBreathingWash";
 import { CardHint } from "../CardHint";
 import { ReadNext } from "../ReadNext";
 import { useCardController, useHashCard, type CardData } from "../PaperCard";
@@ -21,6 +23,19 @@ function entryCard(e: AboutEntry): CardData {
   };
 }
 
+// The injected skills wash, isolated so React never re-commits it. The blobs are
+// wired imperatively (reveal class, button roles, morphed paths, click handlers);
+// a card open/close re-renders AboutPage, and re-committing dangerouslySetInnerHTML
+// would wipe all of that — memo with no props keeps the subtree mounted untouched.
+const SkillsWash = memo(function SkillsWash() {
+  return (
+    <div
+      className={styles.abSkillsWash}
+      dangerouslySetInnerHTML={{ __html: ABOUT_SKILLS_WASH_MARKUP }}
+    />
+  );
+});
+
 export function AboutPage() {
   const reduced = useReducedMotion();
   const { openCard } = useCardController();
@@ -33,6 +48,108 @@ export function AboutPage() {
   const lensHole = useRef<SVGCircleElement>(null);
   const motionRefs = useMemo(() => ({ wash, trace, path, lensCircle, lensHole }), []);
   useAboutMotion(motionRefs, reduced, styles.hot);
+
+  // the "What I work with" living wash (Home §5's breathing blobs, reused)
+  const skillsRoot = useRef<HTMLElement>(null);
+  useBreathingWash(skillsRoot, reduced, styles.washIn);
+
+  // Clicking a cluster blob enlarges it in place so its fine print is readable
+  // (one open at a time; click again, click away, or Escape to collapse). The
+  // wash SVG is injected (dangerouslySetInnerHTML), so the groups are wired
+  // imperatively — the expanded shape is flagged with `data-sk-open` (styled in
+  // CSS) and lifted to the front of its SVG so it sits on top, then dropped back
+  // into its original stacking slot once it has shrunk again.
+  const clustersById = useMemo(
+    () => new Map(about.skills.clusters.map((c) => [c.id, c])),
+    [],
+  );
+  useEffect(() => {
+    const el = skillsRoot.current;
+    if (!el) return;
+    const cleanups: Array<() => void> = [];
+
+    let openEl: SVGGElement | null = null;
+    let anchor: ChildNode | null = null; // where the open shape sat before lifting
+
+    const restore = (g: SVGGElement, a: ChildNode | null, svg: SVGSVGElement | null) => {
+      if (a && a.parentNode === svg) svg?.insertBefore(g, a);
+      else svg?.appendChild(g);
+    };
+
+    const collapse = () => {
+      if (!openEl) return;
+      const g = openEl;
+      const a = anchor;
+      const svg = g.ownerSVGElement;
+      g.removeAttribute("data-sk-open"); // shrinks 1.6 → 1 via the CSS transition
+      svg?.removeAttribute("data-sk-has-open"); // the rest un-dim together
+      g.setAttribute("aria-expanded", "false");
+      openEl = null;
+      anchor = null;
+      // keep it on top while it shrinks, then return it to its stacking slot
+      window.setTimeout(() => {
+        if (openEl !== g) restore(g, a, svg);
+      }, 760);
+    };
+    const expand = (g: SVGGElement) => {
+      if (openEl === g) {
+        collapse();
+        return;
+      }
+      collapse();
+      const svg = g.ownerSVGElement;
+      anchor = g.nextSibling;
+      svg?.appendChild(g); // lift to front so the enlarged shape sits on top
+      svg?.setAttribute("data-sk-has-open", "");
+      g.setAttribute("aria-expanded", "true");
+      openEl = g;
+      // defer the scale one frame: a just-reinserted node won't transition from
+      // its old size in the same tick, so setting it now would snap instead of ease
+      requestAnimationFrame(() => {
+        if (openEl === g) g.setAttribute("data-sk-open", "");
+      });
+    };
+
+    el.querySelectorAll<SVGGElement>(".b-g[data-skill]").forEach((g) => {
+      const c = clustersById.get(g.dataset.skill ?? "");
+      if (!c) return;
+      g.setAttribute("role", "button");
+      g.setAttribute("tabindex", "0");
+      g.setAttribute("aria-expanded", "false");
+      g.setAttribute("aria-label", `${c.name} — enlarge`);
+      const onClick = (ev: MouseEvent) => {
+        ev.stopPropagation(); // don't let the document handler collapse it
+        expand(g);
+      };
+      const onKeyDown = (ev: KeyboardEvent) => {
+        if (ev.key === "Enter" || ev.key === " ") {
+          ev.preventDefault();
+          expand(g);
+        } else if (ev.key === "Escape") {
+          collapse();
+        }
+      };
+      g.addEventListener("click", onClick);
+      g.addEventListener("keydown", onKeyDown);
+      cleanups.push(() => {
+        g.removeEventListener("click", onClick);
+        g.removeEventListener("keydown", onKeyDown);
+      });
+    });
+
+    const onDocPointer = () => collapse();
+    const onDocKey = (ev: KeyboardEvent) => {
+      if (ev.key === "Escape") collapse();
+    };
+    document.addEventListener("click", onDocPointer);
+    document.addEventListener("keydown", onDocKey);
+    cleanups.push(() => {
+      document.removeEventListener("click", onDocPointer);
+      document.removeEventListener("keydown", onDocKey);
+    });
+
+    return () => cleanups.forEach((fn) => fn());
+  }, [clustersById]);
 
   const entries = useMemo(
     () => [...about.education.entries, ...about.work.entries, ...about.projects.entries],
@@ -173,6 +290,15 @@ export function AboutPage() {
             ))}
           </div>
         </div>
+
+        <section ref={skillsRoot} className={styles.abSkills}>
+          <div className={styles.abSkillsHead}>
+            <h2 className={`reveal ${styles.cv2H}`}>{about.skills.title}</h2>
+            <p className={`reveal ${styles.abSkillsLede}`} data-stagger="1">{about.skills.lede}</p>
+            <CardHint text={about.skills.hint} />
+          </div>
+          <SkillsWash />
+        </section>
 
         {cv2Section(about.projects)}
       </div>

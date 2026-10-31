@@ -43,10 +43,10 @@
       "cta": { "label": "Read the journey", "href": "/journey" }
     },
     "skills": {
-      "sectionIndicator": "Skills",
-      "title": "Skills",
+      "sectionIndicator": "Toolkit",
+      "title": "Toolkit",
       "lede": "What I build with",
-      "cta": { "label": "See all skills", "href": "/skills" }
+      "cta": { "label": "See the toolkit", "href": "/skills" }
     }
   },
   "bookend": {

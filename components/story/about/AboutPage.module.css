@@ -380,3 +380,116 @@
     font-size: clamp(44px, 20cqw, 64px);
   }
 }
+
+/* ---------- "What I work with" — the living-wash capability map ---------- */
+.abSkills {
+  position: relative;
+  z-index: 1;
+  margin-top: clamp(54px, 10vh, 104px);
+}
+.abSkillsHead {
+  position: relative;
+  z-index: 2;
+}
+.abSkillsLede {
+  margin: 0 0 clamp(14px, 2vh, 22px);
+  max-width: 48ch;
+  font-size: clamp(16px, 2.4cqw, 19px);
+  font-weight: 300;
+  color: var(--muted-foreground);
+}
+.abSkillsWash {
+  position: relative;
+  margin-top: clamp(10px, 2vh, 24px);
+  width: 100%;
+  aspect-ratio: 1300 / 640;
+}
+.abSkillsWash :global(.wash) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+.abSkillsWash :global(.wash-tall) {
+  display: none;
+}
+.abSkillsWash :global(.b-g) {
+  /* enlarge/shrink and dim/undim both ride this — smooth, and no per-shape delay
+     (the reveal stagger is a one-time animation below, so it can't bleed in and
+     make the shapes un-dim one-after-another on collapse) */
+  transition: scale 0.72s var(--ease-out-expo), opacity 0.55s var(--ease-out-expo);
+  cursor: pointer;
+}
+.abSkillsWash :global(.b-g:focus),
+.abSkillsWash :global(.b-g:focus-visible) {
+  outline: none;
+}
+/* keyboard focus only: a soft ring on the shape itself, not a boxy outline */
+.abSkillsWash :global(.b-g:focus-visible .blob) {
+  opacity: 1;
+  stroke: var(--warm);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 5;
+}
+
+/* ---- click to enlarge in place (readable) ---- */
+.abSkillsWash :global(.b-g[data-sk-open]) {
+  scale: 1.6;
+}
+.abSkillsWash :global(.b-g[data-sk-open] .blob) {
+  opacity: 1;
+}
+.abSkillsWash :global(.b-g[data-sk-open] .b-name) {
+  fill: var(--deep-ochre);
+}
+.abSkillsWash :global(.b-g[data-sk-open] .b-tool) {
+  fill: var(--foreground);
+}
+/* while one shape is enlarged, quiet the rest so it reads clearly */
+.abSkillsWash :global(.wash[data-sk-has-open] .b-g:not([data-sk-open])) {
+  opacity: 0.22;
+}
+
+/* reveal: a one-time staggered fade-in (animation, not a transition-delay, so the
+   stagger applies only here and never to later dim/undim). `backwards` holds the
+   shape hidden through its delay, then hands opacity back to the cascade. */
+.washIn :global(.b-g) {
+  opacity: 1;
+  animation: skReveal 0.8s var(--ease-out-expo) backwards;
+}
+.washIn :global(.b-g:nth-child(1)) {
+  animation-delay: 0.02s;
+}
+.washIn :global(.b-g:nth-child(2)) {
+  animation-delay: 0.1s;
+}
+.washIn :global(.b-g:nth-child(3)) {
+  animation-delay: 0.18s;
+}
+.washIn :global(.b-g:nth-child(4)) {
+  animation-delay: 0.26s;
+}
+.washIn :global(.b-g:nth-child(5)) {
+  animation-delay: 0.34s;
+}
+@keyframes skReveal {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (max-aspect-ratio: 9/10) {
+  .abSkillsWash {
+    aspect-ratio: 520 / 1180;
+  }
+  .abSkillsWash :global(.wash-wide) {
+    display: none;
+  }
+  .abSkillsWash :global(.wash-tall) {
+    display: block;
+  }
+}

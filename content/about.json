@@ -93,6 +93,60 @@
       }
     ]
   },
+  "skills": {
+    "title": "What I work with",
+    "lede": "The wider toolkit — from my co-ops and research, beyond this site's own project.",
+    "hint": "a cluster to enlarge it",
+    "clusters": [
+      {
+        "id": "cloud",
+        "name": "Cloud & AI services",
+        "tools": [
+          "Azure AI Foundry · GPT-4o / mini",
+          "Document Intelligence · AI Search",
+          "Speech — text-to-speech + speech-to-text",
+          "Functions · Blob · Tables · AWS"
+        ]
+      },
+      {
+        "id": "ml",
+        "name": "Machine learning",
+        "tools": [
+          "Python · PyTorch · scikit-learn",
+          "Pandas · NumPy",
+          "RAG · multimodal / vision-language"
+        ]
+      },
+      {
+        "id": "devops",
+        "name": "DevOps & infrastructure",
+        "tools": [
+          "Docker · Azure DevOps · Pipelines",
+          "self-hosted agents · Bicep · Terraform",
+          "GitHub Actions · CI/CD",
+          "DevOps policy & security"
+        ]
+      },
+      {
+        "id": "observe",
+        "name": "Observability",
+        "tools": [
+          "MLflow · Grafana · Prometheus",
+          "Evidently",
+          "telemetry & cost monitoring"
+        ]
+      },
+      {
+        "id": "people",
+        "name": "People & communication",
+        "tools": [
+          "Agile / Scrum",
+          "Azure Boards · Conducting Workshops",
+          "Stakeholder engagement & presentations"
+        ]
+      }
+    ]
+  },
   "projects": {
     "title": "Projects",
     "cardHint": "any project for details",

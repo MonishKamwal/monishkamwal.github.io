@@ -14,7 +14,7 @@ const PAGE: Record<StoryPageKey, { name: string; href: string; peek: string }> =
     peek: architecture.lead,
   },
   journey: { name: "Journey", href: "/journey", peek: journey.lede },
-  skills: { name: "Skills", href: "/skills", peek: skills.lede },
+  skills: { name: "Toolkit", href: "/skills", peek: skills.lede },
   about: {
     name: "About",
     href: "/about",
