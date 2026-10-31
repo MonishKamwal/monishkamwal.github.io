@@ -21,7 +21,7 @@
         "items": [
           { "label": "Architecture", "href": "/architecture" },
           { "label": "Journey", "href": "/journey" },
-          { "label": "Skills", "href": "/skills" }
+          { "label": "Toolkit", "href": "/skills" }
         ]
       },
       {
@@ -37,7 +37,7 @@
     "story": [
       { "label": "Architecture", "href": "/architecture" },
       { "label": "Journey", "href": "/journey" },
-      { "label": "Skills", "href": "/skills" }
+      { "label": "Toolkit", "href": "/skills" }
     ],
     "data": [
       { "label": "Quality", "href": "/quality" },

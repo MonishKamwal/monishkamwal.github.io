@@ -176,6 +176,8 @@ export type AboutEntry = {
   card: Card;
 };
 export type AboutSection = { title: string; cardHint: string; entries: AboutEntry[] };
+export type AboutSkillCluster = { id: string; name: string; tools: string[] };
+export type AboutSkills = { title: string; lede: string; hint: string; clusters: AboutSkillCluster[] };
 export type AboutContent = {
   sectionIndicator: string;
   hero: {
@@ -188,6 +190,7 @@ export type AboutContent = {
   };
   education: AboutSection;
   work: AboutSection;
+  skills: AboutSkills;
   projects: AboutSection;
 };
 

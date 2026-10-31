@@ -1,7 +1,7 @@
 {
   "_note": "Matches the Skills prototype (sections-prototype.html 'into the map') and Home §5. `competencies` are the five map shapes (camera/stop order = the `stops` list); each tool is one receipt (name · did · evidence). `crossings` are the four shared tools in the overlaps (S3, ONNX, k6, GitHub Actions) — each names its two shapes in `between` and is written in neither shape's own tool list. `toolbox` = the 'Also in the toolbox' tail. Evidence hrefs are pinned to real routes/URLs; labels match the prototype.",
-  "sectionIndicator": "Skills",
-  "title": "Skills",
+  "sectionIndicator": "Toolkit",
+  "title": "Toolkit",
   "lede": "What I build with",
   "cardHint": "a link under any tool to see the evidence",
   "stops": ["data", "s3", "train", "onnx", "ship", "k6", "watch", "gha", "front"],

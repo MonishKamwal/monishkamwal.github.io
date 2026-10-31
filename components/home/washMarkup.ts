@@ -50,7 +50,7 @@ export const WASH_MARKUP = `
     <a class="wash-link" href="/skills">
       <path class="blob" fill="var(--w-ochre)" transform="translate(1135,525) scale(1.45) rotate(11 100 100)"
             d="M92 6 C146 0 178 34 186 80 C194 128 164 178 112 190 C66 200 20 174 10 128 C0 82 22 38 66 16 C74 12 84 8 92 6 Z"/>
-      <text x="1275" y="652" font-size="22" text-anchor="middle">See all skills →</text>
+      <text x="1275" y="652" font-size="22" text-anchor="middle">See the toolkit →</text>
     </a>
   </g>
 </svg>
@@ -96,7 +96,7 @@ export const WASH_MARKUP = `
     <a class="wash-link" href="/skills">
       <path class="blob" fill="var(--w-ochre)" transform="translate(318,632) scale(0.95) rotate(11 100 100)"
             d="M92 6 C146 0 178 34 186 80 C194 128 164 178 112 190 C66 200 20 174 10 128 C0 82 22 38 66 16 C74 12 84 8 92 6 Z"/>
-      <text x="411" y="730" font-size="18" text-anchor="middle">See all skills →</text>
+      <text x="411" y="730" font-size="18" text-anchor="middle">See the toolkit →</text>
     </a>
   </g>
 </svg>`;
