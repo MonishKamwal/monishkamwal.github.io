@@ -1,7 +1,6 @@
 "use client";
 
 import { memo, useCallback, useEffect, useMemo, useRef } from "react";
-import Link from "next/link";
 import { about, type AboutEntry, type AboutSection } from "@/lib/content";
 import { ABOUT_WASH_MARKUP, ABOUT_TRACE_D, ABOUT_TRACE_NODES, ABOUT_TRACE_STOPS } from "@/lib/story/aboutWash";
 import { ABOUT_SKILLS_WASH_MARKUP } from "@/lib/story/aboutSkillsWash";
@@ -208,7 +207,11 @@ export function AboutPage() {
                 <img src={hero.portrait.src} alt={hero.portrait.alt} />
               </div>
               <p className={`reveal ${styles.photoResume}`}>
-                <Link href={hero.resume.href}>{hero.resume.label}</Link>
+                {/* the résumé is a PDF document — open it in a new tab so it
+                    doesn't replace the portfolio */}
+                <a href={hero.resume.href} target="_blank" rel="noopener noreferrer">
+                  {hero.resume.label}
+                </a>
               </p>
             </div>
             <div className={`reveal ${styles.abLead}`} data-stagger="1">
