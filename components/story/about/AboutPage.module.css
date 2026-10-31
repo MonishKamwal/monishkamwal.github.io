@@ -49,6 +49,12 @@
   width: min(600px, 56%);
   height: 86%;
 }
+/* the background wash is a static backdrop (like the prototype), so reveal its
+   groups — the global `.b-g { opacity: 0 }` from Home §5 would otherwise hide
+   them, since Home reveals that opacity imperatively and the About page doesn't */
+.abWash :global(.b-g) {
+  opacity: 1;
+}
 .abWash :global(.blob) {
   mix-blend-mode: multiply;
   opacity: 0.42;
