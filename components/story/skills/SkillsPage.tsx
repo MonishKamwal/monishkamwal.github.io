@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useRef } from "react";
-import Link from "next/link";
 import { skills, type Link as ContentLink } from "@/lib/content";
 import { readNextFor } from "@/lib/story/storyNav";
 import { SKILLS_MAP_MARKUP } from "@/lib/story/skillsMap";
@@ -12,9 +11,7 @@ import { ReadNext } from "../ReadNext";
 import frame from "../story.module.css";
 import styles from "./SkillsPage.module.css";
 
-// An evidence link: "<claim> · <where> →", with the "· where" muted. Internal
-// hrefs use next/link (so a Journey/Architecture hash opens its card); external
-// ones open in a new tab.
+// An evidence link: "<claim> · <where>", with the "· where" muted.
 function EvLink({ ev }: { ev: ContentLink }) {
   const [claim, where] = ev.label.split(" · ");
   const inner = (
@@ -24,11 +21,13 @@ function EvLink({ ev }: { ev: ContentLink }) {
       {" "}→
     </>
   );
-  const cls = `link ${styles.skEv}`;
-  return ev.href.startsWith("/") ? (
-    <Link className={cls} href={ev.href}>{inner}</Link>
-  ) : (
-    <a className={cls} href={ev.href} target="_blank" rel="noopener noreferrer">{inner}</a>
+  // Evidence points away from the Toolkit read (another page or an external
+  // URL), so it opens in a new tab — consistent with the paper cards' evidence
+  // links — to keep the reader's place.
+  return (
+    <a className={`link ${styles.skEv}`} href={ev.href} target="_blank" rel="noopener noreferrer">
+      {inner}
+    </a>
   );
 }
 
