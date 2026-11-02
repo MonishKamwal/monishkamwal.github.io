@@ -163,7 +163,12 @@
     pointer-events: none;
   }
   .skMap {
-    top: 9%;
+    /* Sit the wash band below the head block (title + "What I build with" lead +
+       "tap a link…" card hint). At top:9% the squished wide composition's blob
+       labels (notably "Watching it run", top-right) overlapped the card hint —
+       two sets of solid text colliding. 18.5% drops the band clear of the header
+       at every phone height while still holding the top of the screen. */
+    top: 18.5%;
     height: 51%;
     z-index: 1;
     pointer-events: auto;
