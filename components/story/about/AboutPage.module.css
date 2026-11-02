@@ -8,6 +8,13 @@
   margin: 0 auto;
   padding: clamp(84px, 13vh, 130px) clamp(26px, 6vw, 80px) clamp(44px, 8vh, 90px);
   container-type: inline-size;
+  /* The hero wash (.abWash) sits at right:-5% and lets its blobs bleed past the
+     page edge. On wide screens the centred 1000px column keeps that bleed well
+     inside the viewport, but on phones the column is full-width so the blobs
+     pushed ~50px past the right edge and created a horizontal scrollbar.
+     Clip horizontally (not `hidden`, which would create a scroll container and
+     break any position:sticky — and clip leaves the vertical axis untouched). */
+  overflow-x: clip;
 }
 /* About's links take the one hover: deep ochre, ×--hover-scale from centre */
 .abPage a {
