@@ -165,6 +165,15 @@
     z-index: 2;
     pointer-events: none;
   }
+  /* The drawing sits in the upper part of the SVG; at full stage height (inset:0)
+     it landed right on top of the page title + "machine behind the doodle" lead.
+     Hold it in a band below the header (and above the 53svh card hint) so the
+     landing state reads cleanly — the sticky diagram still tracks the stages. */
+  .axSvg {
+    top: 15%;
+    bottom: auto;
+    height: 70%;
+  }
   .axPlate {
     display: block;
     position: absolute;
