@@ -1369,7 +1369,15 @@ body {
 
 @media (max-width: 700px) {
   .arch-stage {
-    width: min(390px, 100%);
+    /* Height-driven on phones so the whole §3 (the absolute section title + the
+       stage + its caption + the down-cue) fits one screen. The width-driven
+       390/760 stage was a fixed 760px tall and overflowed shorter viewports,
+       pushing the caption ("PLANE n · …") off the bottom. Derive the stage from
+       the available height instead, capped at the original 760 on tall screens;
+       --u keeps the caption scaling with the stage so the diagram stays one unit. */
+    width: auto;
+    height: min(calc(100svh - 180px), 760px);
+    max-width: 100%;
     aspect-ratio: 390/760;
     --u: calc(100cqw / 390);
   }
