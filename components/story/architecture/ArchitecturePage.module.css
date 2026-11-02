@@ -180,7 +180,12 @@
     left: 0;
     right: 0;
     top: 0;
-    height: 53%;
+    /* This gradient masks the reading text as it scrolls up under the diagram.
+       At 53% its opaque edge (90% of height) landed ~a third of the way up the
+       diagram, so text was still visible halfway into it. 58% drops the opaque
+       edge to the diagram's bottom and keeps the fade just below it, so the text
+       only reads up to the bottom of the diagram, then masks out. */
+    height: 58%;
     background: linear-gradient(180deg, var(--ground) 0, var(--ground) 90%, transparent);
   }
   .axBlock {
