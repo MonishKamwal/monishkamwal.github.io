@@ -54,7 +54,13 @@ export const WASH_MARKUP = `
     </a>
   </g>
 </svg>
-<svg class="wash wash-tall" viewBox="20 27 505 817" aria-hidden="true">
+<!-- Portrait composition (phones / any aspect ≤ 9/10). The viewBox reserves ~133
+     units of empty space above the first blob (top padding baked into the box, the
+     same way the wide composition keeps its top-left corner clear) and top-anchors
+     with xMidYMin, so the section title + "What I build with" lead always clear the
+     topmost blob label regardless of phone height. Blobs/crossings are untouched —
+     the whole composition just shifts down inside a taller box. -->
+<svg class="wash wash-tall" viewBox="20 -106 505 950" preserveAspectRatio="xMidYMin meet" aria-hidden="true">
   <g class="b-g" data-skill="data" data-stagger="2">
     <path class="blob" fill="var(--w-ochre)" transform="translate(68,78) scale(1.00) rotate(15 100 100)"
           d="M92 6 C146 0 178 34 186 80 C194 128 164 178 112 190 C66 200 20 174 10 128 C0 82 22 38 66 16 C74 12 84 8 92 6 Z"/>

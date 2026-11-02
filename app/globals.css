@@ -1369,7 +1369,15 @@ body {
 
 @media (max-width: 700px) {
   .arch-stage {
-    width: min(390px, 100%);
+    /* Height-driven on phones so the whole §3 (the absolute section title + the
+       stage + its caption + the down-cue) fits one screen. The width-driven
+       390/760 stage was a fixed 760px tall and overflowed shorter viewports,
+       pushing the caption ("PLANE n · …") off the bottom. Derive the stage from
+       the available height instead, capped at the original 760 on tall screens;
+       --u keeps the caption scaling with the stage so the diagram stays one unit. */
+    width: auto;
+    height: min(calc(100svh - 180px), 760px);
+    max-width: 100%;
     aspect-ratio: 390/760;
     --u: calc(100cqw / 390);
   }
@@ -1414,19 +1422,25 @@ body {
   .cy-arrow.next {
     right: calc(6 * var(--u));
   }
+  /* §2 is the one content-rich section (canvas + predictions + offline note +
+     feedback + CTA). Its vh-based paddings made the column ~1.25x the viewport,
+     so the CTA/privacy line spilled below the fold on phones. Tighten the top
+     padding (still clearing the absolute .demo-title, bottom ~93px), the canvas,
+     and the inter-element gaps so the whole instrument fits one screen; the ↓ cue
+     sits at the fold inviting the next section. */
   .panel-layer {
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    gap: 20px;
-    padding-top: clamp(90px, 16vh, 130px);
+    gap: 14px;
+    padding-top: clamp(88px, 13vh, 112px);
   }
   .instrument {
     flex-direction: column;
-    gap: 14px;
+    gap: 12px;
     max-width: min(92vw, 440px);
-    margin-top: clamp(14px, 2.5vh, 28px);
-    padding: 16px;
+    margin-top: clamp(6px, 1vh, 14px);
+    padding: 14px;
   }
   .instr-split {
     width: auto;
@@ -1439,10 +1453,10 @@ body {
   }
   .canvas-card {
     aspect-ratio: auto;
-    height: clamp(118px, 21vh, 190px);
+    height: clamp(104px, 16vh, 160px);
   }
   .pred {
-    gap: 10px;
+    gap: 8px;
     min-width: 0;
   }
   .bar-row .bar-top {
@@ -1455,14 +1469,14 @@ body {
     display: none;
   }
   .doorway {
-    padding-top: 10px;
+    padding-top: 8px;
     gap: 3px;
   }
   .doorway .link {
     font-size: 16px;
   }
   .feedback {
-    padding-top: 10px;
+    padding-top: 8px;
     gap: 10px;
   }
   .demo-title,
