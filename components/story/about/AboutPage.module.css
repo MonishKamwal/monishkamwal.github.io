@@ -392,6 +392,33 @@
   .cv2Year {
     font-size: clamp(44px, 20cqw, 64px);
   }
+  /* Work serpentine: the S-curve with 38%-wide flanking cards needs horizontal
+     room the phone doesn't have — the cards wrapped tall, overflowed the fixed-
+     aspect .trace box, and collided with the next section's "What I work with"
+     title. On phones drop the curve and stack the entries as a plain vertical
+     list (the .trStop inline left/top %s are inert once position is static). */
+  .trace {
+    aspect-ratio: auto;
+    margin-top: clamp(20px, 3vh, 30px);
+  }
+  .trace svg {
+    display: none;
+  }
+  .trStop {
+    position: static;
+    width: 100%;
+    text-align: left;
+    transform: none;
+    transform-origin: left center;
+    margin: 0 0 clamp(24px, 4vh, 34px);
+  }
+  .trStop.left {
+    text-align: left;
+    transform-origin: left center;
+  }
+  .trStop:last-child {
+    margin-bottom: 0;
+  }
 }
 
 /* ---------- "What I work with" — the living-wash capability map ---------- */
