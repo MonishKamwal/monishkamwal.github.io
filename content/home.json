@@ -8,7 +8,7 @@
   "demo": {
     "sectionIndicator": "Live demo",
     "title": "Draw Something",
-    "subtitle": "Draw one of the fifteen doodles it knows — it guesses as you go.",
+    "subtitle": "One of fifteen doodles it knows",
     "prompt": "It knows 15 doodles",
     "promptClasses": ["Airplane", "Apple", "Banana", "Bicycle", "Bird", "Car", "Cat", "Clock", "Dog", "Face", "Fish", "House", "Star", "Tree", "Umbrella"],
     "controls": { "clear": "Clear", "undo": "Undo" },
