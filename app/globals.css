@@ -652,24 +652,33 @@ body {
   --seam-bottom: var(--seam-23);
   justify-content: center;
   gap: clamp(24px, 4vw, 64px);
-  /* The .demo-title (absolute, top) and the ↓ cue (absolute, bottom) are out of
+  /* The .demo-head (absolute, top) and the ↓ cue (absolute, bottom) are out of
      flow, so the vertically-centered .instrument would grow over them on short
      or zoomed-in viewports. Reserve their bands as top/bottom padding: the
      instrument stays in the middle, and when the viewport is too short the
      section grows (min-height) and scrolls instead of overlapping. */
-  padding-top: clamp(118px, 16vh, 148px);
+  padding-top: clamp(184px, 21vh, 204px);
   padding-bottom: clamp(104px, 14vh, 128px);
 }
-.demo-title {
+.demo-head {
   position: absolute;
   top: clamp(44px, 7vh, 64px);
   left: clamp(24px, 5vw, 72px);
+  right: clamp(24px, 5vw, 72px);
+}
+.demo-title {
   font-family: var(--bodoni);
   font-optical-sizing: auto;
   font-variation-settings: "opsz" 72;
   font-weight: 500;
   letter-spacing: -0.01em;
   font-size: clamp(30px, 5vw, 54px);
+  opacity: 0;
+}
+.demo-sub {
+  margin: 10px 0 0;
+  font-size: clamp(16px, 2vw, 20px);
+  color: var(--muted-foreground);
   opacity: 0;
 }
 .instrument {
@@ -1432,15 +1441,15 @@ body {
   /* §2 is the one content-rich section (canvas + predictions + offline note +
      feedback + CTA). Its vh-based paddings made the column ~1.25x the viewport,
      so the CTA/privacy line spilled below the fold on phones. Tighten the top
-     padding (still clearing the absolute .demo-title, bottom ~93px), the canvas,
-     and the inter-element gaps so the whole instrument fits one screen; the ↓ cue
-     sits at the fold inviting the next section. */
+     padding (still clearing the absolute .demo-head — title + subtitle), the
+     canvas, and the inter-element gaps so the whole instrument fits one screen;
+     the ↓ cue sits at the fold inviting the next section. */
   .panel-layer {
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
     gap: 14px;
-    padding-top: clamp(88px, 13vh, 112px);
+    padding-top: clamp(124px, 19vh, 152px);
   }
   .instrument {
     flex-direction: column;
@@ -1486,7 +1495,7 @@ body {
     padding-top: 8px;
     gap: 10px;
   }
-  .demo-title,
+  .demo-head,
   .sec-head {
     top: clamp(48px, 7vh, 64px);
     left: 24px;
@@ -1494,6 +1503,9 @@ body {
   .demo-title,
   .scene-title {
     font-size: clamp(26px, 7vw, 34px);
+  }
+  .demo-sub {
+    font-size: clamp(14px, 3.6vw, 16px);
   }
   .j-path-wrap {
     /* Phone uses the 360-wide portrait viewBox; full width, offsets tightened. */

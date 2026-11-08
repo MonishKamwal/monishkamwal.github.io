@@ -996,7 +996,10 @@ export default function HomeScroll() {
 
       {/* §2 Live demo */}
       <section className="sec panel-layer" id="panelLayer">
-        <div className="demo-title reveal">{home.demo.title}</div>
+        <div className="demo-head">
+          <div className="demo-title reveal">{home.demo.title}</div>
+          <p className="demo-sub reveal" data-stagger="1">{home.demo.subtitle}</p>
+        </div>
         <SketchDemo />
         <div className="demo-arrow-wrap" id="demoArrowWrap">
           <button className="arrow-btn" id="demoArrow" aria-label={`Continue to ${archTeaser.sectionIndicator}`}>

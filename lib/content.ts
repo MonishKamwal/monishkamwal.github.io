@@ -47,6 +47,7 @@ export type HomeContent = {
   demo: {
     sectionIndicator: string;
     title: string;
+    subtitle: string;
     prompt: string;
     promptClasses: string[];
     controls: { clear: string; undo: string };
