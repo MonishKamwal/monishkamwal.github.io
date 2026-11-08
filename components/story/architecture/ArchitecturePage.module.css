@@ -186,7 +186,10 @@
        edge to the diagram's bottom; the extra 1cm pushes the mask just past the
        fanned-out diagram so the text clears it entirely, then masks out. The 1cm
        is a fixed offset, so the nudge stays consistent across phone heights. */
-    height: calc(58% + 1cm);
+    /* --ax-lift (0 at the header, 1 once the diagram has settled up) shrinks the
+       mask in step with the rising diagram, so the reading text is revealed
+       higher and more of it shows at once. See useArchMotion. */
+    height: calc(58% + 1cm - 10% * var(--ax-lift, 0));
     background: linear-gradient(180deg, var(--ground) 0, var(--ground) 90%, transparent);
   }
   .axBlock {

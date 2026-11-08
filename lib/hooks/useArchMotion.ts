@@ -38,6 +38,7 @@ export function useArchMotion(
     if (!svg || !root) return;
     // non-null locals so the narrowing holds inside the nested closures below
     const svgEl = svg;
+    const rootEl = root;
 
     const portMq = window.matchMedia("(max-aspect-ratio:9/10)");
     const blocks = [...root.querySelectorAll<HTMLElement>("[data-k]")];
@@ -105,6 +106,14 @@ export function useArchMotion(
       if (anchors.length < 2 || !wg || !lg) return;
       const st = window.scrollY, an = anchors, port = portMq.matches;
       const W = window.innerWidth, H = window.innerHeight;
+      // Portrait only: the diagram settles up into the empty top band during the
+      // first ~half-viewport of scroll, then holds — freeing the lower screen for
+      // more reading text. Landscape keeps its camera unchanged. --ax-lift drives
+      // the text fade-mask (.axPlate) in CSS so it shrinks in step.
+      const lift = port
+        ? reduced ? (st > H * 0.3 ? 1 : 0) : smooth(clamp(st / (H * 0.85), 0, 1))
+        : 0;
+      rootEl.style.setProperty("--ax-lift", lift.toFixed(3));
       let i = 0;
       while (i < an.length - 2 && st >= an[i + 1]) i++;
       const seg = Math.max(1, an[i + 1] - an[i]), f = clamp((st - an[i]) / seg, 0, 1);
@@ -119,7 +128,9 @@ export function useArchMotion(
           : p.hero ? { cx: 0.66 * W, cy: 0.6 * H, k: 0.62 * u }
             : { cx: 0.31 * W, cy: 0.5 * H, k: 0.6 * u };
       const p0 = place(P0), p1 = place(P1);
-      const cx = lerp(p0.cx, p1.cx, e), cy = lerp(p0.cy, p1.cy, e), k = lerp(p0.k, p1.k, e);
+      const cx = lerp(p0.cx, p1.cx, e), k = lerp(p0.k, p1.k, e);
+      // Portrait: raise the whole diagram as `lift` goes 0→1 (center 0.27H→0.15H).
+      const cy = port ? lerp(0.27 * H, 0.15 * H, lift) : lerp(p0.cy, p1.cy, e);
       const sep = lerp(P0.sep, P1.sep, e) * (port ? 0.62 : 1);
       const litOf = (p: typeof P0, n: number) =>
         p.focus != null ? (p.focus === n ? 1 : 0)
