@@ -622,9 +622,18 @@ export default function HomeScroll() {
       const iw = instrument.offsetWidth,
         ih = instrument.offsetHeight;
       if (!iw || !ih) return;
+      // Cap the vertical growth to the panel's content band (the section height
+      // minus the title/arrow padding reserved in CSS), not the raw viewport, so
+      // the scaled-up instrument never grows back over the title or the ↓ cue.
+      const panel = instrument.parentElement as HTMLElement | null;
+      let availH = window.innerHeight * 0.72;
+      if (panel) {
+        const cs = getComputedStyle(panel);
+        availH = panel.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+      }
       const s = Math.max(
         1,
-        Math.min((window.innerWidth * 0.66) / iw, (window.innerHeight * 0.72) / ih),
+        Math.min((window.innerWidth * 0.66) / iw, availH / ih),
       );
       instrument.style.setProperty("--demo-scale", s.toFixed(3));
     }

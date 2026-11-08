@@ -652,6 +652,13 @@ body {
   --seam-bottom: var(--seam-23);
   justify-content: center;
   gap: clamp(24px, 4vw, 64px);
+  /* The .demo-title (absolute, top) and the ↓ cue (absolute, bottom) are out of
+     flow, so the vertically-centered .instrument would grow over them on short
+     or zoomed-in viewports. Reserve their bands as top/bottom padding: the
+     instrument stays in the middle, and when the viewport is too short the
+     section grows (min-height) and scrolls instead of overlapping. */
+  padding-top: clamp(118px, 16vh, 148px);
+  padding-bottom: clamp(104px, 14vh, 128px);
 }
 .demo-title {
   position: absolute;
