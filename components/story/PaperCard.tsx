@@ -16,6 +16,22 @@ import styles from "./PaperCard.module.css";
 /** One labeled (or unlabeled) block of a card's body. */
 export type CardSection = { heading?: string; body: string };
 
+// Present a section's descriptive paragraph as a bulleted list: one bullet per
+// sentence. Split only on sentence-ending punctuation followed by whitespace and
+// a capital/quote/code start, so decimals (0.85), inline code, and middot
+// "A · B · C" stack lines all stay whole. The copy is kept verbatim.
+function toBullets(body: string): string[] {
+  const text = body.trim();
+  if (!text) return [];
+  const SEP = String.fromCharCode(0);
+  const parts = text
+    .replace(/([.!?])\s+(?=[A-Z"'(`])/g, "$1" + SEP)
+    .split(SEP)
+    .map((x) => x.trim())
+    .filter(Boolean);
+  return parts.length ? parts : [text];
+}
+
 /** The content a paper card renders — shared by Journey entries, Architecture
  *  stops, and About entries. `hash` is written to the URL while the card is open
  *  so a card is deep-linkable (and survives a reload / share). */
@@ -147,7 +163,11 @@ export function PaperCardProvider({ children }: { children: React.ReactNode }) {
               {data.sections.map((s, i) => (
                 <div key={i}>
                   {s.heading && <h4>{s.heading}</h4>}
-                  <p>{renderInline(s.body)}</p>
+                  <ul className={styles.bullets}>
+                    {toBullets(s.body).map((b, j) => (
+                      <li key={j}>{renderInline(b)}</li>
+                    ))}
+                  </ul>
                 </div>
               ))}
             </div>
