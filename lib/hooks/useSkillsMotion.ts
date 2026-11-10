@@ -24,6 +24,7 @@ export function useSkillsMotion(refs: SkillsRefs, reduced: boolean): void {
     const map = refs.map.current;
     const root = refs.root.current;
     if (!map || !root) return;
+    const rootEl = root; // non-null local so narrowing holds in the raf closure
 
     const portMq = window.matchMedia("(max-aspect-ratio:9/10)");
     const blocks = [...root.querySelectorAll<HTMLElement>("[data-stop]")];
@@ -90,6 +91,13 @@ export function useSkillsMotion(refs: SkillsRefs, reduced: boolean): void {
     const applySkills = () => {
       if (!anchors.length) return;
       const st = window.scrollY, an = anchors, port = portMq.matches, vh = window.innerHeight;
+      // Portrait only: the map settles up into the empty top band during the first
+      // ~half-viewport of scroll, then holds — freeing the lower screen for more
+      // reading text. --sk-lift raises .skMap and shrinks the .skPlate mask in CSS.
+      const lift = port
+        ? reduced ? (st > vh * 0.3 ? 1 : 0) : smooth(clamp(st / (vh * 0.85), 0, 1))
+        : 0;
+      rootEl.style.setProperty("--sk-lift", lift.toFixed(3));
       let i = 0;
       while (i < an.length - 2 && st >= an[i + 1]) i++;
       const seg = Math.max(1, an[i + 1] - an[i]), f = clamp((st - an[i]) / seg, 0, 1);

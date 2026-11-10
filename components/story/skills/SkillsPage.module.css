@@ -168,7 +168,10 @@
        labels (notably "Watching it run", top-right) overlapped the card hint —
        two sets of solid text colliding. 18.5% drops the band clear of the header
        at every phone height while still holding the top of the screen. */
-    top: 18.5%;
+    /* --sk-lift (0 at the header, 1 once settled) raises the band into the empty
+       top space as the reader leaves the header, then holds. Height is unchanged
+       so the camera's fit (AR-based) stays stable. See useSkillsMotion. */
+    top: calc(18.5% - 12% * var(--sk-lift, 0));
     height: 51%;
     z-index: 1;
     pointer-events: auto;
@@ -179,7 +182,9 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 66%;
+    /* shrink the mask in step with the rising map so text clears its base and
+       more of it shows at once */
+    height: calc(66% - 8% * var(--sk-lift, 0));
     z-index: 0;
     pointer-events: none;
     background: linear-gradient(180deg, var(--ground) 0, var(--ground) 91%, transparent);

@@ -104,6 +104,35 @@
   max-width: 60ch;
   line-height: 1.6;
 }
+/* the descriptive text, one bullet per sentence — same type as the paragraph it
+   replaces, with a small editorial dot */
+.body .bullets {
+  margin: 0 0 12px;
+  padding: 0;
+  max-width: 60ch;
+  list-style: none;
+}
+.body .bullets li {
+  position: relative;
+  margin: 0 0 7px;
+  padding-left: 18px;
+  font-size: 15px;
+  line-height: 1.6;
+}
+.body .bullets li:last-child {
+  margin-bottom: 0;
+}
+.body .bullets li::before {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 0.62em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.5;
+}
 .ev {
   margin-top: 24px;
   padding-top: 16px;

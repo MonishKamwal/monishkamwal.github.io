@@ -16,6 +16,33 @@ import styles from "./PaperCard.module.css";
 /** One labeled (or unlabeled) block of a card's body. */
 export type CardSection = { heading?: string; body: string };
 
+// Known abbreviations whose trailing period is not a sentence end, so a bullet
+// split must not break e.g. "St. John's" or "Prof. Ada Lovelace".
+const BULLET_ABBR = new Set([
+  "St", "Prof", "Dr", "Mr", "Mrs", "Ms", "Sr", "Jr", "vs", "etc", "Inc", "Ltd",
+  "Co", "No", "Jan", "Feb", "Mar", "Apr", "Jun", "Jul", "Aug", "Sep", "Sept",
+  "Oct", "Nov", "Dec",
+]);
+
+// Present a section's descriptive paragraph as a bulleted list: one bullet per
+// sentence. Split on a sentence boundary — end punctuation, whitespace, then a
+// capital/quote/code start — via a sentinel, skipping known abbreviations, so
+// "St. John's", decimals (0.85), inline code, and middot "A · B · C" stack lines
+// all stay whole. No regex lookbehind (which throws on older engines). Copy kept.
+function toBullets(body: string): string[] {
+  const text = body.trim();
+  if (!text) return [];
+  const SEP = String.fromCharCode(0);
+  const parts = text
+    .replace(/(\w*)([.!?])(\s+)(?=[A-Z"'(`])/g, (_m, word, punc, ws) =>
+      BULLET_ABBR.has(word) ? word + punc + ws : word + punc + SEP,
+    )
+    .split(SEP)
+    .map((x) => x.trim())
+    .filter(Boolean);
+  return parts.length ? parts : [text];
+}
+
 /** The content a paper card renders — shared by Journey entries, Architecture
  *  stops, and About entries. `hash` is written to the URL while the card is open
  *  so a card is deep-linkable (and survives a reload / share). */
@@ -147,7 +174,11 @@ export function PaperCardProvider({ children }: { children: React.ReactNode }) {
               {data.sections.map((s, i) => (
                 <div key={i}>
                   {s.heading && <h4>{s.heading}</h4>}
-                  <p>{renderInline(s.body)}</p>
+                  <ul className={styles.bullets}>
+                    {toBullets(s.body).map((b, j) => (
+                      <li key={j}>{renderInline(b)}</li>
+                    ))}
+                  </ul>
                 </div>
               ))}
             </div>
